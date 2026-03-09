@@ -1,0 +1,430 @@
+import { create } from 'zustand';
+import type {
+  BasemapProvider,
+  BasemapScale,
+  BasemapSettings,
+  FacilitySymbolShape,
+  LayerState,
+  RegionBoundaryLayerStyle,
+  RegionStyle,
+} from '../types';
+import { fetchLayerManifest } from '../lib/services/layers';
+
+interface AppState {
+  layers: LayerState[];
+  regions: RegionStyle[];
+  regionBoundaryLayers: RegionBoundaryLayerStyle[];
+  regionGlobalOpacity: number;
+  facilitySymbolShape: FacilitySymbolShape;
+  facilitySymbolSize: number;
+  basemap: BasemapSettings;
+  isLoading: boolean;
+  error: string | null;
+  loadLayers: () => Promise<void>;
+  toggleLayer: (id: string) => void;
+  setLayerOpacity: (id: string, opacity: number) => void;
+  setBasemapProvider: (provider: BasemapProvider) => void;
+  setBasemapScale: (scale: BasemapScale) => void;
+  setBasemapElementColor: (
+    key:
+      | 'landFillColor'
+      | 'countryBorderColor'
+      | 'countryLabelColor'
+      | 'majorCityColor'
+      | 'seaFillColor'
+      | 'seaLabelColor',
+    color: string,
+  ) => void;
+  setBasemapElementOpacity: (
+    key:
+      | 'landFillOpacity'
+      | 'countryBorderOpacity'
+      | 'countryLabelOpacity'
+      | 'majorCityOpacity'
+      | 'seaFillOpacity'
+      | 'seaLabelOpacity',
+    opacity: number,
+  ) => void;
+  setBasemapLayerVisibility: (
+    key:
+      | 'showLandFill'
+      | 'showCountryBorders'
+      | 'showCountryLabels'
+      | 'showMajorCities'
+      | 'showSeaFill'
+      | 'showSeaLabels',
+    visible: boolean,
+  ) => void;
+  setRegionVisibility: (name: string, visible: boolean) => void;
+  setRegionColor: (name: string, color: string) => void;
+  setRegionOpacity: (name: string, opacity: number) => void;
+  setRegionBorderVisibility: (name: string, visible: boolean) => void;
+  setRegionBorderColor: (name: string, color: string) => void;
+  setRegionBorderOpacity: (name: string, opacity: number) => void;
+  setRegionGlobalOpacity: (opacity: number) => void;
+  setAllRegionVisibility: (visible: boolean) => void;
+  setAllRegionBorderColor: (color: string) => void;
+  setAllRegionBorderOpacity: (opacity: number) => void;
+  setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
+  setFacilitySymbolSize: (size: number) => void;
+  setRegionBoundaryLayerVisibility: (id: string, visible: boolean) => void;
+  setRegionBoundaryLayerOpacity: (id: string, opacity: number) => void;
+  setRegionBoundaryLayerBorderVisibility: (id: string, visible: boolean) => void;
+  setRegionBoundaryLayerBorderColor: (id: string, color: string) => void;
+  setRegionBoundaryLayerBorderOpacity: (id: string, opacity: number) => void;
+}
+
+export const useAppStore = create<AppState>((set) => ({
+  layers: [],
+  regions: [],
+  regionBoundaryLayers: [
+    {
+      id: 'pmcPopulatedCareBoardBoundaries',
+      name: 'PMC populated care board boundaries',
+      path: 'data/regions/UK_Active_Components_Codex_v10_geojson.geojson',
+      visible: true,
+      opacity: 0.3,
+      borderVisible: true,
+      borderColor: '#ffffff',
+      borderOpacity: 0,
+      swatchColor: '#ed5151',
+    },
+    {
+      id: 'pmcUnpopulatedCareBoardBoundaries',
+      name: 'PMC unpopulated care board boundaries',
+      path: 'data/regions/UK_Inactive_Remainder_Codex_v10_geojson.geojson',
+      visible: true,
+      opacity: 0.2,
+      borderVisible: true,
+      borderColor: '#ffffff',
+      borderOpacity: 0,
+      swatchColor: '#fc921f',
+    },
+    {
+      id: 'careBoardBoundaries',
+      name: 'Care board boundaries',
+      path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+      visible: true,
+      opacity: 0,
+      borderVisible: true,
+      borderColor: '#999999',
+      borderOpacity: 0.1,
+      swatchColor: '#999999',
+    },
+  ],
+  regionGlobalOpacity: 1,
+  facilitySymbolShape: 'circle',
+  facilitySymbolSize: 3.5,
+  basemap: {
+    provider: 'localDetailed',
+    scale: '10m',
+    landFillColor: '#ecf0e6',
+    landFillOpacity: 1,
+    showLandFill: true,
+    countryBorderColor: '#EBEBEB',
+    countryBorderOpacity: 1,
+    showCountryBorders: true,
+    countryLabelColor: '#0f172a',
+    countryLabelOpacity: 1,
+    showCountryLabels: false,
+    majorCityColor: '#1f2937',
+    majorCityOpacity: 1,
+    showMajorCities: false,
+    seaFillColor: '#d9e7f5',
+    seaFillOpacity: 1,
+    showSeaFill: true,
+    seaLabelColor: '#334155',
+    seaLabelOpacity: 1,
+    showSeaLabels: false,
+  },
+  isLoading: false,
+  error: null,
+  loadLayers: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const manifestLayers = await fetchLayerManifest();
+      const facilitiesLayer = manifestLayers.find((layer) => layer.id === 'facilities');
+      const regions = facilitiesLayer
+        ? await loadRegionStyles(facilitiesLayer.path)
+        : [];
+      set({
+        layers: manifestLayers.map((layer) => ({
+          id: layer.id,
+          name: layer.name,
+          type: layer.type,
+          path: layer.path,
+          visible: layer.visibleByDefault,
+          opacity: 1,
+        })),
+        regions,
+        isLoading: false,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to load layers';
+      set({ error: message, isLoading: false });
+    }
+  },
+  toggleLayer: (id) =>
+    set((state) => ({
+      layers: state.layers.map((layer) =>
+        layer.id === id ? { ...layer, visible: !layer.visible } : layer,
+      ),
+    })),
+  setLayerOpacity: (id, opacity) =>
+    set((state) => ({
+      layers: state.layers.map((layer) =>
+        layer.id === id ? { ...layer, opacity } : layer,
+      ),
+    })),
+  setBasemapProvider: (provider) =>
+    set((state) => ({
+      basemap: { ...state.basemap, provider },
+    })),
+  setBasemapScale: (scale) =>
+    set((state) => ({
+      basemap: { ...state.basemap, scale },
+    })),
+  setBasemapElementColor: (key, color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      const nextBasemap = {
+        ...state.basemap,
+        [key]: normalized.color,
+      } as BasemapSettings;
+      if (normalized.forceOpaque) {
+        const opacityKey = getBasemapOpacityKeyForColor(key);
+        nextBasemap[opacityKey] = 1;
+      }
+      return { basemap: nextBasemap };
+    }),
+  setBasemapElementOpacity: (key, opacity) =>
+    set((state) => ({
+      basemap: { ...state.basemap, [key]: opacity },
+    })),
+  setBasemapLayerVisibility: (key, visible) =>
+    set((state) => ({
+      basemap: { ...state.basemap, [key]: visible },
+    })),
+  setRegionVisibility: (name, visible) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name ? { ...region, visible } : region,
+      ),
+    })),
+  setRegionColor: (name, color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      return {
+        regions: state.regions.map((region) =>
+          region.name === name
+            ? {
+                ...region,
+                color: normalized.color,
+                opacity: normalized.forceOpaque ? 1 : region.opacity,
+              }
+            : region,
+        ),
+      };
+    }),
+  setRegionOpacity: (name, opacity) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name ? { ...region, opacity } : region,
+      ),
+    })),
+  setRegionBorderVisibility: (name, visible) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name ? { ...region, borderVisible: visible } : region,
+      ),
+    })),
+  setRegionBorderColor: (name, color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      return {
+        regions: state.regions.map((region) =>
+          region.name === name
+            ? {
+                ...region,
+                borderColor: normalized.color,
+                borderOpacity: normalized.forceOpaque ? 1 : region.borderOpacity,
+              }
+            : region,
+        ),
+      };
+    }),
+  setRegionBorderOpacity: (name, opacity) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name ? { ...region, borderOpacity: opacity } : region,
+      ),
+    })),
+  setRegionGlobalOpacity: (opacity) => {
+    const value = Math.max(0, Math.min(1, opacity));
+    return set((state) => ({
+      regionGlobalOpacity: value,
+      regions: state.regions.map((region) => ({ ...region, opacity: value })),
+    }));
+  },
+  setAllRegionVisibility: (visible) =>
+    set((state) => ({
+      regions: state.regions.map((region) => ({ ...region, visible })),
+    })),
+  setAllRegionBorderColor: (color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      return {
+        regions: state.regions.map((region) => ({
+          ...region,
+          borderColor: normalized.color,
+          borderOpacity: normalized.forceOpaque ? 1 : region.borderOpacity,
+        })),
+      };
+    }),
+  setAllRegionBorderOpacity: (opacity) =>
+    set((state) => ({
+      regions: state.regions.map((region) => ({ ...region, borderOpacity: opacity })),
+    })),
+  setFacilitySymbolShape: (shape) => set({ facilitySymbolShape: shape }),
+  setFacilitySymbolSize: (size) =>
+    set({ facilitySymbolSize: Math.max(3, Math.min(12, size)) }),
+  setRegionBoundaryLayerVisibility: (id, visible) =>
+    set((state) => ({
+      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        layer.id === id ? { ...layer, visible } : layer,
+      ),
+    })),
+  setRegionBoundaryLayerOpacity: (id, opacity) =>
+    set((state) => ({
+      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        layer.id === id
+          ? { ...layer, opacity: Math.max(0, Math.min(1, opacity)) }
+          : layer,
+      ),
+    })),
+  setRegionBoundaryLayerBorderVisibility: (id, visible) =>
+    set((state) => ({
+      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        layer.id === id ? { ...layer, borderVisible: visible } : layer,
+      ),
+    })),
+  setRegionBoundaryLayerBorderColor: (id, color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      return {
+        regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+          layer.id === id
+            ? {
+                ...layer,
+                borderColor: normalized.color,
+                borderOpacity: normalized.forceOpaque ? 1 : layer.borderOpacity,
+              }
+            : layer,
+        ),
+      };
+    }),
+  setRegionBoundaryLayerBorderOpacity: (id, opacity) =>
+    set((state) => ({
+      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        layer.id === id
+          ? { ...layer, borderOpacity: Math.max(0, Math.min(1, opacity)) }
+          : layer,
+      ),
+    })),
+}));
+
+async function loadRegionStyles(path: string): Promise<RegionStyle[]> {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) return [];
+    const geojson = (await response.json()) as {
+      features?: Array<{ properties?: Record<string, unknown> }>;
+    };
+    const features = geojson.features ?? [];
+    const byRegion = new Map<
+      string,
+      {
+        visible: boolean;
+        color: string;
+        opacity: number;
+        borderVisible: boolean;
+        borderColor: string;
+        borderOpacity: number;
+      }
+    >();
+
+    for (const feature of features) {
+      const props = feature.properties ?? {};
+      const region = String(props.region ?? 'Unassigned');
+      const colorRaw = String(props.point_color_hex ?? '#64748b');
+      const color = colorRaw.startsWith('#') ? colorRaw : `#${colorRaw}`;
+      const opacity = 1;
+      const visible = Number(props.default_visible ?? 1) !== 0;
+
+      const existing = byRegion.get(region);
+      if (existing) {
+        existing.visible = existing.visible || visible;
+      } else {
+        byRegion.set(region, {
+          visible,
+          color,
+          opacity,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0,
+        });
+      }
+    }
+
+    return [...byRegion.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, value]) => ({
+        name,
+        ...value,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function normalizeSolidColor(input: string): {
+  color: string;
+  forceOpaque: boolean;
+} {
+  const value = input.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+    return { color: value, forceOpaque: false };
+  }
+  if (/^#[0-9a-fA-F]{8}$/.test(value)) {
+    const alpha = value.slice(7, 9);
+    if (alpha.toLowerCase() !== 'ff') {
+      return { color: '#ffffff', forceOpaque: true };
+    }
+    return { color: `#${value.slice(1, 7)}`, forceOpaque: false };
+  }
+  return { color: '#ffffff', forceOpaque: true };
+}
+
+function getBasemapOpacityKeyForColor(
+  key:
+    | 'landFillColor'
+    | 'countryBorderColor'
+    | 'countryLabelColor'
+    | 'majorCityColor'
+    | 'seaFillColor'
+    | 'seaLabelColor',
+):
+  | 'landFillOpacity'
+  | 'countryBorderOpacity'
+  | 'countryLabelOpacity'
+  | 'majorCityOpacity'
+  | 'seaFillOpacity'
+  | 'seaLabelOpacity' {
+  if (key === 'landFillColor') return 'landFillOpacity';
+  if (key === 'countryBorderColor') return 'countryBorderOpacity';
+  if (key === 'countryLabelColor') return 'countryLabelOpacity';
+  if (key === 'majorCityColor') return 'majorCityOpacity';
+  if (key === 'seaFillColor') return 'seaFillOpacity';
+  return 'seaLabelOpacity';
+}
