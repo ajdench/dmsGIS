@@ -36,6 +36,10 @@ npm run test
 npm run test:e2e
 ```
 
+## Deployment target
+
+- GitHub Pages: https://ajdench.github.io/dmsGIS/
+
 ## Documents
 
 - `docs/specification.md`
