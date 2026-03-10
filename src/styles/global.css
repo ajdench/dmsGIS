@@ -103,6 +103,21 @@
     --percent-min-width: 2.6rem;
     --value-inset: 0.25rem;
     --summary-swatch-offset-y: -1px;
+
+    /* Map tooltips */
+    --map-tooltip-gap: 0.25rem;
+    --map-tooltip-nav-size: 1rem;
+    --map-tooltip-nav-font-size: 0.75rem;
+    --map-tooltip-page-font-size: var(--font-size-label);
+    --map-tooltip-name-font-size: var(--font-size-small);
+    --map-tooltip-name-weight: 500;
+    --map-tooltip-inset: var(--space-3);
+    --map-tooltip-radius: 0.5rem;
+    --map-tooltip-nav-gap: 0.2rem;
+    --map-tooltip-padding-y: var(--space-3);
+    --map-tooltip-padding-x: var(--space-3);
+    --map-tooltip-header-gap: var(--space-3);
+    --map-tooltip-page-inline-padding: 0.2rem;
   }
 
   * {
@@ -254,6 +269,7 @@
 
   .map-panel__inner {
     @apply h-full overflow-hidden;
+    position: relative;
     min-height: var(--map-min-height);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -265,19 +281,129 @@
 
   .map-tooltip {
     pointer-events: none;
-    padding: 0.35rem 0.5rem;
+    padding: var(--map-tooltip-padding-y) var(--map-tooltip-padding-x);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-subtle);
     background: var(--surface);
     box-shadow: var(--shadow-panel);
     color: var(--text-secondary);
-    font-size: var(--font-size-small);
+    font-size: var(--map-tooltip-name-font-size);
     line-height: 1.1;
     white-space: nowrap;
   }
 
   .map-tooltip--hidden {
     display: none;
+  }
+
+  .map-tooltip-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--map-tooltip-gap);
+    width: max-content;
+    padding: var(--map-tooltip-padding-y) var(--map-tooltip-padding-x);
+    border-radius: var(--map-tooltip-radius);
+    border: 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-control);
+    color: var(--text-secondary);
+    z-index: 8;
+  }
+
+  .map-tooltip-card--dock {
+    position: absolute;
+    top: var(--map-tooltip-inset);
+    right: var(--map-tooltip-inset);
+  }
+
+  .map-tooltip-card--hidden {
+    display: none;
+  }
+
+  .map-tooltip-card__name {
+    font-size: var(--map-tooltip-name-font-size);
+    font-weight: var(--map-tooltip-name-weight);
+    line-height: 1;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .map-tooltip-card--name-right .map-tooltip-card__name {
+    text-align: left;
+  }
+
+  .map-tooltip-card__header {
+    display: flex;
+    align-items: center;
+    column-gap: var(--map-tooltip-header-gap);
+    width: 100%;
+  }
+
+  .map-tooltip-card__footer {
+    display: grid;
+    grid-template-columns:
+      var(--map-tooltip-nav-size)
+      max-content
+      var(--map-tooltip-nav-size);
+    align-items: center;
+    column-gap: var(--map-tooltip-nav-gap);
+    justify-content: end;
+    margin-left: auto;
+  }
+
+  .map-tooltip-card__footer.map-tooltip-card__footer--hidden {
+    display: none;
+  }
+
+  .map-tooltip-card__page {
+    display: inline-block;
+    min-width: 6ch;
+    padding-left: var(--map-tooltip-page-inline-padding);
+    padding-right: var(--map-tooltip-page-inline-padding);
+    text-align: center;
+    font-size: var(--map-tooltip-page-font-size);
+    line-height: 1;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .map-tooltip-card__context {
+    font-size: var(--font-size-small);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .map-tooltip-card__context--hidden {
+    display: none;
+  }
+
+  .map-tooltip-card__nav {
+    width: var(--map-tooltip-nav-size);
+    height: var(--map-tooltip-nav-size);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-subtle);
+    color: var(--text-secondary);
+    font-size: var(--map-tooltip-nav-font-size);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .map-tooltip-card__nav:hover {
+    background: var(--surface);
+  }
+
+  .map-tooltip-card__nav:disabled {
+    opacity: 0.45;
+    cursor: default;
   }
 
   .map-canvas .ol-control {
@@ -301,6 +427,8 @@
   .map-canvas .ol-control button {
     border: 0;
     border-radius: 0;
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
     outline: none;
     box-shadow: none !important;
     background: var(--surface);

@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import OLMap from 'ol/Map';
 import View from 'ol/View';
-import Overlay from 'ol/Overlay';
 import VectorLayer from 'ol/layer/Vector';
-import type Feature from 'ol/Feature';
+import Feature from 'ol/Feature';
 import type { FeatureLike } from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
 import { fromLonLat } from 'ol/proj';
+import Point from 'ol/geom/Point';
 import { unByKey } from 'ol/Observable';
 import type { EventsKey } from 'ol/events';
 import {
@@ -37,6 +37,13 @@ interface BasemapLayerSet {
   seaLabels: VectorLayer<VectorSource>;
 }
 
+interface PointTooltipEntry {
+  facilityName: string;
+  coordinate: [number, number];
+  boundaryName: string | null;
+  hasVisibleBorder: boolean;
+}
+
 export function MapWorkspace() {
   const layers = useAppStore((state) => state.layers);
   const regions = useAppStore((state) => state.regions);
@@ -52,11 +59,135 @@ export function MapWorkspace() {
     globalThis.Map<string, VectorLayer<VectorSource>>
   >(new globalThis.Map());
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
-  const tooltipOverlayRef = useRef<Overlay | null>(null);
-  const tooltipElementRef = useRef<HTMLDivElement | null>(null);
+  const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipContextRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipFooterRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipPageRef = useRef<HTMLSpanElement | null>(null);
+  const pointTooltipPrevRef = useRef<HTMLButtonElement | null>(null);
+  const pointTooltipNextRef = useRef<HTMLButtonElement | null>(null);
+  const pointTooltipEntriesRef = useRef<PointTooltipEntry[]>([]);
+  const pointTooltipIndexRef = useRef(0);
+  const selectedBoundaryNameRef = useRef<string | null>(null);
   const layerRefs = useRef<globalThis.Map<string, VectorLayer<VectorSource>>>(
     new globalThis.Map(),
   );
+
+  const renderPointTooltip = () => {
+    const root = pointTooltipRootRef.current;
+    const header = pointTooltipHeaderRef.current;
+    const name = pointTooltipNameRef.current;
+    const context = pointTooltipContextRef.current;
+    const footer = pointTooltipFooterRef.current;
+    const page = pointTooltipPageRef.current;
+    const prev = pointTooltipPrevRef.current;
+    const next = pointTooltipNextRef.current;
+    if (!root || !header || !name || !context || !footer || !page || !prev || !next) {
+      return;
+    }
+
+    const entries = pointTooltipEntriesRef.current;
+    const selectedPointSource = selectedPointRef.current?.getSource();
+    const selectedPointLayer = selectedPointRef.current;
+    if (entries.length === 0) {
+      const boundaryName = selectedBoundaryNameRef.current;
+      if (!boundaryName) {
+        name.textContent = '';
+        context.textContent = '';
+        page.textContent = '';
+        prev.disabled = true;
+        next.disabled = true;
+        footer.classList.add('map-tooltip-card__footer--hidden');
+        context.classList.add('map-tooltip-card__context--hidden');
+        root.classList.remove('map-tooltip-card--name-right');
+        root.classList.add('map-tooltip-card--hidden');
+        if (selectedPointSource) {
+          selectedPointSource.clear();
+        }
+        if (selectedPointLayer) {
+          selectedPointLayer.setStyle(
+            createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
+          );
+        }
+        return;
+      }
+
+      name.textContent = boundaryName;
+      context.textContent = '';
+      page.textContent = '';
+      prev.disabled = true;
+      next.disabled = true;
+      footer.classList.add('map-tooltip-card__footer--hidden');
+      context.classList.add('map-tooltip-card__context--hidden');
+      root.classList.remove('map-tooltip-card--name-right');
+      root.classList.remove('map-tooltip-card--hidden');
+      if (selectedPointSource) {
+        selectedPointSource.clear();
+      }
+      if (selectedPointLayer) {
+        selectedPointLayer.setStyle(
+          createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
+        );
+      }
+      return;
+    }
+
+    const index = Math.max(
+      0,
+      Math.min(pointTooltipIndexRef.current, entries.length - 1),
+    );
+    pointTooltipIndexRef.current = index;
+    const current = entries[index];
+    name.textContent = current.facilityName;
+    page.textContent = `Page ${index + 1} of ${entries.length}`;
+    context.textContent = current.boundaryName ?? '';
+    prev.disabled = index === 0;
+    next.disabled = index >= entries.length - 1;
+    footer.classList.remove('map-tooltip-card__footer--hidden');
+    if (current.boundaryName) {
+      context.classList.remove('map-tooltip-card__context--hidden');
+    } else {
+      context.classList.add('map-tooltip-card__context--hidden');
+    }
+
+    const selectedBoundarySource = selectedBoundaryRef.current?.getSource();
+    if (selectedBoundarySource) {
+      selectedBoundarySource.clear();
+      const matchedBoundary = findCareBoardBoundaryAtCoordinate(
+        current.coordinate,
+        regionBoundaryLayers,
+        regionBoundaryRefs.current,
+      );
+      if (matchedBoundary) {
+        selectedBoundarySource.addFeature(matchedBoundary.clone());
+        selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
+      } else {
+        selectedBoundaryNameRef.current = null;
+      }
+    }
+
+    root.classList.remove('map-tooltip-card--name-right');
+    root.classList.remove('map-tooltip-card--hidden');
+    if (selectedPointSource) {
+      selectedPointSource.clear();
+      selectedPointSource.addFeature(
+        new Feature({
+          geometry: new Point(current.coordinate),
+        }),
+      );
+    }
+    if (selectedPointLayer) {
+      selectedPointLayer.setStyle(
+        createSelectedPointStyle(
+          facilitySymbolShape,
+          facilitySymbolSize,
+          current.hasVisibleBorder,
+        ),
+      );
+    }
+  };
 
   useEffect(() => {
     if (!ref.current || mapRef.current) {
@@ -85,18 +216,9 @@ export function MapWorkspace() {
     const selectedBoundaryLayer = createSelectedBoundaryLayer();
     selectedBoundaryRef.current = selectedBoundaryLayer;
     mapRef.current.addLayer(selectedBoundaryLayer);
-
-    const tooltipElement = document.createElement('div');
-    tooltipElement.className = 'map-tooltip map-tooltip--hidden';
-    tooltipElementRef.current = tooltipElement;
-    const tooltipOverlay = new Overlay({
-      element: tooltipElement,
-      positioning: 'bottom-center',
-      stopEvent: false,
-      offset: [0, -10],
-    });
-    tooltipOverlayRef.current = tooltipOverlay;
-    mapRef.current.addOverlay(tooltipOverlay);
+    const selectedPointLayer = createSelectedPointLayer();
+    selectedPointRef.current = selectedPointLayer;
+    mapRef.current.addLayer(selectedPointLayer);
 
     return () => {
       mapRef.current?.setTarget(undefined);
@@ -104,8 +226,18 @@ export function MapWorkspace() {
       basemapRef.current = null;
       regionBoundaryRefs.current.clear();
       selectedBoundaryRef.current = null;
-      tooltipOverlayRef.current = null;
-      tooltipElementRef.current = null;
+      selectedPointRef.current = null;
+      pointTooltipRootRef.current = null;
+      pointTooltipHeaderRef.current = null;
+      pointTooltipNameRef.current = null;
+      pointTooltipContextRef.current = null;
+      pointTooltipFooterRef.current = null;
+      pointTooltipPageRef.current = null;
+      pointTooltipPrevRef.current = null;
+      pointTooltipNextRef.current = null;
+      pointTooltipEntriesRef.current = [];
+      pointTooltipIndexRef.current = 0;
+      selectedBoundaryNameRef.current = null;
       layerRefs.current.clear();
     };
   }, []);
@@ -180,57 +312,98 @@ export function MapWorkspace() {
   }, [regionBoundaryLayers]);
 
   useEffect(() => {
+    renderPointTooltip();
+  }, [facilitySymbolShape, facilitySymbolSize]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const pointClickKey: EventsKey = map.on('singleclick', (event) => {
+      const pointLayers = new Set<VectorLayer<VectorSource>>();
+      for (const layer of layers) {
+        if (layer.type !== 'point' || !layer.visible) continue;
+        const mapLayer = layerRefs.current.get(layer.id);
+        if (mapLayer) {
+          pointLayers.add(mapLayer);
+        }
+      }
+
+      const hitFeatures = getDirectPointHitsAtPixel(
+        map,
+        event.pixel,
+        pointLayers,
+        facilitySymbolSize,
+      );
+
+      pointTooltipEntriesRef.current = collectPointTooltipEntries(
+        hitFeatures,
+        event.coordinate as [number, number],
+        regionBoundaryLayers,
+        regionBoundaryRefs.current,
+        regions,
+      );
+      pointTooltipIndexRef.current = 0;
+      renderPointTooltip();
+    });
+
+    return () => {
+      unByKey(pointClickKey);
+    };
+  }, [layers, facilitySymbolSize, regionBoundaryLayers]);
+
+  useEffect(() => {
     const map = mapRef.current;
     const selectedBoundaryLayer = selectedBoundaryRef.current;
-    const tooltipOverlay = tooltipOverlayRef.current;
-    const tooltipElement = tooltipElementRef.current;
-    if (!map || !selectedBoundaryLayer || !tooltipOverlay || !tooltipElement) return;
+    if (!map || !selectedBoundaryLayer) return;
 
-    const selectBoundary = (feature: Feature | null, coordinate?: number[]) => {
+    const selectBoundary = (feature: Feature | null) => {
       const selectedSource = selectedBoundaryLayer.getSource();
       if (!selectedSource) return;
       selectedSource.clear();
 
-      if (!feature || !coordinate) {
-        tooltipElement.textContent = '';
-        tooltipElement.classList.add('map-tooltip--hidden');
-        tooltipOverlay.setPosition(undefined);
+      if (!feature) {
+        selectedBoundaryNameRef.current = null;
         return;
       }
 
       selectedSource.addFeature(feature.clone());
-      tooltipElement.textContent = getBoundaryName(feature);
-      tooltipElement.classList.remove('map-tooltip--hidden');
-      tooltipOverlay.setPosition(coordinate);
+      selectedBoundaryNameRef.current = getBoundaryName(feature);
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
-      let selectedFeature: Feature | null = null;
-
-      for (const config of regionBoundaryLayers) {
-        if (config.id !== 'careBoardBoundaries') continue;
-        if (!config.visible) continue;
-        const layer = regionBoundaryRefs.current.get(config.id);
-        const source = layer?.getSource();
-        if (!source) continue;
-        const hit = source
-          .getFeatures()
-          .find((feature) =>
-            feature.getGeometry()?.intersectsCoordinate(event.coordinate),
-          );
-        if (hit) {
-          selectedFeature = hit;
-          break;
+      const pointLayers = new Set<VectorLayer<VectorSource>>();
+      for (const layer of layers) {
+        if (layer.type !== 'point' || !layer.visible) continue;
+        const mapLayer = layerRefs.current.get(layer.id);
+        if (mapLayer) {
+          pointLayers.add(mapLayer);
         }
       }
+      const pointHits = getDirectPointHitsAtPixel(
+        map,
+        event.pixel,
+        pointLayers,
+        facilitySymbolSize,
+      );
+      if (pointHits.length > 0) {
+        return;
+      }
 
-      selectBoundary(selectedFeature, event.coordinate);
+      const selectedFeature = findCareBoardBoundaryAtCoordinate(
+        event.coordinate as [number, number],
+        regionBoundaryLayers,
+        regionBoundaryRefs.current,
+      );
+      selectBoundary(selectedFeature);
+      pointTooltipEntriesRef.current = [];
+      pointTooltipIndexRef.current = 0;
+      renderPointTooltip();
     });
 
     return () => {
       unByKey(clickKey);
     };
-  }, [regionBoundaryLayers]);
+  }, [regionBoundaryLayers, layers, facilitySymbolSize]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -248,6 +421,7 @@ export function MapWorkspace() {
           url: layer.path,
           format: new GeoJSON(),
         }),
+        zIndex: layer.type === 'point' ? 35 : 1,
         style: getStyleForLayer(
           layer,
           regionByName,
@@ -282,6 +456,55 @@ export function MapWorkspace() {
   return (
     <main className="map-panel">
       <div className="map-panel__inner">
+        <div
+          className="map-tooltip-card map-tooltip-card--dock map-tooltip-card--hidden"
+          ref={pointTooltipRootRef}
+        >
+          <div className="map-tooltip-card__header" ref={pointTooltipHeaderRef}>
+            <div className="map-tooltip-card__name" ref={pointTooltipNameRef} />
+            <div
+              className="map-tooltip-card__footer map-tooltip-card__footer--hidden"
+              ref={pointTooltipFooterRef}
+            >
+              <button
+                type="button"
+                className="map-tooltip-card__nav"
+                ref={pointTooltipPrevRef}
+                aria-label="Previous facility"
+                onClick={() => {
+                  if (pointTooltipIndexRef.current <= 0) return;
+                  pointTooltipIndexRef.current -= 1;
+                  renderPointTooltip();
+                }}
+              >
+                {'<'}
+              </button>
+              <span className="map-tooltip-card__page" ref={pointTooltipPageRef} />
+              <button
+                type="button"
+                className="map-tooltip-card__nav"
+                ref={pointTooltipNextRef}
+                aria-label="Next facility"
+                onClick={() => {
+                  if (
+                    pointTooltipIndexRef.current >=
+                    pointTooltipEntriesRef.current.length - 1
+                  ) {
+                    return;
+                  }
+                  pointTooltipIndexRef.current += 1;
+                  renderPointTooltip();
+                }}
+              >
+                {'>'}
+              </button>
+            </div>
+          </div>
+          <div
+            className="map-tooltip-card__context map-tooltip-card__context--hidden"
+            ref={pointTooltipContextRef}
+          />
+        </div>
         <div className="map-canvas" ref={ref} />
       </div>
     </main>
@@ -304,13 +527,38 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
     style: new Style({
       stroke: new Stroke({
         color: '#facc15',
-        width: 3,
+        width: 2,
       }),
       fill: new Fill({
         color: 'rgba(0, 0, 0, 0)',
       }),
     }),
-    zIndex: 30,
+    zIndex: 20,
+  });
+}
+
+function createSelectedPointLayer(): VectorLayer<VectorSource> {
+  return new VectorLayer({
+    source: new VectorSource(),
+    style: createSelectedPointStyle('circle', 6, false),
+    zIndex: 40,
+  });
+}
+
+function createSelectedPointStyle(
+  shape: FacilitySymbolShape,
+  size: number,
+  hasVisibleBorder: boolean,
+): Style {
+  const highlightOffset = hasVisibleBorder ? 1.5 : 0.5;
+  return new Style({
+    image: createPointSymbol(
+      shape,
+      size + highlightOffset,
+      'rgba(0, 0, 0, 0)',
+      '#fffb00',
+      2,
+    ),
   });
 }
 
@@ -625,6 +873,51 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
   };
 }
 
+function findCareBoardBoundaryAtCoordinate(
+  coordinate: [number, number],
+  regionBoundaryLayers: RegionBoundaryLayerStyle[],
+  regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
+): Feature | null {
+  for (const config of regionBoundaryLayers) {
+    if (config.id !== 'careBoardBoundaries') continue;
+    if (!config.visible) continue;
+    const layer = regionBoundaryRefs.get(config.id);
+    const source = layer?.getSource();
+    if (!source) continue;
+    const hit = source
+      .getFeatures()
+      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
+    if (hit) {
+      return hit;
+    }
+  }
+
+  return null;
+}
+
+function getDirectPointHitsAtPixel(
+  map: OLMap,
+  pixel: number[],
+  pointLayers: Set<VectorLayer<VectorSource>>,
+  facilitySymbolSize: number,
+): FeatureLike[] {
+  const hits = map.getFeaturesAtPixel(pixel, {
+    hitTolerance: 0,
+    layerFilter: (layerCandidate) =>
+      pointLayers.has(layerCandidate as VectorLayer<VectorSource>),
+  });
+
+  return hits.filter((feature) => {
+    const coordinate = getPointCoordinate(feature);
+    if (!coordinate) return false;
+    const featurePixel = map.getPixelFromCoordinate(coordinate);
+    const dx = featurePixel[0] - pixel[0];
+    const dy = featurePixel[1] - pixel[1];
+    const distance = Math.hypot(dx, dy);
+    return distance <= Math.max(5, facilitySymbolSize + 2);
+  });
+}
+
 function getBoundaryName(feature: Feature): string {
   const value =
     feature.get('boundary_name') ??
@@ -636,6 +929,86 @@ function getBoundaryName(feature: Feature): string {
     return 'Boundary';
   }
   return String(value);
+}
+
+function collectPointTooltipEntries(
+  features: FeatureLike[],
+  fallbackCoordinate: [number, number],
+  regionBoundaryLayers: RegionBoundaryLayerStyle[],
+  regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
+  regions: RegionStyle[],
+): PointTooltipEntry[] {
+  const entries: PointTooltipEntry[] = [];
+  const seen = new Set<string>();
+  const regionsByName = new Map(regions.map((region) => [region.name, region]));
+
+  for (const feature of features) {
+    const rawName = feature.get('name');
+    if (rawName === undefined || rawName === null) continue;
+    const name = String(rawName).trim();
+    if (!name) continue;
+
+    const coordinate = getPointCoordinate(feature) ?? fallbackCoordinate;
+    const boundaryFeature = findCareBoardBoundaryAtCoordinate(
+      coordinate,
+      regionBoundaryLayers,
+      regionBoundaryRefs,
+    );
+    const boundaryName = boundaryFeature ? getBoundaryName(boundaryFeature) : null;
+    const regionName = String(feature.get('region') ?? 'Unassigned');
+    const regionStyle = regionsByName.get(regionName);
+    const hasVisibleBorder =
+      (regionStyle?.borderVisible ?? true) &&
+      (regionStyle?.borderOpacity ?? 1) > 0.01;
+    const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    entries.push({
+      facilityName: name,
+      coordinate,
+      boundaryName,
+      hasVisibleBorder,
+    });
+  }
+
+  return entries;
+}
+
+function getPointCoordinate(feature: FeatureLike): [number, number] | null {
+  if (typeof (feature as Feature).getGeometry === 'function') {
+    const geometry = (feature as Feature).getGeometry();
+    if (
+      geometry &&
+      geometry.getType() === 'Point' &&
+      typeof
+        (geometry as unknown as { getCoordinates?: () => number[] })
+          .getCoordinates === 'function'
+    ) {
+      const coordinates = (
+        geometry as unknown as { getCoordinates: () => number[] }
+      ).getCoordinates();
+      if (coordinates.length >= 2) {
+        return [coordinates[0], coordinates[1]];
+      }
+    }
+  }
+
+  const renderFeature = feature as unknown as {
+    getType?: () => string;
+    getFlatCoordinates?: () => number[];
+  };
+  if (
+    typeof renderFeature.getType === 'function' &&
+    renderFeature.getType() === 'Point' &&
+    typeof renderFeature.getFlatCoordinates === 'function'
+  ) {
+    const flatCoordinates = renderFeature.getFlatCoordinates();
+    if (flatCoordinates.length >= 2) {
+      return [flatCoordinates[0], flatCoordinates[1]];
+    }
+  }
+
+  return null;
 }
 
 function getStyleForLayer(

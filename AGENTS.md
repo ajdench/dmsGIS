@@ -42,7 +42,14 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Region ordering in the embedded PMC facility list is fixed to: Scotland & Northern Ireland; North; Wales & West Midlands; East; South West; Central & Wessex; London & South.
 - Global opacity behavior is broadcast-style: changing PMC global opacity sets all region opacities in unison; individual region opacity can then be adjusted independently until global is changed again.
 - Facility map symbol rendering now uses global shape/size controls plus per-region fill/border style values.
-- Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows a tooltip with its boundary name.
+- Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows the boundary name in the docked map tooltip.
+- Point map interaction (PMC facilities):
+  - Clicking a point opens a docked tooltip in the top-right of the map pane.
+  - Tooltip content order is: facility name; pager row (`< Page n of y >`); boundary name.
+  - Boundary name and boundary highlight for point selection are resolved from the point geometry coordinate (data-driven), not from raw click position.
+  - Boundary-only clicks show boundary name only (no pager controls).
+  - Point selection highlight is luminous yellow (`#fffb00`) and is drawn outside the symbol edge with border-aware offset.
+  - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Current defaults:
   - PMC global symbol size `3.5`
   - Region/facility defaults are color-only (internal alpha values ignored at load/render defaults)
