@@ -27,6 +27,10 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Basemap data is local under `public/data/basemaps/` (no runtime internet requirement for basemap rendering).
 - Basemap controls: source and detail-level dropdowns are removed from UI; only style/visibility controls remain.
 - Basemap data scope: `50m` basemap assets were removed from runtime usage and from `public/data/basemaps/`; `10m` is the active operational dataset.
+- Basemap performance behavior:
+  - `Sea labels` and `Major cities` vector sources are lazy-loaded only when those toggles are enabled.
+  - Label datasets now use lighter `110m` files (`ne_110m_geography_marine_polys.geojson`, `ne_110m_populated_places_simple.geojson`) to reduce startup payload and parse cost.
+  - Legacy heavy `10m` label datasets (`ne_10m_geography_marine_polys.geojson`, `ne_10m_populated_places.geojson`) were removed from `public/data/basemaps/`.
 - Facilities dataset is sourced from `public/data/facilities/facilities.geojson` (derived from `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`) with per-feature defaults (`default_visible`, `point_color_hex`, `point_alpha`).
 - Layout model: workspace now uses map + right sidebar (left sidebar removed).
 - Right sidebar pane order is: Basemap, Facilities, Labels, Layers.
@@ -54,6 +58,9 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Boundary-only clicks show boundary name only (no pager controls).
   - Point selection highlight is luminous yellow (`#fffb00`) and is drawn outside the symbol edge with border-aware offset.
   - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
+- Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
+- Region boundary performance behavior: boundary `VectorSource` instances are stable and only re-created when a layer path changes; style/visibility updates no longer reset sources.
+- Style performance behavior: basemap label styles and region boundary styles use per-function caches to reduce per-feature style object allocation during render.
 - Basemap seam handling: land/sea fill styles include same-color `1px` stroke to hide anti-aliased join seams.
 - Current defaults:
   - PMC global symbol size `3.5`
