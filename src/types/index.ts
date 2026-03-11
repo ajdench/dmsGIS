@@ -42,6 +42,7 @@ export interface RegionStyle {
   borderVisible: boolean;
   borderColor: string;
   borderOpacity: number;
+  symbolSize: number;
 }
 
 export interface RegionBoundaryLayerStyle {

@@ -42,6 +42,7 @@ interface PointTooltipEntry {
   coordinate: [number, number];
   boundaryName: string | null;
   hasVisibleBorder: boolean;
+  symbolSize: number;
 }
 
 export function MapWorkspace() {
@@ -182,7 +183,7 @@ export function MapWorkspace() {
       selectedPointLayer.setStyle(
         createSelectedPointStyle(
           facilitySymbolShape,
-          facilitySymbolSize,
+          current.symbolSize,
           current.hasVisibleBorder,
         ),
       );
@@ -678,6 +679,11 @@ function createFillStyle(color: string) {
     fill: new Fill({
       color,
     }),
+    // A same-color stroke closes 1px anti-aliased seams at wrap joins.
+    stroke: new Stroke({
+      color,
+      width: 1,
+    }),
   });
 }
 
@@ -960,6 +966,7 @@ function collectPointTooltipEntries(
     const hasVisibleBorder =
       (regionStyle?.borderVisible ?? true) &&
       (regionStyle?.borderOpacity ?? 1) > 0.01;
+    const symbolSize = regionStyle?.symbolSize ?? 3.5;
     const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -968,6 +975,7 @@ function collectPointTooltipEntries(
       coordinate,
       boundaryName,
       hasVisibleBorder,
+      symbolSize,
     });
   }
 
@@ -1034,7 +1042,8 @@ function getStyleForLayer(
       const borderVisible = regionStyle?.borderVisible ?? true;
       const borderColor = regionStyle?.borderColor ?? '#ffffff';
       const borderOpacity = regionStyle?.borderOpacity ?? 1;
-      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${symbolShape}:${symbolSize}`;
+      const resolvedSize = regionStyle?.symbolSize ?? symbolSize;
+      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${symbolShape}:${resolvedSize}`;
       const existing = cache.get(key);
       if (existing) {
         return existing;
@@ -1043,7 +1052,7 @@ function getStyleForLayer(
       const style = new Style({
         image: createPointSymbol(
           symbolShape,
-          symbolSize,
+          resolvedSize,
           withOpacity(hex, opacity),
           withOpacity(borderColor, borderOpacity),
           borderVisible ? 1 : 0,

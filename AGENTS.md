@@ -38,18 +38,23 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - `Care board boundaries` (`UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson`)
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
-- Region rows remain individually configurable via popovers: visible, fill color, fill opacity, border on/off, border color, border opacity.
+- Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
 - Region ordering in the embedded PMC facility list is fixed to: Scotland & Northern Ireland; North; Wales & West Midlands; East; South West; Central & Wessex; London & South.
 - Global opacity behavior is broadcast-style: changing PMC global opacity sets all region opacities in unison; individual region opacity can then be adjusted independently until global is changed again.
-- Facility map symbol rendering now uses global shape/size controls plus per-region fill/border style values.
+- Facility map symbol rendering now uses global shape controls plus per-region fill/border/size style values.
+- Size behavior is dual-scope:
+  - Global PMC size changes apply to all regions.
+  - Region popover size changes apply locally to the selected region only.
 - Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows the boundary name in the docked map tooltip.
 - Point map interaction (PMC facilities):
   - Clicking a point opens a docked tooltip in the top-right of the map pane.
   - Tooltip content order is: facility name; pager row (`< Page n of y >`); boundary name.
+  - Pager is shown for point mode (including `Page 1 of 1`) and hidden for boundary-only mode.
   - Boundary name and boundary highlight for point selection are resolved from the point geometry coordinate (data-driven), not from raw click position.
   - Boundary-only clicks show boundary name only (no pager controls).
   - Point selection highlight is luminous yellow (`#fffb00`) and is drawn outside the symbol edge with border-aware offset.
   - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
+- Basemap seam handling: land/sea fill styles include same-color `1px` stroke to hide anti-aliased join seams.
 - Current defaults:
   - PMC global symbol size `3.5`
   - Region/facility defaults are color-only (internal alpha values ignored at load/render defaults)

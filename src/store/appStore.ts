@@ -61,6 +61,7 @@ interface AppState {
   setRegionBorderVisibility: (name: string, visible: boolean) => void;
   setRegionBorderColor: (name: string, color: string) => void;
   setRegionBorderOpacity: (name: string, opacity: number) => void;
+  setRegionSymbolSize: (name: string, size: number) => void;
   setRegionGlobalOpacity: (opacity: number) => void;
   setAllRegionVisibility: (visible: boolean) => void;
   setAllRegionBorderColor: (color: string) => void;
@@ -74,7 +75,7 @@ interface AppState {
   setRegionBoundaryLayerBorderOpacity: (id: string, opacity: number) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   layers: [],
   regions: [],
   regionBoundaryLayers: [
@@ -145,7 +146,7 @@ export const useAppStore = create<AppState>((set) => ({
       const manifestLayers = await fetchLayerManifest();
       const facilitiesLayer = manifestLayers.find((layer) => layer.id === 'facilities');
       const regions = facilitiesLayer
-        ? await loadRegionStyles(facilitiesLayer.path)
+        ? await loadRegionStyles(facilitiesLayer.path, get().facilitySymbolSize)
         : [];
       set({
         layers: manifestLayers.map((layer) => ({
@@ -260,6 +261,14 @@ export const useAppStore = create<AppState>((set) => ({
         region.name === name ? { ...region, borderOpacity: opacity } : region,
       ),
     })),
+  setRegionSymbolSize: (name, size) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name
+          ? { ...region, symbolSize: Math.max(1, Math.min(12, size)) }
+          : region,
+      ),
+    })),
   setRegionGlobalOpacity: (opacity) => {
     const value = Math.max(0, Math.min(1, opacity));
     return set((state) => ({
@@ -288,7 +297,16 @@ export const useAppStore = create<AppState>((set) => ({
     })),
   setFacilitySymbolShape: (shape) => set({ facilitySymbolShape: shape }),
   setFacilitySymbolSize: (size) =>
-    set({ facilitySymbolSize: Math.max(3, Math.min(12, size)) }),
+    set((state) => {
+      const normalized = Math.max(1, Math.min(12, size));
+      return {
+        facilitySymbolSize: normalized,
+        regions: state.regions.map((region) => ({
+          ...region,
+          symbolSize: normalized,
+        })),
+      };
+    }),
   setRegionBoundaryLayerVisibility: (id, visible) =>
     set((state) => ({
       regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
@@ -334,7 +352,10 @@ export const useAppStore = create<AppState>((set) => ({
     })),
 }));
 
-async function loadRegionStyles(path: string): Promise<RegionStyle[]> {
+async function loadRegionStyles(
+  path: string,
+  defaultSymbolSize: number,
+): Promise<RegionStyle[]> {
   try {
     const response = await fetch(path);
     if (!response.ok) return [];
@@ -351,6 +372,7 @@ async function loadRegionStyles(path: string): Promise<RegionStyle[]> {
         borderVisible: boolean;
         borderColor: string;
         borderOpacity: number;
+        symbolSize: number;
       }
     >();
 
@@ -373,6 +395,7 @@ async function loadRegionStyles(path: string): Promise<RegionStyle[]> {
           borderVisible: true,
           borderColor: '#ffffff',
           borderOpacity: 0,
+          symbolSize: Math.max(1, Math.min(12, defaultSymbolSize)),
         });
       }
     }

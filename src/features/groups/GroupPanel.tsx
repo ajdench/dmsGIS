@@ -36,6 +36,7 @@ export function GroupPanel({
   const setRegionBorderOpacity = useAppStore(
     (state) => state.setRegionBorderOpacity,
   );
+  const setRegionSymbolSize = useAppStore((state) => state.setRegionSymbolSize);
   const setRegionGlobalOpacity = useAppStore(
     (state) => state.setRegionGlobalOpacity,
   );
@@ -106,6 +107,7 @@ export function GroupPanel({
             borderVisible={region.borderVisible}
             borderColor={region.borderColor}
             borderOpacity={region.borderOpacity}
+            symbolSize={region.symbolSize}
             onVisibilityChange={(checked) =>
               setRegionVisibility(region.name, checked)
             }
@@ -118,6 +120,7 @@ export function GroupPanel({
             onBorderOpacityChange={(opacity) =>
               setRegionBorderOpacity(region.name, opacity)
             }
+            onSymbolSizeChange={(size) => setRegionSymbolSize(region.name, size)}
           />
         ))}
       </div>
@@ -217,7 +220,7 @@ export function GroupPanel({
                 </label>
                 <SliderField
                   id="pmc-symbol-size"
-                  min={3}
+                  min={1}
                   max={12}
                   step={0.5}
                   value={facilitySymbolSize}
@@ -405,12 +408,14 @@ interface RegionPopoverProps {
   borderVisible: boolean;
   borderColor: string;
   borderOpacity: number;
+  symbolSize: number;
   onVisibilityChange: (checked: boolean) => void;
   onColorChange: (color: string) => void;
   onOpacityChange: (opacity: number) => void;
   onBorderVisibilityChange: (checked: boolean) => void;
   onBorderColorChange: (color: string) => void;
   onBorderOpacityChange: (opacity: number) => void;
+  onSymbolSizeChange: (size: number) => void;
 }
 
 function RegionPopover({
@@ -421,12 +426,14 @@ function RegionPopover({
   borderVisible,
   borderColor,
   borderOpacity,
+  symbolSize,
   onVisibilityChange,
   onColorChange,
   onOpacityChange,
   onBorderVisibilityChange,
   onBorderColorChange,
   onBorderOpacityChange,
+  onSymbolSizeChange,
 }: RegionPopoverProps) {
   const detailsRef = useOutsideClose();
   const slug = name.toLowerCase().replace(/\s+/g, '-');
@@ -467,6 +474,18 @@ function RegionPopover({
               value={color}
               onChange={(event) => onColorChange(event.currentTarget.value)}
               aria-label={`${name} colour`}
+            />
+            <label className="field-label" htmlFor={`${slug}-size`}>
+              Size
+            </label>
+            <SliderField
+              id={`${slug}-size`}
+              min={1}
+              max={12}
+              step={0.5}
+              value={symbolSize}
+              onChange={onSymbolSizeChange}
+              ariaLabel={`${name} size`}
             />
             <label className="field-label" htmlFor={`${slug}-opacity`}>
               Opacity
