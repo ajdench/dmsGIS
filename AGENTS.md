@@ -34,6 +34,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Facilities dataset is sourced from `public/data/facilities/facilities.geojson` (derived from `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`) with per-feature defaults (`default_visible`, `point_color_hex`, `point_alpha`).
 - Layout model: workspace now uses map + right sidebar (left sidebar removed).
 - Right sidebar pane order is: Basemap, Facilities, Labels, Layers.
+- Right sidebar now also surfaces runtime layer loading/error status above the pane stack.
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
 - Layers pane now lists boundary datasets (not facility-region rows) with popovers per item.
 - Current Layers items are:
@@ -57,17 +58,21 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Boundary name and boundary highlight for point selection are resolved from the point geometry coordinate (data-driven), not from raw click position.
   - Boundary-only clicks show boundary name only (no pager controls).
   - Point selection highlight is luminous yellow (`#fffb00`) and is drawn outside the symbol edge with border-aware offset.
-  - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
+- Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
+- Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
 - Region boundary performance behavior: boundary `VectorSource` instances are stable and only re-created when a layer path changes; style/visibility updates no longer reset sources.
 - Style performance behavior: basemap label styles and region boundary styles use per-function caches to reduce per-feature style object allocation during render.
 - Basemap seam handling: land/sea fill styles include same-color `1px` stroke to hide anti-aliased join seams.
 - Current defaults:
   - PMC global symbol size `3.5`
+  - PMC populated care board boundaries default opacity `30%`
+  - PMC populated/unpopulated care board boundary border defaults match (`#ffffff` at `0%`)
   - Region/facility defaults are color-only (internal alpha values ignored at load/render defaults)
   - Border opacity defaults to `0` for region-style layers unless explicitly set
   - Basemap visibility defaults: Land labels off, Major cities off, Sea labels off
 - Layer UI: standalone `LayerPanel` is currently removed from rendered sidebar layout.
+- Legacy `LeftSidebar` and standalone `FacilitySearchPanel` components are removed from the current implementation.
 - Shared slider UI is centralized in `src/components/controls/SliderField.tsx` and used across Groups/Basemap/Layers with synced slider + numeric input + in-box +/- controls.
 - Global visual tokens are centralized in `src/styles/global.css` (`:root` CSS variables for spacing, sizing, typography, colors, radius, shadows, popover/control dimensions).
 - Current UI baseline for restart:
@@ -81,6 +86,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Native browser number spinner controls are disabled in slider numeric inputs; only custom +/- controls are shown.
 - CSS: global styles imported through `src/main.tsx` (no direct link in `index.html`).
 - Playwright: `playwright.config.ts` boots Vite on port `4180`; e2e checks app shell visibility via role-based locators.
+- Tests: `tests/appStore.test.ts` covers PMC global opacity broadcast, global size propagation with per-region override, and boundary layer opacity clamping.
 
 ## Next steps
 

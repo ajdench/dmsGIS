@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SliderField } from '../../components/controls/SliderField';
 import { useAppStore } from '../../store/appStore';
-import type { FacilitySymbolShape } from '../../types';
+import type { FacilitySymbolShape, RegionStyle } from '../../types';
 
 const REGION_ORDER = [
   'Scotland & Northern Ireland',
@@ -70,10 +70,16 @@ export function GroupPanel({
 
   const sortedRegions = useMemo(() => sortRegions(regions), [regions]);
   const pmcVisible = regions.length > 0 && regions.some((region) => region.visible);
-  const pmcBorderColor =
-    regions.length > 0 ? regions[0]?.borderColor ?? '#ffffff' : '#ffffff';
-  const pmcBorderOpacity =
-    regions.length > 0 ? regions[0]?.borderOpacity ?? 0 : 0;
+  const pmcBorderColor = getUniformRegionValue(
+    regions,
+    (region) => region.borderColor,
+    '#cbd5e1',
+  );
+  const pmcBorderOpacity = getUniformRegionValue(
+    regions,
+    (region) => region.borderOpacity,
+    0,
+  );
   const [pmcPopoverOpen, setPmcPopoverOpen] = useState(false);
   const pmcPopoverRef = useRef<HTMLDivElement | null>(null);
 
@@ -319,7 +325,7 @@ function RegionBoundaryPopover({
   onBorderOpacityChange,
 }: RegionBoundaryPopoverProps) {
   const detailsRef = useOutsideClose();
-  const slug = 'pmc-populated-care-board-boundaries';
+  const slug = title.toLowerCase().replace(/\s+/g, '-');
 
   return (
     <div className="color-control">
@@ -576,4 +582,19 @@ function sortRegions<T extends { name: string }>(regions: T[]): T[] {
     if (rankA !== rankB) return rankA - rankB;
     return a.name.localeCompare(b.name);
   });
+}
+
+function getUniformRegionValue<T>(
+  regions: RegionStyle[],
+  getValue: (region: RegionStyle) => T,
+  fallback: T,
+): T {
+  if (regions.length === 0) {
+    return fallback;
+  }
+
+  const firstValue = getValue(regions[0]);
+  return regions.every((region) => getValue(region) === firstValue)
+    ? firstValue
+    : fallback;
 }

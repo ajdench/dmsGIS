@@ -49,4 +49,6 @@ npm run test:e2e
 
 ## Notes
 
-This starter repo includes placeholder modules, fixture data, and manifests so Codex CLI can inspect and extend a coherent project structure from the first run.
+- Runtime layer load/error status is surfaced in the active right sidebar.
+- Boundary overlay ordering is explicit so populated, unpopulated, and care-board layers render consistently.
+- Store coverage now includes PMC/global region styling behavior in `tests/appStore.test.ts`.

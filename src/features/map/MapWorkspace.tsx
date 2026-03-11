@@ -508,7 +508,7 @@ function createRegionBoundaryLayer(
   return new VectorLayer({
     source: new VectorSource(),
     style: createRegionBoundaryStyle(layerConfig),
-    zIndex: -5,
+    zIndex: getRegionBoundaryLayerZIndex(layerConfig.id),
   });
 }
 
@@ -888,6 +888,19 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
     cache.set(baseColor, style);
     return style;
   };
+}
+
+function getRegionBoundaryLayerZIndex(layerId: string): number {
+  if (layerId === 'pmcUnpopulatedCareBoardBoundaries') {
+    return 4;
+  }
+  if (layerId === 'pmcPopulatedCareBoardBoundaries') {
+    return 5;
+  }
+  if (layerId === 'careBoardBoundaries') {
+    return 6;
+  }
+  return 4;
 }
 
 function findCareBoardBoundaryAtCoordinate(
