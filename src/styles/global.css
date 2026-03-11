@@ -50,7 +50,13 @@
     --topbar-height: 72px;
     --topbar-height-mobile: 76px;
     --sidebar-width-left: 300px;
-    --sidebar-width-right: 340px;
+    --topbar-actions-span: calc(
+      (4 * var(--topbar-action-width)) + (3 * var(--space-3))
+    );
+    --panel-width-right: var(--topbar-actions-span);
+    --sidebar-width-right: calc(
+      var(--panel-width-right) + (2 * var(--pane-padding))
+    );
     --sidebar-width-left-tablet: 280px;
     --workspace-gap: 0.75rem;
     --map-min-height: 420px;
@@ -69,7 +75,7 @@
     --control-height-sm: 1.75rem;
     --control-height-md: 2rem;
     --compact-control-height: 2.125rem;
-    --topbar-action-width: calc(6ch + 1.25rem);
+    --topbar-action-width: 3.9268rem;
     --slider-track-height: 0.375rem;
     --slider-thumb-size: 0.875rem;
     --slider-value-width: calc((2 * var(--slider-button-width)) + var(--slider-input-width));
@@ -465,6 +471,13 @@
     padding-bottom: calc(var(--space-4) + 1px);
     background: var(--surface);
     box-shadow: var(--shadow-panel);
+  }
+
+  .sidebar--right > .panel {
+    flex: 0 0 auto;
+    width: var(--panel-width-right);
+    max-width: 100%;
+    align-self: center;
   }
 
   .panel h2 {

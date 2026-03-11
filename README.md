@@ -52,3 +52,4 @@ npm run test:e2e
 - Runtime layer load/error status is surfaced in the active right sidebar.
 - Boundary overlay ordering is explicit so populated, unpopulated, and care-board layers render consistently.
 - Store coverage now includes PMC/global region styling behavior in `tests/appStore.test.ts`.
+- Right sidebar width is derived from the top-bar action-button span plus `0.75rem` side gutters so the internal white panes align cleanly inside the grey container.

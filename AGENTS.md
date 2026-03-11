@@ -77,6 +77,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Global visual tokens are centralized in `src/styles/global.css` (`:root` CSS variables for spacing, sizing, typography, colors, radius, shadows, popover/control dimensions).
 - Current UI baseline for restart:
 - Global rhythm target is `0.75rem` between pane/sub-pane elements via tokens in `src/styles/global.css`.
+- Right sidebar grey container width is derived from the top-bar `Open` to `Reset` button span plus `0.75rem` side padding on each side; internal white panes should sit flush to those gutters rather than centered in extra space.
 - Canvas/pane colors are tokenized (`--canvas-bg` lighter, `--pane-bg` darker) and applied to body vs pane containers.
 - Pane radii use default radius token; map pane container also uses default radius token.
 - Groups: only `PMC` title remains bold; non-title labels are regular weight.
