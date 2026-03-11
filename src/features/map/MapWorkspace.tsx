@@ -59,6 +59,9 @@ export function MapWorkspace() {
   const regionBoundaryRefs = useRef<
     globalThis.Map<string, VectorLayer<VectorSource>>
   >(new globalThis.Map());
+  const regionBoundaryPathRefs = useRef<globalThis.Map<string, string>>(
+    new globalThis.Map(),
+  );
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
@@ -226,6 +229,7 @@ export function MapWorkspace() {
       mapRef.current = null;
       basemapRef.current = null;
       regionBoundaryRefs.current.clear();
+      regionBoundaryPathRefs.current.clear();
       selectedBoundaryRef.current = null;
       selectedPointRef.current = null;
       pointTooltipRootRef.current = null;
@@ -252,6 +256,13 @@ export function MapWorkspace() {
   useEffect(() => {
     const basemapLayers = basemapRef.current;
     if (!basemapLayers) return;
+    const urls = getBasemapUrls();
+    if (basemap.showSeaLabels) {
+      ensureVectorSource(basemapLayers.seaLabels, urls.marineLabels);
+    }
+    if (basemap.showMajorCities) {
+      ensureVectorSource(basemapLayers.majorCities, urls.populatedPlaces);
+    }
 
     basemapLayers.oceanFill.setStyle(
       createFillStyle(
@@ -295,12 +306,16 @@ export function MapWorkspace() {
         layerConfig.path,
         new URL(import.meta.env.BASE_URL, window.location.origin),
       ).toString();
-      boundaryLayer.setSource(
-        new VectorSource({
-          url: sourceUrl,
-          format: new GeoJSON(),
-        }),
-      );
+      const previousSourceUrl = regionBoundaryPathRefs.current.get(layerConfig.id);
+      if (previousSourceUrl !== sourceUrl || !boundaryLayer.getSource()) {
+        boundaryLayer.setSource(
+          new VectorSource({
+            url: sourceUrl,
+            format: new GeoJSON(),
+          }),
+        );
+        regionBoundaryPathRefs.current.set(layerConfig.id, sourceUrl);
+      }
       boundaryLayer.setVisible(layerConfig.visible);
       boundaryLayer.setStyle(createRegionBoundaryStyle(layerConfig));
     });
@@ -309,48 +324,13 @@ export function MapWorkspace() {
       if (byId.has(id)) return;
       map.removeLayer(layerRef);
       regionBoundaryRefs.current.delete(id);
+      regionBoundaryPathRefs.current.delete(id);
     });
   }, [regionBoundaryLayers]);
 
   useEffect(() => {
     renderPointTooltip();
   }, [facilitySymbolShape, facilitySymbolSize]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const pointClickKey: EventsKey = map.on('singleclick', (event) => {
-      const pointLayers = new Set<VectorLayer<VectorSource>>();
-      for (const layer of layers) {
-        if (layer.type !== 'point' || !layer.visible) continue;
-        const mapLayer = layerRefs.current.get(layer.id);
-        if (mapLayer) {
-          pointLayers.add(mapLayer);
-        }
-      }
-
-      const hitFeatures = getDirectPointHitsAtPixel(
-        map,
-        event.pixel,
-        pointLayers,
-        facilitySymbolSize,
-      );
-
-      pointTooltipEntriesRef.current = collectPointTooltipEntries(
-        hitFeatures,
-        event.coordinate as [number, number],
-        regionBoundaryLayers,
-        regionBoundaryRefs.current,
-        regions,
-      );
-      pointTooltipIndexRef.current = 0;
-      renderPointTooltip();
-    });
-
-    return () => {
-      unByKey(pointClickKey);
-    };
-  }, [layers, facilitySymbolSize, regionBoundaryLayers]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -380,13 +360,23 @@ export function MapWorkspace() {
           pointLayers.add(mapLayer);
         }
       }
-      const pointHits = getDirectPointHitsAtPixel(
+      const hitFeatures = getDirectPointHitsAtPixel(
         map,
         event.pixel,
         pointLayers,
         facilitySymbolSize,
       );
-      if (pointHits.length > 0) {
+
+      if (hitFeatures.length > 0) {
+        pointTooltipEntriesRef.current = collectPointTooltipEntries(
+          hitFeatures,
+          event.coordinate as [number, number],
+          regionBoundaryLayers,
+          regionBoundaryRefs.current,
+          regions,
+        );
+        pointTooltipIndexRef.current = 0;
+        renderPointTooltip();
         return;
       }
 
@@ -404,7 +394,7 @@ export function MapWorkspace() {
     return () => {
       unByKey(clickKey);
     };
-  }, [regionBoundaryLayers, layers, facilitySymbolSize]);
+  }, [regionBoundaryLayers, layers, regions, facilitySymbolSize]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -628,15 +618,14 @@ function setBasemapSources(
     }),
   );
   layers.countryLabels.setSource(countriesSource);
-  layers.majorCities.setSource(
+  // Delay large/optional label sources until explicitly enabled.
+}
+
+function ensureVectorSource(layer: VectorLayer<VectorSource>, url: string): void {
+  if (layer.getSource()) return;
+  layer.setSource(
     new VectorSource({
-      url: urls.populatedPlaces,
-      format: new GeoJSON(),
-    }),
-  );
-  layers.seaLabels.setSource(
-    new VectorSource({
-      url: urls.marineLabels,
+      url,
       format: new GeoJSON(),
     }),
   );
@@ -664,11 +653,11 @@ function getBasemapUrls(): {
       baseUrl,
     ).toString(),
     marineLabels: new URL(
-      'data/basemaps/ne_10m_geography_marine_polys.geojson',
+      'data/basemaps/ne_110m_geography_marine_polys.geojson',
       baseUrl,
     ).toString(),
     populatedPlaces: new URL(
-      'data/basemaps/ne_10m_populated_places.geojson',
+      'data/basemaps/ne_110m_populated_places_simple.geojson',
       baseUrl,
     ).toString(),
   };
@@ -703,29 +692,40 @@ function createCountryBorderStyle(basemap?: BasemapSettings) {
 }
 
 function createCountryLabelStyle(basemap?: BasemapSettings) {
+  const color = withOpacity(
+    basemap?.countryLabelColor ?? '#0f172a',
+    basemap?.countryLabelOpacity ?? 1,
+  );
+  const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const name = feature.get('NAME_LONG') ?? feature.get('NAME');
     if (!name) return undefined;
-    return new Style({
+    const label = String(name);
+    const existing = cache.get(label);
+    if (existing) return existing;
+
+    const style = new Style({
       text: new TextStyle({
-        text: String(name),
+        text: label,
         font: '12px Manrope, sans-serif',
-        fill: new Fill({
-          color: withOpacity(
-            basemap?.countryLabelColor ?? '#0f172a',
-            basemap?.countryLabelOpacity ?? 1,
-          ),
-        }),
+        fill: new Fill({ color }),
         stroke: new Stroke({
           color: '#ffffff',
           width: 3,
         }),
       }),
     });
+    cache.set(label, style);
+    return style;
   };
 }
 
 function createMajorCityStyle(basemap?: BasemapSettings) {
+  const color = withOpacity(
+    basemap?.majorCityColor ?? '#1f2937',
+    basemap?.majorCityOpacity ?? 1,
+  );
+  const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const isCapital = Number(getFeatureValue(feature, ['adm0cap', 'ADM0CAP']) ?? 0) === 1;
     const isWorldCity =
@@ -743,33 +743,30 @@ function createMajorCityStyle(basemap?: BasemapSettings) {
     const name = getFeatureValue(feature, ['name', 'NAME', 'name_en', 'NAME_EN']);
     if (!name) return undefined;
 
-    return new Style({
+    const label = String(name);
+    const key = `${label}:${isCapital ? 1 : 0}`;
+    const existing = cache.get(key);
+    if (existing) return existing;
+
+    const style = new Style({
       image: new CircleStyle({
         radius: isCapital ? 3 : 2.5,
-        fill: new Fill({
-          color: withOpacity(
-            basemap?.majorCityColor ?? '#1f2937',
-            basemap?.majorCityOpacity ?? 1,
-          ),
-        }),
+        fill: new Fill({ color }),
         stroke: new Stroke({ color: '#ffffff', width: 1 }),
       }),
       text: new TextStyle({
-        text: String(name),
+        text: label,
         font: '11px Manrope, sans-serif',
         offsetY: -10,
-        fill: new Fill({
-          color: withOpacity(
-            basemap?.majorCityColor ?? '#1f2937',
-            basemap?.majorCityOpacity ?? 1,
-          ),
-        }),
+        fill: new Fill({ color }),
         stroke: new Stroke({
           color: '#ffffff',
           width: 3,
         }),
       }),
     });
+    cache.set(key, style);
+    return style;
   };
 }
 
@@ -784,25 +781,31 @@ function getFeatureValue(feature: FeatureLike, keys: string[]): unknown {
 }
 
 function createSeaLabelStyle(basemap?: BasemapSettings) {
+  const color = withOpacity(
+    basemap?.seaLabelColor ?? '#334155',
+    basemap?.seaLabelOpacity ?? 1,
+  );
+  const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const name = feature.get('name_en') ?? feature.get('name');
     if (!name) return undefined;
-    return new Style({
+    const label = String(name);
+    const existing = cache.get(label);
+    if (existing) return existing;
+
+    const style = new Style({
       text: new TextStyle({
-        text: String(name),
+        text: label,
         font: 'italic 11px Manrope, sans-serif',
-        fill: new Fill({
-          color: withOpacity(
-            basemap?.seaLabelColor ?? '#334155',
-            basemap?.seaLabelOpacity ?? 1,
-          ),
-        }),
+        fill: new Fill({ color }),
         stroke: new Stroke({
           color: '#ffffff',
           width: 3,
         }),
       }),
     });
+    cache.set(label, style);
+    return style;
   };
 }
 
@@ -860,22 +863,30 @@ function createPointSymbol(
 }
 
 function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
+  const strokeColor = withOpacity(layer.borderColor, layer.borderOpacity);
+  const strokeWidth = layer.borderVisible ? 1 : 0;
+  const fillOpacity = layer.opacity;
+  const cache = new Map<string, Style>();
+
   return (feature: FeatureLike) => {
     const rawColor = String(feature.get('fill_color_hex') ?? 'ed5151').replace('#', '');
     const baseColor = /^([0-9a-fA-F]{6})$/.test(rawColor)
       ? `#${rawColor}`
       : layer.swatchColor;
-    const fillOpacity = layer.opacity;
+    const existing = cache.get(baseColor);
+    if (existing) return existing;
 
-    return new Style({
+    const style = new Style({
       stroke: new Stroke({
-        color: withOpacity(layer.borderColor, layer.borderOpacity),
-        width: layer.borderVisible ? 1 : 0,
+        color: strokeColor,
+        width: strokeWidth,
       }),
       fill: new Fill({
         color: withOpacity(baseColor, fillOpacity),
       }),
     });
+    cache.set(baseColor, style);
+    return style;
   };
 }
 
