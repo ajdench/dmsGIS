@@ -57,6 +57,10 @@
     --sidebar-width-right: calc(
       var(--panel-width-right) + (2 * var(--pane-padding))
     );
+    --map-min-width: 22rem;
+    --app-min-width: calc(
+      var(--sidebar-width-right) + var(--map-min-width) + (3 * var(--workspace-gap))
+    );
     --sidebar-width-left-tablet: 280px;
     --workspace-gap: 0.75rem;
     --map-min-height: 420px;
@@ -142,10 +146,12 @@
 
   body {
     @apply antialiased;
+    min-width: var(--app-min-width);
     font-family: var(--font-family-base);
     line-height: 1.1;
     color: var(--text);
     background: var(--canvas-bg);
+    overflow-x: auto;
   }
 
   button,
@@ -157,6 +163,7 @@
 @layer components {
   .app-shell {
     @apply grid h-full;
+    min-width: var(--app-min-width);
     grid-template-rows: auto 1fr;
     gap: var(--workspace-gap);
     padding: var(--workspace-gap);
@@ -165,6 +172,7 @@
 
   .topbar {
     @apply flex items-center justify-between;
+    min-width: 0;
     padding-top: var(--space-1);
     padding-bottom: var(--space-1);
     padding-left: var(--space-3);
@@ -195,7 +203,9 @@
 
   .topbar__actions {
     @apply flex items-center;
+    flex: 0 0 auto;
     gap: var(--space-3);
+    flex-wrap: nowrap;
   }
 
   .button {
@@ -263,6 +273,10 @@
 
   .sidebar--right {
     grid-area: right;
+    inline-size: var(--sidebar-width-right);
+    min-inline-size: var(--sidebar-width-right);
+    max-inline-size: var(--sidebar-width-right);
+    justify-self: end;
   }
 
   .map-panel {
@@ -478,6 +492,37 @@
     width: var(--panel-width-right);
     max-width: 100%;
     align-self: center;
+  }
+
+  .sidebar-action-row {
+    display: grid;
+    grid-template-columns: repeat(4, var(--topbar-action-width));
+    gap: var(--space-3);
+    width: var(--panel-width-right);
+    max-width: 100%;
+    align-self: center;
+  }
+
+  .sidebar-action-row__button {
+    border: 0;
+    background: var(--surface);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-panel);
+    white-space: nowrap;
+  }
+
+  .sidebar-action-row__button:hover {
+    background: var(--surface-subtle);
+  }
+
+  .sidebar-action-row__button--active {
+    background: var(--surface-subtle);
+    color: var(--text);
+  }
+
+  .sidebar-action-row__button:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: var(--focus);
   }
 
   .panel h2 {
@@ -907,7 +952,7 @@
 
 @media (max-width: 1180px) {
   .workspace-grid {
-    grid-template-columns: minmax(0, 1fr) var(--sidebar-width-left-tablet);
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-width-right);
     grid-template-areas: "map right";
   }
 
@@ -920,22 +965,6 @@
 @media (max-width: 920px) {
   .app-shell {
     grid-template-rows: auto 1fr;
-  }
-
-  .topbar {
-    @apply flex-col items-start py-3;
-    gap: var(--space-3);
-  }
-
-  .topbar__actions {
-    @apply flex-wrap;
-  }
-
-  .workspace-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "map"
-      "right";
   }
 
   .sidebar--right {

@@ -57,6 +57,8 @@ export interface RegionBoundaryLayerStyle {
   swatchColor: string;
 }
 
+export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
+
 export interface Facility {
   id: string;
   name: string;

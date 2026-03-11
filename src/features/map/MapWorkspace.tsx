@@ -352,6 +352,9 @@ export function MapWorkspace() {
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
+      const visibleRegions = new Map(
+        regions.map((region) => [region.name, region]),
+      );
       const pointLayers = new Set<VectorLayer<VectorSource>>();
       for (const layer of layers) {
         if (layer.type !== 'point' || !layer.visible) continue;
@@ -364,12 +367,23 @@ export function MapWorkspace() {
         map,
         event.pixel,
         pointLayers,
+        visibleRegions,
+        facilitySymbolShape,
         facilitySymbolSize,
       );
 
       if (hitFeatures.length > 0) {
-        pointTooltipEntriesRef.current = collectPointTooltipEntries(
+        const clusteredHitFeatures = expandPointHitCluster(
+          map,
           hitFeatures,
+          pointLayers,
+          visibleRegions,
+          facilitySymbolShape,
+          facilitySymbolSize,
+          event.pixel,
+        );
+        pointTooltipEntriesRef.current = collectPointTooltipEntries(
+          clusteredHitFeatures,
           event.coordinate as [number, number],
           regionBoundaryLayers,
           regionBoundaryRefs.current,
@@ -929,6 +943,8 @@ function getDirectPointHitsAtPixel(
   map: OLMap,
   pixel: number[],
   pointLayers: Set<VectorLayer<VectorSource>>,
+  regionsByName: Map<string, RegionStyle>,
+  facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
 ): FeatureLike[] {
   const hits = map.getFeaturesAtPixel(pixel, {
@@ -944,8 +960,206 @@ function getDirectPointHitsAtPixel(
     const dx = featurePixel[0] - pixel[0];
     const dy = featurePixel[1] - pixel[1];
     const distance = Math.hypot(dx, dy);
-    return distance <= Math.max(5, facilitySymbolSize + 2);
+    const radius = getPointSelectionRadius(
+      feature,
+      regionsByName,
+      facilitySymbolShape,
+      facilitySymbolSize,
+    );
+    return distance <= radius + 0.75;
   });
+}
+
+function expandPointHitCluster(
+  map: OLMap,
+  seedFeatures: FeatureLike[],
+  pointLayers: Set<VectorLayer<VectorSource>>,
+  regionsByName: Map<string, RegionStyle>,
+  facilitySymbolShape: FacilitySymbolShape,
+  facilitySymbolSize: number,
+  clickPixel: number[],
+): FeatureLike[] {
+  const candidates = collectVisiblePointCandidates(
+    map,
+    pointLayers,
+    regionsByName,
+    facilitySymbolShape,
+    facilitySymbolSize,
+  );
+  const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
+  const seeds: PointSelectionCandidate[] = [];
+  const selected = new Set<string>();
+
+  for (const feature of seedFeatures) {
+    const candidate = getPointSelectionCandidate(
+      map,
+      feature,
+      regionsByName,
+      facilitySymbolShape,
+      facilitySymbolSize,
+    );
+    if (!candidate || selected.has(candidate.key)) continue;
+    seeds.push(candidate);
+    selected.add(candidate.key);
+  }
+
+  for (const candidate of candidates) {
+    if (selected.has(candidate.key)) continue;
+    if (seeds.some((seed) => pointCandidatesOverlap(seed, candidate))) {
+      selected.add(candidate.key);
+    }
+  }
+
+  return [...selected]
+    .map((key) => candidatesByKey.get(key))
+    .filter((candidate): candidate is PointSelectionCandidate => candidate !== undefined)
+    .map((candidate) => candidate.feature)
+    .sort((a, b) => {
+      const aCoordinate = getPointCoordinate(a);
+      const bCoordinate = getPointCoordinate(b);
+      if (aCoordinate && bCoordinate) {
+        const aPixel = map.getPixelFromCoordinate(aCoordinate);
+        const bPixel = map.getPixelFromCoordinate(bCoordinate);
+        const aDistance = Math.hypot(
+          aPixel[0] - clickPixel[0],
+          aPixel[1] - clickPixel[1],
+        );
+        const bDistance = Math.hypot(
+          bPixel[0] - clickPixel[0],
+          bPixel[1] - clickPixel[1],
+        );
+        if (aDistance !== bDistance) {
+          return aDistance - bDistance;
+        }
+      }
+
+      const aName = String(a.get('name') ?? '');
+      const bName = String(b.get('name') ?? '');
+      return aName.localeCompare(bName);
+    });
+}
+
+interface PointSelectionCandidate {
+  key: string;
+  feature: FeatureLike;
+  pixel: [number, number];
+  radius: number;
+}
+
+function collectVisiblePointCandidates(
+  map: OLMap,
+  pointLayers: Set<VectorLayer<VectorSource>>,
+  regionsByName: Map<string, RegionStyle>,
+  facilitySymbolShape: FacilitySymbolShape,
+  facilitySymbolSize: number,
+): PointSelectionCandidate[] {
+  const candidates: PointSelectionCandidate[] = [];
+
+  for (const layer of pointLayers) {
+    const source = layer.getSource();
+    if (!source) continue;
+
+    for (const feature of source.getFeatures()) {
+      if (!isPointFeatureSelectable(feature, regionsByName)) continue;
+      const candidate = getPointSelectionCandidate(
+        map,
+        feature,
+        regionsByName,
+        facilitySymbolShape,
+        facilitySymbolSize,
+      );
+      if (candidate) {
+        candidates.push(candidate);
+      }
+    }
+  }
+
+  return candidates;
+}
+
+function getPointSelectionCandidate(
+  map: OLMap,
+  feature: FeatureLike,
+  regionsByName: Map<string, RegionStyle>,
+  facilitySymbolShape: FacilitySymbolShape,
+  facilitySymbolSize: number,
+): PointSelectionCandidate | null {
+  const coordinate = getPointCoordinate(feature);
+  if (!coordinate) return null;
+
+  const name = String(feature.get('name') ?? '').trim();
+  const pixel = map.getPixelFromCoordinate(coordinate);
+  const radius = getPointSelectionRadius(
+    feature,
+    regionsByName,
+    facilitySymbolShape,
+    facilitySymbolSize,
+  );
+
+  return {
+    key: `${name}:${coordinate[0].toFixed(6)}:${coordinate[1].toFixed(6)}`,
+    feature,
+    pixel: [pixel[0], pixel[1]],
+    radius,
+  };
+}
+
+function isPointFeatureSelectable(
+  feature: FeatureLike,
+  regionsByName: Map<string, RegionStyle>,
+): boolean {
+  const regionName = String(feature.get('region') ?? 'Unassigned');
+  const regionStyle = regionsByName.get(regionName);
+  const defaultVisible = Number(feature.get('default_visible') ?? 1) !== 0;
+
+  if (regionStyle) {
+    return regionStyle.visible;
+  }
+
+  return defaultVisible;
+}
+
+function getPointSelectionRadius(
+  feature: FeatureLike,
+  regionsByName: Map<string, RegionStyle>,
+  facilitySymbolShape: FacilitySymbolShape,
+  facilitySymbolSize: number,
+): number {
+  const regionName = String(feature.get('region') ?? 'Unassigned');
+  const regionStyle = regionsByName.get(regionName);
+  const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
+  const borderVisible = regionStyle?.borderVisible ?? true;
+  const borderOpacity = regionStyle?.borderOpacity ?? 1;
+  const borderWidth = borderVisible && borderOpacity > 0.01 ? 1 : 0;
+  const shape = facilitySymbolShape;
+
+  return getRenderedPointPixelRadius(shape, symbolSize, borderWidth);
+}
+
+function pointCandidatesOverlap(
+  a: PointSelectionCandidate,
+  b: PointSelectionCandidate,
+): boolean {
+  const dx = a.pixel[0] - b.pixel[0];
+  const dy = a.pixel[1] - b.pixel[1];
+  const distance = Math.hypot(dx, dy);
+  return distance <= a.radius + b.radius + 0.75;
+}
+
+function getRenderedPointPixelRadius(
+  shape: FacilitySymbolShape,
+  size: number,
+  borderWidth: number,
+): number {
+  if (shape === 'circle') {
+    return size + borderWidth;
+  }
+
+  if (shape === 'square' || shape === 'diamond') {
+    return size * 1.05 + borderWidth;
+  }
+
+  return size * 1.15 + borderWidth;
 }
 
 function getBoundaryName(feature: Feature): string {

@@ -10,7 +10,7 @@ export function LayerPanel() {
 
   return (
     <section className="panel">
-      <h2>Layers</h2>
+      <h2>Overlays</h2>
       {isLoading && <p className="muted">Loading layers…</p>}
       {error && <p className="muted">Error: {error}</p>}
       {layers.map((layer) => (

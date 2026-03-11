@@ -53,3 +53,6 @@ npm run test:e2e
 - Boundary overlay ordering is explicit so populated, unpopulated, and care-board layers render consistently.
 - Store coverage now includes PMC/global region styling behavior in `tests/appStore.test.ts`.
 - Right sidebar width is derived from the top-bar action-button span plus `0.75rem` side gutters so the internal white panes align cleanly inside the grey container.
+- The right sidebar pane is named `Overlays`; in `COA 3a/3b/3c` it is intentionally empty for now while PMC points remain active on the map.
+- The workspace keeps the right sidebar fixed-width and uses horizontal overflow at narrow widths instead of stacking the sidebar below the map.
+- Point tooltip paging is based on visible screen-space overlap at the current zoom and current symbol size/shape, with the nearest clicked facility shown first.

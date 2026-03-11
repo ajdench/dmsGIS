@@ -22,6 +22,7 @@ export function GroupPanel({
   embedded = false,
   mode = 'pmc',
 }: GroupPanelProps) {
+  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const regions = useAppStore((state) => state.regions);
   const regionGlobalOpacity = useAppStore((state) => state.regionGlobalOpacity);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
@@ -285,8 +286,12 @@ export function GroupPanel({
 
   const content = (
     <>
-      {!embedded && <h2>Layers</h2>}
-      {mode === 'pmc' ? pmcSection : boundaryRegionsContent}
+      {!embedded && <h2>Overlays</h2>}
+      {mode === 'pmc'
+        ? pmcSection
+        : activeViewPreset === 'current'
+          ? boundaryRegionsContent
+          : null}
     </>
   );
 

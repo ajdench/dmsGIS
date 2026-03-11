@@ -33,14 +33,16 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Legacy heavy `10m` label datasets (`ne_10m_geography_marine_polys.geojson`, `ne_10m_populated_places.geojson`) were removed from `public/data/basemaps/`.
 - Facilities dataset is sourced from `public/data/facilities/facilities.geojson` (derived from `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`) with per-feature defaults (`default_visible`, `point_color_hex`, `point_alpha`).
 - Layout model: workspace now uses map + right sidebar (left sidebar removed).
-- Right sidebar pane order is: Basemap, Facilities, Labels, Layers.
+- Right sidebar pane order is: Basemap, Facilities, Labels, Overlays.
 - Right sidebar now also surfaces runtime layer loading/error status above the pane stack.
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
-- Layers pane now lists boundary datasets (not facility-region rows) with popovers per item.
-- Current Layers items are:
+- Overlays pane now lists boundary datasets (not facility-region rows) with popovers per item.
+- Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
   - `Care board boundaries` (`UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson`)
+- View presets are `Current`, `COA 3a`, `COA 3b`, and `COA 3c`.
+- `COA 3a`, `COA 3b`, and `COA 3c` keep PMC points active on the map but currently show an empty `Overlays` pane.
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
@@ -58,6 +60,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Boundary name and boundary highlight for point selection are resolved from the point geometry coordinate (data-driven), not from raw click position.
   - Boundary-only clicks show boundary name only (no pager controls).
   - Point selection highlight is luminous yellow (`#fffb00`) and is drawn outside the symbol edge with border-aware offset.
+  - Point paging groups only facilities that visually overlap or nearly overlap at the current zoom, and the nearest clicked facility is always `Page 1`.
+  - Overlap grouping is computed in screen space and responds dynamically to zoom level plus current symbol size/shape.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
@@ -73,11 +77,13 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Basemap visibility defaults: Land labels off, Major cities off, Sea labels off
 - Layer UI: standalone `LayerPanel` is currently removed from rendered sidebar layout.
 - Legacy `LeftSidebar` and standalone `FacilitySearchPanel` components are removed from the current implementation.
-- Shared slider UI is centralized in `src/components/controls/SliderField.tsx` and used across Groups/Basemap/Layers with synced slider + numeric input + in-box +/- controls.
+- Shared slider UI is centralized in `src/components/controls/SliderField.tsx` and used across Groups/Basemap/Overlays with synced slider + numeric input + in-box +/- controls.
 - Global visual tokens are centralized in `src/styles/global.css` (`:root` CSS variables for spacing, sizing, typography, colors, radius, shadows, popover/control dimensions).
 - Current UI baseline for restart:
 - Global rhythm target is `0.75rem` between pane/sub-pane elements via tokens in `src/styles/global.css`.
 - Right sidebar grey container width is derived from the top-bar `Open` to `Reset` button span plus `0.75rem` side padding on each side; internal white panes should sit flush to those gutters rather than centered in extra space.
+- Right sidebar outer grey pane remains fixed-width; the map pane absorbs width loss first.
+- The app now uses a minimum layout width plus horizontal overflow instead of stacking the right sidebar below the map or wrapping the top-bar action buttons.
 - Canvas/pane colors are tokenized (`--canvas-bg` lighter, `--pane-bg` darker) and applied to body vs pane containers.
 - Pane radii use default radius token; map pane container also uses default radius token.
 - Groups: only `PMC` title remains bold; non-title labels are regular weight.
