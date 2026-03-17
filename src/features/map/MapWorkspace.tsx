@@ -877,7 +877,6 @@ function createPointSymbol(
 }
 
 function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
-  const strokeWidth = layer.borderVisible ? 1 : 0;
   const fillOpacity = layer.opacity;
   const cache = new Map<string, Style>();
 
@@ -886,8 +885,10 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
       getJmcBoundaryColor(feature) ??
       getFeatureBoundaryFillColor(feature) ??
       layer.swatchColor;
-    const strokeColor = getFeatureBoundaryStrokeColor(layer, baseColor);
-    const existing = cache.get(baseColor);
+    const strokeColor = getFeatureBoundaryStrokeColor(layer, feature, baseColor);
+    const strokeWidth = getFeatureBoundaryStrokeWidth(layer, feature);
+    const cacheKey = `${baseColor}:${strokeColor}:${strokeWidth}:${fillOpacity}`;
+    const existing = cache.get(cacheKey);
     if (existing) return existing;
 
     const style = new Style({
@@ -899,7 +900,7 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
         color: withOpacity(baseColor, fillOpacity),
       }),
     });
-    cache.set(baseColor, style);
+    cache.set(cacheKey, style);
     return style;
   };
 }
@@ -914,17 +915,60 @@ function getFeatureBoundaryFillColor(feature: FeatureLike): string | null {
 
 function getFeatureBoundaryStrokeColor(
   layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
   baseColor: string,
 ): string {
-  const strokeBaseColor = getUsesPerFeatureBoundaryColor(layer)
-    ? baseColor
-    : layer.borderColor;
-  const strokeOpacity = layer.borderVisible ? layer.borderOpacity : 0;
-  return withOpacity(strokeBaseColor, strokeOpacity);
+  const featureLineColor = getFeatureBoundaryLineColor(layer, feature);
+  const strokeBaseColor = featureLineColor ??
+    (getUsesPerFeatureBoundaryColor(layer)
+      ? baseColor
+      : layer.borderColor);
+  const strokeOpacity = featureLineColor
+    ? getFeatureBoundaryLineOpacity(feature)
+    : layer.borderOpacity;
+  return withOpacity(strokeBaseColor, layer.borderVisible ? strokeOpacity : 0);
 }
 
 function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolean {
   return layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson');
+}
+
+function getFeatureBoundaryLineColor(
+  layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
+): string | null {
+  if (!layer.path.includes('UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson')) {
+    return null;
+  }
+  const rawColor = String(feature.get('line_color_hex') ?? '').replace('#', '');
+  if (/^([0-9a-fA-F]{6})$/.test(rawColor)) {
+    return `#${rawColor}`;
+  }
+  return null;
+}
+
+function getFeatureBoundaryLineOpacity(feature: FeatureLike): number {
+  const alpha = Number(feature.get('line_alpha'));
+  if (Number.isFinite(alpha)) {
+    return Math.max(0, Math.min(1, alpha / 100));
+  }
+  return 1;
+}
+
+function getFeatureBoundaryStrokeWidth(
+  layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
+): number {
+  if (!layer.borderVisible) return 0;
+  const rawWidth = Number(feature.get('line_width'));
+  if (
+    layer.path.includes('UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson') &&
+    Number.isFinite(rawWidth) &&
+    rawWidth > 0
+  ) {
+    return Math.max(0.75, Math.min(2, rawWidth));
+  }
+  return 1;
 }
 
 function getJmcBoundaryColor(feature: FeatureLike): string | null {

@@ -511,14 +511,14 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
     },
     {
       id: 'careBoardBoundaries',
-      name: 'Care board boundaries',
-      path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+      name: 'ICB / Health Board boundaries',
+      path: 'data/regions/UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson',
       visible: true,
       opacity: 0,
       borderVisible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
-      swatchColor: '#999999',
+      borderColor: '#4d4d4d',
+      borderOpacity: 0.35,
+      swatchColor: '#4d4d4d',
     },
   ];
 }

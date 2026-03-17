@@ -242,7 +242,7 @@ describe('appStore region controls', () => {
       path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
       visible: true,
       borderColor: '#2563eb',
-      borderOpacity: 0.6,
+      borderOpacity: 0.72,
     });
   });
 });
