@@ -161,7 +161,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
             basemap: { ...currentViewPresetState.basemap },
           }
-        : createScenarioViewPresetState(currentViewPresetState);
+        : createScenarioViewPresetState(currentViewPresetState, preset);
 
     set({
       activeViewPreset: preset,
@@ -540,21 +540,50 @@ function createViewPresetState({
 
 function createScenarioViewPresetState(
   source: ViewPresetState,
+  preset: ViewPresetId,
 ): ViewPresetState {
   return {
     layers: cloneLayers(source.layers),
     regions: cloneRegions(source.regions),
-    regionBoundaryLayers: cloneRegionBoundaryLayers(source.regionBoundaryLayers).map(
-      (layer) => ({
-        ...layer,
-        visible: false,
-      }),
+    regionBoundaryLayers: createScenarioRegionBoundaryLayers(
+      source.regionBoundaryLayers,
+      preset,
     ),
     regionGlobalOpacity: source.regionGlobalOpacity,
     facilitySymbolShape: source.facilitySymbolShape,
     facilitySymbolSize: source.facilitySymbolSize,
     basemap: { ...source.basemap },
   };
+}
+
+function createScenarioRegionBoundaryLayers(
+  layers: RegionBoundaryLayerStyle[],
+  preset: ViewPresetId,
+): RegionBoundaryLayerStyle[] {
+  const hiddenLayers = cloneRegionBoundaryLayers(layers).map((layer) => ({
+    ...layer,
+    visible: false,
+  }));
+
+  if (preset !== 'coa3a') {
+    return hiddenLayers;
+  }
+
+  return hiddenLayers.map((layer) =>
+    layer.id === 'careBoardBoundaries'
+      ? {
+          ...layer,
+          name: 'JMC boundaries',
+          path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
+          visible: true,
+          opacity: 0,
+          borderVisible: true,
+          borderColor: '#2563eb',
+          borderOpacity: 0.6,
+          swatchColor: '#2563eb',
+        }
+      : layer,
+  );
 }
 
 function cloneLayers(layers: LayerState[]): LayerState[] {

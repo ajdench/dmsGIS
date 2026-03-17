@@ -1164,6 +1164,8 @@ function getRenderedPointPixelRadius(
 
 function getBoundaryName(feature: Feature): string {
   const value =
+    feature.get('region_name') ??
+    feature.get('region_ref') ??
     feature.get('boundary_name') ??
     feature.get('parent_name') ??
     feature.get('name') ??

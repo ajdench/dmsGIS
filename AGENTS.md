@@ -52,6 +52,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - `Care board boundaries` (`UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson`)
 - View presets are `Current`, `COA 3a`, `COA 3b`, and `COA 3c`.
 - `COA 3a`, `COA 3b`, and `COA 3c` keep PMC points active on the map but currently show an empty `Overlays` pane.
+- `COA 3a` swaps the selectable boundary layer to `JMC boundaries` using `public/data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson`.
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
@@ -62,6 +63,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Global PMC size changes apply to all regions.
   - Region popover size changes apply locally to the selected region only.
 - Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows the boundary name in the docked map tooltip.
+- `COA 3a` boundary interaction reuses the same selectable boundary path as `Care board boundaries`, but the resolved boundary name comes from JMC fields (`region_name` / `region_ref`).
 - Point map interaction (PMC facilities):
   - Clicking a point opens a docked tooltip in the top-right of the map pane.
   - Tooltip content order is: facility name; pager row (`< Page n of y >`); boundary name.
