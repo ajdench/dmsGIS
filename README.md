@@ -34,6 +34,7 @@ npm run typecheck
 npm run lint
 npm run test
 npm run test:e2e
+jj status
 ```
 
 ## Deployment target
@@ -56,3 +57,5 @@ npm run test:e2e
 - The right sidebar pane is named `Overlays`; in `COA 3a/3b/3c` it is intentionally empty for now while PMC points remain active on the map.
 - The workspace keeps the right sidebar fixed-width and uses horizontal overflow at narrow widths instead of stacking the sidebar below the map.
 - Point tooltip paging is based on visible screen-space overlap at the current zoom and current symbol size/shape, with the nearest clicked facility shown first.
+- `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
+- The local JJ bookmark `main` is tracking `main@origin`.

@@ -22,6 +22,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 ## Current implementation notes
 
 - GitHub Pages target: Vite `base` defaults to `/dmsGIS/` and can be overridden via `VITE_BASE_PATH`.
+- Version control: `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo; `git` and `jj` operate on the same repository, and `main` is tracked against `main@origin`.
 - Layer manifest: fetches `data/manifests/layers.manifest.json`, validated as `{ layers: [...] }`; manifest paths must be relative (no leading slash) and are resolved against `import.meta.env.BASE_URL`.
 - Map core: OpenLayers map is mounted in `src/features/map/MapWorkspace.tsx` with local Natural Earth basemap fixed to `localDetailed` at `10m` detail.
 - Basemap data is local under `public/data/basemaps/` (no runtime internet requirement for basemap rendering).
@@ -97,12 +98,16 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
-2. Add explicit tests for region styling logic (PMC global broadcast opacity, border controls, shape/size controls, default visibility behavior).
-3. Decide whether region style choices should persist across reloads (local storage and/or serverless write-back).
-4. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
-5. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
-6. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+1. Extract point selection, overlap grouping, tooltip paging, and boundary-resolution logic out of `src/features/map/MapWorkspace.tsx` into smaller focused units; this is the highest-risk interaction area and the biggest source of recent regressions.
+2. Add direct tests for map interaction behavior: nearest clicked facility is `Page 1`, only visually overlapping points page together at the current zoom, and point grouping responds correctly to symbol size/shape changes.
+3. Centralise view preset definitions so preset IDs, labels, ordering, and state behavior are driven from one source instead of being split across sidebar UI and store logic.
+4. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
+5. Add explicit tests for region styling logic (PMC global broadcast opacity, border controls, shape/size controls, default visibility behavior).
+6. Decide whether region style choices should persist across reloads (local storage and/or serverless write-back).
+7. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
+8. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
+9. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
+10. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 
