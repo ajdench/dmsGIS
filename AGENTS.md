@@ -19,6 +19,14 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 9. Centralise schemas in `src/lib/schemas/`.
 10. Add or update tests for non-trivial logic.
 
+## Version control workflow
+
+- Use `jj` for local checkpointing in this repo.
+- Create a local JJ commit after every logical/completed change so work is not left only in the working copy.
+- Do not push or create the Git/GitHub-facing commit flow unless the user explicitly asks, for example with `Commit to Git`.
+- Before any user-requested Git commit/push flow, update project documentation and local memory with relevant completed changes first (`AGENTS.md`, `README.md`, and local Codex memory when applicable).
+- When the user explicitly asks to commit to Git, treat that as: update docs/memory first, ensure the colocated JJ/Git state is aligned, then complete the Git workflow and any requested GitHub Pages-related push/deploy step.
+
 ## Current implementation notes
 
 - GitHub Pages target: Vite `base` defaults to `/dmsGIS/` and can be overridden via `VITE_BASE_PATH`.
