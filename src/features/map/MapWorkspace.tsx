@@ -877,16 +877,16 @@ function createPointSymbol(
 }
 
 function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
-  const strokeColor = withOpacity(layer.borderColor, layer.borderOpacity);
   const strokeWidth = layer.borderVisible ? 1 : 0;
   const fillOpacity = layer.opacity;
   const cache = new Map<string, Style>();
 
   return (feature: FeatureLike) => {
-    const rawColor = String(feature.get('fill_color_hex') ?? 'ed5151').replace('#', '');
-    const baseColor = /^([0-9a-fA-F]{6})$/.test(rawColor)
-      ? `#${rawColor}`
-      : layer.swatchColor;
+    const baseColor =
+      getJmcBoundaryColor(feature) ??
+      getFeatureBoundaryFillColor(feature) ??
+      layer.swatchColor;
+    const strokeColor = getFeatureBoundaryStrokeColor(layer, baseColor);
     const existing = cache.get(baseColor);
     if (existing) return existing;
 
@@ -902,6 +902,47 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
     cache.set(baseColor, style);
     return style;
   };
+}
+
+function getFeatureBoundaryFillColor(feature: FeatureLike): string | null {
+  const rawColor = String(feature.get('fill_color_hex') ?? '').replace('#', '');
+  if (/^([0-9a-fA-F]{6})$/.test(rawColor)) {
+    return `#${rawColor}`;
+  }
+  return null;
+}
+
+function getFeatureBoundaryStrokeColor(
+  layer: RegionBoundaryLayerStyle,
+  baseColor: string,
+): string {
+  const strokeBaseColor = getUsesPerFeatureBoundaryColor(layer)
+    ? baseColor
+    : layer.borderColor;
+  const strokeOpacity = layer.borderVisible ? layer.borderOpacity : 0;
+  return withOpacity(strokeBaseColor, strokeOpacity);
+}
+
+function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolean {
+  return layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson');
+}
+
+function getJmcBoundaryColor(feature: FeatureLike): string | null {
+  const regionName = String(feature.get('region_name') ?? '').trim();
+  if (!regionName) return null;
+
+  const byRegionName: Record<string, string> = {
+    'JMC Scotland': '#8ea2db',
+    'JMC Northern Ireland': '#8ea2db',
+    'JMC Wales': '#8ea2db',
+    'JMC North': '#c6d96f',
+    'JMC Centre': '#f39ca0',
+    'JMC South West': '#73c4e2',
+    'JMC South East': '#86c184',
+    'London District': '#86c184',
+  };
+
+  return byRegionName[regionName] ?? null;
 }
 
 function getRegionBoundaryLayerZIndex(layerId: string): number {
