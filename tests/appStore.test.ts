@@ -245,4 +245,77 @@ describe('appStore region controls', () => {
       borderOpacity: 0.1,
     });
   });
+
+  it('maps coa3b to the same board-assignment scenario dataset', () => {
+    useAppStore.setState({
+      activeViewPreset: 'current',
+      currentViewPresetState: {
+        layers: [],
+        regions: [],
+        regionBoundaryLayers: [
+          {
+            id: 'pmcUnpopulatedCareBoardBoundaries',
+            name: 'PMC unpopulated care board boundaries',
+            path: 'data/regions/UK_Inactive_Remainder_Codex_v10_geojson.geojson',
+            visible: true,
+            opacity: 0.2,
+            borderVisible: true,
+            borderColor: '#ffffff',
+            borderOpacity: 0,
+            swatchColor: '#fc921f',
+          },
+          {
+            id: 'careBoardBoundaries',
+            name: 'Care board boundaries',
+            path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+            visible: true,
+            opacity: 0,
+            borderVisible: true,
+            borderColor: '#999999',
+            borderOpacity: 0.1,
+            swatchColor: '#999999',
+          },
+        ],
+        regionGlobalOpacity: 1,
+        facilitySymbolShape: 'circle',
+        facilitySymbolSize: 3.5,
+        basemap: {
+          provider: 'localDetailed',
+          scale: '10m',
+          landFillColor: '#ecf0e6',
+          landFillOpacity: 1,
+          showLandFill: true,
+          countryBorderColor: '#EBEBEB',
+          countryBorderOpacity: 1,
+          showCountryBorders: true,
+          countryLabelColor: '#0f172a',
+          countryLabelOpacity: 1,
+          showCountryLabels: false,
+          majorCityColor: '#1f2937',
+          majorCityOpacity: 1,
+          showMajorCities: false,
+          seaFillColor: '#d9e7f5',
+          seaFillOpacity: 1,
+          showSeaFill: true,
+          seaLabelColor: '#334155',
+          seaLabelOpacity: 1,
+          showSeaLabels: false,
+        },
+      },
+    });
+
+    useAppStore.getState().activateViewPreset('coa3b');
+
+    const layer = useAppStore
+      .getState()
+      .regionBoundaryLayers.find((entry) => entry.id === 'careBoardBoundaries');
+
+    expect(layer).toMatchObject({
+      name: 'ICB / Health Board boundaries',
+      path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+      visible: true,
+      borderColor: '#999999',
+      borderOpacity: 0.1,
+    });
+  });
 });

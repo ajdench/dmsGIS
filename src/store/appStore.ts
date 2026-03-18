@@ -565,7 +565,7 @@ function createScenarioRegionBoundaryLayers(
     visible: false,
   }));
 
-  if (preset !== 'coa3a') {
+  if (preset !== 'coa3a' && preset !== 'coa3b') {
     return hiddenLayers;
   }
 

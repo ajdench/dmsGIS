@@ -49,6 +49,7 @@ interface PointTooltipEntry {
 export function MapWorkspace() {
   const layers = useAppStore((state) => state.layers);
   const regions = useAppStore((state) => state.regions);
+  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
   const loadLayers = useAppStore((state) => state.loadLayers);
@@ -222,7 +223,10 @@ export function MapWorkspace() {
       );
       if (matchedJmcBoundary) {
         const outline = matchedJmcBoundary.clone();
-        outline.set('selectionColor', getJmcBoundaryColor(matchedJmcBoundary));
+        outline.set(
+          'selectionColor',
+          getJmcBoundaryColor(matchedJmcBoundary, activeViewPreset),
+        );
         selectedJmcSource.addFeature(outline);
       }
     }
@@ -409,7 +413,7 @@ export function MapWorkspace() {
     regionBoundaryLayers.forEach((layerConfig) => {
       let boundaryLayer = regionBoundaryRefs.current.get(layerConfig.id);
       if (!boundaryLayer) {
-        boundaryLayer = createRegionBoundaryLayer(layerConfig);
+        boundaryLayer = createRegionBoundaryLayer(layerConfig, activeViewPreset);
         regionBoundaryRefs.current.set(layerConfig.id, boundaryLayer);
         map.addLayer(boundaryLayer);
       }
@@ -429,7 +433,7 @@ export function MapWorkspace() {
         regionBoundaryPathRefs.current.set(layerConfig.id, sourceUrl);
       }
       boundaryLayer.setVisible(layerConfig.visible);
-      boundaryLayer.setStyle(createRegionBoundaryStyle(layerConfig));
+      boundaryLayer.setStyle(createRegionBoundaryStyle(layerConfig, activeViewPreset));
     });
 
     regionBoundaryRefs.current.forEach((layerRef, id) => {
@@ -438,7 +442,7 @@ export function MapWorkspace() {
       regionBoundaryRefs.current.delete(id);
       regionBoundaryPathRefs.current.delete(id);
     });
-  }, [regionBoundaryLayers]);
+  }, [regionBoundaryLayers, activeViewPreset]);
 
   useEffect(() => {
     renderPointTooltip();
@@ -471,6 +475,7 @@ export function MapWorkspace() {
         jmcAssignmentByBoundaryNameRef.current,
         jmcAssignmentLookupSourceRef.current,
         jmcBoundaryLookupSourceRef.current,
+        activeViewPreset,
       );
     };
 
@@ -512,6 +517,7 @@ export function MapWorkspace() {
           regionBoundaryRefs.current,
           regions,
           jmcAssignmentLookupSourceRef.current,
+          activeViewPreset,
         );
         pointTooltipIndexRef.current = 0;
         renderPointTooltip();
@@ -532,7 +538,7 @@ export function MapWorkspace() {
     return () => {
       unByKey(clickKey);
     };
-  }, [regionBoundaryLayers, layers, regions, facilitySymbolSize]);
+  }, [regionBoundaryLayers, layers, regions, facilitySymbolSize, activeViewPreset]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -646,10 +652,11 @@ export function MapWorkspace() {
 
 function createRegionBoundaryLayer(
   layerConfig: RegionBoundaryLayerStyle,
+  activeViewPreset: ViewPresetId,
 ): VectorLayer<VectorSource> {
   return new VectorLayer({
     source: new VectorSource(),
-    style: createRegionBoundaryStyle(layerConfig),
+    style: createRegionBoundaryStyle(layerConfig, activeViewPreset),
     zIndex: getRegionBoundaryLayerZIndex(layerConfig),
   });
 }
@@ -1021,7 +1028,10 @@ function createPointSymbol(
   });
 }
 
-function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
+function createRegionBoundaryStyle(
+  layer: RegionBoundaryLayerStyle,
+  activeViewPreset: ViewPresetId,
+) {
   const cache = new Map<string, Style>();
 
   return (feature: FeatureLike) => {
@@ -1030,7 +1040,7 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
     }
 
     const baseColor =
-      getJmcBoundaryColor(feature) ??
+      getJmcBoundaryColor(feature, activeViewPreset) ??
       getFeatureBoundaryFillColor(feature) ??
       layer.swatchColor;
     const strokeColor = getFeatureBoundaryStrokeColor(layer, feature, baseColor);
@@ -1165,11 +1175,19 @@ function getJmcRegionName(feature: FeatureLike): string {
   return String(feature.get('region_name') ?? feature.get('jmc_name') ?? '').trim();
 }
 
-function getJmcBoundaryColor(feature: FeatureLike): string | null {
-  const regionName = getJmcRegionName(feature);
+function getJmcBoundaryColor(
+  feature: FeatureLike,
+  activeViewPreset: ViewPresetId = 'current',
+): string | null {
+  const regionName = getScenarioJmcName(feature, activeViewPreset);
   if (!regionName) return null;
 
   const byRegionName: Record<string, string> = {
+    'COA 3a Devolved Administrations': '#4862b8',
+    'COA 3a North': '#a7c636',
+    'COA 3a Midlands': '#ed5151',
+    'COA 3a South West': '#149ece',
+    'COA 3a South East': '#419632',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1181,6 +1199,11 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
   };
 
   const populatedByRegionName: Record<string, string> = {
+    'COA 3a Devolved Administrations': '#4862b8',
+    'COA 3a North': '#a7c636',
+    'COA 3a Midlands': '#ed5151',
+    'COA 3a South West': '#149ece',
+    'COA 3a South East': '#419632',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1197,6 +1220,50 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
   return feature.get('is_populated')
     ? populatedByRegionName[regionName] ?? baseColor
     : baseColor;
+}
+
+function getScenarioJmcName(
+  feature: FeatureLike,
+  activeViewPreset: ViewPresetId = 'current',
+): string {
+  const regionName = getJmcRegionName(feature);
+  const boundaryName = String(feature.get('boundary_name') ?? '').trim();
+
+  if (activeViewPreset !== 'coa3b') {
+    return regionName;
+  }
+
+  if (
+    regionName === 'JMC Scotland' ||
+    regionName === 'JMC Northern Ireland' ||
+    regionName === 'JMC Wales'
+  ) {
+    return 'COA 3a Devolved Administrations';
+  }
+
+  if (regionName === 'JMC North') {
+    return 'COA 3a North';
+  }
+
+  if (regionName === 'JMC Centre') {
+    return 'COA 3a Midlands';
+  }
+
+  if (regionName === 'JMC South West') {
+    return 'COA 3a South West';
+  }
+
+  if (
+    regionName === 'JMC South East' ||
+    regionName === 'London District' ||
+    boundaryName === 'NHS Essex Integrated Care Board' ||
+    boundaryName === 'NHS Central East Integrated Care Board' ||
+    boundaryName === 'NHS Norfolk and Suffolk Integrated Care Board'
+  ) {
+    return 'COA 3a South East';
+  }
+
+  return regionName;
 }
 
 function getRegionBoundaryLayerZIndex(layer: RegionBoundaryLayerStyle): number {
@@ -1482,6 +1549,7 @@ function collectPointTooltipEntries(
   regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
   regions: RegionStyle[],
   jmcAssignmentLookupSource: VectorSource | null,
+  activeViewPreset: ViewPresetId,
 ): PointTooltipEntry[] {
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -1504,6 +1572,7 @@ function collectPointTooltipEntries(
       coordinate,
       jmcAssignmentLookupSource,
       null,
+      activeViewPreset,
     );
     const regionName = String(feature.get('region') ?? 'Unassigned');
     const regionStyle = regionsByName.get(regionName);
@@ -1585,20 +1654,21 @@ function findJmcNameAtCoordinate(
   coordinate: [number, number],
   assignmentSource: VectorSource | null,
   boundarySource: VectorSource | null,
+  activeViewPreset: ViewPresetId,
 ): string | null {
   const assignmentFeature =
     assignmentSource
       ?.getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
   if (assignmentFeature) {
-    const jmcName = getJmcRegionName(assignmentFeature);
+    const jmcName = getScenarioJmcName(assignmentFeature, activeViewPreset);
     return jmcName || null;
   }
 
   const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, boundarySource);
   if (!boundaryFeature) return null;
 
-  const jmcName = getJmcRegionName(boundaryFeature);
+  const jmcName = getScenarioJmcName(boundaryFeature, activeViewPreset);
   return jmcName || null;
 }
 
@@ -1608,8 +1678,9 @@ function findJmcNameForBoundarySelection(
   assignmentByBoundaryName: Map<string, string>,
   assignmentSource: VectorSource | null,
   boundarySource: VectorSource | null,
+  activeViewPreset: ViewPresetId,
 ): string | null {
-  const directJmcName = getJmcRegionName(feature);
+  const directJmcName = getScenarioJmcName(feature, activeViewPreset);
   if (directJmcName) {
     return directJmcName;
   }
@@ -1617,14 +1688,25 @@ function findJmcNameForBoundarySelection(
   const boundaryName = getBoundaryName(feature);
   const mappedJmcName = assignmentByBoundaryName.get(boundaryName);
   if (mappedJmcName) {
-    return mappedJmcName;
+    return getScenarioJmcName(
+      new Feature({
+        boundary_name: boundaryName,
+        jmc_name: mappedJmcName,
+      }),
+      activeViewPreset,
+    );
   }
 
   if (!coordinate) {
     return null;
   }
 
-  return findJmcNameAtCoordinate(coordinate, assignmentSource, boundarySource);
+  return findJmcNameAtCoordinate(
+    coordinate,
+    assignmentSource,
+    boundarySource,
+    activeViewPreset,
+  );
 }
 
 function getStyleForLayer(
