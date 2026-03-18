@@ -43,6 +43,7 @@ interface PointTooltipEntry {
   boundaryName: string | null;
   hasVisibleBorder: boolean;
   symbolSize: number;
+  jmcName: string | null;
 }
 
 export function MapWorkspace() {
@@ -63,10 +64,13 @@ export function MapWorkspace() {
     new globalThis.Map(),
   );
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipSubnameRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipContextRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipFooterRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipPageRef = useRef<HTMLSpanElement | null>(null);
@@ -75,6 +79,7 @@ export function MapWorkspace() {
   const pointTooltipEntriesRef = useRef<PointTooltipEntry[]>([]);
   const pointTooltipIndexRef = useRef(0);
   const selectedBoundaryNameRef = useRef<string | null>(null);
+  const selectedJmcNameRef = useRef<string | null>(null);
   const layerRefs = useRef<globalThis.Map<string, VectorLayer<VectorSource>>>(
     new globalThis.Map(),
   );
@@ -83,27 +88,42 @@ export function MapWorkspace() {
     const root = pointTooltipRootRef.current;
     const header = pointTooltipHeaderRef.current;
     const name = pointTooltipNameRef.current;
+    const subname = pointTooltipSubnameRef.current;
     const context = pointTooltipContextRef.current;
     const footer = pointTooltipFooterRef.current;
     const page = pointTooltipPageRef.current;
     const prev = pointTooltipPrevRef.current;
     const next = pointTooltipNextRef.current;
-    if (!root || !header || !name || !context || !footer || !page || !prev || !next) {
+    if (
+      !root ||
+      !header ||
+      !name ||
+      !subname ||
+      !context ||
+      !footer ||
+      !page ||
+      !prev ||
+      !next
+    ) {
       return;
     }
 
     const entries = pointTooltipEntriesRef.current;
     const selectedPointSource = selectedPointRef.current?.getSource();
     const selectedPointLayer = selectedPointRef.current;
+    const selectedJmcSource = selectedJmcBoundaryRef.current?.getSource();
     if (entries.length === 0) {
       const boundaryName = selectedBoundaryNameRef.current;
+      const jmcName = selectedJmcNameRef.current;
       if (!boundaryName) {
         name.textContent = '';
+        subname.textContent = '';
         context.textContent = '';
         page.textContent = '';
         prev.disabled = true;
         next.disabled = true;
         footer.classList.add('map-tooltip-card__footer--hidden');
+        subname.classList.add('map-tooltip-card__subname--hidden');
         context.classList.add('map-tooltip-card__context--hidden');
         root.classList.remove('map-tooltip-card--name-right');
         root.classList.add('map-tooltip-card--hidden');
@@ -115,15 +135,24 @@ export function MapWorkspace() {
             createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
           );
         }
+        if (selectedJmcSource) {
+          selectedJmcSource.clear();
+        }
         return;
       }
 
       name.textContent = boundaryName;
+      subname.textContent = jmcName ?? '';
       context.textContent = '';
       page.textContent = '';
       prev.disabled = true;
       next.disabled = true;
       footer.classList.add('map-tooltip-card__footer--hidden');
+      if (jmcName) {
+        subname.classList.remove('map-tooltip-card__subname--hidden');
+      } else {
+        subname.classList.add('map-tooltip-card__subname--hidden');
+      }
       context.classList.add('map-tooltip-card__context--hidden');
       root.classList.remove('map-tooltip-card--name-right');
       root.classList.remove('map-tooltip-card--hidden');
@@ -135,6 +164,9 @@ export function MapWorkspace() {
           createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
         );
       }
+      if (selectedJmcSource) {
+        selectedJmcSource.clear();
+      }
       return;
     }
 
@@ -145,11 +177,13 @@ export function MapWorkspace() {
     pointTooltipIndexRef.current = index;
     const current = entries[index];
     name.textContent = current.facilityName;
+    subname.textContent = '';
     page.textContent = `Page ${index + 1} of ${entries.length}`;
     context.textContent = current.boundaryName ?? '';
     prev.disabled = index === 0;
     next.disabled = index >= entries.length - 1;
     footer.classList.remove('map-tooltip-card__footer--hidden');
+    subname.classList.add('map-tooltip-card__subname--hidden');
     if (current.boundaryName) {
       context.classList.remove('map-tooltip-card__context--hidden');
     } else {
@@ -167,8 +201,23 @@ export function MapWorkspace() {
       if (matchedBoundary) {
         selectedBoundarySource.addFeature(matchedBoundary.clone());
         selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
+        selectedJmcNameRef.current = current.jmcName;
       } else {
         selectedBoundaryNameRef.current = null;
+        selectedJmcNameRef.current = current.jmcName;
+      }
+    }
+
+    if (selectedJmcSource) {
+      selectedJmcSource.clear();
+      const matchedJmcBoundary = findJmcBoundaryAtCoordinate(
+        current.coordinate,
+        jmcBoundaryLookupSourceRef.current,
+      );
+      if (matchedJmcBoundary) {
+        const outline = matchedJmcBoundary.clone();
+        outline.set('selectionColor', getJmcBoundaryColor(matchedJmcBoundary));
+        selectedJmcSource.addFeature(outline);
       }
     }
 
@@ -220,9 +269,33 @@ export function MapWorkspace() {
     const selectedBoundaryLayer = createSelectedBoundaryLayer();
     selectedBoundaryRef.current = selectedBoundaryLayer;
     mapRef.current.addLayer(selectedBoundaryLayer);
+    const selectedJmcBoundaryLayer = createSelectedJmcBoundaryLayer();
+    selectedJmcBoundaryRef.current = selectedJmcBoundaryLayer;
+    mapRef.current.addLayer(selectedJmcBoundaryLayer);
     const selectedPointLayer = createSelectedPointLayer();
     selectedPointRef.current = selectedPointLayer;
     mapRef.current.addLayer(selectedPointLayer);
+
+    const jmcLookupSource = new VectorSource();
+    jmcBoundaryLookupSourceRef.current = jmcLookupSource;
+    fetch(resolveDataUrl('data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson'))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load JMC boundaries: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((geojson) => {
+        jmcLookupSource.clear();
+        jmcLookupSource.addFeatures(
+          new GeoJSON().readFeatures(geojson, {
+            featureProjection: 'EPSG:3857',
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to load JMC lookup boundaries', error);
+      });
 
     return () => {
       mapRef.current?.setTarget(undefined);
@@ -231,10 +304,13 @@ export function MapWorkspace() {
       regionBoundaryRefs.current.clear();
       regionBoundaryPathRefs.current.clear();
       selectedBoundaryRef.current = null;
+      selectedJmcBoundaryRef.current = null;
       selectedPointRef.current = null;
+      jmcBoundaryLookupSourceRef.current = null;
       pointTooltipRootRef.current = null;
       pointTooltipHeaderRef.current = null;
       pointTooltipNameRef.current = null;
+      pointTooltipSubnameRef.current = null;
       pointTooltipContextRef.current = null;
       pointTooltipFooterRef.current = null;
       pointTooltipPageRef.current = null;
@@ -243,6 +319,7 @@ export function MapWorkspace() {
       pointTooltipEntriesRef.current = [];
       pointTooltipIndexRef.current = 0;
       selectedBoundaryNameRef.current = null;
+      selectedJmcNameRef.current = null;
       layerRefs.current.clear();
     };
   }, []);
@@ -335,20 +412,28 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     const selectedBoundaryLayer = selectedBoundaryRef.current;
-    if (!map || !selectedBoundaryLayer) return;
+    const selectedJmcBoundaryLayer = selectedJmcBoundaryRef.current;
+    if (!map || !selectedBoundaryLayer || !selectedJmcBoundaryLayer) return;
 
-    const selectBoundary = (feature: Feature | null) => {
+    const selectBoundary = (feature: Feature | null, coordinate?: [number, number]) => {
       const selectedSource = selectedBoundaryLayer.getSource();
+      const selectedJmcSource = selectedJmcBoundaryLayer.getSource();
       if (!selectedSource) return;
       selectedSource.clear();
+      selectedJmcSource?.clear();
 
       if (!feature) {
         selectedBoundaryNameRef.current = null;
+        selectedJmcNameRef.current = null;
         return;
       }
 
       selectedSource.addFeature(feature.clone());
       selectedBoundaryNameRef.current = getBoundaryName(feature);
+      const jmcFeature = coordinate
+        ? findJmcBoundaryAtCoordinate(coordinate, jmcBoundaryLookupSourceRef.current)
+        : null;
+      selectedJmcNameRef.current = jmcFeature ? getJmcRegionName(jmcFeature) : null;
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
@@ -388,6 +473,7 @@ export function MapWorkspace() {
           regionBoundaryLayers,
           regionBoundaryRefs.current,
           regions,
+          jmcBoundaryLookupSourceRef.current,
         );
         pointTooltipIndexRef.current = 0;
         renderPointTooltip();
@@ -399,7 +485,7 @@ export function MapWorkspace() {
         regionBoundaryLayers,
         regionBoundaryRefs.current,
       );
-      selectBoundary(selectedFeature);
+      selectBoundary(selectedFeature, event.coordinate as [number, number]);
       pointTooltipEntriesRef.current = [];
       pointTooltipIndexRef.current = 0;
       renderPointTooltip();
@@ -506,6 +592,10 @@ export function MapWorkspace() {
             </div>
           </div>
           <div
+            className="map-tooltip-card__subname map-tooltip-card__subname--hidden"
+            ref={pointTooltipSubnameRef}
+          />
+          <div
             className="map-tooltip-card__context map-tooltip-card__context--hidden"
             ref={pointTooltipContextRef}
           />
@@ -539,6 +629,23 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
       }),
     }),
     zIndex: 20,
+  });
+}
+
+function createSelectedJmcBoundaryLayer(): VectorLayer<VectorSource> {
+  return new VectorLayer({
+    source: new VectorSource(),
+    style: (feature) =>
+      new Style({
+        stroke: new Stroke({
+          color: withOpacity(String(feature.get('selectionColor') ?? '#419632'), 0.45),
+          width: 1.5,
+        }),
+        fill: new Fill({
+          color: 'rgba(0, 0, 0, 0)',
+        }),
+      }),
+    zIndex: 19,
   });
 }
 
@@ -1336,6 +1443,7 @@ function collectPointTooltipEntries(
   regionBoundaryLayers: RegionBoundaryLayerStyle[],
   regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
   regions: RegionStyle[],
+  jmcBoundaryLookupSource: VectorSource | null,
 ): PointTooltipEntry[] {
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -1353,7 +1461,9 @@ function collectPointTooltipEntries(
       regionBoundaryLayers,
       regionBoundaryRefs,
     );
+    const jmcFeature = findJmcBoundaryAtCoordinate(coordinate, jmcBoundaryLookupSource);
     const boundaryName = boundaryFeature ? getBoundaryName(boundaryFeature) : null;
+    const jmcName = jmcFeature ? getJmcRegionName(jmcFeature) : null;
     const regionName = String(feature.get('region') ?? 'Unassigned');
     const regionStyle = regionsByName.get(regionName);
     const hasVisibleBorder =
@@ -1369,6 +1479,7 @@ function collectPointTooltipEntries(
       boundaryName,
       hasVisibleBorder,
       symbolSize,
+      jmcName,
     });
   }
 
@@ -1410,6 +1521,23 @@ function getPointCoordinate(feature: FeatureLike): [number, number] | null {
   }
 
   return null;
+}
+
+function resolveDataUrl(path: string): string {
+  return new URL(path, window.location.origin + import.meta.env.BASE_URL).toString();
+}
+
+function findJmcBoundaryAtCoordinate(
+  coordinate: [number, number],
+  source: VectorSource | null,
+): Feature | null {
+  if (!source) return null;
+
+  return (
+    source
+      .getFeatures()
+      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null
+  );
 }
 
 function getStyleForLayer(
