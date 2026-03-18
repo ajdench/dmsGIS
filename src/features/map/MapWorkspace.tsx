@@ -978,14 +978,14 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
   if (!regionName) return null;
 
   const byRegionName: Record<string, string> = {
-    'JMC Scotland': '#8ea2db',
-    'JMC Northern Ireland': '#8ea2db',
-    'JMC Wales': '#8ea2db',
-    'JMC North': '#c6d96f',
-    'JMC Centre': '#f39ca0',
-    'JMC South West': '#73c4e2',
-    'JMC South East': '#86c184',
-    'London District': '#86c184',
+    'JMC Scotland': '#4862b8',
+    'JMC Northern Ireland': '#4862b8',
+    'JMC Wales': '#4862b8',
+    'JMC North': '#a7c636',
+    'JMC Centre': '#ed5151',
+    'JMC South West': '#149ece',
+    'JMC South East': '#419632',
+    'London District': '#419632',
   };
 
   const baseColor = byRegionName[regionName];
