@@ -67,6 +67,7 @@ export function MapWorkspace() {
   const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
   const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
+  const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
@@ -278,6 +279,8 @@ export function MapWorkspace() {
 
     const jmcLookupSource = new VectorSource();
     jmcBoundaryLookupSourceRef.current = jmcLookupSource;
+    const jmcAssignmentSource = new VectorSource();
+    jmcAssignmentLookupSourceRef.current = jmcAssignmentSource;
     fetch(resolveDataUrl('data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson'))
       .then((response) => {
         if (!response.ok) {
@@ -296,6 +299,24 @@ export function MapWorkspace() {
       .catch((error) => {
         console.error('Failed to load JMC lookup boundaries', error);
       });
+    fetch(resolveDataUrl('data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load JMC assignments: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((geojson) => {
+        jmcAssignmentSource.clear();
+        jmcAssignmentSource.addFeatures(
+          new GeoJSON().readFeatures(geojson, {
+            featureProjection: 'EPSG:3857',
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to load JMC assignment lookup', error);
+      });
 
     return () => {
       mapRef.current?.setTarget(undefined);
@@ -307,6 +328,7 @@ export function MapWorkspace() {
       selectedJmcBoundaryRef.current = null;
       selectedPointRef.current = null;
       jmcBoundaryLookupSourceRef.current = null;
+      jmcAssignmentLookupSourceRef.current = null;
       pointTooltipRootRef.current = null;
       pointTooltipHeaderRef.current = null;
       pointTooltipNameRef.current = null;
@@ -430,10 +452,13 @@ export function MapWorkspace() {
 
       selectedSource.addFeature(feature.clone());
       selectedBoundaryNameRef.current = getBoundaryName(feature);
-      const jmcFeature = coordinate
-        ? findJmcBoundaryAtCoordinate(coordinate, jmcBoundaryLookupSourceRef.current)
+      selectedJmcNameRef.current = coordinate
+        ? findJmcNameAtCoordinate(
+            coordinate,
+            jmcAssignmentLookupSourceRef.current,
+            jmcBoundaryLookupSourceRef.current,
+          )
         : null;
-      selectedJmcNameRef.current = jmcFeature ? getJmcRegionName(jmcFeature) : null;
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
@@ -473,7 +498,7 @@ export function MapWorkspace() {
           regionBoundaryLayers,
           regionBoundaryRefs.current,
           regions,
-          jmcBoundaryLookupSourceRef.current,
+          jmcAssignmentLookupSourceRef.current,
         );
         pointTooltipIndexRef.current = 0;
         renderPointTooltip();
@@ -1443,7 +1468,7 @@ function collectPointTooltipEntries(
   regionBoundaryLayers: RegionBoundaryLayerStyle[],
   regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
   regions: RegionStyle[],
-  jmcBoundaryLookupSource: VectorSource | null,
+  jmcAssignmentLookupSource: VectorSource | null,
 ): PointTooltipEntry[] {
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -1461,9 +1486,12 @@ function collectPointTooltipEntries(
       regionBoundaryLayers,
       regionBoundaryRefs,
     );
-    const jmcFeature = findJmcBoundaryAtCoordinate(coordinate, jmcBoundaryLookupSource);
     const boundaryName = boundaryFeature ? getBoundaryName(boundaryFeature) : null;
-    const jmcName = jmcFeature ? getJmcRegionName(jmcFeature) : null;
+    const jmcName = findJmcNameAtCoordinate(
+      coordinate,
+      jmcAssignmentLookupSource,
+      null,
+    );
     const regionName = String(feature.get('region') ?? 'Unassigned');
     const regionStyle = regionsByName.get(regionName);
     const hasVisibleBorder =
@@ -1538,6 +1566,27 @@ function findJmcBoundaryAtCoordinate(
       .getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null
   );
+}
+
+function findJmcNameAtCoordinate(
+  coordinate: [number, number],
+  assignmentSource: VectorSource | null,
+  boundarySource: VectorSource | null,
+): string | null {
+  const assignmentFeature =
+    assignmentSource
+      ?.getFeatures()
+      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
+  if (assignmentFeature) {
+    const jmcName = getJmcRegionName(assignmentFeature);
+    return jmcName || null;
+  }
+
+  const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, boundarySource);
+  if (!boundaryFeature) return null;
+
+  const jmcName = getJmcRegionName(boundaryFeature);
+  return jmcName || null;
 }
 
 function getStyleForLayer(
