@@ -630,12 +630,12 @@ export function MapWorkspace() {
             </div>
           </div>
           <div
-            className="map-tooltip-card__subname map-tooltip-card__subname--hidden"
-            ref={pointTooltipSubnameRef}
-          />
-          <div
             className="map-tooltip-card__context map-tooltip-card__context--hidden"
             ref={pointTooltipContextRef}
+          />
+          <div
+            className="map-tooltip-card__subname map-tooltip-card__subname--hidden"
+            ref={pointTooltipSubnameRef}
           />
         </div>
         <div className="map-canvas" ref={ref} />
