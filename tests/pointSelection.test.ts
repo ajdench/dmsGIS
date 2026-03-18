@@ -47,6 +47,7 @@ describe('pointSelection', () => {
       activeViewPreset: 'coa3a',
       getBoundaryNameAtCoordinate: () => 'Boundary A',
       getJmcNameAtCoordinate: () => 'JMC North',
+      facilitySearchQuery: '',
     });
 
     expect(entries).toEqual([
@@ -59,5 +60,30 @@ describe('pointSelection', () => {
         jmcName: 'JMC North',
       },
     ]);
+  });
+
+  it('filters tooltip entries by facility search query', () => {
+    const feature = {
+      get(key: string) {
+        if (key === 'name') return 'Test Facility';
+        if (key === 'region') return 'North';
+        return undefined;
+      },
+      getGeometry() {
+        return new Point([1, 2]);
+      },
+    } as unknown as Feature;
+
+    const entries = collectPointTooltipEntries({
+      features: [feature],
+      fallbackCoordinate: [0, 0],
+      regions: [],
+      activeViewPreset: 'coa3a',
+      getBoundaryNameAtCoordinate: () => null,
+      getJmcNameAtCoordinate: () => null,
+      facilitySearchQuery: 'missing',
+    });
+
+    expect(entries).toEqual([]);
   });
 });

@@ -5,6 +5,8 @@ import {
   createFacilityRecord,
   getFacilityFeatureProperties,
   getFacilityRecord,
+  matchesFacilitySearch,
+  normalizeFacilitySearchQuery,
 } from '../src/lib/facilities';
 import { parseFacilityProperties } from '../src/lib/schemas/facilities';
 
@@ -89,5 +91,21 @@ describe('facility schema', () => {
       isDefaultVisible: true,
       hasSnappedCoordinates: false,
     });
+  });
+
+  it('normalizes and matches facility search queries against the facility record', () => {
+    const facility = createFacilityRecord(
+      parseFacilityProperties({
+        id: 'XYZ',
+        name: 'Another',
+        type: 'pmc-facility',
+        region: 'North',
+      }),
+    );
+
+    expect(normalizeFacilitySearchQuery('  North  ')).toBe('north');
+    expect(matchesFacilitySearch(facility, 'another')).toBe(true);
+    expect(matchesFacilitySearch(facility, 'north')).toBe(true);
+    expect(matchesFacilitySearch(facility, 'missing')).toBe(false);
   });
 });

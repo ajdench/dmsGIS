@@ -50,6 +50,24 @@ export function createFacilityRecord(
   };
 }
 
+export function normalizeFacilitySearchQuery(
+  query: string,
+): string {
+  return query.trim().toLowerCase();
+}
+
+export function matchesFacilitySearch(
+  facility: FacilityRecord,
+  query: string,
+): boolean {
+  const normalizedQuery = normalizeFacilitySearchQuery(query);
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return facility.searchText.includes(normalizedQuery);
+}
+
 function getFeatureValuesFromGetters(
   feature: FeatureLike,
 ): Record<string, unknown> {

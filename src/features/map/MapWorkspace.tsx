@@ -48,7 +48,11 @@ import {
   getBoundaryName,
   getSelectedJmcOutlineFeatures,
 } from './boundarySelection';
-import { getFacilityFeatureProperties } from '../../lib/facilities';
+import {
+  getFacilityFeatureProperties,
+  getFacilityRecord,
+  matchesFacilitySearch,
+} from '../../lib/facilities';
 import { useAppStore } from '../../store/appStore';
 
 interface BasemapLayerSet {
@@ -67,6 +71,7 @@ export function MapWorkspace() {
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
+  const facilitySearchQuery = useAppStore((state) => state.facilitySearchQuery);
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
   const overlayLayers = useAppStore((state) => state.overlayLayers);
@@ -461,6 +466,7 @@ export function MapWorkspace() {
         visibleRegions,
         facilitySymbolShape,
         facilitySymbolSize,
+        facilitySearchQuery,
       );
 
       if (hitFeatures.length > 0) {
@@ -472,6 +478,7 @@ export function MapWorkspace() {
           facilitySymbolShape,
           facilitySymbolSize,
           event.pixel,
+          facilitySearchQuery,
         );
         const activeAssignmentSource =
           regionBoundaryRefs.current.get('careBoardBoundaries')?.getSource() ??
@@ -492,6 +499,7 @@ export function MapWorkspace() {
             },
             getJmcNameAtCoordinate: (coordinate, preset) =>
               findJmcNameAtCoordinate(coordinate, activeAssignmentSource, null, preset),
+            facilitySearchQuery,
           },
         );
         pointTooltipIndexRef.current = 0;
@@ -513,7 +521,15 @@ export function MapWorkspace() {
     return () => {
       unByKey(clickKey);
     };
-  }, [overlayLayers, layers, regions, facilitySymbolSize, activeViewPreset]);
+  }, [
+    overlayLayers,
+    layers,
+    regions,
+    facilitySymbolShape,
+    facilitySymbolSize,
+    facilitySearchQuery,
+    activeViewPreset,
+  ]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -537,6 +553,7 @@ export function MapWorkspace() {
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
+          facilitySearchQuery,
         ),
       });
 
@@ -548,7 +565,13 @@ export function MapWorkspace() {
     layers.forEach((layer) => {
       const vectorLayer = getVectorLayer(layer);
       vectorLayer.setStyle(
-        getStyleForLayer(layer, regionByName, facilitySymbolShape, facilitySymbolSize),
+        getStyleForLayer(
+          layer,
+          regionByName,
+          facilitySymbolShape,
+          facilitySymbolSize,
+          facilitySearchQuery,
+        ),
       );
       vectorLayer.setVisible(layer.visible);
       vectorLayer.setOpacity(layer.opacity);
@@ -561,7 +584,13 @@ export function MapWorkspace() {
         layerRefs.current.delete(id);
       }
     });
-  }, [layers, regions, facilitySymbolShape, facilitySymbolSize]);
+  }, [
+    layers,
+    regions,
+    facilitySymbolShape,
+    facilitySymbolSize,
+    facilitySearchQuery,
+  ]);
 
   return (
     <main className="map-panel">
@@ -1228,14 +1257,20 @@ function getStyleForLayer(
   regions: Map<string, RegionStyle>,
   symbolShape: FacilitySymbolShape,
   symbolSize: number,
+  facilitySearchQuery: string,
 ) {
   if (layer.type === 'point') {
     const cache = new Map<string, Style>();
     return (feature: FeatureLike) => {
+      const facility = getFacilityRecord(feature);
+      if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+        return undefined;
+      }
+
       const properties = getFacilityFeatureProperties(feature);
-      const regionName = properties.region;
+      const regionName = facility.region;
       const regionStyle = regions.get(regionName);
-      const defaultVisible = properties.default_visible !== 0;
+      const defaultVisible = facility.isDefaultVisible;
       if ((regionStyle && !regionStyle.visible) || (!regionStyle && !defaultVisible)) {
         return undefined;
       }

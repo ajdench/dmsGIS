@@ -3,7 +3,11 @@ import type Feature from 'ol/Feature';
 import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
-import { getFacilityFeatureProperties, getFacilityRecord } from '../../lib/facilities';
+import {
+  getFacilityFeatureProperties,
+  getFacilityRecord,
+  matchesFacilitySearch,
+} from '../../lib/facilities';
 import type {
   FacilitySymbolShape,
   RegionBoundaryLayerStyle,
@@ -71,6 +75,7 @@ export function getDirectPointHitsAtPixel(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
+  facilitySearchQuery: string,
 ): FeatureLike[] {
   const hits = map.getFeaturesAtPixel(pixel, {
     hitTolerance: 0,
@@ -90,6 +95,7 @@ export function getDirectPointHitsAtPixel(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
+      facilitySearchQuery,
     );
     return distance <= radius + 0.75;
   });
@@ -103,6 +109,7 @@ export function expandPointHitCluster(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   clickPixel: number[],
+  facilitySearchQuery: string,
 ): FeatureLike[] {
   const candidates = collectVisiblePointCandidates(
     map,
@@ -110,6 +117,7 @@ export function expandPointHitCluster(
     regionsByName,
     facilitySymbolShape,
     facilitySymbolSize,
+    facilitySearchQuery,
   );
   const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seeds: PointSelectionCandidate[] = [];
@@ -122,6 +130,7 @@ export function expandPointHitCluster(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
+      facilitySearchQuery,
     );
     if (!candidate || selected.has(candidate.key)) continue;
     seeds.push(candidate);
@@ -174,6 +183,7 @@ export function collectPointTooltipEntries(params: {
     coordinate: [number, number],
     activeViewPreset: ViewPresetId,
   ) => string | null;
+  facilitySearchQuery: string;
 }): PointTooltipEntry[] {
   const {
     features,
@@ -182,6 +192,7 @@ export function collectPointTooltipEntries(params: {
     activeViewPreset,
     getBoundaryNameAtCoordinate,
     getJmcNameAtCoordinate,
+    facilitySearchQuery,
   } = params;
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -189,6 +200,7 @@ export function collectPointTooltipEntries(params: {
 
   for (const feature of features) {
     const facility = getFacilityRecord(feature);
+    if (!matchesFacilitySearch(facility, facilitySearchQuery)) continue;
     const name = facility.displayName;
     if (!name) continue;
 
@@ -223,6 +235,7 @@ function collectVisiblePointCandidates(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
+  facilitySearchQuery: string,
 ): PointSelectionCandidate[] {
   const candidates: PointSelectionCandidate[] = [];
 
@@ -231,13 +244,16 @@ function collectVisiblePointCandidates(
     if (!source) continue;
 
     for (const feature of source.getFeatures()) {
-      if (!isPointFeatureSelectable(feature, regionsByName)) continue;
+      if (!isPointFeatureSelectable(feature, regionsByName, facilitySearchQuery)) {
+        continue;
+      }
       const candidate = getPointSelectionCandidate(
         map,
         feature,
         regionsByName,
         facilitySymbolShape,
         facilitySymbolSize,
+        facilitySearchQuery,
       );
       if (candidate) {
         candidates.push(candidate);
@@ -254,11 +270,15 @@ function getPointSelectionCandidate(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
+  facilitySearchQuery: string,
 ): PointSelectionCandidate | null {
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
   const facility = getFacilityRecord(feature);
+  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+    return null;
+  }
   const name = facility.displayName;
   const pixel = map.getPixelFromCoordinate(coordinate);
   const radius = getPointSelectionRadius(
@@ -266,6 +286,7 @@ function getPointSelectionCandidate(
     regionsByName,
     facilitySymbolShape,
     facilitySymbolSize,
+    facilitySearchQuery,
   );
 
   return {
@@ -279,11 +300,16 @@ function getPointSelectionCandidate(
 function isPointFeatureSelectable(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
+  facilitySearchQuery: string,
 ): boolean {
-  const properties = getFacilityFeatureProperties(feature);
-  const regionName = properties.region;
+  const facility = getFacilityRecord(feature);
+  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+    return false;
+  }
+
+  const regionName = facility.region;
   const regionStyle = regionsByName.get(regionName);
-  const defaultVisible = properties.default_visible !== 0;
+  const defaultVisible = facility.isDefaultVisible;
 
   if (regionStyle) {
     return regionStyle.visible;
@@ -297,7 +323,13 @@ function getPointSelectionRadius(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
+  facilitySearchQuery: string,
 ): number {
+  const facility = getFacilityRecord(feature);
+  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+    return 0;
+  }
+
   const properties = getFacilityFeatureProperties(feature);
   const regionName = properties.region;
   const regionStyle = regionsByName.get(regionName);

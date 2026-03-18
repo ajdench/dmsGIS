@@ -26,6 +26,7 @@ interface ViewPresetState {
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
+  facilitySearchQuery: string;
   basemap: BasemapSettings;
 }
 
@@ -90,6 +91,7 @@ interface AppState {
   setAllRegionBorderOpacity: (opacity: number) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
+  setFacilitySearchQuery: (query: string) => void;
   setOverlayLayerVisibility: (id: string, visible: boolean) => void;
   setOverlayLayerOpacity: (id: string, opacity: number) => void;
   setOverlayLayerBorderVisibility: (id: string, visible: boolean) => void;
@@ -104,6 +106,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   regionGlobalOpacity: 1,
   facilitySymbolShape: 'circle',
   facilitySymbolSize: 3.5,
+  facilitySearchQuery: '',
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
   currentViewPresetState: null,
@@ -319,6 +322,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         })),
       };
     }),
+  setFacilitySearchQuery: (query) => set({ facilitySearchQuery: query }),
   setOverlayLayerVisibility: (id, visible) =>
     set((state) => ({
       overlayLayers: state.overlayLayers.map((layer) =>
