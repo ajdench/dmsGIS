@@ -155,20 +155,39 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Use the new overlay-family metadata layer to add NHS/custom overlay sections when those datasets are introduced, without changing the panel architecture again.
-2. Extend overlay metadata only when needed for production behavior, for example descriptions, family-level visibility defaults, or scenario-specific empty-state copy.
-3. Extend the shared assignment model so future NHS/custom region regrouping can be expressed as data, not script-specific transformation logic.
-4. Extend the facility schema/domain model with future metadata fields in a controlled way, then route search, tooltip, filtering, and export behavior through the shared facility record model instead of reading raw feature properties ad hoc.
-5. Extend the facility filter model beyond text search: add typed metadata facets, export-field definitions, and saved-filter state so future facility workflows stay in the same domain layer.
-6. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
-7. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
-8. Expand direct tests for map interaction behavior beyond the extracted units: selected-point highlight behavior, boundary-only selection flows, and layer/overlay interaction combinations.
-9. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
-10. Decide whether region style choices, scenario selections, and facility filter state should persist across reloads (local storage and/or serverless write-back).
-11. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
-12. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
-13. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
-14. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+1. Introduce a first-class saved-state domain model.
+   Separate transient map/session state from named saved views, user-owned saved views, and shareable saved views so future auth and collaboration features fit a stable contract.
+2. Add a storage abstraction for saved states and saved filters.
+   Start with a local/static implementation boundary so profile-backed persistence and sharing can be added later without rewriting UI or map code.
+3. Extend the facility filter model beyond text search.
+   Add typed metadata facets, export-field definitions, saved-filter state, and filter presets so future facility workflows stay in the same domain layer.
+4. Expand the facility schema/domain model with future metadata fields.
+   Keep tooltip, filtering, search, export, and future profile state aligned to the shared `FacilityRecord` contract instead of raw feature reads.
+5. Extend the shared assignment model so future NHS/custom regrouping is data-driven.
+   Avoid script-specific transformation logic for new region products or manual regrouping.
+6. Add NHS and future custom overlay families to the production overlay model.
+   Use the existing overlay-family metadata layer and section builders so new overlay types slot into the UI without architectural rework.
+7. Extend overlay metadata only when needed for production behavior.
+   Candidates include descriptions, family-level defaults, visibility presets, scenario-specific empty-state copy, and export eligibility.
+8. Add explicit overlay/saved-state serialization contracts.
+   Define what parts of map state, overlay state, scenario choice, facility filters, and future label adjustments are persisted and version them deliberately.
+9. Expand direct tests for map interaction behavior beyond the extracted units.
+   Add higher-value coverage for selected-point highlight behavior, boundary-only selection flows, overlay interaction combinations, and scenario-specific region highlighting.
+10. Add an end-to-end test slice for core user workflows.
+   Focus on scenario switching, facility search/filtering, boundary selection, point paging, and saved-state restore once persistence exists.
+11. Add a production Docker path for the static app.
+   Use a multi-stage build with compiled Vite assets and a minimal static web server image, with explicit version pinning and a clear upgrade path.
+12. Decide what state should persist across reloads before auth exists.
+   Region style choices, scenario selection, overlay visibility, and facility filter state should be treated explicitly rather than incidentally.
+13. Add a lightweight auth abstraction before real authentication.
+   Define the frontend-facing contract for user identity, access to saved views, and shared-view permissions before choosing a provider.
+14. Define the share model for saved views early.
+   Decide on ownership, copy-vs-reference behavior, editability, and link-based vs account-based sharing so the persistence layer matches the intended product.
+15. Continue UI cleanup where it buys clarity.
+   Reduce remaining compounded spacing or popover inconsistencies, but keep this behind the domain/model work unless the user surfaces a concrete UX issue.
+16. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales only with explicit product sign-off.
+17. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags the wrong development area.
+18. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 
