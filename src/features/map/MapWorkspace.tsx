@@ -1210,11 +1210,11 @@ function getJmcBoundaryColor(
   if (!regionName) return null;
 
   const byRegionName: Record<string, string> = {
-    'COA 3a Devolved Administrations': '#4862b8',
-    'COA 3a North': '#a7c636',
-    'COA 3a Midlands': '#ed5151',
+    'COA 3a Devolved Administrations': '#cbd4dd',
+    'COA 3a North': '#dee8c3',
+    'COA 3a Midlands': '#ebcfc7',
     'COA 3a South West': '#149ece',
-    'COA 3a South East': '#419632',
+    'COA 3a South East': '#cadec2',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1226,11 +1226,11 @@ function getJmcBoundaryColor(
   };
 
   const populatedByRegionName: Record<string, string> = {
-    'COA 3a Devolved Administrations': '#4862b8',
-    'COA 3a North': '#a7c636',
-    'COA 3a Midlands': '#ed5151',
-    'COA 3a South West': '#149ece',
-    'COA 3a South East': '#419632',
+    'COA 3a Devolved Administrations': '#bbc5d8',
+    'COA 3a North': '#d7e3b1',
+    'COA 3a Midlands': '#ecc0b9',
+    'COA 3a South West': '#abd7df',
+    'COA 3a South East': '#b8d5b0',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
