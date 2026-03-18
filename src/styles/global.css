@@ -349,6 +349,8 @@
   }
 
   .map-tooltip-card__subname {
+    display: block;
+    margin-top: calc(var(--map-tooltip-gap) - 2px);
     font-size: var(--map-tooltip-name-font-size);
     font-weight: var(--map-tooltip-name-weight);
     line-height: 1;
