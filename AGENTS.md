@@ -54,6 +54,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - `COA 3a`, `COA 3b`, and `COA 3c` keep PMC points active on the map but currently show an empty `Overlays` pane.
 - `COA 3a` swaps the selectable boundary layer to `ICB / Health Board boundaries` using `public/data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`.
 - `COA 3a` uses the board polygons themselves as the overlay, with JMC colors applied by board assignment (`jmc_name`) and the same thin grey board outlines used for the Current-mode board layer.
+- `COA 3a` board polygons derive populated vs unpopulated tone internally from facility point containment: the current COA hue is the unpopulated tone, and populated boards use a darker version of that same hue.
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.

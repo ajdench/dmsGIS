@@ -578,9 +578,9 @@ function createScenarioRegionBoundaryLayers(
           visible: true,
           opacity: 0.22,
           borderVisible: true,
-          borderColor: '#4d4d4d',
-          borderOpacity: 1,
-          swatchColor: '#4d4d4d',
+          borderColor: '#999999',
+          borderOpacity: 0.1,
+          swatchColor: '#999999',
         }
       : layer,
   );

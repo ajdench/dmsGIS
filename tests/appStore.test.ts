@@ -241,8 +241,8 @@ describe('appStore region controls', () => {
       name: 'ICB / Health Board boundaries',
       path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
       visible: true,
-      borderColor: '#4d4d4d',
-      borderOpacity: 1,
+      borderColor: '#999999',
+      borderOpacity: 0.1,
     });
   });
 });
