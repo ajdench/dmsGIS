@@ -23,19 +23,19 @@ export function RightSidebar() {
         />
         <PresetButton
           id="coa3a"
-          label="COA 3a"
+          label="SJC JMC"
           activeViewPreset={activeViewPreset}
           activateViewPreset={activateViewPreset}
         />
         <PresetButton
           id="coa3b"
-          label="COA 3b"
+          label="COA 3a"
           activeViewPreset={activeViewPreset}
           activateViewPreset={activateViewPreset}
         />
         <PresetButton
           id="coa3c"
-          label="COA 3c"
+          label="COA 3b"
           activeViewPreset={activeViewPreset}
           activateViewPreset={activateViewPreset}
         />
