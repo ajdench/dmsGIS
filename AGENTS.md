@@ -27,6 +27,27 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Before any user-requested Git commit/push flow, update project documentation and local memory with relevant completed changes first (`AGENTS.md`, `README.md`, and local Codex memory when applicable).
 - When the user explicitly asks to commit to Git, treat that as: update docs/memory first, ensure the colocated JJ/Git state is aligned, then complete the Git workflow and any requested GitHub Pages-related push/deploy step.
 
+## Prototype workflow
+
+- Parallel UI prototype work may exist in this repo as a separate development activity.
+- Prototype work is intentionally isolated and should not be treated as production code unless explicitly promoted.
+- Current prototype pattern:
+  - dedicated HTML entry such as `sidebar-prototype.html`
+  - isolated React entry under `src/prototypes/`
+  - mock data and local component state
+  - no dependency on the production OpenLayers map pane
+  - no dependency on the production Zustand store unless explicitly stated
+- The production app path remains the source of truth:
+  - `index.html`
+  - `src/main.tsx`
+  - `src/app/App.tsx`
+- If prototype files exist under `src/prototypes/`, treat them as intentional parallel work, not dead code.
+- Do not fold prototype code into the main app unless explicitly asked.
+- Do not remove, refactor, or clean up prototype files just because they are not used by the main app.
+- Do not assume prototype behavior should match production wiring yet.
+- When changing the main app, avoid coupling to prototype-only components or styles.
+- When discussing future UI work, keep production recommendations separate from prototype recommendations unless the user explicitly asks to promote prototype work.
+
 ## Current implementation notes
 
 - GitHub Pages target: Vite `base` defaults to `/dmsGIS/` and can be overridden via `VITE_BASE_PATH`.

@@ -44,6 +44,7 @@ jj status
 ## Documents
 
 - `docs/specification.md`
+- `docs/parallel-ui-prototype-workflow.md`
 - `AGENTS.md`
 - `.codex/config.toml`
 - `docs/prompts/`
@@ -77,3 +78,4 @@ jj status
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.
+- Parallel UI prototype work may exist under `src/prototypes/` with dedicated HTML entries such as `sidebar-prototype.html`; treat that work as intentionally isolated from the production app unless explicitly promoted.
