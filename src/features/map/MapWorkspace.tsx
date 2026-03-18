@@ -179,13 +179,17 @@ export function MapWorkspace() {
     pointTooltipIndexRef.current = index;
     const current = entries[index];
     name.textContent = current.facilityName;
-    subname.textContent = '';
+    subname.textContent = current.jmcName ?? '';
     page.textContent = `Page ${index + 1} of ${entries.length}`;
     context.textContent = current.boundaryName ?? '';
     prev.disabled = index === 0;
     next.disabled = index >= entries.length - 1;
     footer.classList.remove('map-tooltip-card__footer--hidden');
-    subname.classList.add('map-tooltip-card__subname--hidden');
+    if (current.jmcName) {
+      subname.classList.remove('map-tooltip-card__subname--hidden');
+    } else {
+      subname.classList.add('map-tooltip-card__subname--hidden');
+    }
     if (current.boundaryName) {
       context.classList.remove('map-tooltip-card__context--hidden');
     } else {
