@@ -218,15 +218,26 @@ export function MapWorkspace() {
 
     if (selectedJmcSource) {
       selectedJmcSource.clear();
+      const liveScenarioBoundarySource = regionBoundaryRefs.current
+        .get('pmcUnpopulatedCareBoardBoundaries')
+        ?.getSource();
+      const activeScenarioBoundarySource =
+        liveScenarioBoundarySource && liveScenarioBoundarySource.getFeatures().length > 0
+          ? liveScenarioBoundarySource
+          : coa3aBoundaryLookupSourceRef.current;
       const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
         current.coordinate,
+        current.jmcName,
         activeViewPreset,
-        coa3aBoundaryLookupSourceRef.current,
+        activeScenarioBoundarySource,
         jmcBoundaryLookupSourceRef.current,
       );
       for (const boundary of matchedJmcBoundaries) {
         const outline = boundary.clone();
-        outline.set('selectionColor', getJmcBoundaryColor(boundary, activeViewPreset));
+        outline.set(
+          'selectionColor',
+          getSelectedJmcOutlineColor(boundary, activeViewPreset),
+        );
         selectedJmcSource.addFeature(outline);
       }
     }
@@ -478,6 +489,9 @@ export function MapWorkspace() {
     const selectBoundary = (feature: Feature | null, coordinate?: [number, number]) => {
       const selectedSource = selectedBoundaryLayer.getSource();
       const selectedJmcSource = selectedJmcBoundaryLayer.getSource();
+      const activeAssignmentSource =
+        regionBoundaryRefs.current.get('careBoardBoundaries')?.getSource() ??
+        jmcAssignmentLookupSourceRef.current;
       if (!selectedSource) return;
       selectedSource.clear();
       selectedJmcSource?.clear();
@@ -494,7 +508,7 @@ export function MapWorkspace() {
         feature,
         coordinate,
         jmcAssignmentByBoundaryNameRef.current,
-        jmcAssignmentLookupSourceRef.current,
+        activeAssignmentSource,
         jmcBoundaryLookupSourceRef.current,
         activeViewPreset,
       );
@@ -531,13 +545,16 @@ export function MapWorkspace() {
           facilitySymbolSize,
           event.pixel,
         );
+        const activeAssignmentSource =
+          regionBoundaryRefs.current.get('careBoardBoundaries')?.getSource() ??
+          jmcAssignmentLookupSourceRef.current;
         pointTooltipEntriesRef.current = collectPointTooltipEntries(
           clusteredHitFeatures,
           event.coordinate as [number, number],
           regionBoundaryLayers,
           regionBoundaryRefs.current,
           regions,
-          jmcAssignmentLookupSourceRef.current,
+          activeAssignmentSource,
           activeViewPreset,
         );
         pointTooltipIndexRef.current = 0;
@@ -704,14 +721,14 @@ function createSelectedJmcBoundaryLayer(): VectorLayer<VectorSource> {
     style: (feature) =>
       new Style({
         stroke: new Stroke({
-          color: withOpacity(String(feature.get('selectionColor') ?? '#419632'), 0.45),
+          color: String(feature.get('selectionColor') ?? '#419632'),
           width: 1.5,
         }),
         fill: new Fill({
           color: 'rgba(0, 0, 0, 0)',
         }),
       }),
-    zIndex: 19,
+    zIndex: 25,
   });
 }
 
@@ -1249,6 +1266,32 @@ function getJmcBoundaryColor(
     : baseColor;
 }
 
+function getSelectedJmcOutlineColor(
+  feature: FeatureLike,
+  activeViewPreset: ViewPresetId = 'current',
+): string | null {
+  const regionName = getScenarioJmcName(feature, activeViewPreset);
+  if (!regionName) return null;
+
+  const byRegionName: Record<string, string> = {
+    'COA 3a Devolved Administrations': '#4862b8',
+    'COA 3a North': '#a7c636',
+    'COA 3a Midlands': '#ed5151',
+    'COA 3a South West': '#149ece',
+    'COA 3a South East': '#419632',
+    'JMC Scotland': '#4862b8',
+    'JMC Northern Ireland': '#4862b8',
+    'JMC Wales': '#4862b8',
+    'JMC North': '#a7c636',
+    'JMC Centre': '#ed5151',
+    'JMC South West': '#149ece',
+    'JMC South East': '#419632',
+    'London District': '#419632',
+  };
+
+  return byRegionName[regionName] ?? null;
+}
+
 function getScenarioJmcName(
   feature: FeatureLike,
   activeViewPreset: ViewPresetId = 'current',
@@ -1738,11 +1781,21 @@ function findJmcNameForBoundarySelection(
 
 function getSelectedJmcOutlineFeatures(
   coordinate: [number, number],
+  jmcName: string | null,
   activeViewPreset: ViewPresetId,
   scenarioBoundarySource: VectorSource | null,
   boundarySource: VectorSource | null,
 ): Feature[] {
-  if (activeViewPreset === 'coa3b') {
+  if (activeViewPreset === 'coa3b' && scenarioBoundarySource) {
+    if (jmcName) {
+      const matchedFeatures = scenarioBoundarySource
+        .getFeatures()
+        .filter((feature) => getScenarioJmcName(feature, activeViewPreset) === jmcName);
+      if (matchedFeatures.length > 0) {
+        return matchedFeatures;
+      }
+    }
+
     const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, scenarioBoundarySource);
     return boundaryFeature ? [boundaryFeature] : [];
   }
