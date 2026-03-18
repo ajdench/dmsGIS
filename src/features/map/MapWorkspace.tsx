@@ -716,13 +716,10 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
 }
 
 function createSelectedJmcBoundaryLayer(): VectorLayer<VectorSource> {
-  const geometryCache = new WeakMap<FeatureLike, Map<number, ReturnType<FeatureLike['getGeometry']>>>();
-
   return new VectorLayer({
     source: new VectorSource(),
-    style: (feature, resolution) =>
+    style: (feature) =>
       new Style({
-        geometry: getDisplayedBoundaryGeometry(feature, resolution),
         stroke: new Stroke({
           color: String(feature.get('selectionColor') ?? '#419632'),
           width: 1.5,
@@ -1074,12 +1071,8 @@ function createRegionBoundaryStyle(
   activeViewPreset: ViewPresetId,
 ) {
   const cache = new Map<string, Style>();
-  const geometryCache = new WeakMap<
-    FeatureLike,
-    Map<number, ReturnType<FeatureLike['getGeometry']>>
-  >();
 
-  return (feature: FeatureLike, resolution: number) => {
+  return (feature: FeatureLike) => {
     if (shouldHideRegionBoundaryFeature(layer, feature)) {
       return undefined;
     }
@@ -1096,11 +1089,6 @@ function createRegionBoundaryStyle(
     if (existing) return existing;
 
     const style = new Style({
-      geometry: getDisplayedBoundaryGeometry(
-        feature,
-        resolution,
-        shouldSimplifyDisplayedBoundary(layer, activeViewPreset),
-      ),
       stroke: new Stroke({
         color: strokeColor,
         width: strokeWidth,
@@ -1123,31 +1111,6 @@ function getFeatureBoundaryFillOpacity(
   }
 
   return layer.opacity;
-}
-
-function shouldSimplifyDisplayedBoundary(
-  layer: RegionBoundaryLayerStyle,
-  activeViewPreset: ViewPresetId,
-): boolean {
-  return (
-    activeViewPreset === 'coa3b' &&
-    layer.id === 'pmcUnpopulatedCareBoardBoundaries' &&
-    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson')
-  );
-}
-
-function getDisplayedBoundaryGeometry(
-  feature: FeatureLike,
-  resolution: number,
-  simplify = isCoa3aRegionFeature(feature),
-) {
-  const geometry = feature.getGeometry();
-  if (!geometry || !simplify) {
-    return geometry;
-  }
-
-  const tolerance = Math.max(resolution * 3.5, 200);
-  return geometry.simplify(tolerance);
 }
 
 function getFeatureBoundaryFillColor(feature: FeatureLike): string | null {
@@ -1327,11 +1290,6 @@ function getSelectedJmcOutlineColor(
   };
 
   return byRegionName[regionName] ?? null;
-}
-
-function isCoa3aRegionFeature(feature: FeatureLike): boolean {
-  const regionName = getJmcRegionName(feature);
-  return regionName.startsWith('COA 3a ');
 }
 
 function getScenarioJmcName(
