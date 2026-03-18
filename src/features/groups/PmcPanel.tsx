@@ -13,16 +13,11 @@ const REGION_ORDER = [
   'London & South',
 ] as const;
 
-interface GroupPanelProps {
+interface PmcPanelProps {
   embedded?: boolean;
-  mode?: 'pmc' | 'regions';
 }
 
-export function GroupPanel({
-  embedded = false,
-  mode = 'pmc',
-}: GroupPanelProps) {
-  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
+export function PmcPanel({ embedded = false }: PmcPanelProps) {
   const regions = useAppStore((state) => state.regions);
   const regionGlobalOpacity = useAppStore((state) => state.regionGlobalOpacity);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
@@ -52,22 +47,6 @@ export function GroupPanel({
     (state) => state.setFacilitySymbolShape,
   );
   const setFacilitySymbolSize = useAppStore((state) => state.setFacilitySymbolSize);
-  const overlayLayers = useAppStore((state) => state.overlayLayers);
-  const setOverlayLayerVisibility = useAppStore(
-    (state) => state.setOverlayLayerVisibility,
-  );
-  const setOverlayLayerOpacity = useAppStore(
-    (state) => state.setOverlayLayerOpacity,
-  );
-  const setOverlayLayerBorderVisibility = useAppStore(
-    (state) => state.setOverlayLayerBorderVisibility,
-  );
-  const setOverlayLayerBorderColor = useAppStore(
-    (state) => state.setOverlayLayerBorderColor,
-  );
-  const setOverlayLayerBorderOpacity = useAppStore(
-    (state) => state.setOverlayLayerBorderOpacity,
-  );
 
   const sortedRegions = useMemo(() => sortRegions(regions), [regions]);
   const pmcVisible = regions.length > 0 && regions.some((region) => region.visible);
@@ -134,36 +113,7 @@ export function GroupPanel({
     </>
   );
 
-  const boundaryRegionsContent = (
-    <div className="stack-col">
-      {overlayLayers.map((layer) => (
-        <RegionBoundaryPopover
-          key={layer.id}
-          title={layer.name}
-          visible={layer.visible}
-          opacity={layer.opacity}
-          borderVisible={layer.borderVisible}
-          borderColor={layer.borderColor}
-          borderOpacity={layer.borderOpacity}
-          onVisibilityChange={(checked) =>
-            setOverlayLayerVisibility(layer.id, checked)
-          }
-          onOpacityChange={(value) => setOverlayLayerOpacity(layer.id, value)}
-          onBorderVisibilityChange={(checked) =>
-            setOverlayLayerBorderVisibility(layer.id, checked)
-          }
-          onBorderColorChange={(color) =>
-            setOverlayLayerBorderColor(layer.id, color)
-          }
-          onBorderOpacityChange={(value) =>
-            setOverlayLayerBorderOpacity(layer.id, value)
-          }
-        />
-      ))}
-    </div>
-  );
-
-  const pmcSection = (
+  const content = (
     <details className="group-section" open>
       <summary className="group-section__summary">
         <span className="group-section__title">PMC</span>
@@ -284,131 +234,11 @@ export function GroupPanel({
     </details>
   );
 
-  const content = (
-    <>
-      {!embedded && <h2>Overlays</h2>}
-      {mode === 'pmc'
-        ? pmcSection
-        : activeViewPreset === 'current'
-          ? boundaryRegionsContent
-          : null}
-    </>
-  );
-
   if (embedded) {
     return content;
   }
 
   return <section className="panel panel--regions">{content}</section>;
-}
-
-interface RegionBoundaryPopoverProps {
-  title: string;
-  visible: boolean;
-  opacity: number;
-  borderVisible: boolean;
-  borderColor: string;
-  borderOpacity: number;
-  onVisibilityChange: (checked: boolean) => void;
-  onOpacityChange: (opacity: number) => void;
-  onBorderVisibilityChange: (checked: boolean) => void;
-  onBorderColorChange: (color: string) => void;
-  onBorderOpacityChange: (opacity: number) => void;
-}
-
-function RegionBoundaryPopover({
-  title,
-  visible,
-  opacity,
-  borderVisible,
-  borderColor,
-  borderOpacity,
-  onVisibilityChange,
-  onOpacityChange,
-  onBorderVisibilityChange,
-  onBorderColorChange,
-  onBorderOpacityChange,
-}: RegionBoundaryPopoverProps) {
-  const detailsRef = useOutsideClose();
-  const slug = title.toLowerCase().replace(/\s+/g, '-');
-
-  return (
-    <div className="color-control">
-      <span className="color-control__label color-control__label--region">{title}</span>
-      <details className="color-popover" ref={detailsRef}>
-        <summary className="color-popover__summary">
-          <span className="color-popover__percent">{Math.round(opacity * 100)}%</span>
-        </summary>
-        <div className="color-popover__panel">
-          <div className="popover-section">
-            <label className="stack-row stack-row--tight popover-section__title">
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={visible}
-                onChange={(event) => onVisibilityChange(event.currentTarget.checked)}
-                aria-label={`${title} visible`}
-              />
-              <span>Visible</span>
-            </label>
-          </div>
-          <div className="popover-section">
-            <label className="field-label" htmlFor={`${slug}-opacity`}>
-              Opacity
-            </label>
-            <SliderField
-              id={`${slug}-opacity`}
-              min={0}
-              max={1}
-              step={0.05}
-              value={opacity}
-              onChange={onOpacityChange}
-              ariaLabel={`${title} opacity`}
-              mode="percent"
-            />
-          </div>
-          <div className="popover-section">
-            <label className="stack-row stack-row--tight popover-section__title">
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={borderVisible}
-                onChange={(event) =>
-                  onBorderVisibilityChange(event.currentTarget.checked)
-                }
-                aria-label={`${title} border visible`}
-              />
-              <span>Border</span>
-            </label>
-            <label className="field-label" htmlFor={`${slug}-border-color`}>
-              Colour
-            </label>
-            <input
-              id={`${slug}-border-color`}
-              className="color-input color-input--popover"
-              type="color"
-              value={borderColor}
-              onChange={(event) => onBorderColorChange(event.currentTarget.value)}
-              aria-label={`${title} border colour`}
-            />
-            <label className="field-label" htmlFor={`${slug}-border-opacity`}>
-              Opacity
-            </label>
-            <SliderField
-              id={`${slug}-border-opacity`}
-              min={0}
-              max={1}
-              step={0.05}
-              value={borderOpacity}
-              onChange={onBorderOpacityChange}
-              ariaLabel={`${title} border opacity`}
-              mode="percent"
-            />
-          </div>
-        </div>
-      </details>
-    </div>
-  );
 }
 
 interface RegionPopoverProps {

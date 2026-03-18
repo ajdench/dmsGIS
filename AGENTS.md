@@ -88,6 +88,10 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Scenario board polygons are the rendered overlay in `SJC JMC`, `COA 3a`, and `COA 3b`; the outer region boundary overlay is off by default and is used mainly for selected region highlighting.
 - Scenario board polygons use precomputed assignment metadata (`jmc_name`, `jmc_code`, `is_populated`) rather than runtime facility-in-polygon calculation.
 - `COA 3b` introduces `COA 3b London and East`, which groups the London District boards with `NHS Norfolk and Suffolk Integrated Care Board`, `NHS Central East Integrated Care Board`, and `NHS Essex Integrated Care Board`.
+- Production sidebar panel responsibilities are now split:
+  - `src/features/groups/PmcPanel.tsx` owns the embedded Facilities/PMC controls
+  - `src/features/groups/OverlayPanel.tsx` owns the right-sidebar Overlays pane
+  - `src/features/groups/overlaySelectors.ts` owns overlay-family helpers for production UI filtering
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
@@ -147,8 +151,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component, and so future overlay families can be surfaced intentionally.
-2. Add explicit overlay selectors/helpers on top of `overlayLayers` so production UI can address board boundaries, scenario regions, future NHS regions, and custom regions without repeating family filters inline.
+1. Expand `overlaySelectors.ts` so production UI can address board boundaries, scenario regions, future NHS regions, and custom regions without preset-specific branching or ad hoc family checks.
+2. Add explicit overlay-family sections to the production Overlays pane once NHS/custom overlays are introduced, instead of one flat list.
 3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
 4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
 5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.

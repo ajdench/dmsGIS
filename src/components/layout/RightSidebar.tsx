@@ -1,6 +1,6 @@
 import { BasemapPanel } from '../../features/basemap/BasemapPanel';
 import { SelectionPanel } from '../../features/facilities/SelectionPanel';
-import { GroupPanel } from '../../features/groups/GroupPanel';
+import { OverlayPanel } from '../../features/groups/OverlayPanel';
 import { LabelPanel } from '../../features/labels/LabelPanel';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { useAppStore } from '../../store/appStore';
@@ -28,7 +28,7 @@ export function RightSidebar() {
       </div>
       <SelectionPanel />
       <LabelPanel />
-      <GroupPanel mode="regions" />
+      <OverlayPanel />
     </aside>
   );
 }
