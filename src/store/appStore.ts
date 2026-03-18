@@ -565,7 +565,7 @@ function createScenarioRegionBoundaryLayers(
     visible: false,
   }));
 
-  if (preset !== 'coa3a' && preset !== 'coa3b') {
+  if (preset !== 'coa3a' && preset !== 'coa3b' && preset !== 'coa3c') {
     return hiddenLayers;
   }
 
@@ -575,11 +575,13 @@ function createScenarioRegionBoundaryLayers(
           ...layer,
           name: 'ICB / Health Board boundaries',
           path:
-            preset === 'coa3b'
+            preset === 'coa3c'
+              ? 'data/regions/UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson'
+              : preset === 'coa3b'
               ? 'data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson'
               : 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
           visible: true,
-          opacity: preset === 'coa3b' ? 1 : 0.22,
+          opacity: preset === 'coa3a' ? 0.22 : 1,
           borderVisible: true,
           borderColor: '#999999',
           borderOpacity: 0.1,
@@ -602,6 +604,18 @@ function createScenarioRegionBoundaryLayers(
               ...layer,
               name: 'COA 3a boundaries',
               path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson',
+              visible: false,
+              opacity: 0,
+              borderVisible: true,
+              borderColor: '#999999',
+              borderOpacity: 0.45,
+              swatchColor: '#999999',
+            }
+        : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3c'
+          ? {
+              ...layer,
+              name: 'COA 3b boundaries',
+              path: 'data/regions/UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson',
               visible: false,
               opacity: 0,
               borderVisible: true,

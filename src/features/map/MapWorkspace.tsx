@@ -69,6 +69,7 @@ export function MapWorkspace() {
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
   const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
   const coa3aBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
+  const coa3bBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
@@ -224,7 +225,11 @@ export function MapWorkspace() {
       const activeScenarioBoundarySource =
         liveScenarioBoundarySource && liveScenarioBoundarySource.getFeatures().length > 0
           ? liveScenarioBoundarySource
-          : coa3aBoundaryLookupSourceRef.current;
+          : getScenarioBoundaryLookupSource(
+              activeViewPreset,
+              coa3aBoundaryLookupSourceRef.current,
+              coa3bBoundaryLookupSourceRef.current,
+            );
       const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
         current.coordinate,
         current.jmcName,
@@ -301,6 +306,8 @@ export function MapWorkspace() {
     jmcBoundaryLookupSourceRef.current = jmcLookupSource;
     const coa3aBoundaryLookupSource = new VectorSource();
     coa3aBoundaryLookupSourceRef.current = coa3aBoundaryLookupSource;
+    const coa3bBoundaryLookupSource = new VectorSource();
+    coa3bBoundaryLookupSourceRef.current = coa3bBoundaryLookupSource;
     const jmcAssignmentSource = new VectorSource();
     jmcAssignmentLookupSourceRef.current = jmcAssignmentSource;
     fetch(resolveDataUrl('data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson'))
@@ -339,6 +346,24 @@ export function MapWorkspace() {
       .catch((error) => {
         console.error('Failed to load COA 3a boundary lookup', error);
       });
+    fetch(resolveDataUrl('data/regions/UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson'))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load COA 3b boundaries: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((geojson) => {
+        coa3bBoundaryLookupSource.clear();
+        coa3bBoundaryLookupSource.addFeatures(
+          new GeoJSON().readFeatures(geojson, {
+            featureProjection: 'EPSG:3857',
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to load COA 3b boundary lookup', error);
+      });
     fetch(resolveDataUrl('data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'))
       .then((response) => {
         if (!response.ok) {
@@ -376,6 +401,7 @@ export function MapWorkspace() {
       selectedPointRef.current = null;
       jmcBoundaryLookupSourceRef.current = null;
       coa3aBoundaryLookupSourceRef.current = null;
+      coa3bBoundaryLookupSourceRef.current = null;
       jmcAssignmentLookupSourceRef.current = null;
       jmcAssignmentByBoundaryNameRef.current.clear();
       pointTooltipRootRef.current = null;
@@ -1140,7 +1166,10 @@ function getFeatureBoundaryStrokeColor(
 function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolean {
   return (
     layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson') ||
-    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson')
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson') ||
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson') ||
+    layer.path.includes('UK_COA3B_Boundaries_Codex_v01_geojson.geojson') ||
+    layer.path.includes('UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson')
   );
 }
 
@@ -1173,7 +1202,10 @@ function getFeatureBoundaryStrokeWidth(
   if (!layer.borderVisible) return 0;
   if (
     isCoa3aLondonDistrictOverlay(layer, feature) ||
-    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson')
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson') ||
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson') ||
+    layer.path.includes('UK_COA3B_Boundaries_Codex_v01_geojson.geojson') ||
+    layer.path.includes('UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson')
   ) {
     return 1.5;
   }
@@ -1232,6 +1264,12 @@ function getJmcBoundaryColor(
     'COA 3a Midlands': '#ebcfc7',
     'COA 3a South West': '#149ece',
     'COA 3a South East': '#cadec2',
+    'COA 3b Devolved Administrations': '#cbd4dd',
+    'COA 3b North': '#dee8c3',
+    'COA 3b Midlands': '#ebcfc7',
+    'COA 3b South West': '#149ece',
+    'COA 3b South East': '#cadec2',
+    'COA 3b London and East': '#c6b0e0',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1248,6 +1286,12 @@ function getJmcBoundaryColor(
     'COA 3a Midlands': '#ecc0b9',
     'COA 3a South West': '#abd7df',
     'COA 3a South East': '#b8d5b0',
+    'COA 3b Devolved Administrations': '#bbc5d8',
+    'COA 3b North': '#d7e3b1',
+    'COA 3b Midlands': '#ecc0b9',
+    'COA 3b South West': '#abd7df',
+    'COA 3b South East': '#b8d5b0',
+    'COA 3b London and East': '#c6b0e0',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1279,6 +1323,12 @@ function getSelectedJmcOutlineColor(
     'COA 3a Midlands': '#ed5151',
     'COA 3a South West': '#149ece',
     'COA 3a South East': '#419632',
+    'COA 3b Devolved Administrations': '#4862b8',
+    'COA 3b North': '#a7c636',
+    'COA 3b Midlands': '#ed5151',
+    'COA 3b South West': '#149ece',
+    'COA 3b South East': '#419632',
+    'COA 3b London and East': '#7f5aa8',
     'JMC Scotland': '#4862b8',
     'JMC Northern Ireland': '#4862b8',
     'JMC Wales': '#4862b8',
@@ -1299,36 +1349,54 @@ function getScenarioJmcName(
   const regionName = getJmcRegionName(feature);
   const boundaryName = String(feature.get('boundary_name') ?? '').trim();
 
-  if (activeViewPreset !== 'coa3b') {
+  if (activeViewPreset !== 'coa3b' && activeViewPreset !== 'coa3c') {
     return regionName;
   }
+
+  const prefix = activeViewPreset === 'coa3c' ? 'COA 3b' : 'COA 3a';
 
   if (
     regionName === 'JMC Scotland' ||
     regionName === 'JMC Northern Ireland' ||
     regionName === 'JMC Wales'
   ) {
-    return 'COA 3a Devolved Administrations';
+    return `${prefix} Devolved Administrations`;
   }
 
   if (regionName === 'JMC North') {
-    return 'COA 3a North';
+    return `${prefix} North`;
   }
 
   if (regionName === 'JMC Centre') {
-    return 'COA 3a Midlands';
+    if (
+      activeViewPreset === 'coa3c' &&
+      (boundaryName === 'NHS Essex Integrated Care Board' ||
+        boundaryName === 'NHS Central East Integrated Care Board' ||
+        boundaryName === 'NHS Norfolk and Suffolk Integrated Care Board')
+    ) {
+      return 'COA 3b London and East';
+    }
+    return `${prefix} Midlands`;
   }
 
   if (regionName === 'JMC South West') {
-    return 'COA 3a South West';
+    return `${prefix} South West`;
+  }
+
+  if (activeViewPreset === 'coa3c' && regionName === 'London District') {
+    return 'COA 3b London and East';
+  }
+
+  if (regionName === 'JMC South East') {
+    return `${prefix} South East`;
   }
 
   if (
-    regionName === 'JMC South East' ||
-    regionName === 'London District' ||
-    boundaryName === 'NHS Essex Integrated Care Board' ||
-    boundaryName === 'NHS Central East Integrated Care Board' ||
-    boundaryName === 'NHS Norfolk and Suffolk Integrated Care Board'
+    activeViewPreset === 'coa3b' &&
+    (regionName === 'London District' ||
+      boundaryName === 'NHS Essex Integrated Care Board' ||
+      boundaryName === 'NHS Central East Integrated Care Board' ||
+      boundaryName === 'NHS Norfolk and Suffolk Integrated Care Board')
   ) {
     return 'COA 3a South East';
   }
@@ -1786,7 +1854,7 @@ function getSelectedJmcOutlineFeatures(
   scenarioBoundarySource: VectorSource | null,
   boundarySource: VectorSource | null,
 ): Feature[] {
-  if (activeViewPreset === 'coa3b' && scenarioBoundarySource) {
+  if ((activeViewPreset === 'coa3b' || activeViewPreset === 'coa3c') && scenarioBoundarySource) {
     if (jmcName) {
       const matchedFeatures = scenarioBoundarySource
         .getFeatures()
@@ -1802,6 +1870,20 @@ function getSelectedJmcOutlineFeatures(
 
   const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, boundarySource);
   return boundaryFeature ? [boundaryFeature] : [];
+}
+
+function getScenarioBoundaryLookupSource(
+  activeViewPreset: ViewPresetId,
+  coa3aBoundarySource: VectorSource | null,
+  coa3bBoundarySource: VectorSource | null,
+): VectorSource | null {
+  if (activeViewPreset === 'coa3c') {
+    return coa3bBoundarySource;
+  }
+  if (activeViewPreset === 'coa3b') {
+    return coa3aBoundarySource;
+  }
+  return null;
 }
 
 function getStyleForLayer(
