@@ -40,6 +40,7 @@ import {
   getPointCoordinate,
   type PointTooltipEntry,
 } from './pointSelection';
+import { renderDockedTooltip } from './tooltipController';
 import {
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
@@ -104,178 +105,83 @@ export function MapWorkspace() {
   );
 
   const renderPointTooltip = () => {
-    const root = pointTooltipRootRef.current;
-    const header = pointTooltipHeaderRef.current;
-    const name = pointTooltipNameRef.current;
-    const subname = pointTooltipSubnameRef.current;
-    const context = pointTooltipContextRef.current;
-    const footer = pointTooltipFooterRef.current;
-    const page = pointTooltipPageRef.current;
-    const prev = pointTooltipPrevRef.current;
-    const next = pointTooltipNextRef.current;
-    if (
-      !root ||
-      !header ||
-      !name ||
-      !subname ||
-      !context ||
-      !footer ||
-      !page ||
-      !prev ||
-      !next
-    ) {
-      return;
-    }
-
-    const entries = pointTooltipEntriesRef.current;
-    const selectedPointSource = selectedPointRef.current?.getSource();
-    const selectedPointLayer = selectedPointRef.current;
-    const selectedJmcSource = selectedJmcBoundaryRef.current?.getSource();
-    if (entries.length === 0) {
-      const boundaryName = selectedBoundaryNameRef.current;
-      const jmcName = selectedJmcNameRef.current;
-      if (!boundaryName) {
-        name.textContent = '';
-        subname.textContent = '';
-        context.textContent = '';
-        page.textContent = '';
-        prev.disabled = true;
-        next.disabled = true;
-        footer.classList.add('map-tooltip-card__footer--hidden');
-        subname.classList.add('map-tooltip-card__subname--hidden');
-        context.classList.add('map-tooltip-card__context--hidden');
-        root.classList.remove('map-tooltip-card--name-right');
-        root.classList.add('map-tooltip-card--hidden');
-        if (selectedPointSource) {
-          selectedPointSource.clear();
+    pointTooltipIndexRef.current = renderDockedTooltip({
+      dom: {
+        root: pointTooltipRootRef.current,
+        header: pointTooltipHeaderRef.current,
+        name: pointTooltipNameRef.current,
+        subname: pointTooltipSubnameRef.current,
+        context: pointTooltipContextRef.current,
+        footer: pointTooltipFooterRef.current,
+        page: pointTooltipPageRef.current,
+        prev: pointTooltipPrevRef.current,
+        next: pointTooltipNextRef.current,
+      },
+      state: {
+        entries: pointTooltipEntriesRef.current,
+        index: pointTooltipIndexRef.current,
+        boundaryName: selectedBoundaryNameRef.current,
+        jmcName: selectedJmcNameRef.current,
+      },
+      facilitySymbolShape,
+      facilitySymbolSize,
+      selectedPointLayer: selectedPointRef.current,
+      selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
+      setSelectedBoundaryForPoint: (entry) => {
+        const selectedBoundarySource = selectedBoundaryRef.current?.getSource();
+        if (!selectedBoundarySource) {
+          return;
         }
-        if (selectedPointLayer) {
-          selectedPointLayer.setStyle(
-            createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
-          );
-        }
-        if (selectedJmcSource) {
-          selectedJmcSource.clear();
-        }
-        return;
-      }
-
-      name.textContent = boundaryName;
-      subname.textContent = jmcName ?? '';
-      context.textContent = '';
-      page.textContent = '';
-      prev.disabled = true;
-      next.disabled = true;
-      footer.classList.add('map-tooltip-card__footer--hidden');
-      if (jmcName) {
-        subname.classList.remove('map-tooltip-card__subname--hidden');
-      } else {
-        subname.classList.add('map-tooltip-card__subname--hidden');
-      }
-      context.classList.add('map-tooltip-card__context--hidden');
-      root.classList.remove('map-tooltip-card--name-right');
-      root.classList.remove('map-tooltip-card--hidden');
-      if (selectedPointSource) {
-        selectedPointSource.clear();
-      }
-      if (selectedPointLayer) {
-        selectedPointLayer.setStyle(
-          createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
+        selectedBoundarySource.clear();
+        const matchedBoundary = findCareBoardBoundaryAtCoordinate(
+          entry.coordinate,
+          regionBoundaryLayers,
+          regionBoundaryRefs.current,
         );
-      }
-      if (selectedJmcSource) {
+        if (matchedBoundary) {
+          selectedBoundarySource.addFeature(matchedBoundary.clone());
+          selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
+          selectedJmcNameRef.current = entry.jmcName;
+        } else {
+          selectedBoundaryNameRef.current = null;
+          selectedJmcNameRef.current = entry.jmcName;
+        }
+      },
+      syncSelectedJmcBoundaries: (entry) => {
+        const selectedJmcSource = selectedJmcBoundaryRef.current?.getSource();
+        if (!selectedJmcSource) {
+          return;
+        }
         selectedJmcSource.clear();
-      }
-      return;
-    }
-
-    const index = Math.max(
-      0,
-      Math.min(pointTooltipIndexRef.current, entries.length - 1),
-    );
-    pointTooltipIndexRef.current = index;
-    const current = entries[index];
-    name.textContent = current.facilityName;
-    subname.textContent = current.jmcName ?? '';
-    page.textContent = `Page ${index + 1} of ${entries.length}`;
-    context.textContent = current.boundaryName ?? '';
-    prev.disabled = index === 0;
-    next.disabled = index >= entries.length - 1;
-    footer.classList.remove('map-tooltip-card__footer--hidden');
-    if (current.jmcName) {
-      subname.classList.remove('map-tooltip-card__subname--hidden');
-    } else {
-      subname.classList.add('map-tooltip-card__subname--hidden');
-    }
-    if (current.boundaryName) {
-      context.classList.remove('map-tooltip-card__context--hidden');
-    } else {
-      context.classList.add('map-tooltip-card__context--hidden');
-    }
-
-    const selectedBoundarySource = selectedBoundaryRef.current?.getSource();
-    if (selectedBoundarySource) {
-      selectedBoundarySource.clear();
-      const matchedBoundary = findCareBoardBoundaryAtCoordinate(
-        current.coordinate,
-        regionBoundaryLayers,
-        regionBoundaryRefs.current,
-      );
-      if (matchedBoundary) {
-        selectedBoundarySource.addFeature(matchedBoundary.clone());
-        selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
-        selectedJmcNameRef.current = current.jmcName;
-      } else {
-        selectedBoundaryNameRef.current = null;
-        selectedJmcNameRef.current = current.jmcName;
-      }
-    }
-
-    if (selectedJmcSource) {
-      selectedJmcSource.clear();
-      const liveScenarioBoundarySource = regionBoundaryRefs.current
-        .get('pmcUnpopulatedCareBoardBoundaries')
-        ?.getSource();
-      const activeScenarioBoundarySource =
-        liveScenarioBoundarySource && liveScenarioBoundarySource.getFeatures().length > 0
-          ? liveScenarioBoundarySource
-          : scenarioBoundaryLookupSourcesRef.current.get(activeViewPreset) ?? null;
-      const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
-        current.coordinate,
-        current.jmcName,
-        activeViewPreset,
-        activeScenarioBoundarySource,
-        jmcBoundaryLookupSourceRef.current,
-      );
-      for (const boundary of matchedJmcBoundaries) {
-        const outline = boundary.clone();
-        outline.set(
-          'selectionColor',
-          getSelectedJmcOutlineColor(boundary, activeViewPreset),
+        const liveScenarioBoundarySource = regionBoundaryRefs.current
+          .get('pmcUnpopulatedCareBoardBoundaries')
+          ?.getSource();
+        const activeScenarioBoundarySource =
+          liveScenarioBoundarySource && liveScenarioBoundarySource.getFeatures().length > 0
+            ? liveScenarioBoundarySource
+            : scenarioBoundaryLookupSourcesRef.current.get(activeViewPreset) ?? null;
+        const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
+          entry.coordinate,
+          entry.jmcName,
+          activeViewPreset,
+          activeScenarioBoundarySource,
+          jmcBoundaryLookupSourceRef.current,
         );
-        selectedJmcSource.addFeature(outline);
-      }
-    }
-
-    root.classList.remove('map-tooltip-card--name-right');
-    root.classList.remove('map-tooltip-card--hidden');
-    if (selectedPointSource) {
-      selectedPointSource.clear();
-      selectedPointSource.addFeature(
-        new Feature({
-          geometry: new Point(current.coordinate),
-        }),
-      );
-    }
-    if (selectedPointLayer) {
-      selectedPointLayer.setStyle(
-        createSelectedPointStyle(
-          facilitySymbolShape,
-          current.symbolSize,
-          current.hasVisibleBorder,
-        ),
-      );
-    }
+        for (const boundary of matchedJmcBoundaries) {
+          const outline = boundary.clone();
+          outline.set(
+            'selectionColor',
+            getSelectedJmcOutlineColor(boundary, activeViewPreset),
+          );
+          selectedJmcSource.addFeature(outline);
+        }
+      },
+      setSelectedBoundaryState: (boundaryName, jmcName) => {
+        selectedBoundaryNameRef.current = boundaryName;
+        selectedJmcNameRef.current = jmcName;
+      },
+      createSelectedPointStyle,
+    });
   };
 
   useEffect(() => {
