@@ -3,6 +3,7 @@ import type { OverlayLayerStyle } from '../src/types';
 import {
   getOverlayLayersByFamily,
   getOverlayLayersForPanel,
+  getOverlaySectionsForPanel,
 } from '../src/features/groups/overlaySelectors';
 
 const OVERLAYS: OverlayLayerStyle[] = [
@@ -57,5 +58,16 @@ describe('overlay selectors', () => {
   it('keeps the overlays panel on current board overlays only', () => {
     expect(getOverlayLayersForPanel(OVERLAYS, 'current')).toEqual([OVERLAYS[0]]);
     expect(getOverlayLayersForPanel(OVERLAYS, 'coa3a')).toEqual([]);
+  });
+
+  it('returns family-aware overlay sections for the panel', () => {
+    expect(getOverlaySectionsForPanel(OVERLAYS, 'current')).toEqual([
+      {
+        family: 'boardBoundaries',
+        title: 'Board Boundaries',
+        layers: [OVERLAYS[0]],
+      },
+    ]);
+    expect(getOverlaySectionsForPanel(OVERLAYS, 'coa3b')).toEqual([]);
   });
 });

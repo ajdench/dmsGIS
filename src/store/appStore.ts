@@ -622,10 +622,3 @@ function cloneOverlayLayers(
 ): OverlayLayerStyle[] {
   return layers.map((layer) => ({ ...layer }));
 }
-
-export function getOverlayLayersByFamily(
-  layers: OverlayLayerStyle[],
-  family: OverlayFamily,
-): OverlayLayerStyle[] {
-  return layers.filter((layer) => layer.family === family);
-}

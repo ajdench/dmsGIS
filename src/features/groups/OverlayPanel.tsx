@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { SliderField } from '../../components/controls/SliderField';
 import { useAppStore } from '../../store/appStore';
-import { getOverlayLayersForPanel } from './overlaySelectors';
+import { getOverlaySectionsForPanel } from './overlaySelectors';
 
 export function OverlayPanel() {
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
@@ -22,35 +22,44 @@ export function OverlayPanel() {
     (state) => state.setOverlayLayerBorderOpacity,
   );
 
-  const panelLayers = getOverlayLayersForPanel(overlayLayers, activeViewPreset);
+  const panelSections = getOverlaySectionsForPanel(overlayLayers, activeViewPreset);
 
   return (
     <section className="panel panel--regions">
       <h2>Overlays</h2>
       <div className="stack-col">
-        {panelLayers.map((layer) => (
-          <OverlayLayerPopover
-            key={layer.id}
-            title={layer.name}
-            visible={layer.visible}
-            opacity={layer.opacity}
-            borderVisible={layer.borderVisible}
-            borderColor={layer.borderColor}
-            borderOpacity={layer.borderOpacity}
-            onVisibilityChange={(checked) =>
-              setOverlayLayerVisibility(layer.id, checked)
-            }
-            onOpacityChange={(value) => setOverlayLayerOpacity(layer.id, value)}
-            onBorderVisibilityChange={(checked) =>
-              setOverlayLayerBorderVisibility(layer.id, checked)
-            }
-            onBorderColorChange={(color) =>
-              setOverlayLayerBorderColor(layer.id, color)
-            }
-            onBorderOpacityChange={(value) =>
-              setOverlayLayerBorderOpacity(layer.id, value)
-            }
-          />
+        {panelSections.map((section) => (
+          <div key={section.family} className="stack-col">
+            {panelSections.length > 1 && (
+              <p className="muted" aria-label={`${section.title} section`}>
+                {section.title}
+              </p>
+            )}
+            {section.layers.map((layer) => (
+              <OverlayLayerPopover
+                key={layer.id}
+                title={layer.name}
+                visible={layer.visible}
+                opacity={layer.opacity}
+                borderVisible={layer.borderVisible}
+                borderColor={layer.borderColor}
+                borderOpacity={layer.borderOpacity}
+                onVisibilityChange={(checked) =>
+                  setOverlayLayerVisibility(layer.id, checked)
+                }
+                onOpacityChange={(value) => setOverlayLayerOpacity(layer.id, value)}
+                onBorderVisibilityChange={(checked) =>
+                  setOverlayLayerBorderVisibility(layer.id, checked)
+                }
+                onBorderColorChange={(color) =>
+                  setOverlayLayerBorderColor(layer.id, color)
+                }
+                onBorderOpacityChange={(value) =>
+                  setOverlayLayerBorderOpacity(layer.id, value)
+                }
+              />
+            ))}
+          </div>
         ))}
       </div>
     </section>
