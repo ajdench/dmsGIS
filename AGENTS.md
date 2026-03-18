@@ -91,7 +91,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Production sidebar panel responsibilities are now split:
   - `src/features/groups/PmcPanel.tsx` owns the embedded Facilities/PMC controls
   - `src/features/groups/OverlayPanel.tsx` owns the right-sidebar Overlays pane
-  - `src/features/groups/overlaySelectors.ts` owns overlay-family helpers and section builders for production UI filtering
+  - `src/features/groups/overlaySelectors.ts` owns overlay-family metadata, helpers, and section builders for production UI filtering
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
@@ -151,8 +151,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extend `OverlayPanel` from its current section-ready shape to render explicit NHS/custom overlay families once those datasets are added.
-2. Add richer overlay metadata where needed for production sections, such as optional descriptions, ordering, or family-level empty-state behavior, without pushing that logic into the view components.
+1. Use the new overlay-family metadata layer to add NHS/custom overlay sections when those datasets are introduced, without changing the panel architecture again.
+2. Extend overlay metadata only when needed for production behavior, for example descriptions, family-level visibility defaults, or scenario-specific empty-state copy.
 3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
 4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
 5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.

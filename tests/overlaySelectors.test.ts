@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { OverlayLayerStyle } from '../src/types';
 import {
+  getOverlayFamiliesForPanel,
+  getOverlayFamilyMetadata,
+  getOverlayFamilyOrder,
   getOverlayLayersByFamily,
   getOverlayLayersForPanel,
+  getOverlayPanelEmptyState,
   getOverlaySectionsForPanel,
 } from '../src/features/groups/overlaySelectors';
 
@@ -65,9 +69,24 @@ describe('overlay selectors', () => {
       {
         family: 'boardBoundaries',
         title: 'Board Boundaries',
+        showWhenEmpty: false,
         layers: [OVERLAYS[0]],
       },
     ]);
     expect(getOverlaySectionsForPanel(OVERLAYS, 'coa3b')).toEqual([]);
+  });
+
+  it('exposes overlay family metadata for future panel expansion', () => {
+    expect(getOverlayFamilyMetadata('nhsRegions')).toMatchObject({
+      family: 'nhsRegions',
+      title: 'NHS Regions',
+      order: 3,
+      showWhenEmpty: false,
+    });
+    expect(getOverlayFamilyOrder('customRegions')).toBe(4);
+    expect(getOverlayFamiliesForPanel('current')).toEqual(['boardBoundaries']);
+    expect(getOverlayFamiliesForPanel('coa3a')).toEqual([]);
+    expect(getOverlayPanelEmptyState('current')).toBeNull();
+    expect(getOverlayPanelEmptyState('coa3c')).toBeNull();
   });
 });

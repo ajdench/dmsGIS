@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { SliderField } from '../../components/controls/SliderField';
 import { useAppStore } from '../../store/appStore';
-import { getOverlaySectionsForPanel } from './overlaySelectors';
+import {
+  getOverlayPanelEmptyState,
+  getOverlaySectionsForPanel,
+} from './overlaySelectors';
 
 export function OverlayPanel() {
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
@@ -23,10 +26,12 @@ export function OverlayPanel() {
   );
 
   const panelSections = getOverlaySectionsForPanel(overlayLayers, activeViewPreset);
+  const emptyState = getOverlayPanelEmptyState(activeViewPreset);
 
   return (
     <section className="panel panel--regions">
       <h2>Overlays</h2>
+      {emptyState && <p className="muted">{emptyState}</p>}
       <div className="stack-col">
         {panelSections.map((section) => (
           <div key={section.family} className="stack-col">

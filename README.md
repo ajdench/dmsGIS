@@ -72,12 +72,12 @@ jj status
   - `UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson`
   - `UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson`
 - Shared preset/scenario configuration now lives in `src/lib/config/viewPresets.json` and `src/lib/config/viewPresets.ts`; runtime UI/store code and scenario preprocessing scripts read from that shared definition.
-- Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family filtering and section building.
+- Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
 - Point-selection and overlap-grouping logic now lives in `src/features/map/pointSelection.ts`, with direct tests in `tests/pointSelection.test.ts`.
 - Boundary/JMC resolution logic now lives in `src/features/map/boundarySelection.ts`, with direct tests in `tests/boundarySelection.test.ts`.
 - Docked tooltip rendering/state synchronization now lives in `src/features/map/tooltipController.ts`, with direct tests in `tests/tooltipController.test.ts`.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
-- Overlay selector and section-builder behavior is covered in `tests/overlaySelectors.test.ts`.
+- Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.
 - Parallel UI prototype work may exist under `src/prototypes/` with dedicated HTML entries such as `sidebar-prototype.html`; treat that work as intentionally isolated from the production app unless explicitly promoted.
