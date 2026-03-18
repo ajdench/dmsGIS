@@ -75,6 +75,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
 - Overlays pane now lists boundary datasets (not facility-region rows) with popovers per item.
 - Visible preset labels, dataset paths, scenario region groupings, palette values, and boundary overrides are now centralized in `src/lib/config/viewPresets.json` with runtime helpers in `src/lib/config/viewPresets.ts`.
+- Scenario assignment names and codes are now part of the shared config model: `src/lib/config/scenarioAssignments.ts` resolves scenario region names/codes from the preset config, and the COA board-generation scripts consume the same assignment metadata instead of hard-coded code rules.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
@@ -153,7 +154,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 1. Use the new overlay-family metadata layer to add NHS/custom overlay sections when those datasets are introduced, without changing the panel architecture again.
 2. Extend overlay metadata only when needed for production behavior, for example descriptions, family-level visibility defaults, or scenario-specific empty-state copy.
-3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
+3. Extend the shared assignment model so future NHS/custom region regrouping can be expressed as data, not script-specific transformation logic.
 4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
 5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
 6. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.

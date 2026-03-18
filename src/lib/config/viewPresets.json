@@ -107,6 +107,16 @@
     "coa3b": {
       "id": "coa3b",
       "label": "COA 3a",
+      "assignment": {
+        "codePrefix": "COA3A",
+        "codeOverrides": {
+          "COA 3a Devolved Administrations": "COA3A_DEVOLVED",
+          "COA 3a North": "COA3A_NORTH",
+          "COA 3a Midlands": "COA3A_MIDLANDS",
+          "COA 3a South West": "COA3A_SOUTH_WEST",
+          "COA 3a South East": "COA3A_SOUTH_EAST"
+        }
+      },
       "boardLayer": {
         "path": "data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson",
         "opacity": 1
@@ -177,6 +187,17 @@
     "coa3c": {
       "id": "coa3c",
       "label": "COA 3b",
+      "assignment": {
+        "codePrefix": "COA3B",
+        "codeOverrides": {
+          "COA 3b Devolved Administrations": "COA3B_DEVOLVED",
+          "COA 3b North": "COA3B_NORTH",
+          "COA 3b Midlands": "COA3B_MIDLANDS",
+          "COA 3b South West": "COA3B_SOUTH_WEST",
+          "COA 3b South East": "COA3B_SOUTH_EAST",
+          "COA 3b London and East": "COA3B_LONDON_EAST"
+        }
+      },
       "boardLayer": {
         "path": "data/regions/UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson",
         "opacity": 1

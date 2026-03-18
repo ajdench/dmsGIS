@@ -11,6 +11,7 @@ const presetConfig = JSON.parse(readFileSync(presetConfigPath, 'utf8'));
 const preset = presetConfig.presets.coa3b;
 const boundaryOverrides = new Map(Object.entries(preset.boundaryOverrides ?? {}));
 const groups = preset.regionGroups ?? [];
+const assignment = preset.assignment ?? { codePrefix: '', codeOverrides: {} };
 
 for (const feature of scenario.features ?? []) {
   const props = feature?.properties ?? {};
@@ -29,17 +30,9 @@ for (const feature of scenario.features ?? []) {
     }
   }
 
-  scenarioCode = String(props.jmc_code ?? '')
-    .trim()
-    .replace(/^JMC/i, 'COA3A')
-    .replace(/^COA 3a /i, 'COA3A_')
-    .replace(/\s+/g, '_')
-    .toUpperCase();
-  if (scenarioName === 'COA 3a Devolved Administrations') scenarioCode = 'COA3A_DEVOLVED';
-  if (scenarioName === 'COA 3a North') scenarioCode = 'COA3A_NORTH';
-  if (scenarioName === 'COA 3a Midlands') scenarioCode = 'COA3A_MIDLANDS';
-  if (scenarioName === 'COA 3a South West') scenarioCode = 'COA3A_SOUTH_WEST';
-  if (scenarioName === 'COA 3a South East') scenarioCode = 'COA3A_SOUTH_EAST';
+  scenarioCode =
+    assignment.codeOverrides?.[scenarioName] ??
+    `${assignment.codePrefix}_${scenarioName.trim().replace(/\s+/g, '_').toUpperCase()}`;
 
   feature.properties = {
     ...props,

@@ -27,6 +27,10 @@ interface ScenarioOutlineLayerConfig {
 interface ScenarioPresetConfig {
   id: ViewPresetId;
   label: string;
+  assignment?: {
+    codePrefix: string;
+    codeOverrides: Record<string, string>;
+  };
   boardLayer: ScenarioBoardLayerConfig;
   outlineLayer: ScenarioOutlineLayerConfig;
   lookupBoundaryPath: string;
