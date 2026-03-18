@@ -877,7 +877,6 @@ function createPointSymbol(
 }
 
 function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
-  const fillOpacity = layer.opacity;
   const cache = new Map<string, Style>();
 
   return (feature: FeatureLike) => {
@@ -887,6 +886,7 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
       layer.swatchColor;
     const strokeColor = getFeatureBoundaryStrokeColor(layer, feature, baseColor);
     const strokeWidth = getFeatureBoundaryStrokeWidth(layer, feature);
+    const fillOpacity = getFeatureBoundaryFillOpacity(layer, feature);
     const cacheKey = `${baseColor}:${strokeColor}:${strokeWidth}:${fillOpacity}`;
     const existing = cache.get(cacheKey);
     if (existing) return existing;
@@ -903,6 +903,17 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
     cache.set(cacheKey, style);
     return style;
   };
+}
+
+function getFeatureBoundaryFillOpacity(
+  layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
+): number {
+  if (layer.path.includes('UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson')) {
+    return feature.get('is_populated') ? 0.3 : 0.2;
+  }
+
+  return layer.opacity;
 }
 
 function getFeatureBoundaryFillColor(feature: FeatureLike): string | null {
