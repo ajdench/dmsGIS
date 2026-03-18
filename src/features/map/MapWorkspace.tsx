@@ -999,30 +999,23 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
     'London District': '#419632',
   };
 
+  const populatedByRegionName: Record<string, string> = {
+    'JMC Scotland': '#bbc5d8',
+    'JMC Northern Ireland': '#bbc5d8',
+    'JMC Wales': '#bbc5d8',
+    'JMC North': '#d7e3b1',
+    'JMC Centre': '#ecc0b9',
+    'JMC South West': '#abd7df',
+    'JMC South East': '#b8d5b0',
+    'London District': '#b8d5b0',
+  };
+
   const baseColor = byRegionName[regionName];
   if (!baseColor) return null;
 
-  return feature.get('is_populated') ? darkenHexColor(baseColor, 0.82) : baseColor;
-}
-
-function darkenHexColor(hex: string, factor: number): string {
-  const value = hex.replace('#', '');
-  if (!/^[0-9a-fA-F]{6}$/.test(value)) {
-    return hex;
-  }
-
-  const channel = (offset: number) =>
-    Math.max(
-      0,
-      Math.min(
-        255,
-        Math.round(Number.parseInt(value.slice(offset, offset + 2), 16) * factor),
-      ),
-    )
-      .toString(16)
-      .padStart(2, '0');
-
-  return `#${channel(0)}${channel(2)}${channel(4)}`;
+  return feature.get('is_populated')
+    ? populatedByRegionName[regionName] ?? baseColor
+    : baseColor;
 }
 
 function getRegionBoundaryLayerZIndex(layerId: string): number {
