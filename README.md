@@ -63,6 +63,8 @@ jj status
   - JMC / scenario regions
   - future NHS regions
   - future custom/manual regions
+- Deployment direction is static-first and container-friendly: the app should build to compiled static assets that can be served from a minimal Docker image.
+- Future authenticated features should sit behind a storage/auth abstraction so profile-backed saved states and cross-user sharing can be added without changing the core map architecture.
 - Current scenario datasets include:
   - `UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`
   - `UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson`
