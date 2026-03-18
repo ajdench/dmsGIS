@@ -574,7 +574,10 @@ function createScenarioRegionBoundaryLayers(
       ? {
           ...layer,
           name: 'ICB / Health Board boundaries',
-          path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+          path:
+            preset === 'coa3b'
+              ? 'data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson'
+              : 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
           visible: true,
           opacity: 0.22,
           borderVisible: true,

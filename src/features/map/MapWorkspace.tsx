@@ -217,16 +217,15 @@ export function MapWorkspace() {
 
     if (selectedJmcSource) {
       selectedJmcSource.clear();
-      const matchedJmcBoundary = findJmcBoundaryAtCoordinate(
+      const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
         current.coordinate,
+        activeViewPreset,
+        jmcAssignmentLookupSourceRef.current,
         jmcBoundaryLookupSourceRef.current,
       );
-      if (matchedJmcBoundary) {
-        const outline = matchedJmcBoundary.clone();
-        outline.set(
-          'selectionColor',
-          getJmcBoundaryColor(matchedJmcBoundary, activeViewPreset),
-        );
+      for (const boundary of matchedJmcBoundaries) {
+        const outline = boundary.clone();
+        outline.set('selectionColor', getJmcBoundaryColor(boundary, activeViewPreset));
         selectedJmcSource.addFeature(outline);
       }
     }
@@ -1707,6 +1706,37 @@ function findJmcNameForBoundarySelection(
     boundarySource,
     activeViewPreset,
   );
+}
+
+function getSelectedJmcOutlineFeatures(
+  coordinate: [number, number],
+  activeViewPreset: ViewPresetId,
+  assignmentSource: VectorSource | null,
+  boundarySource: VectorSource | null,
+): Feature[] {
+  if (activeViewPreset === 'coa3b' && assignmentSource) {
+    const assignmentFeature =
+      assignmentSource
+        .getFeatures()
+        .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
+    if (!assignmentFeature) {
+      return [];
+    }
+
+    const scenarioName = getScenarioJmcName(assignmentFeature, activeViewPreset);
+    if (!scenarioName) {
+      return [];
+    }
+
+    return assignmentSource
+      .getFeatures()
+      .filter(
+        (feature) => getScenarioJmcName(feature, activeViewPreset) === scenarioName,
+      );
+  }
+
+  const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, boundarySource);
+  return boundaryFeature ? [boundaryFeature] : [];
 }
 
 function getStyleForLayer(

@@ -312,7 +312,7 @@ describe('appStore region controls', () => {
 
     expect(layer).toMatchObject({
       name: 'ICB / Health Board boundaries',
-      path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+      path: 'data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson',
       visible: true,
       borderColor: '#999999',
       borderOpacity: 0.1,
