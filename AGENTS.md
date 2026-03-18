@@ -87,6 +87,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Point paging groups only facilities that visually overlap or nearly overlap at the current zoom, and the nearest clicked facility is always `Page 1`.
   - Overlap grouping is computed in screen space and responds dynamically to zoom level plus current symbol size/shape.
   - Point hit detection, overlap grouping, point coordinate parsing, and tooltip-entry assembly are now extracted into `src/features/map/pointSelection.ts` instead of living only inside `MapWorkspace.tsx`.
+  - Boundary-name resolution, selected-boundary JMC resolution, and selected-region outline feature resolution are now extracted into `src/features/map/boundarySelection.ts`.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
@@ -122,13 +123,13 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Continue extracting the remaining map-selection logic from `src/features/map/MapWorkspace.tsx`, especially boundary resolution, selected-outline feature resolution, and docked tooltip state/rendering.
+1. Extract the remaining docked tooltip state/rendering orchestration from `src/features/map/MapWorkspace.tsx` so the component stops owning imperative tooltip DOM logic directly.
 2. Introduce an explicit overlay model that separates overlay families: board boundaries, scenario regions, future NHS regions, and future custom/manual regions.
 3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
 4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
 5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
 6. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
-7. Expand direct tests for map interaction behavior beyond the new point-selection unit: selected boundary resolution, selected region outline resolution, and tooltip ordering/state transitions.
+7. Expand direct tests for map interaction behavior beyond the extracted units: tooltip ordering/state transitions, selected-point highlight behavior, and boundary-only selection flows.
 8. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
 9. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
 10. Decide whether region style choices and scenario selections should persist across reloads (local storage and/or serverless write-back).
