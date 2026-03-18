@@ -321,7 +321,7 @@ export function MapWorkspace() {
       .catch((error) => {
         console.error('Failed to load JMC lookup boundaries', error);
       });
-    fetch(resolveDataUrl('data/regions/UK_COA3A_Boundaries_Codex_v01_geojson.geojson'))
+    fetch(resolveDataUrl('data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson'))
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to load COA 3a boundaries: ${response.status}`);

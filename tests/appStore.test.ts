@@ -317,5 +317,17 @@ describe('appStore region controls', () => {
       borderColor: '#999999',
       borderOpacity: 0.1,
     });
+
+    const scenarioOutlineLayer = useAppStore
+      .getState()
+      .regionBoundaryLayers.find(
+        (entry) => entry.id === 'pmcUnpopulatedCareBoardBoundaries',
+      );
+
+    expect(scenarioOutlineLayer).toMatchObject({
+      name: 'COA 3a boundaries',
+      path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson',
+      visible: false,
+    });
   });
 });

@@ -601,7 +601,7 @@ function createScenarioRegionBoundaryLayers(
           ? {
               ...layer,
               name: 'COA 3a boundaries',
-              path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_geojson.geojson',
+              path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson',
               visible: false,
               opacity: 0,
               borderVisible: true,
