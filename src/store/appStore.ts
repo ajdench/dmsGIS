@@ -5,6 +5,7 @@ import type {
   BasemapSettings,
   FacilitySymbolShape,
   LayerState,
+  OverlayFamily,
   RegionBoundaryLayerStyle,
   RegionStyle,
   ViewPresetId,
@@ -497,6 +498,7 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       id: 'pmcPopulatedCareBoardBoundaries',
       name: 'PMC populated care board boundaries',
       path: 'data/regions/UK_Active_Components_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0.3,
       borderVisible: true,
@@ -508,6 +510,7 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       id: 'pmcUnpopulatedCareBoardBoundaries',
       name: 'PMC unpopulated care board boundaries',
       path: 'data/regions/UK_Inactive_Remainder_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0.2,
       borderVisible: true,
@@ -519,6 +522,7 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       id: 'careBoardBoundaries',
       name: 'Care board boundaries',
       path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0,
       borderVisible: true,
@@ -587,6 +591,7 @@ function createScenarioRegionBoundaryLayers(
           ...layer,
           name: BOARD_BOUNDARY_BASE_STYLE.name,
           path: boardLayer.path,
+          family: 'boardBoundaries',
           visible: true,
           opacity: boardLayer.opacity,
           borderVisible: true,
@@ -599,6 +604,7 @@ function createScenarioRegionBoundaryLayers(
               ...layer,
               name: outlineLayer.name,
               path: outlineLayer.path,
+              family: 'scenarioRegions',
               visible: outlineLayer.visible,
               opacity: outlineLayer.opacity,
               borderVisible: true,
@@ -622,4 +628,11 @@ function cloneRegionBoundaryLayers(
   layers: RegionBoundaryLayerStyle[],
 ): RegionBoundaryLayerStyle[] {
   return layers.map((layer) => ({ ...layer }));
+}
+
+export function getOverlayLayersByFamily(
+  layers: RegionBoundaryLayerStyle[],
+  family: OverlayFamily,
+): RegionBoundaryLayerStyle[] {
+  return layers.filter((layer) => layer.family === family);
 }

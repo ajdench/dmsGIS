@@ -49,6 +49,7 @@ export interface RegionBoundaryLayerStyle {
   id: string;
   name: string;
   path: string;
+  family: OverlayFamily;
   visible: boolean;
   opacity: number;
   borderVisible: boolean;
@@ -58,6 +59,11 @@ export interface RegionBoundaryLayerStyle {
 }
 
 export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
+export type OverlayFamily =
+  | 'boardBoundaries'
+  | 'scenarioRegions'
+  | 'nhsRegions'
+  | 'customRegions';
 
 export interface Facility {
   id: string;

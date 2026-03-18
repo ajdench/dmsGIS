@@ -54,6 +54,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
 - Overlays pane now lists boundary datasets (not facility-region rows) with popovers per item.
 - Visible preset labels, dataset paths, scenario region groupings, palette values, and boundary overrides are now centralized in `src/lib/config/viewPresets.json` with runtime helpers in `src/lib/config/viewPresets.ts`.
+- Overlay family metadata now exists on `RegionBoundaryLayerStyle` (`boardBoundaries`, `scenarioRegions`, future `nhsRegions`, future `customRegions`) so overlay products can be separated without tying the model to preset-specific branching.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -121,16 +122,17 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - CSS: global styles imported through `src/main.tsx` (no direct link in `index.html`).
 - Playwright: `playwright.config.ts` boots Vite on port `4180`; e2e checks app shell visibility via role-based locators.
 - Tests: `tests/appStore.test.ts` covers PMC global opacity broadcast, global size propagation with per-region override, and boundary layer opacity clamping.
+- Tests also cover shared preset config, extracted point/boundary/tooltip modules, and overlay-family classification for current vs scenario boundary layers.
 
 ## Next steps
 
-1. Introduce an explicit overlay model that separates overlay families: board boundaries, scenario regions, future NHS regions, and future custom/manual regions.
-2. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
-3. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
-4. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
-5. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
-6. Expand direct tests for map interaction behavior beyond the extracted units: selected-point highlight behavior, boundary-only selection flows, and layer/overlay interaction combinations.
-7. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
+1. Refactor store/UI naming from `regionBoundaryLayers` toward a first-class overlay domain model now that family metadata exists, while preserving runtime behavior.
+2. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component, and so future overlay families can be surfaced intentionally.
+3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
+4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
+5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
+6. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
+7. Expand direct tests for map interaction behavior beyond the extracted units: selected-point highlight behavior, boundary-only selection flows, and layer/overlay interaction combinations.
 8. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
 9. Decide whether region style choices and scenario selections should persist across reloads (local storage and/or serverless write-back).
 10. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.

@@ -63,6 +63,7 @@ jj status
   - JMC / scenario regions
   - future NHS regions
   - future custom/manual regions
+- Overlay-family metadata is now present on the boundary-layer model, so current board-boundary overlays and scenario-region overlays can be separated cleanly in future store/UI work.
 - Deployment direction is static-first and container-friendly: the app should build to compiled static assets that can be served from a minimal Docker image.
 - Future authenticated features should sit behind a storage/auth abstraction so profile-backed saved states and cross-user sharing can be added without changing the core map architecture.
 - Current scenario datasets include:
@@ -73,5 +74,6 @@ jj status
 - Point-selection and overlap-grouping logic now lives in `src/features/map/pointSelection.ts`, with direct tests in `tests/pointSelection.test.ts`.
 - Boundary/JMC resolution logic now lives in `src/features/map/boundarySelection.ts`, with direct tests in `tests/boundarySelection.test.ts`.
 - Docked tooltip rendering/state synchronization now lives in `src/features/map/tooltipController.ts`, with direct tests in `tests/tooltipController.test.ts`.
+- Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.
