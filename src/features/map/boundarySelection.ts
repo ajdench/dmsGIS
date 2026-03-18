@@ -3,7 +3,7 @@ import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import { getScenarioRegionName, isScenarioPreset } from '../../lib/config/viewPresets';
-import type { RegionBoundaryLayerStyle, ViewPresetId } from '../../types';
+import type { OverlayLayerStyle, ViewPresetId } from '../../types';
 
 export function getBoundaryName(feature: Feature): string {
   const value =
@@ -22,13 +22,13 @@ export function getBoundaryName(feature: Feature): string {
 
 export function findCareBoardBoundaryAtCoordinate(
   coordinate: [number, number],
-  regionBoundaryLayers: RegionBoundaryLayerStyle[],
-  regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
+  overlayLayers: OverlayLayerStyle[],
+  overlayLayerRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
 ): Feature | null {
-  for (const config of regionBoundaryLayers) {
+  for (const config of overlayLayers) {
     if (config.id !== 'careBoardBoundaries') continue;
     if (!config.visible) continue;
-    const layer = regionBoundaryRefs.get(config.id);
+    const layer = overlayLayerRefs.get(config.id);
     const source = layer?.getSource();
     if (!source) continue;
     const hit = source

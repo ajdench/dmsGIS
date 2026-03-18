@@ -45,7 +45,7 @@ export interface RegionStyle {
   symbolSize: number;
 }
 
-export interface RegionBoundaryLayerStyle {
+export interface OverlayLayerStyle {
   id: string;
   name: string;
   path: string;
@@ -57,6 +57,8 @@ export interface RegionBoundaryLayerStyle {
   borderOpacity: number;
   swatchColor: string;
 }
+
+export type RegionBoundaryLayerStyle = OverlayLayerStyle;
 
 export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
 export type OverlayFamily =

@@ -75,7 +75,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
 - Overlays pane now lists boundary datasets (not facility-region rows) with popovers per item.
 - Visible preset labels, dataset paths, scenario region groupings, palette values, and boundary overrides are now centralized in `src/lib/config/viewPresets.json` with runtime helpers in `src/lib/config/viewPresets.ts`.
-- Overlay family metadata now exists on `RegionBoundaryLayerStyle` (`boardBoundaries`, `scenarioRegions`, future `nhsRegions`, future `customRegions`) so overlay products can be separated without tying the model to preset-specific branching.
+- Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -147,8 +147,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Refactor store/UI naming from `regionBoundaryLayers` toward a first-class overlay domain model now that family metadata exists, while preserving runtime behavior.
-2. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component, and so future overlay families can be surfaced intentionally.
+1. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component, and so future overlay families can be surfaced intentionally.
+2. Add explicit overlay selectors/helpers on top of `overlayLayers` so production UI can address board boundaries, scenario regions, future NHS regions, and custom regions without repeating family filters inline.
 3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
 4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
 5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.

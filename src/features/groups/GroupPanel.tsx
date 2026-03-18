@@ -52,21 +52,21 @@ export function GroupPanel({
     (state) => state.setFacilitySymbolShape,
   );
   const setFacilitySymbolSize = useAppStore((state) => state.setFacilitySymbolSize);
-  const regionBoundaryLayers = useAppStore((state) => state.regionBoundaryLayers);
-  const setRegionBoundaryLayerVisibility = useAppStore(
-    (state) => state.setRegionBoundaryLayerVisibility,
+  const overlayLayers = useAppStore((state) => state.overlayLayers);
+  const setOverlayLayerVisibility = useAppStore(
+    (state) => state.setOverlayLayerVisibility,
   );
-  const setRegionBoundaryLayerOpacity = useAppStore(
-    (state) => state.setRegionBoundaryLayerOpacity,
+  const setOverlayLayerOpacity = useAppStore(
+    (state) => state.setOverlayLayerOpacity,
   );
-  const setRegionBoundaryLayerBorderVisibility = useAppStore(
-    (state) => state.setRegionBoundaryLayerBorderVisibility,
+  const setOverlayLayerBorderVisibility = useAppStore(
+    (state) => state.setOverlayLayerBorderVisibility,
   );
-  const setRegionBoundaryLayerBorderColor = useAppStore(
-    (state) => state.setRegionBoundaryLayerBorderColor,
+  const setOverlayLayerBorderColor = useAppStore(
+    (state) => state.setOverlayLayerBorderColor,
   );
-  const setRegionBoundaryLayerBorderOpacity = useAppStore(
-    (state) => state.setRegionBoundaryLayerBorderOpacity,
+  const setOverlayLayerBorderOpacity = useAppStore(
+    (state) => state.setOverlayLayerBorderOpacity,
   );
 
   const sortedRegions = useMemo(() => sortRegions(regions), [regions]);
@@ -136,7 +136,7 @@ export function GroupPanel({
 
   const boundaryRegionsContent = (
     <div className="stack-col">
-      {regionBoundaryLayers.map((layer) => (
+      {overlayLayers.map((layer) => (
         <RegionBoundaryPopover
           key={layer.id}
           title={layer.name}
@@ -146,17 +146,17 @@ export function GroupPanel({
           borderColor={layer.borderColor}
           borderOpacity={layer.borderOpacity}
           onVisibilityChange={(checked) =>
-            setRegionBoundaryLayerVisibility(layer.id, checked)
+            setOverlayLayerVisibility(layer.id, checked)
           }
-          onOpacityChange={(value) => setRegionBoundaryLayerOpacity(layer.id, value)}
+          onOpacityChange={(value) => setOverlayLayerOpacity(layer.id, value)}
           onBorderVisibilityChange={(checked) =>
-            setRegionBoundaryLayerBorderVisibility(layer.id, checked)
+            setOverlayLayerBorderVisibility(layer.id, checked)
           }
           onBorderColorChange={(color) =>
-            setRegionBoundaryLayerBorderColor(layer.id, color)
+            setOverlayLayerBorderColor(layer.id, color)
           }
           onBorderOpacityChange={(value) =>
-            setRegionBoundaryLayerBorderOpacity(layer.id, value)
+            setOverlayLayerBorderOpacity(layer.id, value)
           }
         />
       ))}

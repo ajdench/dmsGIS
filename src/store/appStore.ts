@@ -5,8 +5,8 @@ import type {
   BasemapSettings,
   FacilitySymbolShape,
   LayerState,
+  OverlayLayerStyle,
   OverlayFamily,
-  RegionBoundaryLayerStyle,
   RegionStyle,
   ViewPresetId,
 } from '../types';
@@ -21,7 +21,7 @@ import { fetchLayerManifest } from '../lib/services/layers';
 interface ViewPresetState {
   layers: LayerState[];
   regions: RegionStyle[];
-  regionBoundaryLayers: RegionBoundaryLayerStyle[];
+  overlayLayers: OverlayLayerStyle[];
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
@@ -31,7 +31,7 @@ interface ViewPresetState {
 interface AppState {
   layers: LayerState[];
   regions: RegionStyle[];
-  regionBoundaryLayers: RegionBoundaryLayerStyle[];
+  overlayLayers: OverlayLayerStyle[];
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
@@ -89,17 +89,17 @@ interface AppState {
   setAllRegionBorderOpacity: (opacity: number) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
-  setRegionBoundaryLayerVisibility: (id: string, visible: boolean) => void;
-  setRegionBoundaryLayerOpacity: (id: string, opacity: number) => void;
-  setRegionBoundaryLayerBorderVisibility: (id: string, visible: boolean) => void;
-  setRegionBoundaryLayerBorderColor: (id: string, color: string) => void;
-  setRegionBoundaryLayerBorderOpacity: (id: string, opacity: number) => void;
+  setOverlayLayerVisibility: (id: string, visible: boolean) => void;
+  setOverlayLayerOpacity: (id: string, opacity: number) => void;
+  setOverlayLayerBorderVisibility: (id: string, visible: boolean) => void;
+  setOverlayLayerBorderColor: (id: string, color: string) => void;
+  setOverlayLayerBorderOpacity: (id: string, opacity: number) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   layers: [],
   regions: [],
-  regionBoundaryLayers: createDefaultRegionBoundaryLayers(),
+  overlayLayers: createDefaultOverlayLayers(),
   regionGlobalOpacity: 1,
   facilitySymbolShape: 'circle',
   facilitySymbolSize: 3.5,
@@ -131,9 +131,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({
         layers,
         regions,
-        regionBoundaryLayers: cloneRegionBoundaryLayers(
-          currentViewPresetState.regionBoundaryLayers,
-        ),
+        overlayLayers: cloneOverlayLayers(currentViewPresetState.overlayLayers),
         regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
         facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
         facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
@@ -160,9 +158,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         ? {
             layers: cloneLayers(currentViewPresetState.layers),
             regions: cloneRegions(currentViewPresetState.regions),
-            regionBoundaryLayers: cloneRegionBoundaryLayers(
-              currentViewPresetState.regionBoundaryLayers,
-            ),
+            overlayLayers: cloneOverlayLayers(currentViewPresetState.overlayLayers),
             regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
             facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
             facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
@@ -174,7 +170,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       activeViewPreset: preset,
       layers: cloneLayers(nextState.layers),
       regions: cloneRegions(nextState.regions),
-      regionBoundaryLayers: cloneRegionBoundaryLayers(nextState.regionBoundaryLayers),
+      overlayLayers: cloneOverlayLayers(nextState.overlayLayers),
       regionGlobalOpacity: nextState.regionGlobalOpacity,
       facilitySymbolShape: nextState.facilitySymbolShape,
       facilitySymbolSize: nextState.facilitySymbolSize,
@@ -322,31 +318,31 @@ export const useAppStore = create<AppState>((set, get) => ({
         })),
       };
     }),
-  setRegionBoundaryLayerVisibility: (id, visible) =>
+  setOverlayLayerVisibility: (id, visible) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id ? { ...layer, visible } : layer,
       ),
     })),
-  setRegionBoundaryLayerOpacity: (id, opacity) =>
+  setOverlayLayerOpacity: (id, opacity) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id
           ? { ...layer, opacity: Math.max(0, Math.min(1, opacity)) }
           : layer,
       ),
     })),
-  setRegionBoundaryLayerBorderVisibility: (id, visible) =>
+  setOverlayLayerBorderVisibility: (id, visible) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id ? { ...layer, borderVisible: visible } : layer,
       ),
     })),
-  setRegionBoundaryLayerBorderColor: (id, color) =>
+  setOverlayLayerBorderColor: (id, color) =>
     set((state) => {
       const normalized = normalizeSolidColor(color);
       return {
-        regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        overlayLayers: state.overlayLayers.map((layer) =>
           layer.id === id
             ? {
                 ...layer,
@@ -357,9 +353,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         ),
       };
     }),
-  setRegionBoundaryLayerBorderOpacity: (id, opacity) =>
+  setOverlayLayerBorderOpacity: (id, opacity) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id
           ? { ...layer, borderOpacity: Math.max(0, Math.min(1, opacity)) }
           : layer,
@@ -492,7 +488,7 @@ function createDefaultBasemapSettings(): BasemapSettings {
   };
 }
 
-function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
+function createDefaultOverlayLayers(): OverlayLayerStyle[] {
   return [
     {
       id: 'pmcPopulatedCareBoardBoundaries',
@@ -540,7 +536,7 @@ function createViewPresetState({
   return {
     layers: cloneLayers(layers),
     regions: cloneRegions(regions),
-    regionBoundaryLayers: createDefaultRegionBoundaryLayers(),
+    overlayLayers: createDefaultOverlayLayers(),
     regionGlobalOpacity: 1,
     facilitySymbolShape: 'circle',
     facilitySymbolSize: 3.5,
@@ -555,10 +551,7 @@ function createScenarioViewPresetState(
   return {
     layers: cloneLayers(source.layers),
     regions: cloneRegions(source.regions),
-    regionBoundaryLayers: createScenarioRegionBoundaryLayers(
-      source.regionBoundaryLayers,
-      preset,
-    ),
+    overlayLayers: createScenarioOverlayLayers(source.overlayLayers, preset),
     regionGlobalOpacity: source.regionGlobalOpacity,
     facilitySymbolShape: source.facilitySymbolShape,
     facilitySymbolSize: source.facilitySymbolSize,
@@ -566,11 +559,11 @@ function createScenarioViewPresetState(
   };
 }
 
-function createScenarioRegionBoundaryLayers(
-  layers: RegionBoundaryLayerStyle[],
+function createScenarioOverlayLayers(
+  layers: OverlayLayerStyle[],
   preset: ViewPresetId,
-): RegionBoundaryLayerStyle[] {
-  const hiddenLayers = cloneRegionBoundaryLayers(layers).map((layer) => ({
+): OverlayLayerStyle[] {
+  const hiddenLayers = cloneOverlayLayers(layers).map((layer) => ({
     ...layer,
     visible: false,
   }));
@@ -624,15 +617,15 @@ function cloneRegions(regions: RegionStyle[]): RegionStyle[] {
   return regions.map((region) => ({ ...region }));
 }
 
-function cloneRegionBoundaryLayers(
-  layers: RegionBoundaryLayerStyle[],
-): RegionBoundaryLayerStyle[] {
+function cloneOverlayLayers(
+  layers: OverlayLayerStyle[],
+): OverlayLayerStyle[] {
   return layers.map((layer) => ({ ...layer }));
 }
 
 export function getOverlayLayersByFamily(
-  layers: RegionBoundaryLayerStyle[],
+  layers: OverlayLayerStyle[],
   family: OverlayFamily,
-): RegionBoundaryLayerStyle[] {
+): OverlayLayerStyle[] {
   return layers.filter((layer) => layer.family === family);
 }

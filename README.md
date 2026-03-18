@@ -64,7 +64,7 @@ jj status
   - JMC / scenario regions
   - future NHS regions
   - future custom/manual regions
-- Overlay-family metadata is now present on the boundary-layer model, so current board-boundary overlays and scenario-region overlays can be separated cleanly in future store/UI work.
+- The canonical production store model now uses `overlayLayers`, so board-boundary overlays and scenario-region overlays are no longer named as if they were all the same boundary-layer concept.
 - Deployment direction is static-first and container-friendly: the app should build to compiled static assets that can be served from a minimal Docker image.
 - Future authenticated features should sit behind a storage/auth abstraction so profile-backed saved states and cross-user sharing can be added without changing the core map architecture.
 - Current scenario datasets include:

@@ -22,7 +22,7 @@ import type {
   BasemapSettings,
   FacilitySymbolShape,
   LayerState,
-  RegionBoundaryLayerStyle,
+  OverlayLayerStyle,
   RegionStyle,
   ViewPresetId,
 } from '../../types';
@@ -68,7 +68,7 @@ export function MapWorkspace() {
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
-  const regionBoundaryLayers = useAppStore((state) => state.regionBoundaryLayers);
+  const overlayLayers = useAppStore((state) => state.overlayLayers);
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<OLMap | null>(null);
   const basemapRef = useRef<BasemapLayerSet | null>(null);
@@ -135,7 +135,7 @@ export function MapWorkspace() {
         selectedBoundarySource.clear();
         const matchedBoundary = findCareBoardBoundaryAtCoordinate(
           entry.coordinate,
-          regionBoundaryLayers,
+          overlayLayers,
           regionBoundaryRefs.current,
         );
         if (matchedBoundary) {
@@ -367,9 +367,9 @@ export function MapWorkspace() {
     const map = mapRef.current;
     if (!map) return;
 
-    const byId = new globalThis.Map(regionBoundaryLayers.map((layer) => [layer.id, layer]));
+    const byId = new globalThis.Map(overlayLayers.map((layer) => [layer.id, layer]));
 
-    regionBoundaryLayers.forEach((layerConfig) => {
+    overlayLayers.forEach((layerConfig) => {
       let boundaryLayer = regionBoundaryRefs.current.get(layerConfig.id);
       if (!boundaryLayer) {
         boundaryLayer = createRegionBoundaryLayer(layerConfig, activeViewPreset);
@@ -401,7 +401,7 @@ export function MapWorkspace() {
       regionBoundaryRefs.current.delete(id);
       regionBoundaryPathRefs.current.delete(id);
     });
-  }, [regionBoundaryLayers, activeViewPreset]);
+  }, [overlayLayers, activeViewPreset]);
 
   useEffect(() => {
     renderPointTooltip();
@@ -484,7 +484,7 @@ export function MapWorkspace() {
             getBoundaryNameAtCoordinate: (coordinate) => {
               const boundaryFeature = findCareBoardBoundaryAtCoordinate(
                 coordinate,
-                regionBoundaryLayers,
+                overlayLayers,
                 regionBoundaryRefs.current,
               );
               return boundaryFeature ? getBoundaryName(boundaryFeature) : null;
@@ -500,7 +500,7 @@ export function MapWorkspace() {
 
       const selectedFeature = findCareBoardBoundaryAtCoordinate(
         event.coordinate as [number, number],
-        regionBoundaryLayers,
+        overlayLayers,
         regionBoundaryRefs.current,
       );
       selectBoundary(selectedFeature, event.coordinate as [number, number]);
@@ -512,7 +512,7 @@ export function MapWorkspace() {
     return () => {
       unByKey(clickKey);
     };
-  }, [regionBoundaryLayers, layers, regions, facilitySymbolSize, activeViewPreset]);
+  }, [overlayLayers, layers, regions, facilitySymbolSize, activeViewPreset]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -625,7 +625,7 @@ export function MapWorkspace() {
 }
 
 function createRegionBoundaryLayer(
-  layerConfig: RegionBoundaryLayerStyle,
+  layerConfig: OverlayLayerStyle,
   activeViewPreset: ViewPresetId,
 ): VectorLayer<VectorSource> {
   return new VectorLayer({
@@ -1003,7 +1003,7 @@ function createPointSymbol(
 }
 
 function createRegionBoundaryStyle(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   activeViewPreset: ViewPresetId,
 ) {
   const cache = new Map<string, Style>();
@@ -1039,7 +1039,7 @@ function createRegionBoundaryStyle(
 }
 
 function getFeatureBoundaryFillOpacity(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
 ): number {
   if (layer.path.includes('UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson')) {
@@ -1058,7 +1058,7 @@ function getFeatureBoundaryFillColor(feature: FeatureLike): string | null {
 }
 
 function getFeatureBoundaryStrokeColor(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
   baseColor: string,
 ): string {
@@ -1073,7 +1073,7 @@ function getFeatureBoundaryStrokeColor(
   return withOpacity(strokeBaseColor, layer.borderVisible ? strokeOpacity : 0);
 }
 
-function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolean {
+function getUsesPerFeatureBoundaryColor(layer: OverlayLayerStyle): boolean {
   return (
     layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson') ||
     layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson') ||
@@ -1084,7 +1084,7 @@ function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolea
 }
 
 function getFeatureBoundaryLineColor(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
 ): string | null {
   if (!layer.path.includes('UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson')) {
@@ -1106,7 +1106,7 @@ function getFeatureBoundaryLineOpacity(feature: FeatureLike): number {
 }
 
 function getFeatureBoundaryStrokeWidth(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
 ): number {
   if (!layer.borderVisible) return 0;
@@ -1131,7 +1131,7 @@ function getFeatureBoundaryStrokeWidth(
 }
 
 function shouldHideRegionBoundaryFeature(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
 ): boolean {
   return (
@@ -1141,7 +1141,7 @@ function shouldHideRegionBoundaryFeature(
 }
 
 function isCoa3aLondonDistrictOverlay(
-  layer: RegionBoundaryLayerStyle,
+  layer: OverlayLayerStyle,
   feature: FeatureLike,
 ): boolean {
   return (
@@ -1150,7 +1150,7 @@ function isCoa3aLondonDistrictOverlay(
   );
 }
 
-function isCoa3aLondonDistrictOverlayLayer(layer: RegionBoundaryLayerStyle): boolean {
+function isCoa3aLondonDistrictOverlayLayer(layer: OverlayLayerStyle): boolean {
   return (
     layer.id === 'pmcUnpopulatedCareBoardBoundaries' &&
     layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson')
@@ -1202,7 +1202,7 @@ function getScenarioJmcName(
   return getScenarioRegionName(activeViewPreset, regionName, boundaryName);
 }
 
-function getRegionBoundaryLayerZIndex(layer: RegionBoundaryLayerStyle): number {
+function getRegionBoundaryLayerZIndex(layer: OverlayLayerStyle): number {
   if (isCoa3aLondonDistrictOverlayLayer(layer)) {
     return 7;
   }

@@ -50,14 +50,14 @@ describe('appStore region controls', () => {
   });
 
   it('clamps boundary layer opacity updates', () => {
-    useAppStore.getState().setRegionBoundaryLayerOpacity(
+    useAppStore.getState().setOverlayLayerOpacity(
       'pmcPopulatedCareBoardBoundaries',
       4,
     );
 
     const layer = useAppStore
       .getState()
-      .regionBoundaryLayers.find(
+      .overlayLayers.find(
         (entry) => entry.id === 'pmcPopulatedCareBoardBoundaries',
       );
 
@@ -90,7 +90,7 @@ describe('appStore region controls', () => {
             symbolSize: 3.5,
           },
         ],
-        regionBoundaryLayers: [
+        overlayLayers: [
           {
             id: 'pmcPopulatedCareBoardBoundaries',
             name: 'PMC populated care board boundaries',
@@ -168,7 +168,7 @@ describe('appStore region controls', () => {
       opacity: 1,
       symbolSize: 3.5,
     });
-    expect(state.regionBoundaryLayers.every((layer) => !layer.visible)).toBe(true);
+    expect(state.overlayLayers.every((layer) => !layer.visible)).toBe(true);
     expect(state.facilitySymbolShape).toBe('circle');
     expect(state.facilitySymbolSize).toBe(3.5);
     expect(state.regionGlobalOpacity).toBe(1);
@@ -180,7 +180,7 @@ describe('appStore region controls', () => {
       currentViewPresetState: {
         layers: [],
         regions: [],
-        regionBoundaryLayers: [
+        overlayLayers: [
           {
             id: 'pmcPopulatedCareBoardBoundaries',
             name: 'PMC populated care board boundaries',
@@ -238,7 +238,7 @@ describe('appStore region controls', () => {
 
     const layer = useAppStore
       .getState()
-      .regionBoundaryLayers.find((entry) => entry.id === 'careBoardBoundaries');
+      .overlayLayers.find((entry) => entry.id === 'careBoardBoundaries');
 
     expect(layer).toMatchObject({
       name: 'ICB / Health Board boundaries',
@@ -256,7 +256,7 @@ describe('appStore region controls', () => {
       currentViewPresetState: {
         layers: [],
         regions: [],
-        regionBoundaryLayers: [
+        overlayLayers: [
           {
             id: 'pmcUnpopulatedCareBoardBoundaries',
             name: 'PMC unpopulated care board boundaries',
@@ -314,7 +314,7 @@ describe('appStore region controls', () => {
 
     const layer = useAppStore
       .getState()
-      .regionBoundaryLayers.find((entry) => entry.id === 'careBoardBoundaries');
+      .overlayLayers.find((entry) => entry.id === 'careBoardBoundaries');
 
     expect(layer).toMatchObject({
       name: 'ICB / Health Board boundaries',
@@ -326,7 +326,7 @@ describe('appStore region controls', () => {
 
     const scenarioOutlineLayer = useAppStore
       .getState()
-      .regionBoundaryLayers.find(
+      .overlayLayers.find(
         (entry) => entry.id === 'pmcUnpopulatedCareBoardBoundaries',
       );
 
@@ -344,7 +344,7 @@ describe('appStore region controls', () => {
       currentViewPresetState: {
         layers: [],
         regions: [],
-        regionBoundaryLayers: [
+        overlayLayers: [
           {
             id: 'pmcUnpopulatedCareBoardBoundaries',
             name: 'PMC unpopulated care board boundaries',
@@ -402,7 +402,7 @@ describe('appStore region controls', () => {
 
     const layer = useAppStore
       .getState()
-      .regionBoundaryLayers.find((entry) => entry.id === 'careBoardBoundaries');
+      .overlayLayers.find((entry) => entry.id === 'careBoardBoundaries');
 
     expect(layer).toMatchObject({
       name: 'ICB / Health Board boundaries',
@@ -414,7 +414,7 @@ describe('appStore region controls', () => {
 
     const scenarioOutlineLayer = useAppStore
       .getState()
-      .regionBoundaryLayers.find(
+      .overlayLayers.find(
         (entry) => entry.id === 'pmcUnpopulatedCareBoardBoundaries',
       );
 
@@ -432,7 +432,7 @@ describe('appStore region controls', () => {
       currentViewPresetState: {
         layers: [],
         regions: [],
-        regionBoundaryLayers: [
+        overlayLayers: [
           {
             id: 'pmcPopulatedCareBoardBoundaries',
             name: 'PMC populated care board boundaries',
@@ -502,7 +502,7 @@ describe('appStore region controls', () => {
 
     const currentFamilies = useAppStore
       .getState()
-      .regionBoundaryLayers.map((layer) => [layer.id, layer.family]);
+      .overlayLayers.map((layer) => [layer.id, layer.family]);
 
     expect(currentFamilies).toEqual([
       ['pmcPopulatedCareBoardBoundaries', 'boardBoundaries'],
@@ -514,7 +514,7 @@ describe('appStore region controls', () => {
 
     const scenarioFamilies = useAppStore
       .getState()
-      .regionBoundaryLayers.map((layer) => [layer.id, layer.family]);
+      .overlayLayers.map((layer) => [layer.id, layer.family]);
 
     expect(scenarioFamilies).toEqual([
       ['pmcPopulatedCareBoardBoundaries', 'boardBoundaries'],
