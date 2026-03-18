@@ -79,7 +79,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Scenario assignment names and codes are now part of the shared config model: `src/lib/config/scenarioAssignments.ts` resolves scenario region names/codes from the preset config, and the COA board-generation scripts consume the same assignment metadata instead of hard-coded code rules.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - Facility properties now have a schema layer in `src/lib/schemas/facilities.ts`, with `src/lib/facilities.ts` providing normalized facility records and feature-property access for current runtime consumers.
-- `src/lib/facilities.ts` now also owns facility-search normalization/matching helpers, and the production map uses those helpers to filter point rendering and point hit-selection consistently.
+- Facility filter state now has an explicit schema in `src/lib/schemas/facilities.ts`, and `src/lib/facilityFilters.ts` owns production filter definitions/matching so future metadata facets can reuse the same typed facility-filter path.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -159,12 +159,12 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 2. Extend overlay metadata only when needed for production behavior, for example descriptions, family-level visibility defaults, or scenario-specific empty-state copy.
 3. Extend the shared assignment model so future NHS/custom region regrouping can be expressed as data, not script-specific transformation logic.
 4. Extend the facility schema/domain model with future metadata fields in a controlled way, then route search, tooltip, filtering, and export behavior through the shared facility record model instead of reading raw feature properties ad hoc.
-5. Extend the facility schema/domain model into explicit filter/search/export definitions so future metadata fields plug into one typed facilities pipeline instead of bespoke UI logic.
+5. Extend the facility filter model beyond text search: add typed metadata facets, export-field definitions, and saved-filter state so future facility workflows stay in the same domain layer.
 6. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
 7. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
 8. Expand direct tests for map interaction behavior beyond the extracted units: selected-point highlight behavior, boundary-only selection flows, and layer/overlay interaction combinations.
 9. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
-10. Decide whether region style choices, scenario selections, and facility search state should persist across reloads (local storage and/or serverless write-back).
+10. Decide whether region style choices, scenario selections, and facility filter state should persist across reloads (local storage and/or serverless write-back).
 11. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
 12. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
 13. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.

@@ -32,6 +32,16 @@ export const facilityPropertiesSchema = z
 
 export type FacilityProperties = z.infer<typeof facilityPropertiesSchema>;
 
+export const facilityFilterStateSchema = z.object({
+  searchQuery: z.string().catch(''),
+});
+
+export type FacilityFilterState = z.infer<typeof facilityFilterStateSchema>;
+
 export function parseFacilityProperties(input: unknown): FacilityProperties {
   return facilityPropertiesSchema.parse(input);
+}
+
+export function parseFacilityFilterState(input: unknown): FacilityFilterState {
+  return facilityFilterStateSchema.parse(input);
 }

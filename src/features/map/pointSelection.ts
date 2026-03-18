@@ -6,8 +6,12 @@ import type VectorSource from 'ol/source/Vector';
 import {
   getFacilityFeatureProperties,
   getFacilityRecord,
-  matchesFacilitySearch,
 } from '../../lib/facilities';
+import {
+  createFacilityFilterState,
+  getFacilityFilterDefinitions,
+  matchesFacilityFilters,
+} from '../../lib/facilityFilters';
 import type {
   FacilitySymbolShape,
   RegionBoundaryLayerStyle,
@@ -77,6 +81,9 @@ export function getDirectPointHitsAtPixel(
   facilitySymbolSize: number,
   facilitySearchQuery: string,
 ): FeatureLike[] {
+  const facilityFilters = getFacilityFilterDefinitions(
+    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
+  );
   const hits = map.getFeaturesAtPixel(pixel, {
     hitTolerance: 0,
     layerFilter: (layerCandidate) =>
@@ -95,7 +102,7 @@ export function getDirectPointHitsAtPixel(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
-      facilitySearchQuery,
+      facilityFilters,
     );
     return distance <= radius + 0.75;
   });
@@ -111,13 +118,16 @@ export function expandPointHitCluster(
   clickPixel: number[],
   facilitySearchQuery: string,
 ): FeatureLike[] {
+  const facilityFilters = getFacilityFilterDefinitions(
+    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
+  );
   const candidates = collectVisiblePointCandidates(
     map,
     pointLayers,
     regionsByName,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
   );
   const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seeds: PointSelectionCandidate[] = [];
@@ -130,7 +140,7 @@ export function expandPointHitCluster(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
-      facilitySearchQuery,
+      facilityFilters,
     );
     if (!candidate || selected.has(candidate.key)) continue;
     seeds.push(candidate);
@@ -197,10 +207,13 @@ export function collectPointTooltipEntries(params: {
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
   const regionsByName = new Map(regions.map((region) => [region.name, region]));
+  const facilityFilters = getFacilityFilterDefinitions(
+    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
+  );
 
   for (const feature of features) {
     const facility = getFacilityRecord(feature);
-    if (!matchesFacilitySearch(facility, facilitySearchQuery)) continue;
+    if (!matchesFacilityFilters(facility, facilityFilters)) continue;
     const name = facility.displayName;
     if (!name) continue;
 
@@ -235,7 +248,7 @@ function collectVisiblePointCandidates(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
-  facilitySearchQuery: string,
+  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
 ): PointSelectionCandidate[] {
   const candidates: PointSelectionCandidate[] = [];
 
@@ -244,7 +257,7 @@ function collectVisiblePointCandidates(
     if (!source) continue;
 
     for (const feature of source.getFeatures()) {
-      if (!isPointFeatureSelectable(feature, regionsByName, facilitySearchQuery)) {
+      if (!isPointFeatureSelectable(feature, regionsByName, facilityFilters)) {
         continue;
       }
       const candidate = getPointSelectionCandidate(
@@ -253,7 +266,7 @@ function collectVisiblePointCandidates(
         regionsByName,
         facilitySymbolShape,
         facilitySymbolSize,
-        facilitySearchQuery,
+        facilityFilters,
       );
       if (candidate) {
         candidates.push(candidate);
@@ -270,13 +283,13 @@ function getPointSelectionCandidate(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
-  facilitySearchQuery: string,
+  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
 ): PointSelectionCandidate | null {
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
   const facility = getFacilityRecord(feature);
-  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+  if (!matchesFacilityFilters(facility, facilityFilters)) {
     return null;
   }
   const name = facility.displayName;
@@ -286,7 +299,7 @@ function getPointSelectionCandidate(
     regionsByName,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
   );
 
   return {
@@ -300,10 +313,10 @@ function getPointSelectionCandidate(
 function isPointFeatureSelectable(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
-  facilitySearchQuery: string,
+  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
 ): boolean {
   const facility = getFacilityRecord(feature);
-  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+  if (!matchesFacilityFilters(facility, facilityFilters)) {
     return false;
   }
 
@@ -323,10 +336,10 @@ function getPointSelectionRadius(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
-  facilitySearchQuery: string,
+  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
 ): number {
   const facility = getFacilityRecord(feature);
-  if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+  if (!matchesFacilityFilters(facility, facilityFilters)) {
     return 0;
   }
 

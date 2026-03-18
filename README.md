@@ -76,6 +76,7 @@ jj status
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
+- Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
 - Point-selection and overlap-grouping logic now lives in `src/features/map/pointSelection.ts`, with direct tests in `tests/pointSelection.test.ts`.
 - Boundary/JMC resolution logic now lives in `src/features/map/boundarySelection.ts`, with direct tests in `tests/boundarySelection.test.ts`.

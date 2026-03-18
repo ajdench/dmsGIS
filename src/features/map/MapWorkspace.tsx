@@ -51,8 +51,12 @@ import {
 import {
   getFacilityFeatureProperties,
   getFacilityRecord,
-  matchesFacilitySearch,
 } from '../../lib/facilities';
+import {
+  createFacilityFilterState,
+  getFacilityFilterDefinitions,
+  matchesFacilityFilters,
+} from '../../lib/facilityFilters';
 import { useAppStore } from '../../store/appStore';
 
 interface BasemapLayerSet {
@@ -72,6 +76,9 @@ export function MapWorkspace() {
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
   const facilitySearchQuery = useAppStore((state) => state.facilitySearchQuery);
+  const facilityFilters = getFacilityFilterDefinitions(
+    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
+  );
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
   const overlayLayers = useAppStore((state) => state.overlayLayers);
@@ -553,7 +560,7 @@ export function MapWorkspace() {
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
-          facilitySearchQuery,
+          facilityFilters,
         ),
       });
 
@@ -570,7 +577,7 @@ export function MapWorkspace() {
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
-          facilitySearchQuery,
+          facilityFilters,
         ),
       );
       vectorLayer.setVisible(layer.visible);
@@ -1257,13 +1264,13 @@ function getStyleForLayer(
   regions: Map<string, RegionStyle>,
   symbolShape: FacilitySymbolShape,
   symbolSize: number,
-  facilitySearchQuery: string,
+  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
 ) {
   if (layer.type === 'point') {
     const cache = new Map<string, Style>();
     return (feature: FeatureLike) => {
       const facility = getFacilityRecord(feature);
-      if (!matchesFacilitySearch(facility, facilitySearchQuery)) {
+      if (!matchesFacilityFilters(facility, facilityFilters)) {
         return undefined;
       }
 
