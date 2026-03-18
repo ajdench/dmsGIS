@@ -198,9 +198,9 @@ describe('appStore region controls', () => {
             visible: true,
             opacity: 0,
             borderVisible: true,
-            borderColor: '#999999',
-            borderOpacity: 0.1,
-            swatchColor: '#999999',
+            borderColor: '#8f8f8f',
+            borderOpacity: 0.14,
+            swatchColor: '#8f8f8f',
           },
         ],
         regionGlobalOpacity: 1,
@@ -241,8 +241,8 @@ describe('appStore region controls', () => {
       name: 'ICB / Health Board boundaries',
       path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
       visible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
+      borderColor: '#8f8f8f',
+      borderOpacity: 0.14,
     });
   });
 
@@ -271,9 +271,9 @@ describe('appStore region controls', () => {
             visible: true,
             opacity: 0,
             borderVisible: true,
-            borderColor: '#999999',
-            borderOpacity: 0.1,
-            swatchColor: '#999999',
+            borderColor: '#8f8f8f',
+            borderOpacity: 0.14,
+            swatchColor: '#8f8f8f',
           },
         ],
         regionGlobalOpacity: 1,
@@ -314,8 +314,8 @@ describe('appStore region controls', () => {
       name: 'ICB / Health Board boundaries',
       path: 'data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson',
       visible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
+      borderColor: '#8f8f8f',
+      borderOpacity: 0.14,
     });
 
     const scenarioOutlineLayer = useAppStore
@@ -356,9 +356,9 @@ describe('appStore region controls', () => {
             visible: true,
             opacity: 0,
             borderVisible: true,
-            borderColor: '#999999',
-            borderOpacity: 0.1,
-            swatchColor: '#999999',
+            borderColor: '#8f8f8f',
+            borderOpacity: 0.14,
+            swatchColor: '#8f8f8f',
           },
         ],
         regionGlobalOpacity: 1,
@@ -399,8 +399,8 @@ describe('appStore region controls', () => {
       name: 'ICB / Health Board boundaries',
       path: 'data/regions/UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson',
       visible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
+      borderColor: '#8f8f8f',
+      borderOpacity: 0.14,
     });
 
     const scenarioOutlineLayer = useAppStore

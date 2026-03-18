@@ -516,9 +516,9 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       visible: true,
       opacity: 0,
       borderVisible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
-      swatchColor: '#999999',
+      borderColor: '#8f8f8f',
+      borderOpacity: 0.14,
+      swatchColor: '#8f8f8f',
     },
   ];
 }
@@ -583,9 +583,9 @@ function createScenarioRegionBoundaryLayers(
           visible: true,
           opacity: preset === 'coa3a' ? 0.22 : 1,
           borderVisible: true,
-          borderColor: '#999999',
-          borderOpacity: 0.1,
-          swatchColor: '#999999',
+          borderColor: '#8f8f8f',
+          borderOpacity: 0.14,
+          swatchColor: '#8f8f8f',
         }
       : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3a'
         ? {
@@ -607,9 +607,9 @@ function createScenarioRegionBoundaryLayers(
               visible: false,
               opacity: 0,
               borderVisible: true,
-              borderColor: '#999999',
+              borderColor: '#8f8f8f',
               borderOpacity: 0.45,
-              swatchColor: '#999999',
+              swatchColor: '#8f8f8f',
             }
         : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3c'
           ? {
@@ -619,9 +619,9 @@ function createScenarioRegionBoundaryLayers(
               visible: false,
               opacity: 0,
               borderVisible: true,
-              borderColor: '#999999',
+              borderColor: '#8f8f8f',
               borderOpacity: 0.45,
-              swatchColor: '#999999',
+              swatchColor: '#8f8f8f',
             }
       : layer,
   );
