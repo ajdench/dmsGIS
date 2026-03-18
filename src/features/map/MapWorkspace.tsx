@@ -972,7 +972,9 @@ function getFeatureBoundaryStrokeWidth(
 }
 
 function getJmcBoundaryColor(feature: FeatureLike): string | null {
-  const regionName = String(feature.get('region_name') ?? '').trim();
+  const regionName = String(
+    feature.get('region_name') ?? feature.get('jmc_name') ?? '',
+  ).trim();
   if (!regionName) return null;
 
   const byRegionName: Record<string, string> = {

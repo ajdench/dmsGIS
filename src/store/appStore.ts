@@ -573,14 +573,14 @@ function createScenarioRegionBoundaryLayers(
     layer.id === 'careBoardBoundaries'
       ? {
           ...layer,
-          name: 'JMC boundaries',
-          path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
+          name: 'ICB / Health Board boundaries',
+          path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
           visible: true,
           opacity: 0.22,
           borderVisible: true,
-          borderColor: '#2563eb',
-          borderOpacity: 0.72,
-          swatchColor: '#2563eb',
+          borderColor: '#4d4d4d',
+          borderOpacity: 1,
+          swatchColor: '#4d4d4d',
         }
       : layer,
   );
