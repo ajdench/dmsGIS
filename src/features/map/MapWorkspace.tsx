@@ -522,7 +522,7 @@ function createRegionBoundaryLayer(
   return new VectorLayer({
     source: new VectorSource(),
     style: createRegionBoundaryStyle(layerConfig),
-    zIndex: getRegionBoundaryLayerZIndex(layerConfig.id),
+    zIndex: getRegionBoundaryLayerZIndex(layerConfig),
   });
 }
 
@@ -880,6 +880,10 @@ function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
   const cache = new Map<string, Style>();
 
   return (feature: FeatureLike) => {
+    if (shouldHideRegionBoundaryFeature(layer, feature)) {
+      return undefined;
+    }
+
     const baseColor =
       getJmcBoundaryColor(feature) ??
       getFeatureBoundaryFillColor(feature) ??
@@ -971,6 +975,9 @@ function getFeatureBoundaryStrokeWidth(
   feature: FeatureLike,
 ): number {
   if (!layer.borderVisible) return 0;
+  if (isCoa3aLondonDistrictOverlay(layer, feature)) {
+    return 1.5;
+  }
   const rawWidth = Number(feature.get('line_width'));
   if (
     layer.path.includes('UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson') &&
@@ -982,10 +989,39 @@ function getFeatureBoundaryStrokeWidth(
   return 1;
 }
 
+function shouldHideRegionBoundaryFeature(
+  layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
+): boolean {
+  return (
+    isCoa3aLondonDistrictOverlayLayer(layer) &&
+    getJmcRegionName(feature) !== 'London District'
+  );
+}
+
+function isCoa3aLondonDistrictOverlay(
+  layer: RegionBoundaryLayerStyle,
+  feature: FeatureLike,
+): boolean {
+  return (
+    isCoa3aLondonDistrictOverlayLayer(layer) &&
+    getJmcRegionName(feature) === 'London District'
+  );
+}
+
+function isCoa3aLondonDistrictOverlayLayer(layer: RegionBoundaryLayerStyle): boolean {
+  return (
+    layer.id === 'pmcUnpopulatedCareBoardBoundaries' &&
+    layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson')
+  );
+}
+
+function getJmcRegionName(feature: FeatureLike): string {
+  return String(feature.get('region_name') ?? feature.get('jmc_name') ?? '').trim();
+}
+
 function getJmcBoundaryColor(feature: FeatureLike): string | null {
-  const regionName = String(
-    feature.get('region_name') ?? feature.get('jmc_name') ?? '',
-  ).trim();
+  const regionName = getJmcRegionName(feature);
   if (!regionName) return null;
 
   const byRegionName: Record<string, string> = {
@@ -1018,14 +1054,17 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
     : baseColor;
 }
 
-function getRegionBoundaryLayerZIndex(layerId: string): number {
-  if (layerId === 'pmcUnpopulatedCareBoardBoundaries') {
+function getRegionBoundaryLayerZIndex(layer: RegionBoundaryLayerStyle): number {
+  if (isCoa3aLondonDistrictOverlayLayer(layer)) {
+    return 7;
+  }
+  if (layer.id === 'pmcUnpopulatedCareBoardBoundaries') {
     return 4;
   }
-  if (layerId === 'pmcPopulatedCareBoardBoundaries') {
+  if (layer.id === 'pmcPopulatedCareBoardBoundaries') {
     return 5;
   }
-  if (layerId === 'careBoardBoundaries') {
+  if (layer.id === 'careBoardBoundaries') {
     return 6;
   }
   return 4;

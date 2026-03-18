@@ -582,6 +582,18 @@ function createScenarioRegionBoundaryLayers(
           borderOpacity: 0.1,
           swatchColor: '#999999',
         }
+      : layer.id === 'pmcUnpopulatedCareBoardBoundaries'
+        ? {
+            ...layer,
+            name: 'London District boundary',
+            path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
+            visible: true,
+            opacity: 0,
+            borderVisible: true,
+            borderColor: '#419632',
+            borderOpacity: 0.45,
+            swatchColor: '#419632',
+          }
       : layer,
   );
 }
