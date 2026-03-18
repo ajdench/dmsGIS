@@ -16,6 +16,7 @@ import {
   getScenarioOutlineLayerConfig,
   isScenarioPreset,
 } from '../lib/config/viewPresets';
+import { parseFacilityProperties } from '../lib/schemas/facilities';
 import { fetchLayerManifest } from '../lib/services/layers';
 
 interface ViewPresetState {
@@ -388,12 +389,11 @@ async function loadRegionStyles(
     >();
 
     for (const feature of features) {
-      const props = feature.properties ?? {};
-      const region = String(props.region ?? 'Unassigned');
-      const colorRaw = String(props.point_color_hex ?? '#64748b');
-      const color = colorRaw.startsWith('#') ? colorRaw : `#${colorRaw}`;
+      const props = parseFacilityProperties(feature.properties ?? {});
+      const region = props.region;
+      const color = props.point_color_hex;
       const opacity = 1;
-      const visible = Number(props.default_visible ?? 1) !== 0;
+      const visible = props.default_visible !== 0;
 
       const existing = byRegion.get(region);
       if (existing) {

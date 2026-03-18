@@ -3,6 +3,7 @@ import type Feature from 'ol/Feature';
 import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
+import { getFacilityFeatureProperties } from '../../lib/facilities';
 import type {
   FacilitySymbolShape,
   RegionBoundaryLayerStyle,
@@ -258,7 +259,8 @@ function getPointSelectionCandidate(
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
-  const name = String(feature.get('name') ?? '').trim();
+  const properties = getFacilityFeatureProperties(feature);
+  const name = properties.name;
   const pixel = map.getPixelFromCoordinate(coordinate);
   const radius = getPointSelectionRadius(
     feature,
@@ -279,9 +281,10 @@ function isPointFeatureSelectable(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
 ): boolean {
-  const regionName = String(feature.get('region') ?? 'Unassigned');
+  const properties = getFacilityFeatureProperties(feature);
+  const regionName = properties.region;
   const regionStyle = regionsByName.get(regionName);
-  const defaultVisible = Number(feature.get('default_visible') ?? 1) !== 0;
+  const defaultVisible = properties.default_visible !== 0;
 
   if (regionStyle) {
     return regionStyle.visible;
@@ -296,7 +299,8 @@ function getPointSelectionRadius(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
 ): number {
-  const regionName = String(feature.get('region') ?? 'Unassigned');
+  const properties = getFacilityFeatureProperties(feature);
+  const regionName = properties.region;
   const regionStyle = regionsByName.get(regionName);
   const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
   const borderVisible = regionStyle?.borderVisible ?? true;

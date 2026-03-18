@@ -48,6 +48,7 @@ import {
   getBoundaryName,
   getSelectedJmcOutlineFeatures,
 } from './boundarySelection';
+import { getFacilityFeatureProperties } from '../../lib/facilities';
 import { useAppStore } from '../../store/appStore';
 
 interface BasemapLayerSet {
@@ -1231,16 +1232,15 @@ function getStyleForLayer(
   if (layer.type === 'point') {
     const cache = new Map<string, Style>();
     return (feature: FeatureLike) => {
-      const regionName = String(feature.get('region') ?? 'Unassigned');
+      const properties = getFacilityFeatureProperties(feature);
+      const regionName = properties.region;
       const regionStyle = regions.get(regionName);
-      const defaultVisible = Number(feature.get('default_visible') ?? 1) !== 0;
+      const defaultVisible = properties.default_visible !== 0;
       if ((regionStyle && !regionStyle.visible) || (!regionStyle && !defaultVisible)) {
         return undefined;
       }
 
-      const hex =
-        regionStyle?.color ??
-        ((feature.get('point_color_hex') as string | undefined) ?? '#0066cc');
+      const hex = regionStyle?.color ?? properties.point_color_hex;
       const opacity = regionStyle ? regionStyle.opacity : 1;
       const borderVisible = regionStyle?.borderVisible ?? true;
       const borderColor = regionStyle?.borderColor ?? '#ffffff';
