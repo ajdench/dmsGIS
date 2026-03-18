@@ -74,6 +74,26 @@ Saved configurations should be serializable JSON and include:
 - style overrides
 - metadata such as name, author, version, timestamps
 
+Current implementation direction:
+
+- Save payloads should be separated into explicit layers rather than one untyped blob:
+  - `MapSessionState`: transient runtime snapshot of the map/session
+  - `NamedSavedView`: a named saved configuration with repository-facing metadata
+  - `UserSavedView`: a named saved view plus ownership metadata
+  - `ShareableSavedView`: a user-owned saved view plus share policy
+- The saved-state contract should be schema-versioned from the start.
+- Storage and authentication should remain separate concerns from the saved-state schema:
+  - local/static persistence can use the same contract first
+  - authenticated profile storage can adopt the same contract later
+- Persisted session content should cover:
+  - active scenario/preset
+  - viewport
+  - basemap settings
+  - runtime layer and overlay state
+  - facility presentation and filter state
+  - region style state
+  - current selection context where appropriate
+
 ## 8. Security constraints
 
 - Never embed GitHub tokens in frontend code

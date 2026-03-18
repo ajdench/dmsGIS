@@ -68,6 +68,12 @@ jj status
 - The canonical production store model now uses `overlayLayers`, so board-boundary overlays and scenario-region overlays are no longer named as if they were all the same boundary-layer concept.
 - Deployment direction is static-first and container-friendly: the app should build to compiled static assets that can be served from a minimal Docker image.
 - Future authenticated features should sit behind a storage/auth abstraction so profile-backed saved states and cross-user sharing can be added without changing the core map architecture.
+- Saved-state domain contracts now exist in `src/lib/schemas/savedViews.ts` and `src/lib/savedViews.ts`, separating:
+  - transient map session state
+  - named saved views
+  - user-owned saved views
+  - shareable saved views
+- The saved-state contract already covers scenario choice, basemap state, layer/overlay state, region styles, facility presentation/filter state, viewport, and current selection, but it does not yet choose a storage backend.
 - Current scenario datasets include:
   - `UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`
   - `UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson`
@@ -77,6 +83,7 @@ jj status
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
+- Saved-view and map-session behavior is covered in `tests/savedViews.test.ts`.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
 - Point-selection and overlap-grouping logic now lives in `src/features/map/pointSelection.ts`, with direct tests in `tests/pointSelection.test.ts`.
 - Boundary/JMC resolution logic now lives in `src/features/map/boundarySelection.ts`, with direct tests in `tests/boundarySelection.test.ts`.
