@@ -458,62 +458,6 @@ export function MapWorkspace() {
     });
   }, [layers, regions, facilitySymbolShape, facilitySymbolSize]);
 
-  useEffect(() => {
-    const boardLayer = regionBoundaryRefs.current.get('careBoardBoundaries');
-    const boardSource = boardLayer?.getSource();
-    const facilitiesLayer = layerRefs.current.get('facilities');
-    const facilitiesSource = facilitiesLayer?.getSource();
-    const boardConfig = regionBoundaryLayers.find((layer) => layer.id === 'careBoardBoundaries');
-
-    if (
-      !boardSource ||
-      !facilitiesSource ||
-      !boardConfig?.path.includes('UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson')
-    ) {
-      return;
-    }
-
-    const updatePopulationState = () => {
-      const boardFeatures = boardSource.getFeatures();
-      const facilityPoints = facilitiesSource
-        .getFeatures()
-        .map((feature) => getPointCoordinate(feature))
-        .filter((coordinate): coordinate is [number, number] => coordinate !== null);
-
-      if (boardFeatures.length === 0 || facilityPoints.length === 0) {
-        return;
-      }
-
-      let changed = false;
-      for (const feature of boardFeatures) {
-        const geometry = feature.getGeometry();
-        const isPopulated = Boolean(
-          geometry &&
-            facilityPoints.some((coordinate) =>
-              geometry.intersectsCoordinate(coordinate),
-            ),
-        );
-        if (feature.get('__isPopulated') !== isPopulated) {
-          feature.set('__isPopulated', isPopulated);
-          changed = true;
-        }
-      }
-
-      if (changed) {
-        boardLayer.changed();
-      }
-    };
-
-    updatePopulationState();
-    const boardKey = boardSource.on('change', updatePopulationState);
-    const facilitiesKey = facilitiesSource.on('change', updatePopulationState);
-
-    return () => {
-      unByKey(boardKey);
-      unByKey(facilitiesKey);
-    };
-  }, [layers, regionBoundaryLayers]);
-
   return (
     <main className="map-panel">
       <div className="map-panel__inner">
@@ -1047,7 +991,7 @@ function getJmcBoundaryColor(feature: FeatureLike): string | null {
   const baseColor = byRegionName[regionName];
   if (!baseColor) return null;
 
-  return feature.get('__isPopulated') ? darkenHexColor(baseColor, 0.82) : baseColor;
+  return feature.get('is_populated') ? darkenHexColor(baseColor, 0.82) : baseColor;
 }
 
 function darkenHexColor(hex: string, factor: number): string {
