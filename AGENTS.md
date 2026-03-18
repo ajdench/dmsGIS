@@ -49,7 +49,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
-  - `ICB / Health Board boundaries` (`UK_Health_Board_Boundaries_Codex_2026_exact_geojson_updated.geojson`)
+  - `Care board boundaries` (`UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson`)
 - View presets are `Current`, `COA 3a`, `COA 3b`, and `COA 3c`.
 - `COA 3a`, `COA 3b`, and `COA 3c` keep PMC points active on the map but currently show an empty `Overlays` pane.
 - `COA 3a` swaps the selectable boundary layer to `JMC boundaries` using `public/data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson`.
@@ -62,7 +62,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Size behavior is dual-scope:
   - Global PMC size changes apply to all regions.
   - Region popover size changes apply locally to the selected region only.
-- Current-mode board map interaction: clicking inside a visible `ICB / Health Board boundaries` polygon highlights that boundary in yellow and shows the resolved `boundary_name` in the docked map tooltip.
+- Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows the boundary name in the docked map tooltip.
 - `COA 3a` boundary interaction reuses the same selectable boundary path as `Care board boundaries`, but the resolved boundary name comes from JMC fields (`region_name` / `region_ref`).
 - Point map interaction (PMC facilities):
   - Clicking a point opens a docked tooltip in the top-right of the map pane.
