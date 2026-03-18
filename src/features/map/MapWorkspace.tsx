@@ -68,6 +68,7 @@ export function MapWorkspace() {
   const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
   const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
+  const coa3aBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
@@ -220,7 +221,7 @@ export function MapWorkspace() {
       const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
         current.coordinate,
         activeViewPreset,
-        jmcAssignmentLookupSourceRef.current,
+        coa3aBoundaryLookupSourceRef.current,
         jmcBoundaryLookupSourceRef.current,
       );
       for (const boundary of matchedJmcBoundaries) {
@@ -287,6 +288,8 @@ export function MapWorkspace() {
 
     const jmcLookupSource = new VectorSource();
     jmcBoundaryLookupSourceRef.current = jmcLookupSource;
+    const coa3aBoundaryLookupSource = new VectorSource();
+    coa3aBoundaryLookupSourceRef.current = coa3aBoundaryLookupSource;
     const jmcAssignmentSource = new VectorSource();
     jmcAssignmentLookupSourceRef.current = jmcAssignmentSource;
     fetch(resolveDataUrl('data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson'))
@@ -306,6 +309,24 @@ export function MapWorkspace() {
       })
       .catch((error) => {
         console.error('Failed to load JMC lookup boundaries', error);
+      });
+    fetch(resolveDataUrl('data/regions/UK_COA3A_Boundaries_Codex_v01_geojson.geojson'))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load COA 3a boundaries: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((geojson) => {
+        coa3aBoundaryLookupSource.clear();
+        coa3aBoundaryLookupSource.addFeatures(
+          new GeoJSON().readFeatures(geojson, {
+            featureProjection: 'EPSG:3857',
+          }),
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to load COA 3a boundary lookup', error);
       });
     fetch(resolveDataUrl('data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'))
       .then((response) => {
@@ -343,6 +364,7 @@ export function MapWorkspace() {
       selectedJmcBoundaryRef.current = null;
       selectedPointRef.current = null;
       jmcBoundaryLookupSourceRef.current = null;
+      coa3aBoundaryLookupSourceRef.current = null;
       jmcAssignmentLookupSourceRef.current = null;
       jmcAssignmentByBoundaryNameRef.current.clear();
       pointTooltipRootRef.current = null;
@@ -1099,7 +1121,10 @@ function getFeatureBoundaryStrokeColor(
 }
 
 function getUsesPerFeatureBoundaryColor(layer: RegionBoundaryLayerStyle): boolean {
-  return layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson');
+  return (
+    layer.path.includes('UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson') ||
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson')
+  );
 }
 
 function getFeatureBoundaryLineColor(
@@ -1129,7 +1154,10 @@ function getFeatureBoundaryStrokeWidth(
   feature: FeatureLike,
 ): number {
   if (!layer.borderVisible) return 0;
-  if (isCoa3aLondonDistrictOverlay(layer, feature)) {
+  if (
+    isCoa3aLondonDistrictOverlay(layer, feature) ||
+    layer.path.includes('UK_COA3A_Boundaries_Codex_v01_geojson.geojson')
+  ) {
     return 1.5;
   }
   const rawWidth = Number(feature.get('line_width'));
@@ -1711,28 +1739,12 @@ function findJmcNameForBoundarySelection(
 function getSelectedJmcOutlineFeatures(
   coordinate: [number, number],
   activeViewPreset: ViewPresetId,
-  assignmentSource: VectorSource | null,
+  scenarioBoundarySource: VectorSource | null,
   boundarySource: VectorSource | null,
 ): Feature[] {
-  if (activeViewPreset === 'coa3b' && assignmentSource) {
-    const assignmentFeature =
-      assignmentSource
-        .getFeatures()
-        .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
-    if (!assignmentFeature) {
-      return [];
-    }
-
-    const scenarioName = getScenarioJmcName(assignmentFeature, activeViewPreset);
-    if (!scenarioName) {
-      return [];
-    }
-
-    return assignmentSource
-      .getFeatures()
-      .filter(
-        (feature) => getScenarioJmcName(feature, activeViewPreset) === scenarioName,
-      );
+  if (activeViewPreset === 'coa3b') {
+    const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, scenarioBoundarySource);
+    return boundaryFeature ? [boundaryFeature] : [];
   }
 
   const boundaryFeature = findJmcBoundaryAtCoordinate(coordinate, boundarySource);

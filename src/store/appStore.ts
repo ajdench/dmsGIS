@@ -585,7 +585,7 @@ function createScenarioRegionBoundaryLayers(
           borderOpacity: 0.1,
           swatchColor: '#999999',
         }
-      : layer.id === 'pmcUnpopulatedCareBoardBoundaries'
+      : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3a'
         ? {
             ...layer,
             name: 'London District boundary',
@@ -597,6 +597,18 @@ function createScenarioRegionBoundaryLayers(
             borderOpacity: 0.45,
             swatchColor: '#419632',
           }
+        : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3b'
+          ? {
+              ...layer,
+              name: 'COA 3a boundaries',
+              path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_geojson.geojson',
+              visible: false,
+              opacity: 0,
+              borderVisible: true,
+              borderColor: '#999999',
+              borderOpacity: 0.45,
+              swatchColor: '#999999',
+            }
       : layer,
   );
 }
