@@ -1,7 +1,11 @@
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { describe, expect, it } from 'vitest';
-import { getFacilityFeatureProperties } from '../src/lib/facilities';
+import {
+  createFacilityRecord,
+  getFacilityFeatureProperties,
+  getFacilityRecord,
+} from '../src/lib/facilities';
 import { parseFacilityProperties } from '../src/lib/schemas/facilities';
 
 describe('facility schema', () => {
@@ -44,6 +48,46 @@ describe('facility schema', () => {
       region: 'London & South',
       default_visible: 0,
       point_color_hex: '#419632',
+    });
+  });
+
+  it('builds a richer facility domain record with derived fields', () => {
+    expect(
+      createFacilityRecord(
+        parseFacilityProperties({
+          id: 'ABC',
+          name: 'Example',
+          type: 'pmc-facility',
+          region: 'London & South',
+          default_visible: 0,
+          point_color_hex: '#419632',
+          snapped_to_land: true,
+        }),
+      ),
+    ).toMatchObject({
+      displayName: 'Example',
+      searchText: 'abc example london & south pmc-facility',
+      isDefaultVisible: false,
+      hasSnappedCoordinates: true,
+    });
+  });
+
+  it('builds a facility record directly from an OpenLayers feature', () => {
+    const feature = new Feature({
+      id: 'XYZ',
+      name: 'Another',
+      region: 'North',
+      default_visible: 1,
+      point_color_hex: '#a7c636',
+      snapped_to_land: false,
+      geometry: new Point([1, 1]),
+    });
+
+    expect(getFacilityRecord(feature)).toMatchObject({
+      id: 'XYZ',
+      displayName: 'Another',
+      isDefaultVisible: true,
+      hasSnappedCoordinates: false,
     });
   });
 });

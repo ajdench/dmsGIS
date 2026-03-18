@@ -3,7 +3,7 @@ import type Feature from 'ol/Feature';
 import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
-import { getFacilityFeatureProperties } from '../../lib/facilities';
+import { getFacilityFeatureProperties, getFacilityRecord } from '../../lib/facilities';
 import type {
   FacilitySymbolShape,
   RegionBoundaryLayerStyle,
@@ -188,15 +188,14 @@ export function collectPointTooltipEntries(params: {
   const regionsByName = new Map(regions.map((region) => [region.name, region]));
 
   for (const feature of features) {
-    const rawName = feature.get('name');
-    if (rawName === undefined || rawName === null) continue;
-    const name = String(rawName).trim();
+    const facility = getFacilityRecord(feature);
+    const name = facility.displayName;
     if (!name) continue;
 
     const coordinate = getPointCoordinate(feature) ?? fallbackCoordinate;
     const boundaryName = getBoundaryNameAtCoordinate(coordinate);
     const jmcName = getJmcNameAtCoordinate(coordinate, activeViewPreset);
-    const regionName = String(feature.get('region') ?? 'Unassigned');
+    const regionName = facility.region;
     const regionStyle = regionsByName.get(regionName);
     const hasVisibleBorder =
       (regionStyle?.borderVisible ?? true) &&
@@ -259,8 +258,8 @@ function getPointSelectionCandidate(
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
-  const properties = getFacilityFeatureProperties(feature);
-  const name = properties.name;
+  const facility = getFacilityRecord(feature);
+  const name = facility.displayName;
   const pixel = map.getPixelFromCoordinate(coordinate);
   const radius = getPointSelectionRadius(
     feature,
