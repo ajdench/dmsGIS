@@ -33,6 +33,11 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Version control: `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo; `git` and `jj` operate on the same repository, and `main` is tracked against `main@origin`.
 - Layer manifest: fetches `data/manifests/layers.manifest.json`, validated as `{ layers: [...] }`; manifest paths must be relative (no leading slash) and are resolved against `import.meta.env.BASE_URL`.
 - Map core: OpenLayers map is mounted in `src/features/map/MapWorkspace.tsx` with local Natural Earth basemap fixed to `localDetailed` at `10m` detail.
+- Architecture direction:
+  - treat overlay families as distinct products: ICB/HB boundaries, JMC regions, future NHS regions, and future scenario regions should be independently addressable overlay types rather than folded into one ad hoc preset path
+  - treat scenario region assignment as data/config, not hard-coded map logic
+  - prefer preprocessing and scenario metadata tables over runtime geometry inference where possible
+  - keep facility metadata extensible so new attributes can be added without reworking map interaction code
 - Basemap data is local under `public/data/basemaps/` (no runtime internet requirement for basemap rendering).
 - Basemap controls: source and detail-level dropdowns are removed from UI; only style/visibility controls remain.
 - Basemap data scope: `50m` basemap assets were removed from runtime usage and from `public/data/basemaps/`; `10m` is the active operational dataset.
@@ -50,11 +55,14 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
   - `Care board boundaries` (`UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson`)
-- View presets are `Current`, `COA 3a`, `COA 3b`, and `COA 3c`.
-- `COA 3a`, `COA 3b`, and `COA 3c` keep PMC points active on the map but currently show an empty `Overlays` pane.
-- `COA 3a` swaps the selectable boundary layer to `ICB / Health Board boundaries` using `public/data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`.
-- `COA 3a` uses the board polygons themselves as the overlay, with JMC colors applied by board assignment (`jmc_name`) and the same thin grey board outlines used for the Current-mode board layer.
-- `COA 3a` board polygons use a precomputed `is_populated` property in `public/data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`: the current COA hue is the unpopulated tone, and populated boards use a darker version of that same hue.
+- Visible preset labels are `Current`, `SJC JMC`, `COA 3a`, and `COA 3b`; the internal preset ids remain `current`, `coa3a`, `coa3b`, and `coa3c`.
+- `SJC JMC`, `COA 3a`, and `COA 3b` keep PMC points active on the map but currently show an empty `Overlays` pane.
+- `SJC JMC` uses `public/data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson` as the selectable `ICB / Health Board boundaries` layer and uses JMC region-derived fill styling on the board polygons themselves.
+- `COA 3a` uses `public/data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson` plus `public/data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson`.
+- `COA 3b` uses `public/data/regions/UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson` plus `public/data/regions/UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson`.
+- Scenario board polygons are the rendered overlay in `SJC JMC`, `COA 3a`, and `COA 3b`; the outer region boundary overlay is off by default and is used mainly for selected region highlighting.
+- Scenario board polygons use precomputed assignment metadata (`jmc_name`, `jmc_code`, `is_populated`) rather than runtime facility-in-polygon calculation.
+- `COA 3b` introduces `COA 3b London and East`, which groups the London District boards with `NHS Norfolk and Suffolk Integrated Care Board`, `NHS Central East Integrated Care Board`, and `NHS Essex Integrated Care Board`.
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.
 - Region rows remain individually configurable via popovers: visible, fill color, symbol size, fill opacity, border on/off, border color, border opacity.
@@ -65,7 +73,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Global PMC size changes apply to all regions.
   - Region popover size changes apply locally to the selected region only.
 - Care board map interaction: clicking inside a visible `Care board boundaries` polygon highlights that boundary in yellow and shows the boundary name in the docked map tooltip.
-- `COA 3a` boundary interaction reuses the same selectable boundary path as `Care board boundaries`; the displayed board name still resolves from `boundary_name`, while the polygon fill color comes from the assigned JMC region.
+- Scenario boundary interaction reuses the same selectable boundary path as `Care board boundaries`; the displayed board name still resolves from `boundary_name`, while the polygon fill color comes from the assigned scenario region.
 - Point map interaction (PMC facilities):
   - Clicking a point opens a docked tooltip in the top-right of the map pane.
   - Tooltip content order is: facility name; pager row (`< Page n of y >`); boundary name.
@@ -110,16 +118,18 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extract point selection, overlap grouping, tooltip paging, and boundary-resolution logic out of `src/features/map/MapWorkspace.tsx` into smaller focused units; this is the highest-risk interaction area and the biggest source of recent regressions.
-2. Add direct tests for map interaction behavior: nearest clicked facility is `Page 1`, only visually overlapping points page together at the current zoom, and point grouping responds correctly to symbol size/shape changes.
-3. Centralise view preset definitions so preset IDs, labels, ordering, and state behavior are driven from one source instead of being split across sidebar UI and store logic.
-4. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
-5. Add explicit tests for region styling logic (PMC global broadcast opacity, border controls, shape/size controls, default visibility behavior).
-6. Decide whether region style choices should persist across reloads (local storage and/or serverless write-back).
-7. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
-8. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
-9. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
-10. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+1. Extract scenario naming, palette, dataset-path, and outer-boundary configuration into a single scenario configuration module that both runtime code and preprocessing scripts can share.
+2. Extract point selection, overlap grouping, tooltip paging, and boundary-resolution logic out of `src/features/map/MapWorkspace.tsx` into smaller focused units; this remains the highest-risk interaction area.
+3. Introduce an explicit overlay model that separates overlay families: board boundaries, scenario regions, future NHS regions, and future custom/manual regions.
+4. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
+5. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
+6. Add direct tests for scenario naming/color resolution and for map interaction behavior: nearest clicked facility is `Page 1`, only visually overlapping points page together at the current zoom, and grouping responds correctly to symbol size/shape changes.
+7. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
+8. Decide whether region style choices and scenario selections should persist across reloads (local storage and/or serverless write-back).
+9. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
+10. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
+11. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
+12. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 

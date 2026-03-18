@@ -53,9 +53,19 @@ jj status
 - Runtime layer load/error status is surfaced in the active right sidebar.
 - Boundary overlay ordering is explicit so populated, unpopulated, and care-board layers render consistently.
 - Store coverage now includes PMC/global region styling behavior in `tests/appStore.test.ts`.
+- Visible preset labels are `Current`, `SJC JMC`, `COA 3a`, and `COA 3b`.
 - Right sidebar width is derived from the top-bar action-button span plus `0.75rem` side gutters so the internal white panes align cleanly inside the grey container.
-- The right sidebar pane is named `Overlays`; in `COA 3a/3b/3c` it is intentionally empty for now while PMC points remain active on the map.
+- The right sidebar pane is named `Overlays`; in `SJC JMC`, `COA 3a`, and `COA 3b` it is intentionally empty for now while PMC points remain active on the map.
 - The workspace keeps the right sidebar fixed-width and uses horizontal overflow at narrow widths instead of stacking the sidebar below the map.
 - Point tooltip paging is based on visible screen-space overlap at the current zoom and current symbol size/shape, with the nearest clicked facility shown first.
+- Current scenario architecture is moving toward distinct overlay families and data-driven scenario assignment:
+  - ICB / HB boundaries
+  - JMC / scenario regions
+  - future NHS regions
+  - future custom/manual regions
+- Current scenario datasets include:
+  - `UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`
+  - `UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson`
+  - `UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson`
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.
