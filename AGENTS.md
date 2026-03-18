@@ -53,6 +53,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Right sidebar now also surfaces runtime layer loading/error status above the pane stack.
 - Facilities pane contains an embedded PMC collapsible sub-pane plus a compact `Search facilities...` input at the bottom.
 - Overlays pane now lists boundary datasets (not facility-region rows) with popovers per item.
+- Visible preset labels, dataset paths, scenario region groupings, palette values, and boundary overrides are now centralized in `src/lib/config/viewPresets.json` with runtime helpers in `src/lib/config/viewPresets.ts`.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -120,21 +121,20 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extract scenario naming, palette, dataset-path, and outer-boundary configuration into a single scenario configuration module that both runtime code and preprocessing scripts can share.
-2. Extract point selection, overlap grouping, tooltip paging, and boundary-resolution logic out of `src/features/map/MapWorkspace.tsx` into smaller focused units; this remains the highest-risk interaction area.
-3. Introduce an explicit overlay model that separates overlay families: board boundaries, scenario regions, future NHS regions, and future custom/manual regions.
-4. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
-5. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
-6. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
-7. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
-8. Add direct tests for scenario naming/color resolution and for map interaction behavior: nearest clicked facility is `Page 1`, only visually overlapping points page together at the current zoom, and grouping responds correctly to symbol size/shape changes.
-9. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
-10. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
-11. Decide whether region style choices and scenario selections should persist across reloads (local storage and/or serverless write-back).
-12. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
-13. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
-14. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
-15. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+1. Extract point selection, overlap grouping, tooltip paging, and boundary-resolution logic out of `src/features/map/MapWorkspace.tsx` into smaller focused units; this remains the highest-risk interaction area.
+2. Introduce an explicit overlay model that separates overlay families: board boundaries, scenario regions, future NHS regions, and future custom/manual regions.
+3. Add a data-driven assignment layer for mapping ICBs/HBs to scenario regions so future manual regrouping does not require editing hard-coded conditionals in map code.
+4. Define and centralize richer facility metadata schemas in `src/lib/schemas/` and typed domain models so future facility attributes can feed search, tooltip, filtering, and export without reworking interaction code.
+5. Define a persisted state model now: separate map/session state, user-owned saved views, and shareable saved views so future auth/profile features fit cleanly.
+6. Add a storage abstraction layer for saved states so the app can start with local/static-backed behavior and later swap to authenticated profile storage and cross-user sharing without refactoring UI components.
+7. Add direct tests for map interaction behavior: nearest clicked facility is `Page 1`, only visually overlapping points page together at the current zoom, and grouping responds correctly to symbol size/shape changes.
+8. Split `GroupPanel` responsibilities so PMC controls and Overlays controls are no longer handled by the same component.
+9. Add a production Docker path for the static app: multi-stage build, compiled Vite assets, and a minimal static web server image with explicit version pinning.
+10. Decide whether region style choices and scenario selections should persist across reloads (local storage and/or serverless write-back).
+11. Continue UI cleanup pass to eliminate any remaining compounded spacing rules in Groups/Popover areas if visual inconsistency remains.
+12. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales with explicit product sign-off (current runtime is fixed to `10m`).
+13. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags wrong development area.
+14. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 

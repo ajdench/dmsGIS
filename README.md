@@ -69,5 +69,6 @@ jj status
   - `UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson`
   - `UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson`
   - `UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson`
+- Shared preset/scenario configuration now lives in `src/lib/config/viewPresets.json` and `src/lib/config/viewPresets.ts`; runtime UI/store code and scenario preprocessing scripts read from that shared definition.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.

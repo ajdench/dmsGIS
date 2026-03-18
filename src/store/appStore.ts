@@ -9,6 +9,12 @@ import type {
   RegionStyle,
   ViewPresetId,
 } from '../types';
+import {
+  BOARD_BOUNDARY_BASE_STYLE,
+  getScenarioBoardLayerConfig,
+  getScenarioOutlineLayerConfig,
+  isScenarioPreset,
+} from '../lib/config/viewPresets';
 import { fetchLayerManifest } from '../lib/services/layers';
 
 interface ViewPresetState {
@@ -516,9 +522,9 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       visible: true,
       opacity: 0,
       borderVisible: true,
-      borderColor: '#8f8f8f',
-      borderOpacity: 0.14,
-      swatchColor: '#8f8f8f',
+      borderColor: BOARD_BOUNDARY_BASE_STYLE.borderColor,
+      borderOpacity: BOARD_BOUNDARY_BASE_STYLE.borderOpacity,
+      swatchColor: BOARD_BOUNDARY_BASE_STYLE.swatchColor,
     },
   ];
 }
@@ -565,7 +571,13 @@ function createScenarioRegionBoundaryLayers(
     visible: false,
   }));
 
-  if (preset !== 'coa3a' && preset !== 'coa3b' && preset !== 'coa3c') {
+  if (!isScenarioPreset(preset)) {
+    return hiddenLayers;
+  }
+
+  const boardLayer = getScenarioBoardLayerConfig(preset);
+  const outlineLayer = getScenarioOutlineLayerConfig(preset);
+  if (!boardLayer || !outlineLayer) {
     return hiddenLayers;
   }
 
@@ -573,55 +585,26 @@ function createScenarioRegionBoundaryLayers(
     layer.id === 'careBoardBoundaries'
       ? {
           ...layer,
-          name: 'ICB / Health Board boundaries',
-          path:
-            preset === 'coa3c'
-              ? 'data/regions/UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson'
-              : preset === 'coa3b'
-              ? 'data/regions/UK_COA3A_Source_Board_Assignments_Codex_v01_geojson.geojson'
-              : 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+          name: BOARD_BOUNDARY_BASE_STYLE.name,
+          path: boardLayer.path,
           visible: true,
-          opacity: preset === 'coa3a' ? 0.22 : 1,
+          opacity: boardLayer.opacity,
           borderVisible: true,
-          borderColor: '#8f8f8f',
-          borderOpacity: 0.14,
-          swatchColor: '#8f8f8f',
+          borderColor: BOARD_BOUNDARY_BASE_STYLE.borderColor,
+          borderOpacity: BOARD_BOUNDARY_BASE_STYLE.borderOpacity,
+          swatchColor: BOARD_BOUNDARY_BASE_STYLE.swatchColor,
         }
-      : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3a'
-        ? {
-            ...layer,
-            name: 'London District boundary',
-            path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
-            visible: true,
-            opacity: 0,
-            borderVisible: true,
-            borderColor: '#419632',
-            borderOpacity: 0.45,
-            swatchColor: '#419632',
-          }
-        : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3b'
+      : layer.id === 'pmcUnpopulatedCareBoardBoundaries'
           ? {
               ...layer,
-              name: 'COA 3a boundaries',
-              path: 'data/regions/UK_COA3A_Boundaries_Codex_v01_simplified_geojson.geojson',
-              visible: false,
-              opacity: 0,
+              name: outlineLayer.name,
+              path: outlineLayer.path,
+              visible: outlineLayer.visible,
+              opacity: outlineLayer.opacity,
               borderVisible: true,
-              borderColor: '#8f8f8f',
-              borderOpacity: 0.45,
-              swatchColor: '#8f8f8f',
-            }
-        : layer.id === 'pmcUnpopulatedCareBoardBoundaries' && preset === 'coa3c'
-          ? {
-              ...layer,
-              name: 'COA 3b boundaries',
-              path: 'data/regions/UK_COA3B_Boundaries_Codex_v01_simplified_geojson.geojson',
-              visible: false,
-              opacity: 0,
-              borderVisible: true,
-              borderColor: '#8f8f8f',
-              borderOpacity: 0.45,
-              swatchColor: '#8f8f8f',
+              borderColor: outlineLayer.borderColor,
+              borderOpacity: outlineLayer.borderOpacity,
+              swatchColor: outlineLayer.swatchColor,
             }
       : layer,
   );
