@@ -10,6 +10,9 @@ export function SelectionPanel() {
   );
   const selectedRegions = useAppStore((state) => state.facilityFilters.regions);
   const selectedTypes = useAppStore((state) => state.facilityFilters.types);
+  const selectedDefaultVisibility = useAppStore(
+    (state) => state.facilityFilters.defaultVisibility,
+  );
   const setFacilitySearchQuery = useAppStore(
     (state) => state.setFacilitySearchQuery,
   );
@@ -18,6 +21,9 @@ export function SelectionPanel() {
   );
   const setFacilityFilterTypes = useAppStore(
     (state) => state.setFacilityFilterTypes,
+  );
+  const setFacilityDefaultVisibilityFilter = useAppStore(
+    (state) => state.setFacilityDefaultVisibilityFilter,
   );
 
   const selectedRegion = selectedRegions.length === 1 ? selectedRegions[0] : '';
@@ -66,6 +72,27 @@ export function SelectionPanel() {
             {type}
           </option>
         ))}
+      </select>
+      <label className="field-label" htmlFor="facility-default-visibility-filter">
+        Default visibility
+      </label>
+      <select
+        id="facility-default-visibility-filter"
+        className="select"
+        aria-label="Filter facilities by default visibility"
+        value={selectedDefaultVisibility}
+        onChange={(event) =>
+          setFacilityDefaultVisibilityFilter(
+            event.target.value as
+              | 'all'
+              | 'default-visible'
+              | 'non-default-visible',
+          )
+        }
+      >
+        <option value="all">All facilities</option>
+        <option value="default-visible">Default visible</option>
+        <option value="non-default-visible">Non-default visible</option>
       </select>
       <input
         className="input input--compact"

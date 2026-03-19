@@ -150,6 +150,29 @@ function buildMixedSwatchBackground(stops: SwatchStop[]) {
   return `conic-gradient(from 225deg, ${gradientStops})`;
 }
 
+function buildMixedRectSwatchBackground(stops: SwatchStop[]) {
+  if (stops.length === 0) {
+    return undefined;
+  }
+
+  if (stops.length === 1) {
+    const color = applyOpacityToColor(stops[0].color, stops[0].opacity ?? 1);
+    return `linear-gradient(${color}, ${color})`;
+  }
+
+  const normalizedStops = stops.slice(0, 4);
+  const segment = 100 / normalizedStops.length;
+  const gradientStops = normalizedStops
+    .map((stop, index) => {
+      const start = segment * index;
+      const end = segment * (index + 1);
+      return `${applyOpacityToColor(stop.color, stop.opacity ?? 1)} ${start}% ${end}%`;
+    })
+    .join(', ');
+
+  return `linear-gradient(90deg, ${gradientStops})`;
+}
+
 function buildSwatchStyle({
   color,
   opacity = 1,
@@ -323,14 +346,12 @@ export function PrototypeColorField({
       <div className="prototype-color-field__control">
         <span
           className="prototype-color-field__preview"
-          style={buildSwatchStyle({
-            color: value,
-            opacity: opacityPreview,
-            mix: mixedSwatches,
-            borderColor: 'var(--border)',
-            borderOpacity: 1,
-            borderWidth: '1px',
-          })}
+          style={{
+            background:
+              mixedSwatches && mixedSwatches.length > 0
+                ? buildMixedRectSwatchBackground(mixedSwatches)
+                : `linear-gradient(${applyOpacityToColor(value, opacityPreview)}, ${applyOpacityToColor(value, opacityPreview)})`,
+          }}
           aria-hidden="true"
         />
         <input

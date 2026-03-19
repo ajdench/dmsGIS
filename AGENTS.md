@@ -84,7 +84,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Facility properties now have a schema layer in `src/lib/schemas/facilities.ts`, with `src/lib/facilities.ts` providing normalized facility records and feature-property access for current runtime consumers.
 - Facility filter state now has an explicit schema in `src/lib/schemas/facilities.ts`, and `src/lib/facilityFilters.ts` owns production filter definitions/matching so future metadata facets can reuse the same typed facility-filter path.
 - Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search; the production store and saved-session snapshot/apply path carry the full filter object.
-- The production Facilities pane now exposes `region` and `type` as promoted typed facility filter facets; `default visibility` remains in the shared domain model but is not yet surfaced in the UI.
+- The production Facilities pane now exposes `region`, `type`, and `default visibility` as promoted typed facility filter facets on top of the shared domain model.
 - Saved-state schemas and helpers now live in `src/lib/schemas/savedViews.ts` and `src/lib/savedViews.ts`.
   - `MapSessionState` captures the runtime map/session snapshot
   - `NamedSavedView` adds repository-facing saved-view metadata
@@ -185,8 +185,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 1. Treat the current `MapWorkspace` hardening/modularization pass as complete unless a new bounded hotspot appears.
 2. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
-3. Decide which typed facility filter facet to surface next in the production UI.
-   `Region` and `type` are already promoted. `Default visibility` should be added deliberately on top of the shared domain model rather than through parallel local UI state.
+3. Decide whether to add more facility-filter polish in production UI or stop at the current full-facet baseline.
+   `Region`, `type`, and `default visibility` are now promoted. Further work here should be about usability, layout, or saved-filter behavior rather than adding parallel state.
 4. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
 5. Add a production Docker path once the current map/runtime hardening phase is complete.
