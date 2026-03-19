@@ -144,4 +144,5 @@ Current priority areas:
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
 - prefer broader production interaction coverage around selection/highlight flows before adding remote persistence or export polish
 - treat the current map-core modularization pass as complete enough to stop unless a new hotspot or regression appears
+- treat facility filters as a shared typed domain contract first, and only then choose which facets to surface in the production UI
 - keep prototype-sidebar work isolated until it is explicitly promoted

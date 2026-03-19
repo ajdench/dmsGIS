@@ -103,6 +103,7 @@ Why this matters:
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
+- Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search, and that state is carried through the production store plus saved-session snapshot/apply paths even though the production UI still only exposes search today.
 - Saved-view and map-session behavior is covered in `tests/savedViews.test.ts`.
 - Local saved-view persistence and action helpers are covered in `tests/savedViewStore.test.ts` and `tests/savedViewActions.test.ts`.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
@@ -138,7 +139,7 @@ The current production focus is map-core hardening and modularization, not new e
 
 Near-term production priorities:
 
-1. Treat the current map-core hardening pass as complete unless a fresh hotspot appears.
+1. Decide which facility filter facet should be surfaced first in the production UI: region, type, or default-visibility.
 2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Continue production work in the next real domain area that matters, not by extracting for its own sake.
+3. Continue production work in real domain areas, not by extracting for its own sake.
 4. Keep `npm run build` as the authoritative health check before describing the app as deployable.

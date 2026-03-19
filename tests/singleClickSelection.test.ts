@@ -59,7 +59,12 @@ describe('singleClickSelection', () => {
       regionBoundaryRefs: new Map(),
       facilitySymbolShape: 'circle',
       facilitySymbolSize: 3.5,
-      facilitySearchQuery: '',
+      facilityFilters: {
+        searchQuery: '',
+        regions: [],
+        types: [],
+        defaultVisibility: 'all',
+      },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',
     });
@@ -123,7 +128,12 @@ describe('singleClickSelection', () => {
       regionBoundaryRefs: new Map([['careBoardBoundaries', boundaryLayer]]),
       facilitySymbolShape: 'circle',
       facilitySymbolSize: 3.5,
-      facilitySearchQuery: '',
+      facilityFilters: {
+        searchQuery: '',
+        regions: [],
+        types: [],
+        defaultVisibility: 'all',
+      },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => null,
     });
@@ -194,7 +204,12 @@ describe('singleClickSelection', () => {
       regionBoundaryRefs: new Map(),
       facilitySymbolShape: 'circle',
       facilitySymbolSize: 3.5,
-      facilitySearchQuery: 'alpha',
+      facilityFilters: {
+        searchQuery: 'alpha',
+        regions: [],
+        types: [],
+        defaultVisibility: 'all',
+      },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',
     });

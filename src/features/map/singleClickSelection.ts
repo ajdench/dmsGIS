@@ -16,6 +16,7 @@ import type {
   RegionStyle,
   ViewPresetId,
 } from '../../types';
+import type { FacilityFilterState } from '../../lib/schemas/facilities';
 
 interface ResolveSingleClickSelectionParams {
   map: OLMap;
@@ -28,7 +29,7 @@ interface ResolveSingleClickSelectionParams {
   regionBoundaryRefs: Map<string, VectorLayer<VectorSource>>;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
-  facilitySearchQuery: string;
+  facilityFilters: FacilityFilterState;
   activeViewPreset: ViewPresetId;
   getJmcNameAtCoordinate: (
     coordinate: [number, number],
@@ -55,7 +56,7 @@ export function resolveSingleClickSelection(
     regionBoundaryRefs,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
     activeViewPreset,
     getJmcNameAtCoordinate,
   } = params;
@@ -68,7 +69,7 @@ export function resolveSingleClickSelection(
     visibleRegions,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
   );
 
   if (hitFeatures.length > 0) {
@@ -80,7 +81,7 @@ export function resolveSingleClickSelection(
       facilitySymbolShape,
       facilitySymbolSize,
       pixel,
-      facilitySearchQuery,
+      facilityFilters,
     );
 
     return {
@@ -98,7 +99,7 @@ export function resolveSingleClickSelection(
           return boundaryFeature ? getBoundaryName(boundaryFeature) : null;
         },
         getJmcNameAtCoordinate,
-        facilitySearchQuery,
+        facilityFilters,
       }),
       boundaryFeature: null,
     };

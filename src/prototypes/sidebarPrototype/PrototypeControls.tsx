@@ -21,6 +21,8 @@ interface PrototypeMetricPillProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
   value: string;
   swatch?: string;
+  swatchOpacity?: number;
+  swatchMix?: SwatchStop[];
   swatchShape?: PrototypeShape;
   swatchBorderColor?: string;
   swatchBorderWidth?: number;
@@ -39,6 +41,8 @@ interface PrototypeColorFieldProps {
   id: string;
   label: string;
   value: string;
+  opacityPreview?: number;
+  mixedSwatches?: SwatchStop[];
   onChange?: (value: string) => void;
 }
 
@@ -62,7 +66,7 @@ interface PrototypeStaticRowProps {
 }
 
 type PrototypeShape = 'circle' | 'square' | 'diamond' | 'triangle';
-export type { PrototypeShape };
+export type { PrototypeShape, SwatchStop };
 
 interface PrototypeShapePickerProps {
   value: PrototypeShape;
@@ -84,12 +88,98 @@ interface PrototypeControlSectionProps {
   children: ReactNode;
 }
 
+interface SwatchStop {
+  color: string;
+  opacity?: number;
+}
+
 const SHAPE_OPTIONS: PrototypeShape[] = [
   'circle',
   'square',
   'diamond',
   'triangle',
 ];
+
+function applyOpacityToColor(color: string, opacity = 1) {
+  if (opacity >= 1) {
+    return color;
+  }
+
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    const normalizedHex =
+      hex.length === 3
+        ? hex
+            .split('')
+            .map((value) => value + value)
+            .join('')
+        : hex;
+
+    if (normalizedHex.length === 6) {
+      const red = Number.parseInt(normalizedHex.slice(0, 2), 16);
+      const green = Number.parseInt(normalizedHex.slice(2, 4), 16);
+      const blue = Number.parseInt(normalizedHex.slice(4, 6), 16);
+
+      return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+    }
+  }
+
+  return `color-mix(in srgb, ${color} ${opacity * 100}%, transparent)`;
+}
+
+function buildMixedSwatchBackground(stops: SwatchStop[]) {
+  if (stops.length === 0) {
+    return undefined;
+  }
+
+  if (stops.length === 1) {
+    const color = applyOpacityToColor(stops[0].color, stops[0].opacity ?? 1);
+    return `linear-gradient(${color}, ${color})`;
+  }
+
+  const normalizedStops = stops.slice(0, 4);
+  const segment = 100 / normalizedStops.length;
+  const gradientStops = normalizedStops
+    .map((stop, index) => {
+      const start = segment * index;
+      const end = segment * (index + 1);
+      return `${applyOpacityToColor(stop.color, stop.opacity ?? 1)} ${start}% ${end}%`;
+    })
+    .join(', ');
+
+  return `conic-gradient(from 225deg, ${gradientStops})`;
+}
+
+function buildSwatchStyle({
+  color,
+  opacity = 1,
+  mix,
+  borderColor,
+  borderOpacity = 1,
+  borderWidth,
+}: {
+  color?: string;
+  opacity?: number;
+  mix?: SwatchStop[];
+  borderColor?: string;
+  borderOpacity?: number;
+  borderWidth?: string;
+}): CSSProperties {
+  const previewBackground =
+    mix && mix.length > 0
+      ? buildMixedSwatchBackground(mix)
+      : color
+        ? `linear-gradient(${applyOpacityToColor(color, opacity)}, ${applyOpacityToColor(color, opacity)})`
+        : undefined;
+
+  return {
+    background: previewBackground,
+    borderColor: borderColor
+      ? applyOpacityToColor(borderColor, borderOpacity)
+      : undefined,
+    borderWidth,
+  };
+}
 
 export function PrototypeToggleButton({
   enabled,
@@ -126,6 +216,8 @@ export const PrototypeMetricPill = forwardRef<
   {
     value,
     swatch,
+    swatchOpacity = 1,
+    swatchMix,
     swatchShape = 'circle',
     swatchBorderColor = 'rgba(148, 163, 184, 0.6)',
     swatchBorderWidth = 1,
@@ -143,13 +235,19 @@ export const PrototypeMetricPill = forwardRef<
     <>
       {swatch ? (
         <span
-          className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}`}
-          style={{
-            backgroundColor: swatch,
+          className={`prototype-metric-pill__swatch ${
+            swatchMix && swatchMix.length > 1
+              ? 'prototype-metric-pill__swatch--mixed'
+              : `prototype-metric-pill__swatch--${swatchShape}`
+          }`}
+          style={buildSwatchStyle({
+            color: swatch,
+            opacity: swatchOpacity,
+            mix: swatchMix,
             borderColor: swatchBorderColor,
+            borderOpacity: swatchBorderOpacity,
             borderWidth: `${swatchBorderWidth}px`,
-            opacity: swatchBorderOpacity,
-          }}
+          })}
           aria-hidden="true"
         />
       ) : null}
@@ -213,6 +311,8 @@ export function PrototypeColorField({
   id,
   label,
   value,
+  opacityPreview = 1,
+  mixedSwatches,
   onChange,
 }: PrototypeColorFieldProps) {
   return (
@@ -220,13 +320,27 @@ export function PrototypeColorField({
       <label className="field-label" htmlFor={id}>
         {label}
       </label>
-      <input
-        id={id}
-        className="color-input color-input--popover"
-        type="color"
-        value={value}
-        onChange={(event) => onChange?.(event.target.value)}
-      />
+      <div className="prototype-color-field__control">
+        <span
+          className="prototype-color-field__preview"
+          style={buildSwatchStyle({
+            color: value,
+            opacity: opacityPreview,
+            mix: mixedSwatches,
+            borderColor: 'var(--border)',
+            borderOpacity: 1,
+            borderWidth: '1px',
+          })}
+          aria-hidden="true"
+        />
+        <input
+          id={id}
+          className="color-input color-input--popover prototype-color-field__input"
+          type="color"
+          value={value}
+          onChange={(event) => onChange?.(event.target.value)}
+        />
+      </div>
     </div>
   );
 }

@@ -47,7 +47,12 @@ describe('pointSelection', () => {
       activeViewPreset: 'coa3a',
       getBoundaryNameAtCoordinate: () => 'Boundary A',
       getJmcNameAtCoordinate: () => 'JMC North',
-      facilitySearchQuery: '',
+      facilityFilters: {
+        searchQuery: '',
+        regions: [],
+        types: [],
+        defaultVisibility: 'all',
+      },
     });
 
     expect(entries).toEqual([
@@ -82,7 +87,12 @@ describe('pointSelection', () => {
       activeViewPreset: 'coa3a',
       getBoundaryNameAtCoordinate: () => null,
       getJmcNameAtCoordinate: () => null,
-      facilitySearchQuery: 'missing',
+      facilityFilters: {
+        searchQuery: 'missing',
+        regions: [],
+        types: [],
+        defaultVisibility: 'all',
+      },
     });
 
     expect(entries).toEqual([]);

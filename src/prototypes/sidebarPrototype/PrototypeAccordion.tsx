@@ -1,6 +1,10 @@
 import * as Accordion from '@radix-ui/react-accordion';
 import type { ReactNode } from 'react';
-import { PrototypeMetricPill, PrototypeToggleButton } from './PrototypeControls';
+import {
+  PrototypeMetricPill,
+  PrototypeToggleButton,
+  type SwatchStop,
+} from './PrototypeControls';
 
 interface PrototypeAccordionProps {
   value: string[];
@@ -15,6 +19,8 @@ interface PrototypeAccordionItemProps {
   subtitle?: string;
   badge?: string;
   badgeSwatch?: string;
+  badgeSwatchOpacity?: number;
+  badgeSwatchMix?: SwatchStop[];
   children: ReactNode;
   level?: 'pane' | 'subpane';
   panel?: boolean;
@@ -46,6 +52,8 @@ export function PrototypeAccordionItem({
   subtitle,
   badge,
   badgeSwatch,
+  badgeSwatchOpacity,
+  badgeSwatchMix,
   children,
   level = 'pane',
   panel = false,
@@ -74,7 +82,12 @@ export function PrototypeAccordionItem({
               <PrototypeToggleButton enabled={enabled} onClick={onEnabledToggle} />
             ) : null}
             {badge ? (
-              <PrototypeMetricPill value={badge} swatch={badgeSwatch} />
+              <PrototypeMetricPill
+                value={badge}
+                swatch={badgeSwatch}
+                swatchOpacity={badgeSwatchOpacity}
+                swatchMix={badgeSwatchMix}
+              />
             ) : null}
             <Accordion.Trigger className="prototype-disclosure-button">
               <span className="prototype-accordion-item__chevron" aria-hidden="true">

@@ -360,6 +360,10 @@
   box-sizing: border-box;
 }
 
+.prototype-metric-pill__swatch--mixed {
+  border-radius: 999px;
+}
+
 .prototype-metric-pill__swatch--square {
   border-radius: 2px;
 }
@@ -378,6 +382,32 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.4rem;
+}
+
+.prototype-color-field__control {
+  position: relative;
+  min-width: 0;
+  height: var(--control-height-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.prototype-color-field__preview {
+  position: absolute;
+  inset: 3px;
+  border-radius: calc(var(--radius-md) - 3px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.prototype-color-field__input {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .prototype-app-shell .sidebar-action-row__button {

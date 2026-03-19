@@ -8,10 +8,10 @@ import {
   getFacilityRecord,
 } from '../../lib/facilities';
 import {
-  createFacilityFilterState,
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
+import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import type {
   FacilitySymbolShape,
   RegionBoundaryLayerStyle,
@@ -80,11 +80,9 @@ export function getDirectPointHitsAtPixel(
   regionsByName: Map<string, RegionStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
-  facilitySearchQuery: string,
+  facilityFilters: FacilityFilterState,
 ): FeatureLike[] {
-  const facilityFilters = getFacilityFilterDefinitions(
-    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
-  );
+  const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const hits = map.getFeaturesAtPixel(pixel, {
     hitTolerance: 0,
     layerFilter: (layerCandidate) =>
@@ -103,7 +101,7 @@ export function getDirectPointHitsAtPixel(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
-      facilityFilters,
+      filterDefinitions,
     );
     return distance <= radius + 0.75;
   });
@@ -117,18 +115,16 @@ export function expandPointHitCluster(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   clickPixel: number[],
-  facilitySearchQuery: string,
+  facilityFilters: FacilityFilterState,
 ): FeatureLike[] {
-  const facilityFilters = getFacilityFilterDefinitions(
-    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
-  );
+  const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const candidates = collectVisiblePointCandidates(
     map,
     pointLayers,
     regionsByName,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilityFilters,
+    filterDefinitions,
   );
   const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seeds: PointSelectionCandidate[] = [];
@@ -141,7 +137,7 @@ export function expandPointHitCluster(
       regionsByName,
       facilitySymbolShape,
       facilitySymbolSize,
-      facilityFilters,
+      filterDefinitions,
     );
     if (!candidate || selected.has(candidate.key)) continue;
     seeds.push(candidate);
@@ -194,7 +190,7 @@ export function collectPointTooltipEntries(params: {
     coordinate: [number, number],
     activeViewPreset: ViewPresetId,
   ) => string | null;
-  facilitySearchQuery: string;
+  facilityFilters: FacilityFilterState;
 }): PointTooltipEntry[] {
   const {
     features,
@@ -203,18 +199,16 @@ export function collectPointTooltipEntries(params: {
     activeViewPreset,
     getBoundaryNameAtCoordinate,
     getJmcNameAtCoordinate,
-    facilitySearchQuery,
+    facilityFilters,
   } = params;
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
   const regionsByName = new Map(regions.map((region) => [region.name, region]));
-  const facilityFilters = getFacilityFilterDefinitions(
-    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
-  );
+  const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
 
   for (const feature of features) {
     const facility = getFacilityRecord(feature);
-    if (!matchesFacilityFilters(facility, facilityFilters)) continue;
+    if (!matchesFacilityFilters(facility, filterDefinitions)) continue;
     const name = facility.displayName;
     if (!name) continue;
 

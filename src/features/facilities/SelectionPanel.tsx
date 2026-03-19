@@ -2,7 +2,9 @@ import { PmcPanel } from '../groups/PmcPanel';
 import { useAppStore } from '../../store/appStore';
 
 export function SelectionPanel() {
-  const facilitySearchQuery = useAppStore((state) => state.facilitySearchQuery);
+  const facilitySearchQuery = useAppStore(
+    (state) => state.facilityFilters.searchQuery,
+  );
   const setFacilitySearchQuery = useAppStore(
     (state) => state.setFacilitySearchQuery,
   );

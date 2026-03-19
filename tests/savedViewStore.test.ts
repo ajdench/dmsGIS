@@ -66,6 +66,9 @@ function createTestSavedView(id: string, name: string) {
         symbolSize: 3.5,
         filters: {
           searchQuery: '',
+          regions: [],
+          types: [],
+          defaultVisibility: 'all',
         },
       },
       selection: {

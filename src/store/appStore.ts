@@ -16,8 +16,12 @@ import {
   getScenarioOutlineLayerConfig,
   isScenarioPreset,
 } from '../lib/config/viewPresets';
+import { createFacilityFilterState } from '../lib/facilityFilters';
 import { createMapSessionState } from '../lib/savedViews';
-import { parseFacilityProperties } from '../lib/schemas/facilities';
+import {
+  parseFacilityProperties,
+  type FacilityFilterState,
+} from '../lib/schemas/facilities';
 import type {
   MapSessionState,
   MapViewportState,
@@ -32,7 +36,7 @@ interface ViewPresetState {
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
-  facilitySearchQuery?: string;
+  facilityFilters?: FacilityFilterState;
   basemap: BasemapSettings;
 }
 
@@ -43,7 +47,7 @@ interface AppState {
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
-  facilitySearchQuery: string;
+  facilityFilters: FacilityFilterState;
   basemap: BasemapSettings;
   activeViewPreset: ViewPresetId;
   currentViewPresetState: ViewPresetState | null;
@@ -106,6 +110,12 @@ interface AppState {
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
   setFacilitySearchQuery: (query: string) => void;
+  setFacilityFilterRegions: (regions: string[]) => void;
+  setFacilityFilterTypes: (types: string[]) => void;
+  setFacilityDefaultVisibilityFilter: (
+    value: FacilityFilterState['defaultVisibility'],
+  ) => void;
+  resetFacilityFilters: () => void;
   setMapViewport: (viewport: MapViewportState) => void;
   setSelection: (selection: Partial<SelectionState>) => void;
   setOverlayLayerVisibility: (id: string, visible: boolean) => void;
@@ -125,7 +135,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   regionGlobalOpacity: 1,
   facilitySymbolShape: 'circle',
   facilitySymbolSize: 3.5,
-  facilitySearchQuery: '',
+  facilityFilters: createFacilityFilterState(),
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
   currentViewPresetState: null,
@@ -193,7 +203,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
             facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
             facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
-            facilitySearchQuery: currentViewPresetState.facilitySearchQuery ?? '',
+            facilityFilters: createFacilityFilterState(
+              currentViewPresetState.facilityFilters,
+            ),
             basemap: { ...currentViewPresetState.basemap },
           }
         : createScenarioViewPresetState(currentViewPresetState, preset);
@@ -206,7 +218,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       regionGlobalOpacity: nextState.regionGlobalOpacity,
       facilitySymbolShape: nextState.facilitySymbolShape,
       facilitySymbolSize: nextState.facilitySymbolSize,
-      facilitySearchQuery: nextState.facilitySearchQuery,
+      facilityFilters: createFacilityFilterState(nextState.facilityFilters),
       basemap: { ...nextState.basemap },
       selection: createDefaultSelectionState(),
     });
@@ -214,7 +226,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   resetActiveViewPreset: () => {
     get().activateViewPreset(get().activeViewPreset);
     set({
-      facilitySearchQuery: '',
+      facilityFilters: createFacilityFilterState(),
       selection: createDefaultSelectionState(),
       notice: 'Reset active view preset',
     });
@@ -362,7 +374,35 @@ export const useAppStore = create<AppState>((set, get) => ({
         })),
       };
     }),
-  setFacilitySearchQuery: (query) => set({ facilitySearchQuery: query }),
+  setFacilitySearchQuery: (query) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        searchQuery: query,
+      }),
+    })),
+  setFacilityFilterRegions: (regions) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        regions,
+      }),
+    })),
+  setFacilityFilterTypes: (types) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        types,
+      }),
+    })),
+  setFacilityDefaultVisibilityFilter: (value) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        defaultVisibility: value,
+      }),
+    })),
+  resetFacilityFilters: () => set({ facilityFilters: createFacilityFilterState() }),
   setMapViewport: (viewport) => set({ mapViewport: viewport }),
   setSelection: (selection) =>
     set((state) => ({
@@ -433,9 +473,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       regionGlobalOpacity: state.regionGlobalOpacity,
       facilitySymbolShape: state.facilitySymbolShape,
       facilitySymbolSize: state.facilitySymbolSize,
-      facilityFilters: {
-        searchQuery: state.facilitySearchQuery,
-      },
+      facilityFilters: state.facilityFilters,
       selection: state.selection,
     });
   },
@@ -450,7 +488,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       regionGlobalOpacity: session.regionGlobalOpacity,
       facilitySymbolShape: session.facilities.symbolShape,
       facilitySymbolSize: session.facilities.symbolSize,
-      facilitySearchQuery: session.facilities.filters.searchQuery,
+      facilityFilters: createFacilityFilterState(session.facilities.filters),
       selection: {
         facilityIds: [...session.selection.facilityIds],
         boundaryName: session.selection.boundaryName,
@@ -652,7 +690,7 @@ function createViewPresetState({
     regionGlobalOpacity: 1,
     facilitySymbolShape: 'circle',
     facilitySymbolSize: 3.5,
-    facilitySearchQuery: '',
+    facilityFilters: createFacilityFilterState(),
     basemap: createDefaultBasemapSettings(),
   };
 }
@@ -668,7 +706,7 @@ function createScenarioViewPresetState(
     regionGlobalOpacity: source.regionGlobalOpacity,
     facilitySymbolShape: source.facilitySymbolShape,
     facilitySymbolSize: source.facilitySymbolSize,
-    facilitySearchQuery: source.facilitySearchQuery ?? '',
+    facilityFilters: createFacilityFilterState(source.facilityFilters),
     basemap: { ...source.basemap },
   };
 }

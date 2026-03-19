@@ -34,6 +34,11 @@ export type FacilityProperties = z.infer<typeof facilityPropertiesSchema>;
 
 export const facilityFilterStateSchema = z.object({
   searchQuery: z.string().catch(''),
+  regions: z.array(z.string().trim().min(1)).catch([]),
+  types: z.array(z.string().trim().min(1)).catch([]),
+  defaultVisibility: z
+    .enum(['all', 'default-visible', 'non-default-visible'])
+    .catch('all'),
 });
 
 export type FacilityFilterState = z.infer<typeof facilityFilterStateSchema>;

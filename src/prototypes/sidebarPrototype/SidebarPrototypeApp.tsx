@@ -23,6 +23,7 @@ import {
   PrototypeMetricPill,
   PrototypePopover,
   type PrototypeShape,
+  type SwatchStop,
   PrototypeShapePicker,
   PrototypeSliderControl,
   PrototypeStaticRow,
@@ -62,6 +63,26 @@ function buildInitialRegionStyles() {
   return Object.fromEntries(
     REGION_ROWS.map((region) => [region, { ...INITIAL_FACILITY_STYLE }]),
   ) as Record<string, RegionStyleState>;
+}
+
+function getMixedRegionColors(
+  regionStyles: Record<string, RegionStyleState>,
+  key: 'color' | 'borderColor',
+) {
+  const opacityKey = key === 'color' ? 'opacity' : 'borderOpacity';
+  const colors = Array.from(
+    new Map(
+      Object.values(regionStyles).map((style) => [
+        `${style[key]}|${style[opacityKey]}`,
+        {
+          color: style[key],
+          opacity: style[opacityKey],
+        },
+      ]),
+    ).values(),
+  );
+
+  return colors.length > 1 ? colors : undefined;
 }
 
 export function SidebarPrototypeApp() {
@@ -116,6 +137,11 @@ export function SidebarPrototypeApp() {
   const [openRegionPopover, setOpenRegionPopover] = useState<string | null>(null);
   const [regionStyles, setRegionStyles] =
     useState<Record<string, RegionStyleState>>(buildInitialRegionStyles);
+  const mixedFacilityColors = getMixedRegionColors(regionStyles, 'color');
+  const mixedFacilityBorderColors = getMixedRegionColors(
+    regionStyles,
+    'borderColor',
+  );
 
   const applyFacilityStyle = <K extends RegionStyleKey>(
     key: K,
@@ -253,6 +279,8 @@ export function SidebarPrototypeApp() {
                   onEnabledToggle={() => toggleKey('pmc', setSectionEnabled)}
                   badge={`${Math.round(facilityOpacity * 100)}%`}
                   badgeSwatch={facilityColor}
+                  badgeSwatchOpacity={facilityOpacity}
+                  badgeSwatchMix={mixedFacilityColors}
                 >
                   <PrototypeControlField label="Shape">
                     <PrototypeShapePicker
@@ -276,6 +304,8 @@ export function SidebarPrototypeApp() {
                     id="pmc-colour"
                     label="Colour"
                     value={facilityColor}
+                    opacityPreview={facilityOpacity}
+                    mixedSwatches={mixedFacilityColors}
                     onChange={(color) => setFacilityStyle('color', color)}
                   />
 
@@ -290,6 +320,8 @@ export function SidebarPrototypeApp() {
                     id="pmc-border-colour"
                     label="Border colour"
                     value={facilityBorderColor}
+                    opacityPreview={facilityBorderOpacity}
+                    mixedSwatches={mixedFacilityBorderColors}
                     onChange={(borderColor) =>
                       setFacilityStyle('borderColor', borderColor)
                     }
@@ -440,11 +472,15 @@ interface PrototypePanelProps {
 interface PrototypeSectionProps extends PrototypePanelProps {
   badge?: string;
   badgeSwatch?: string;
+  badgeSwatchOpacity?: number;
+  badgeSwatchMix?: SwatchStop[];
 }
 
 interface PrototypeColourOpacityFieldsProps {
   colourId: string;
   colourValue: string;
+  colourOpacity?: number;
+  colourMix?: SwatchStop[];
   opacityId: string;
   opacityValue: number;
   onOpacityChange: (value: number) => void;
@@ -570,6 +606,8 @@ function PrototypeSection({
   title,
   badge,
   badgeSwatch,
+  badgeSwatchOpacity,
+  badgeSwatchMix,
   enabled,
   onEnabledToggle,
   children,
@@ -580,6 +618,8 @@ function PrototypeSection({
       title={title}
       badge={badge}
       badgeSwatch={badgeSwatch}
+      badgeSwatchOpacity={badgeSwatchOpacity}
+      badgeSwatchMix={badgeSwatchMix}
       enabled={enabled}
       onEnabledToggle={onEnabledToggle}
       level="subpane"
@@ -592,13 +632,21 @@ function PrototypeSection({
 function PrototypeColourOpacityFields({
   colourId,
   colourValue,
+  colourOpacity,
+  colourMix,
   opacityId,
   opacityValue,
   onOpacityChange,
 }: PrototypeColourOpacityFieldsProps) {
   return (
     <>
-      <PrototypeColorField id={colourId} label="Colour" value={colourValue} />
+      <PrototypeColorField
+        id={colourId}
+        label="Colour"
+        value={colourValue}
+        opacityPreview={colourOpacity}
+        mixedSwatches={colourMix}
+      />
       <PrototypeSliderControl
         id={opacityId}
         label="Opacity"
@@ -630,10 +678,12 @@ function PrototypeSimpleSection({
       onEnabledToggle={onEnabledToggle}
       badge={`${Math.round(opacityValue * 100)}%`}
       badgeSwatch={section.colourValue}
+      badgeSwatchOpacity={opacityValue}
     >
       <PrototypeColourOpacityFields
         colourId={section.colourId}
         colourValue={section.colourValue}
+        colourOpacity={opacityValue}
         opacityId={section.opacityId}
         opacityValue={opacityValue}
         onOpacityChange={onOpacityChange}
@@ -672,6 +722,7 @@ function PrototypeRegionRow({
             <PrototypeMetricPill
               value={opacityValue}
               swatch={styleState.color}
+              swatchOpacity={styleState.opacity}
               swatchShape={styleState.shape}
               swatchBorderColor={styleState.borderColor}
               swatchBorderWidth={styleState.borderWidth}
@@ -716,6 +767,7 @@ function PrototypeRegionRow({
                 id={`${label}-colour`}
                 label="Colour"
                 value={styleState.color}
+                opacityPreview={styleState.opacity}
                 onChange={(color) =>
                   onStyleChange({
                     ...styleState,
@@ -743,6 +795,7 @@ function PrototypeRegionRow({
                 id={`${label}-border-colour`}
                 label="Colour"
                 value={styleState.borderColor}
+                opacityPreview={styleState.borderOpacity}
                 onChange={(borderColor) =>
                   onStyleChange({
                     ...styleState,

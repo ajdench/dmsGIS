@@ -63,9 +63,9 @@ import {
   findJmcNameAtCoordinate,
 } from './boundarySelection';
 import {
-  createFacilityFilterState,
   getFacilityFilterDefinitions,
 } from '../../lib/facilityFilters';
+import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import { useAppStore } from '../../store/appStore';
 
 export function MapWorkspace() {
@@ -74,11 +74,9 @@ export function MapWorkspace() {
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
-  const facilitySearchQuery = useAppStore((state) => state.facilitySearchQuery);
+  const facilityFilters = useAppStore((state) => state.facilityFilters);
   const mapViewport = useAppStore((state) => state.mapViewport);
-  const facilityFilters = getFacilityFilterDefinitions(
-    createFacilityFilterState({ searchQuery: facilitySearchQuery }),
-  );
+  const facilityFilterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
   const overlayLayers = useAppStore((state) => state.overlayLayers);
@@ -403,7 +401,7 @@ export function MapWorkspace() {
         regionBoundaryRefs: regionBoundaryRefs.current,
         facilitySymbolShape,
         facilitySymbolSize,
-        facilitySearchQuery,
+        facilityFilters,
         activeViewPreset,
         getJmcNameAtCoordinate: (coordinate, preset) =>
           findJmcNameAtCoordinate(
@@ -442,7 +440,7 @@ export function MapWorkspace() {
     regions,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
     activeViewPreset,
     setSelection,
   ]);
@@ -463,7 +461,7 @@ export function MapWorkspace() {
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
-          facilityFilters,
+          facilityFilterDefinitions,
         ),
     });
   }, [
@@ -471,7 +469,7 @@ export function MapWorkspace() {
     regions,
     facilitySymbolShape,
     facilitySymbolSize,
-    facilitySearchQuery,
+    facilityFilters,
   ]);
 
   return (
