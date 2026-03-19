@@ -120,6 +120,7 @@ Why this matters:
 - Boundary-layer styling now lives in `src/features/map/boundaryLayerStyles.ts`, with direct tests in `tests/boundaryLayerStyles.test.ts`.
 - Facility-layer styling now lives in `src/features/map/facilityLayerStyles.ts`, with direct tests in `tests/facilityLayerStyles.test.ts`.
 - Shared map color/symbol helpers now live in `src/features/map/mapStyleUtils.ts`.
+- Interaction coverage now also includes boundary-only tooltip hiding/reset behavior, scenario outline resolution, and filtered overlapping-point selection paths.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
 - Scenario assignment resolution is covered in `tests/scenarioAssignments.test.ts`.
@@ -137,7 +138,7 @@ The current production focus is map-core hardening and modularization, not new e
 
 Near-term production priorities:
 
-1. Add broader production interaction coverage around boundary-only clicks, scenario-specific outer-boundary highlighting, and filtered point paging.
+1. Treat the current map-core hardening pass as complete unless a fresh hotspot appears.
 2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Decide whether any remaining `MapWorkspace.tsx` helpers should be extracted, or whether the component is now small enough to stop.
+3. Continue production work in the next real domain area that matters, not by extracting for its own sake.
 4. Keep `npm run build` as the authoritative health check before describing the app as deployable.

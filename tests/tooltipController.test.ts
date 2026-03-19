@@ -70,4 +70,49 @@ describe('tooltipController', () => {
     expect(dom.prev.disabled).toBe(true);
     expect(dom.next.disabled).toBe(true);
   });
+
+  it('hides the tooltip and clears highlight state when no boundary is selected', () => {
+    const dom = createDomRefs();
+    let pointCleared = false;
+    let jmcCleared = false;
+    const selectedPointLayer = {
+      getSource: () => ({
+        clear() {
+          pointCleared = true;
+        },
+      }),
+      setStyle() {},
+    };
+    const selectedJmcBoundaryLayer = {
+      getSource: () => ({
+        clear() {
+          jmcCleared = true;
+        },
+      }),
+    };
+
+    renderDockedTooltip({
+      dom,
+      state: {
+        entries: [],
+        index: 0,
+        boundaryName: null,
+        jmcName: null,
+      },
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      selectedPointLayer: selectedPointLayer as never,
+      selectedJmcBoundaryLayer: selectedJmcBoundaryLayer as never,
+      setSelectedBoundaryForPoint() {},
+      syncSelectedJmcBoundaries() {},
+      setSelectedBoundaryState() {},
+      createSelectedPointStyle() {
+        return {};
+      },
+    });
+
+    expect(dom.root.classList.contains('map-tooltip-card--hidden')).toBe(true);
+    expect(pointCleared).toBe(true);
+    expect(jmcCleared).toBe(true);
+  });
 });

@@ -131,4 +131,85 @@ describe('singleClickSelection', () => {
     expect(result.pointEntries).toEqual([]);
     expect(result.boundaryFeature).toBe(boundaryFeature);
   });
+
+  it('filters overlapping point hits down to the searched facility for paging', () => {
+    const alphaFeature = new Feature({
+      id: 'FAC-1',
+      name: 'Alpha Clinic',
+      type: 'pmc-facility',
+      region: 'North',
+      default_visible: 1,
+      point_color_hex: '#64748b',
+      point_alpha: 1,
+      geometry: new Point([10, 20]),
+    });
+    const betaFeature = new Feature({
+      id: 'FAC-2',
+      name: 'Beta Clinic',
+      type: 'pmc-facility',
+      region: 'North',
+      default_visible: 1,
+      point_color_hex: '#64748b',
+      point_alpha: 1,
+      geometry: new Point([10, 20]),
+    });
+    const pointLayer = new VectorLayer({
+      source: new VectorSource({
+        features: [alphaFeature, betaFeature],
+      }),
+    });
+    const map = {
+      getFeaturesAtPixel: () => [alphaFeature, betaFeature],
+      getPixelFromCoordinate: (coordinate: [number, number]) => coordinate,
+    };
+
+    const result = resolveSingleClickSelection({
+      map: map as never,
+      pixel: [10, 20],
+      coordinate: [10, 20],
+      layers: [
+        {
+          id: 'facilities',
+          name: 'Facilities',
+          type: 'point',
+          path: 'data/facilities/facilities.geojson',
+          visible: true,
+          opacity: 1,
+        },
+      ],
+      regions: [
+        {
+          name: 'North',
+          visible: true,
+          color: '#a7c636',
+          opacity: 1,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
+      ],
+      overlayLayers: [],
+      layerRefs: new Map([['facilities', pointLayer]]),
+      regionBoundaryRefs: new Map(),
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      facilitySearchQuery: 'alpha',
+      activeViewPreset: 'current',
+      getJmcNameAtCoordinate: () => 'JMC North',
+    });
+
+    expect(result.boundaryFeature).toBeNull();
+    expect(result.pointEntries).toEqual([
+      {
+        facilityId: 'FAC-1',
+        facilityName: 'Alpha Clinic',
+        coordinate: [10, 20],
+        boundaryName: null,
+        hasVisibleBorder: false,
+        symbolSize: 3.5,
+        jmcName: 'JMC North',
+      },
+    ]);
+  });
 });

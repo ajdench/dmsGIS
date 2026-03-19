@@ -143,4 +143,5 @@ Current priority areas:
 - keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
 - prefer broader production interaction coverage around selection/highlight flows before adding remote persistence or export polish
+- treat the current map-core modularization pass as complete enough to stop unless a new hotspot or regression appears
 - keep prototype-sidebar work isolated until it is explicitly promoted

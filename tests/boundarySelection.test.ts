@@ -3,6 +3,7 @@ import Feature from 'ol/Feature';
 import Polygon from 'ol/geom/Polygon';
 import VectorSource from 'ol/source/Vector';
 import {
+  getSelectedJmcOutlineFeatures,
   findJmcNameAtCoordinate,
   findJmcNameForBoundarySelection,
   getBoundaryName,
@@ -54,5 +55,44 @@ describe('boundarySelection', () => {
         'coa3c',
       ),
     ).toBe('COA 3b London and East');
+  });
+
+  it('resolves scenario outline features by selected scenario region name', () => {
+    const scenarioBoundarySource = new VectorSource({
+      features: [
+        new Feature({
+          geometry: new Polygon([[
+            [0, 0],
+            [10, 0],
+            [10, 10],
+            [0, 10],
+            [0, 0],
+          ]]),
+          region_name: 'JMC Centre',
+          boundary_name: 'NHS Birmingham and Solihull Integrated Care Board',
+        }),
+        new Feature({
+          geometry: new Polygon([[
+            [10, 0],
+            [20, 0],
+            [20, 10],
+            [10, 10],
+            [10, 0],
+          ]]),
+          region_name: 'JMC Centre',
+          boundary_name: 'NHS Black Country Integrated Care Board',
+        }),
+      ],
+    });
+
+    const outlines = getSelectedJmcOutlineFeatures(
+      [5, 5],
+      'COA 3b Midlands',
+      'coa3c',
+      scenarioBoundarySource,
+      null,
+    );
+
+    expect(outlines).toHaveLength(2);
   });
 });

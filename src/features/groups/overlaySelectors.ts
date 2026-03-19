@@ -58,11 +58,12 @@ export function getOverlaySectionsForPanel(
   layers: OverlayLayerStyle[],
   activeViewPreset: ViewPresetId,
 ): OverlayPanelSection[] {
-  if (activeViewPreset !== 'current') {
+  const families = getOverlayFamiliesForPanel(activeViewPreset, layers);
+  if (families.length === 0) {
     return [];
   }
 
-  return buildOverlaySections(layers, ['boardBoundaries']);
+  return buildOverlaySections(layers, families);
 }
 
 export function getOverlayLayersForPanel(
@@ -102,20 +103,33 @@ export function getOverlayFamilyOrder(
 
 export function getOverlayFamiliesForPanel(
   activeViewPreset: ViewPresetId,
+  layers: OverlayLayerStyle[] = [],
 ): OverlayFamily[] {
   if (activeViewPreset !== 'current') {
     return [];
   }
 
-  return ['boardBoundaries'];
+  const preferredFamilies: OverlayFamily[] = [
+    'boardBoundaries',
+    'nhsRegions',
+    'customRegions',
+  ];
+  const availableFamilies = new Set(layers.map((layer) => layer.family));
+
+  return preferredFamilies.filter((family) => availableFamilies.has(family));
 }
 
 export function getOverlayPanelEmptyState(
   activeViewPreset: ViewPresetId,
+  sectionCount = 0,
 ): string | null {
-  if (activeViewPreset === 'current') {
+  if (sectionCount > 0) {
     return null;
   }
 
-  return null;
+  if (activeViewPreset === 'current') {
+    return 'No overlay datasets are available';
+  }
+
+  return 'Additional overlay controls are not available for this preset yet';
 }

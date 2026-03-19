@@ -26,7 +26,10 @@ export function OverlayPanel() {
   );
 
   const panelSections = getOverlaySectionsForPanel(overlayLayers, activeViewPreset);
-  const emptyState = getOverlayPanelEmptyState(activeViewPreset);
+  const emptyState = getOverlayPanelEmptyState(
+    activeViewPreset,
+    panelSections.length,
+  );
 
   return (
     <section className="panel panel--regions">

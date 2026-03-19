@@ -59,8 +59,11 @@ describe('overlay selectors', () => {
     ]);
   });
 
-  it('keeps the overlays panel on current board overlays only', () => {
-    expect(getOverlayLayersForPanel(OVERLAYS, 'current')).toEqual([OVERLAYS[0]]);
+  it('keeps the overlays panel data-driven for current overlay families only', () => {
+    expect(getOverlayLayersForPanel(OVERLAYS, 'current')).toEqual([
+      OVERLAYS[0],
+      OVERLAYS[2],
+    ]);
     expect(getOverlayLayersForPanel(OVERLAYS, 'coa3a')).toEqual([]);
   });
 
@@ -71,6 +74,12 @@ describe('overlay selectors', () => {
         title: 'Board Boundaries',
         showWhenEmpty: false,
         layers: [OVERLAYS[0]],
+      },
+      {
+        family: 'nhsRegions',
+        title: 'NHS Regions',
+        showWhenEmpty: false,
+        layers: [OVERLAYS[2]],
       },
     ]);
     expect(getOverlaySectionsForPanel(OVERLAYS, 'coa3b')).toEqual([]);
@@ -84,9 +93,16 @@ describe('overlay selectors', () => {
       showWhenEmpty: false,
     });
     expect(getOverlayFamilyOrder('customRegions')).toBe(4);
-    expect(getOverlayFamiliesForPanel('current')).toEqual(['boardBoundaries']);
+    expect(getOverlayFamiliesForPanel('current', OVERLAYS)).toEqual([
+      'boardBoundaries',
+      'nhsRegions',
+    ]);
     expect(getOverlayFamiliesForPanel('coa3a')).toEqual([]);
-    expect(getOverlayPanelEmptyState('current')).toBeNull();
-    expect(getOverlayPanelEmptyState('coa3c')).toBeNull();
+    expect(getOverlayPanelEmptyState('current', 0)).toBe(
+      'No overlay datasets are available',
+    );
+    expect(getOverlayPanelEmptyState('coa3c', 0)).toBe(
+      'Additional overlay controls are not available for this preset yet',
+    );
   });
 });

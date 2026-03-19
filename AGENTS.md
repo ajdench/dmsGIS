@@ -143,6 +143,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Facility-layer styling now routes through `src/features/map/facilityLayerStyles.ts`.
   - Shared point-symbol/color helpers now route through `src/features/map/mapStyleUtils.ts`.
   - Activating a different production preset now clears the transient live selection state before the new preset view is shown.
+  - Production interaction coverage now also includes boundary-only tooltip hiding/reset behavior, scenario outline resolution, and filtered overlapping-point selection paths.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
@@ -179,19 +180,16 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Add broader production interaction coverage.
-   Highest-value next cases are boundary-only clicks, scenario-specific outer-boundary highlight resolution, and filtered point paging behavior.
+1. Treat the current `MapWorkspace` hardening/modularization pass as complete unless a new bounded hotspot appears.
 2. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
-3. Decide whether to keep extracting from `src/features/map/MapWorkspace.tsx` or stop.
-   The remaining code is much smaller now, so only extract more if a bounded responsibility still reads as implementation rather than orchestration.
-4. Extend the facility filter/domain model only when a production workflow needs it.
+3. Extend the facility filter/domain model only when a production workflow needs it.
    Region/type/default-state filters, export field definitions, and saved-filter state should stay in the shared domain layer rather than ad hoc UI code.
-5. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
+4. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
-6. Add a production Docker path once the current map/runtime hardening phase is complete.
-7. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
-8. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+5. Add a production Docker path once the current map/runtime hardening phase is complete.
+6. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
+7. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 
