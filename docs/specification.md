@@ -16,8 +16,8 @@ The application is a browser-based mapping tool focused on:
 - grouping and filtering facilities through a simple GUI
 - assigning facilities to custom logic sets and regional schemes
 - controlling labels, placement offsets, and visibility rules
-- saving named map configurations to a GitHub-backed store
-- reopening saved configurations from a repository-backed list
+- saving named map configurations locally first, with a clean upgrade path to a GitHub-backed store
+- reopening saved configurations from a local browser-backed list first, then from future repository-backed lists
 - exporting static map images for documentation or reporting
 
 ## 3. Design principles
@@ -47,8 +47,12 @@ The application is a browser-based mapping tool focused on:
 - Hosting: GitHub Pages
 - Map engine: OpenLayers
 - Data delivery: static GeoJSON / TopoJSON / JSON manifests
-- Configuration persistence: GitHub repository commits via a small serverless write service or GitHub API proxy
-- Read path: direct fetch from repository contents or generated manifests
+- Configuration persistence:
+  - current: browser-local saved views via a schema-backed local storage boundary
+  - future: GitHub repository commits via a small serverless write service or GitHub API proxy
+- Read path:
+  - current: local browser storage through the same saved-view contract
+  - future: direct fetch from repository contents or generated manifests
 - Export: client-side raster export from current map canvas
 
 ## 6. Core functional requirements
@@ -85,6 +89,10 @@ Current implementation direction:
 - Storage and authentication should remain separate concerns from the saved-state schema:
   - local/static persistence can use the same contract first
   - authenticated profile storage can adopt the same contract later
+- Current production path:
+  - top-bar `Open` and `Save` actions open an in-app saved-views dialog
+  - the dialog uses a schema-backed local `SavedViewStore`
+  - save/open/delete flows are intentionally local-only at this stage
 - Persisted session content should cover:
   - active scenario/preset
   - viewport
@@ -115,8 +123,9 @@ Current implementation direction:
 
 ### Phase 3
 - Save/open integration
+- Local saved-view dialog and browser-backed persistence
 - Manifest browsing
-- Serverless persistence
+- Serverless/repository persistence
 
 ### Phase 4
 - Export polish

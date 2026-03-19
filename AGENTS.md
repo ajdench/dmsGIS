@@ -87,6 +87,9 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - `UserSavedView` adds ownership
   - `ShareableSavedView` adds share policy
   - the model is schema-versioned now, but storage/auth implementation is intentionally still separate
+- A local browser-backed saved-view storage boundary now exists in `src/lib/services/savedViewStore.ts`, with schema-backed list/save/get/delete helpers routed through `src/lib/browser/savedViewActions.ts`.
+- The production `TopBar` now opens an in-app saved-views dialog (`src/components/layout/SavedViewsDialog.tsx`) for local save/open/delete flows instead of using browser prompts.
+- Store snapshot/apply support now exists for saved views: production state includes saved-view dialog mode, map viewport state, current selection state, and schema-backed map-session snapshot/apply helpers in `src/store/appStore.ts`.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -158,18 +161,18 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - CSS: global styles imported through `src/main.tsx` (no direct link in `index.html`).
 - Playwright: `playwright.config.ts` boots Vite on port `4180`; e2e checks app shell visibility via role-based locators.
 - Tests: `tests/appStore.test.ts` covers PMC global opacity broadcast, global size propagation with per-region override, and boundary layer opacity clamping.
-- Tests also cover shared preset config, extracted point/boundary/tooltip modules, overlay-family classification for current vs scenario boundary layers, and the saved-view domain contract.
+- Tests also cover shared preset config, extracted point/boundary/tooltip modules, overlay-family classification for current vs scenario boundary layers, the saved-view domain contract, local saved-view storage, and saved-view action helpers.
 
 ## Next steps
 
-1. Add a storage abstraction for saved states and saved filters.
-   Start with a local/static implementation boundary so profile-backed persistence and sharing can be added later without rewriting UI or map code.
+1. Extend the saved-view storage abstraction beyond local browser storage.
+   Keep the current local/static implementation boundary, then add richer saved-view management and future repository/profile-backed storage without rewriting UI or map code.
    Concretely:
-   - define `SavedViewStore` and `SavedFilterStore` interfaces in production code
-   - support list/get/save/delete operations separately from UI components
-   - add a local in-browser implementation first for deterministic development and testing
-   - keep repository/serverless implementations behind the same interface
-   - make schema validation mandatory at the store boundary, not optional in callers
+   - keep `SavedViewStore` as the stable boundary for production UI code
+   - add rename/edit-description support on top of the existing dialog flow
+   - decide whether saved filters should reuse this storage path or live behind a parallel store
+   - add repository/serverless implementations behind the same interface
+   - keep schema validation mandatory at the store boundary, not optional in callers
 2. Extend the facility filter model beyond text search.
    Add typed metadata facets, export-field definitions, saved-filter state, and filter presets so future facility workflows stay in the same domain layer.
    Concretely:
@@ -212,11 +215,11 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
    - cover scenario-specific outer-boundary highlight resolution
    - cover facility filtering interaction with point selection and paging
 8. Add an end-to-end test slice for core user workflows.
-   Focus on scenario switching, facility search/filtering, boundary selection, point paging, and saved-state restore once persistence exists.
+   Focus on scenario switching, facility search/filtering, boundary selection, point paging, and the local saved-view dialog/restore flow.
    Concretely:
    - keep the first slice small and deterministic
    - cover one happy path per major workflow before broadening matrix coverage
-   - add saved/open workflow checks only after the storage abstraction exists
+   - add a saved/open/delete workflow check against local browser storage before layering in remote persistence
 9. Add a production Docker path for the static app.
    Use a multi-stage build with compiled Vite assets and a minimal static web server image, with explicit version pinning and a clear upgrade path.
    Concretely:
@@ -228,7 +231,7 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
    Region style choices, scenario selection, overlay visibility, and facility filter state should be treated explicitly rather than incidentally.
    Concretely:
    - separate convenience persistence from formal saved views
-   - decide what is auto-restored locally vs only restored from explicit saved views
+   - decide what is auto-restored locally vs only restored from explicit saved views and explicit dialog actions
    - keep this policy documented before wiring local storage behavior
 11. Add a lightweight auth abstraction before real authentication.
    Define the frontend-facing contract for user identity, access to saved views, and shared-view permissions before choosing a provider.
