@@ -139,6 +139,9 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Viewport apply/read synchronization now routes through `src/features/map/viewportSync.ts`.
   - Runtime layer reconciliation now routes through `src/features/map/runtimeLayerReconciliation.ts`.
   - Overlay boundary-layer reconciliation now routes through `src/features/map/overlayBoundaryReconciliation.ts`.
+  - Boundary-layer styling now routes through `src/features/map/boundaryLayerStyles.ts`.
+  - Facility-layer styling now routes through `src/features/map/facilityLayerStyles.ts`.
+  - Shared point-symbol/color helpers now route through `src/features/map/mapStyleUtils.ts`.
   - Activating a different production preset now clears the transient live selection state before the new preset view is shown.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
@@ -176,12 +179,12 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extract the remaining style/render rule helpers from `src/features/map/MapWorkspace.tsx`.
-   Start with region-boundary styling and facility-layer styling so `MapWorkspace` keeps moving toward orchestration-only code.
-2. Add broader production interaction coverage.
+1. Add broader production interaction coverage.
    Highest-value next cases are boundary-only clicks, scenario-specific outer-boundary highlight resolution, and filtered point paging behavior.
-3. Keep future overlay lookup products generic.
+2. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
+3. Decide whether to keep extracting from `src/features/map/MapWorkspace.tsx` or stop.
+   The remaining code is much smaller now, so only extract more if a bounded responsibility still reads as implementation rather than orchestration.
 4. Extend the facility filter/domain model only when a production workflow needs it.
    Region/type/default-state filters, export field definitions, and saved-filter state should stay in the shared domain layer rather than ad hoc UI code.
 5. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.

@@ -1,7 +1,7 @@
 .prototype-app-shell {
   --prototype-control-rail-height: calc(var(--control-height-sm) - 4px);
   --prototype-control-rail-font-size: var(--font-size-control-title);
-  --prototype-control-rail-compact-font-size: var(--font-size-control-compact);
+  --prototype-control-rail-compact-font-size: 0.76rem;
   --prototype-control-rail-numeric-font-size: var(--font-size-control-numeric);
   --prototype-pane-title-font-size: var(--font-size-control-title);
   --prototype-pane-subtitle-font-size: var(--font-size-control-subtitle);
@@ -12,6 +12,10 @@
   --prototype-control-text-offset-y: 1px;
   --prototype-control-swatch-size: var(--space-4);
   --prototype-control-swatch-radius: 999px;
+  --prototype-slider-button-font-size: var(--font-size-small);
+  --prototype-slider-input-font-size: 0.8rem;
+  --prototype-slider-symbol-scale: 0.94;
+  --prototype-slider-minus-extra-scale: 1.12;
   background:
     radial-gradient(circle at top left, rgba(201, 213, 225, 0.4), transparent 22rem),
     var(--canvas-bg);
@@ -32,6 +36,24 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(100vh - (2 * var(--workspace-gap)) - var(--topbar-height));
+}
+
+.prototype-app-shell .slider-value__button {
+  font-size: var(--prototype-slider-button-font-size);
+}
+
+.prototype-app-shell .slider-value__input {
+  font-size: var(--prototype-slider-input-font-size);
+}
+
+.prototype-app-shell .slider-value__symbol {
+  font-size: calc(1em * var(--prototype-slider-symbol-scale));
+}
+
+.prototype-app-shell .slider-value__symbol--minus {
+  font-size: calc(
+    1em * var(--prototype-slider-symbol-scale) * var(--prototype-slider-minus-extra-scale)
+  );
 }
 
 .prototype-app-shell,
@@ -190,7 +212,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 400;
   font-size: var(--prototype-control-rail-compact-font-size);
   display: inline-flex;
   align-items: center;
@@ -236,6 +258,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: var(--font-size-control-numeric);
   text-align: center;
   white-space: nowrap;
   line-height: var(--prototype-control-rail-line-height);
@@ -523,6 +546,16 @@
 }
 
 .prototype-popover__content {
+  display: grid;
+  gap: var(--space-y-optical);
+}
+
+.prototype-control-section {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.prototype-control-section__content {
   display: grid;
   gap: var(--space-y-optical);
 }

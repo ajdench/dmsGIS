@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { PrototypeAccordion, PrototypeAccordionItem } from './PrototypeAccordion';
 import {
+  BASEMAP_SIMPLE_SECTIONS,
   buildInitialRegionEnabled,
   DEFAULT_BASEMAP_SECTIONS,
   DEFAULT_FACILITY_SECTIONS,
@@ -11,12 +12,14 @@ import {
   INITIAL_OVERLAY_ROW_ENABLED,
   INITIAL_PANE_ENABLED,
   INITIAL_SECTION_ENABLED,
+  LABEL_SIMPLE_SECTIONS,
   OVERLAY_ROWS,
   REGION_ROWS,
 } from './data';
 import {
   PrototypeColorField,
   PrototypeControlField,
+  PrototypeControlSection,
   PrototypeMetricPill,
   PrototypePopover,
   type PrototypeShape,
@@ -35,6 +38,15 @@ interface RegionStyleState {
   borderWidth: number;
   borderOpacity: number;
 }
+
+type RegionStyleKey =
+  | 'shape'
+  | 'size'
+  | 'opacity'
+  | 'color'
+  | 'borderColor'
+  | 'borderWidth'
+  | 'borderOpacity';
 
 const INITIAL_FACILITY_STYLE: RegionStyleState = {
   shape: 'circle',
@@ -104,6 +116,48 @@ export function SidebarPrototypeApp() {
   const [openRegionPopover, setOpenRegionPopover] = useState<string | null>(null);
   const [regionStyles, setRegionStyles] =
     useState<Record<string, RegionStyleState>>(buildInitialRegionStyles);
+
+  const applyFacilityStyle = <K extends RegionStyleKey>(
+    key: K,
+    value: RegionStyleState[K],
+  ) => {
+    setRegionStyles((current) =>
+      applyGlobalStyleChange(current, {
+        [key]: value,
+      } as Partial<RegionStyleState>),
+    );
+  };
+
+  const setFacilityStyle = <K extends RegionStyleKey>(
+    key: K,
+    value: RegionStyleState[K],
+  ) => {
+    switch (key) {
+      case 'shape':
+        setFacilityShape(value as PrototypeShape);
+        break;
+      case 'size':
+        setFacilitySymbolSize(value as number);
+        break;
+      case 'opacity':
+        setFacilityOpacity(value as number);
+        break;
+      case 'color':
+        setFacilityColor(value as string);
+        break;
+      case 'borderColor':
+        setFacilityBorderColor(value as string);
+        break;
+      case 'borderWidth':
+        setFacilityBorderWidth(value as number);
+        break;
+      case 'borderOpacity':
+        setFacilityBorderOpacity(value as number);
+        break;
+    }
+
+    applyFacilityStyle(key, value);
+  };
   const resetPrototypeState = () => {
     setOpenPanes(DEFAULT_OPEN_PANES);
     setOpenBasemapSections(DEFAULT_BASEMAP_SECTIONS);
@@ -165,16 +219,12 @@ export function SidebarPrototypeApp() {
                   badge={`${Math.round(landOpacity * 100)}%`}
                   badgeSwatch="#ecf0e6"
                 >
-                  <PrototypeColorField
-                    id="land-colour"
-                    label="Colour"
-                    value="#ecf0e6"
-                  />
-                  <PrototypeSliderControl
-                    id="land-opacity"
-                    label="Opacity"
-                    value={landOpacity}
-                    onChange={setLandOpacity}
+                  <PrototypeColourOpacityFields
+                    colourId="land-colour"
+                    colourValue="#ecf0e6"
+                    opacityId="land-opacity"
+                    opacityValue={landOpacity}
+                    onOpacityChange={setLandOpacity}
                   />
                 </PrototypeSection>
 
@@ -186,16 +236,12 @@ export function SidebarPrototypeApp() {
                   badge={`${Math.round(seaOpacity * 100)}%`}
                   badgeSwatch="#d9e7f5"
                 >
-                  <PrototypeColorField
-                    id="sea-colour"
-                    label="Colour"
-                    value="#d9e7f5"
-                  />
-                  <PrototypeSliderControl
-                    id="sea-opacity"
-                    label="Opacity"
-                    value={seaOpacity}
-                    onChange={setSeaOpacity}
+                  <PrototypeColourOpacityFields
+                    colourId="sea-colour"
+                    colourValue="#d9e7f5"
+                    opacityId="sea-opacity"
+                    opacityValue={seaOpacity}
+                    onOpacityChange={setSeaOpacity}
                   />
                 </PrototypeSection>
               </PrototypeAccordion>
@@ -228,14 +274,7 @@ export function SidebarPrototypeApp() {
                   <PrototypeControlField label="Shape">
                     <PrototypeShapePicker
                       value={facilityShape}
-                      onChange={(shape) => {
-                        setFacilityShape(shape);
-                        setRegionStyles((current) =>
-                          applyGlobalStyleChange(current, {
-                            shape,
-                          }),
-                        );
-                      }}
+                      onChange={(shape) => setFacilityStyle('shape', shape)}
                     />
                   </PrototypeControlField>
 
@@ -247,56 +286,30 @@ export function SidebarPrototypeApp() {
                     max={12}
                     step={0.5}
                     mode="raw"
-                    onChange={(size) => {
-                      setFacilitySymbolSize(size);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          size,
-                        }),
-                      );
-                    }}
+                    onChange={(size) => setFacilityStyle('size', size)}
                   />
 
                   <PrototypeColorField
                     id="pmc-colour"
                     label="Colour"
                     value={facilityColor}
-                    onChange={(color) => {
-                      setFacilityColor(color);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          color,
-                        }),
-                      );
-                    }}
+                    onChange={(color) => setFacilityStyle('color', color)}
                   />
 
                   <PrototypeSliderControl
                     id="pmc-opacity"
                     label="Opacity"
                     value={facilityOpacity}
-                    onChange={(opacity) => {
-                      setFacilityOpacity(opacity);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          opacity,
-                        }),
-                      );
-                    }}
+                    onChange={(opacity) => setFacilityStyle('opacity', opacity)}
                   />
 
                   <PrototypeColorField
                     id="pmc-border-colour"
                     label="Border colour"
                     value={facilityBorderColor}
-                    onChange={(borderColor) => {
-                      setFacilityBorderColor(borderColor);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          borderColor,
-                        }),
-                      );
-                    }}
+                    onChange={(borderColor) =>
+                      setFacilityStyle('borderColor', borderColor)
+                    }
                   />
 
                   <PrototypeSliderControl
@@ -307,28 +320,18 @@ export function SidebarPrototypeApp() {
                     max={6}
                     step={0.5}
                     mode="raw"
-                    onChange={(borderWidth) => {
-                      setFacilityBorderWidth(borderWidth);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          borderWidth,
-                        }),
-                      );
-                    }}
+                    onChange={(borderWidth) =>
+                      setFacilityStyle('borderWidth', borderWidth)
+                    }
                   />
 
                   <PrototypeSliderControl
                     id="pmc-border-opacity"
                     label="Border opacity"
                     value={facilityBorderOpacity}
-                    onChange={(borderOpacity) => {
-                      setFacilityBorderOpacity(borderOpacity);
-                      setRegionStyles((current) =>
-                        applyGlobalStyleChange(current, {
-                          borderOpacity,
-                        }),
-                      );
-                    }}
+                    onChange={(borderOpacity) =>
+                      setFacilityStyle('borderOpacity', borderOpacity)
+                    }
                   />
 
                   <div className="stack-col prototype-region-list">
@@ -378,45 +381,39 @@ export function SidebarPrototypeApp() {
               >
                 <PrototypeSection
                   id="country-labels"
-                  title="Country labels"
+                  title="Countries"
                   enabled={sectionEnabled['country-labels']}
                   onEnabledToggle={() =>
                     toggleKey('country-labels', setSectionEnabled)
                   }
                   badge={`${Math.round(countryLabelOpacity * 100)}%`}
+                  badgeSwatch="#0f172a"
                 >
-                  <PrototypeColorField
-                    id="country-label-colour"
-                    label="Colour"
-                    value="#0f172a"
-                  />
-                  <PrototypeSliderControl
-                    id="country-label-opacity"
-                    label="Opacity"
-                    value={countryLabelOpacity}
-                    onChange={setCountryLabelOpacity}
+                  <PrototypeColourOpacityFields
+                    colourId="country-label-colour"
+                    colourValue="#0f172a"
+                    opacityId="country-label-opacity"
+                    opacityValue={countryLabelOpacity}
+                    onOpacityChange={setCountryLabelOpacity}
                   />
                 </PrototypeSection>
 
                 <PrototypeSection
                   id="major-cities"
-                  title="Major cities"
+                  title="Cities"
                   enabled={sectionEnabled['major-cities']}
                   onEnabledToggle={() =>
                     toggleKey('major-cities', setSectionEnabled)
                   }
                   badge={`${Math.round(majorCityOpacity * 100)}%`}
+                  badgeSwatch="#1f2937"
                 >
-                  <PrototypeColorField
-                    id="major-city-colour"
-                    label="Colour"
-                    value="#1f2937"
-                  />
-                  <PrototypeSliderControl
-                    id="major-city-opacity"
-                    label="Opacity"
-                    value={majorCityOpacity}
-                    onChange={setMajorCityOpacity}
+                  <PrototypeColourOpacityFields
+                    colourId="major-city-colour"
+                    colourValue="#1f2937"
+                    opacityId="major-city-opacity"
+                    opacityValue={majorCityOpacity}
+                    onOpacityChange={setMajorCityOpacity}
                   />
                 </PrototypeSection>
               </PrototypeAccordion>
@@ -477,6 +474,14 @@ interface PrototypePanelProps {
 interface PrototypeSectionProps extends PrototypePanelProps {
   badge?: string;
   badgeSwatch?: string;
+}
+
+interface PrototypeColourOpacityFieldsProps {
+  colourId: string;
+  colourValue: string;
+  opacityId: string;
+  opacityValue: number;
+  onOpacityChange: (value: number) => void;
 }
 
 interface PrototypePresetRowProps {
@@ -610,6 +615,26 @@ function PrototypeSection({
   );
 }
 
+function PrototypeColourOpacityFields({
+  colourId,
+  colourValue,
+  opacityId,
+  opacityValue,
+  onOpacityChange,
+}: PrototypeColourOpacityFieldsProps) {
+  return (
+    <>
+      <PrototypeColorField id={colourId} label="Colour" value={colourValue} />
+      <PrototypeSliderControl
+        id={opacityId}
+        label="Opacity"
+        value={opacityValue}
+        onChange={onOpacityChange}
+      />
+    </>
+  );
+}
+
 function PrototypeRegionRow({
   label,
   enabled,
@@ -651,102 +676,102 @@ function PrototypeRegionRow({
           }
         >
           <div className="prototype-popover__content">
-            <div className="prototype-popover__section-title">Points</div>
+            <PrototypeControlSection title="Points">
+              <PrototypeControlField label="Shape">
+                <PrototypeShapePicker
+                  value={styleState.shape}
+                  onChange={(shape) =>
+                    onStyleChange({
+                      ...styleState,
+                      shape,
+                    })
+                  }
+                />
+              </PrototypeControlField>
 
-            <PrototypeControlField label="Shape">
-              <PrototypeShapePicker
-                value={styleState.shape}
-                onChange={(shape) =>
+              <PrototypeSliderControl
+                id={`${label}-size`}
+                label="Size"
+                value={styleState.size}
+                min={1}
+                max={12}
+                step={0.5}
+                mode="raw"
+                onChange={(size) =>
                   onStyleChange({
                     ...styleState,
-                    shape,
+                    size,
                   })
                 }
               />
-            </PrototypeControlField>
 
-            <PrototypeSliderControl
-              id={`${label}-size`}
-              label="Size"
-              value={styleState.size}
-              min={1}
-              max={12}
-              step={0.5}
-              mode="raw"
-              onChange={(size) =>
-                onStyleChange({
-                  ...styleState,
-                  size,
-                })
-              }
-            />
+              <PrototypeColorField
+                id={`${label}-colour`}
+                label="Colour"
+                value={styleState.color}
+                onChange={(color) =>
+                  onStyleChange({
+                    ...styleState,
+                    color,
+                  })
+                }
+              />
 
-            <PrototypeColorField
-              id={`${label}-colour`}
-              label="Colour"
-              value={styleState.color}
-              onChange={(color) =>
-                onStyleChange({
-                  ...styleState,
-                  color,
-                })
-              }
-            />
-
-            <PrototypeSliderControl
-              id={`${label}-opacity`}
-              label="Opacity"
-              value={styleState.opacity}
-              onChange={(opacity) =>
-                onStyleChange({
-                  ...styleState,
-                  opacity,
-                })
-              }
-            />
+              <PrototypeSliderControl
+                id={`${label}-opacity`}
+                label="Opacity"
+                value={styleState.opacity}
+                onChange={(opacity) =>
+                  onStyleChange({
+                    ...styleState,
+                    opacity,
+                  })
+                }
+              />
+            </PrototypeControlSection>
 
             <div className="prototype-popover__divider" aria-hidden="true" />
-            <div className="prototype-popover__section-title">Border</div>
+            <PrototypeControlSection title="Border">
+              <PrototypeColorField
+                id={`${label}-border-colour`}
+                label="Colour"
+                value={styleState.borderColor}
+                onChange={(borderColor) =>
+                  onStyleChange({
+                    ...styleState,
+                    borderColor,
+                  })
+                }
+              />
 
-            <PrototypeColorField
-              id={`${label}-border-colour`}
-              label="Colour"
-              value={styleState.borderColor}
-              onChange={(borderColor) =>
-                onStyleChange({
-                  ...styleState,
-                  borderColor,
-                })
-              }
-            />
+              <PrototypeSliderControl
+                id={`${label}-border-width`}
+                label="Thickness"
+                value={styleState.borderWidth}
+                min={0}
+                max={6}
+                step={0.5}
+                mode="raw"
+                onChange={(borderWidth) =>
+                  onStyleChange({
+                    ...styleState,
+                    borderWidth,
+                  })
+                }
+              />
 
-            <PrototypeSliderControl
-              id={`${label}-border-width`}
-              label="Thickness"
-              value={styleState.borderWidth}
-              min={0}
-              max={6}
-              step={0.5}
-              mode="raw"
-              onChange={(borderWidth) =>
-                onStyleChange({
-                  ...styleState,
-                  borderWidth,
-                })
-              }
-            />
-
-            <PrototypeSliderControl
-              id={`${label}-border-opacity`}
-              label="Opacity"
-              value={styleState.borderOpacity}
-              onChange={(borderOpacity) =>
-                onStyleChange({
-                  ...styleState,
-                  borderOpacity,
-                })
-              }
-            />
+              <PrototypeSliderControl
+                id={`${label}-border-opacity`}
+                label="Opacity"
+                value={styleState.borderOpacity}
+                onChange={(borderOpacity) =>
+                  onStyleChange({
+                    ...styleState,
+                    borderOpacity,
+                  })
+                }
+              />
+            </PrototypeControlSection>
           </div>
         </PrototypePopover>
       </span>

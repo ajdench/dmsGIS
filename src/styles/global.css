@@ -992,7 +992,7 @@
     background: #f8fafc;
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: var(--font-size-control-numeric);
+    font-size: var(--font-size-small);
     line-height: 1;
   }
 

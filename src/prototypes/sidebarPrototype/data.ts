@@ -57,6 +57,40 @@ export const OVERLAY_ROWS = [
   },
 ] as const;
 
+export const BASEMAP_SIMPLE_SECTIONS = [
+  {
+    id: 'land',
+    title: 'Land',
+    colourId: 'land-colour',
+    colourValue: '#ecf0e6',
+    opacityId: 'land-opacity',
+  },
+  {
+    id: 'sea',
+    title: 'Sea',
+    colourId: 'sea-colour',
+    colourValue: '#d9e7f5',
+    opacityId: 'sea-opacity',
+  },
+] as const;
+
+export const LABEL_SIMPLE_SECTIONS = [
+  {
+    id: 'country-labels',
+    title: 'Countries',
+    colourId: 'country-label-colour',
+    colourValue: '#0f172a',
+    opacityId: 'country-label-opacity',
+  },
+  {
+    id: 'major-cities',
+    title: 'Cities',
+    colourId: 'major-city-colour',
+    colourValue: '#1f2937',
+    opacityId: 'major-city-opacity',
+  },
+] as const;
+
 export function buildInitialRegionEnabled() {
   return Object.fromEntries(REGION_ROWS.map((region) => [region, true])) as Record<
     string,

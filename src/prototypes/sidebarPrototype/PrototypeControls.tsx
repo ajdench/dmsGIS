@@ -79,6 +79,11 @@ interface PrototypePopoverProps {
   viewportContainer?: HTMLElement | null;
 }
 
+interface PrototypeControlSectionProps {
+  title: string;
+  children: ReactNode;
+}
+
 const SHAPE_OPTIONS: PrototypeShape[] = [
   'circle',
   'square',
@@ -189,6 +194,18 @@ export function PrototypeControlField({
       <label className="field-label">{label}</label>
       {children}
     </div>
+  );
+}
+
+export function PrototypeControlSection({
+  title,
+  children,
+}: PrototypeControlSectionProps) {
+  return (
+    <section className="prototype-control-section">
+      <div className="prototype-popover__section-title">{title}</div>
+      <div className="prototype-control-section__content">{children}</div>
+    </section>
   );
 }
 

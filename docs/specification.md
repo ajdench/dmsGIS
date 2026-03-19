@@ -140,7 +140,7 @@ Current production work is emphasizing map-core hardening and modularization ove
 Current priority areas:
 
 - keep shrinking `src/features/map/MapWorkspace.tsx` by extracting runtime responsibilities into small testable modules
-- keep moving remaining style/render rule helpers out of the component so `MapWorkspace` reads as orchestration rather than implementation
+- keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
 - prefer broader production interaction coverage around selection/highlight flows before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
