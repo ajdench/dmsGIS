@@ -56,6 +56,7 @@ import {
   initializeMapWorkspaceShell,
   type BasemapLayerSet,
 } from './mapWorkspaceLifecycle';
+import { getViewportFromMap, syncViewportToMap } from './viewportSync';
 import {
   syncBoundaryHighlightForPoint,
   syncJmcOutlineHighlight,
@@ -308,29 +309,7 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
-    const view = map.getView();
-    const currentCenter = view.getCenter() as [number, number] | undefined;
-    const nextCenter = mapViewport.center;
-    const currentZoom = view.getZoom() ?? 0;
-    const currentRotation = view.getRotation() ?? 0;
-
-    const centerChanged =
-      !currentCenter ||
-      Math.abs(currentCenter[0] - nextCenter[0]) > 0.001 ||
-      Math.abs(currentCenter[1] - nextCenter[1]) > 0.001;
-    const zoomChanged = Math.abs(currentZoom - mapViewport.zoom) > 0.001;
-    const rotationChanged = Math.abs(currentRotation - mapViewport.rotation) > 0.001;
-
-    if (centerChanged) {
-      view.setCenter(nextCenter);
-    }
-    if (zoomChanged) {
-      view.setZoom(mapViewport.zoom);
-    }
-    if (rotationChanged) {
-      view.setRotation(mapViewport.rotation);
-    }
+    syncViewportToMap(map, mapViewport);
   }, [mapViewport]);
 
   useEffect(() => {
@@ -338,12 +317,7 @@ export function MapWorkspace() {
     if (!map) return;
 
     const moveKey: EventsKey = map.on('moveend', () => {
-      const view = map.getView();
-      setMapViewport({
-        center: (view.getCenter() as [number, number]) ?? [0, 0],
-        zoom: view.getZoom() ?? 0,
-        rotation: view.getRotation() ?? 0,
-      });
+      setMapViewport(getViewportFromMap(map));
     });
 
     return () => {
