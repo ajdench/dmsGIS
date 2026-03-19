@@ -39,6 +39,29 @@ describe('appStore region controls', () => {
     expect(regions.map((region) => region.opacity)).toEqual([0.4, 0.4]);
   });
 
+  it('updates the typed facility filter state through store setters', () => {
+    useAppStore.getState().setFacilitySearchQuery('north');
+    useAppStore.getState().setFacilityFilterRegions(['North']);
+    useAppStore.getState().setFacilityFilterTypes(['pmc-facility']);
+    useAppStore.getState().setFacilityDefaultVisibilityFilter('default-visible');
+
+    expect(useAppStore.getState().facilityFilters).toEqual({
+      searchQuery: 'north',
+      regions: ['North'],
+      types: ['pmc-facility'],
+      defaultVisibility: 'default-visible',
+    });
+
+    useAppStore.getState().resetFacilityFilters();
+
+    expect(useAppStore.getState().facilityFilters).toEqual({
+      searchQuery: '',
+      regions: [],
+      types: [],
+      defaultVisibility: 'all',
+    });
+  });
+
   it('applies global PMC size changes to every region and still allows local overrides', () => {
     useAppStore.getState().setFacilitySymbolSize(5);
     useAppStore.getState().setRegionSymbolSize('East', 7.5);

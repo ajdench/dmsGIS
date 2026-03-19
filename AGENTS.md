@@ -83,7 +83,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - Facility properties now have a schema layer in `src/lib/schemas/facilities.ts`, with `src/lib/facilities.ts` providing normalized facility records and feature-property access for current runtime consumers.
 - Facility filter state now has an explicit schema in `src/lib/schemas/facilities.ts`, and `src/lib/facilityFilters.ts` owns production filter definitions/matching so future metadata facets can reuse the same typed facility-filter path.
-- Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search; the production store and saved-session snapshot/apply path carry the full filter object even though the current UI still only exposes the search field.
+- Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search; the production store and saved-session snapshot/apply path carry the full filter object.
+- The production Facilities pane now exposes `region` as the first promoted typed facility filter facet; `type` and `default visibility` remain in the shared domain model but are not yet surfaced in the UI.
 - Saved-state schemas and helpers now live in `src/lib/schemas/savedViews.ts` and `src/lib/savedViews.ts`.
   - `MapSessionState` captures the runtime map/session snapshot
   - `NamedSavedView` adds repository-facing saved-view metadata
@@ -184,8 +185,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 1. Treat the current `MapWorkspace` hardening/modularization pass as complete unless a new bounded hotspot appears.
 2. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
-3. Decide which typed facility filter facet to surface first in the production UI.
-   Region, type, and default-visibility are now in the domain model; UI work should promote them deliberately rather than inventing a parallel local state path.
+3. Decide which typed facility filter facet to surface next in the production UI.
+   `Region` is already promoted. `Type` and `default visibility` should be added deliberately on top of the shared domain model rather than through parallel local UI state.
 4. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
 5. Add a production Docker path once the current map/runtime hardening phase is complete.
