@@ -37,6 +37,25 @@ npm run test:e2e
 jj status
 ```
 
+## Current repo status
+
+- `npm run test` is currently passing.
+- `npm run typecheck` is currently passing.
+- `npm run build` is currently passing.
+
+Current validation read:
+
+- `src/features/map/tooltipController.ts`
+  - the tooltip helper contract now explicitly accepts the `null` source case returned by OpenLayers layer accessors.
+- `src/lib/savedViews.ts`
+  - `FacilityFilterState` now imports from the schema source of truth instead of a non-exporting helper module.
+
+Why this matters:
+
+- the repo previously had a gap where `test` and `typecheck` were green while `build` was red
+- that specific gap is now fixed, but contributors should still treat `npm run build` as the release gate, not just `npm run test`
+- keeping this section explicit makes future regressions easier to spot during review
+
 ## Deployment target
 
 - GitHub Pages: https://ajdench.github.io/dmsGIS/
@@ -47,7 +66,6 @@ jj status
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
 - `AGENTS.md`
-- `.codex/config.toml`
 - `docs/prompts/`
 
 ## Notes
@@ -100,3 +118,4 @@ jj status
 - The local JJ bookmark `main` is tracking `main@origin`.
 - Parallel UI prototype work may exist under `src/prototypes/` with dedicated HTML entries such as `sidebar-prototype.html`; treat that work as intentionally isolated from the production app unless explicitly promoted.
 - The current sidebar prototype is modularized under `src/prototypes/sidebarPrototype/` with shared seed data in `data.ts`, shared UI primitives in `PrototypeControls.tsx`, shared accordion wrappers in `PrototypeAccordion.tsx`, and local prototype rules in `src/prototypes/sidebarPrototype/README.md`.
+- The current sidebar prototype is still only partially isolated: it reuses the production `TopBar`, so prototype `Open`/`Save` actions currently route through the production Zustand store even though the prototype page does not mount the saved-views dialog.

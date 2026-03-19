@@ -146,9 +146,9 @@ function renderBoundaryOnlyTooltip(params: {
   next: HTMLButtonElement;
   boundaryName: string | null;
   jmcName: string | null;
-  selectedPointSource: VectorSource | undefined;
+  selectedPointSource: VectorSource | null | undefined;
   selectedPointLayer: VectorLayer<VectorSource> | null;
-  selectedJmcSource: VectorSource | undefined;
+  selectedJmcSource: VectorSource | null | undefined;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
   createSelectedPointStyle: (

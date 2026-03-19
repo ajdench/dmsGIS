@@ -6,10 +6,8 @@ import type {
   RegionStyle,
   ViewPresetId,
 } from '../types';
-import {
-  createFacilityFilterState,
-  type FacilityFilterState,
-} from './facilityFilters';
+import { createFacilityFilterState } from './facilityFilters';
+import type { FacilityFilterState } from './schemas/facilities';
 import {
   parseMapSessionState,
   parseNamedSavedView,
