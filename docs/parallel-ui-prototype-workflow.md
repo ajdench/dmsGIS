@@ -162,14 +162,7 @@ Move into production code when:
 
 `npm run test`, `npm run typecheck`, and `npm run build` are currently all passing.
 
-Recent issue to remember:
-
-- `src/features/map/tooltipController.ts`
-  - a helper call path previously passed `VectorSource | null | undefined` into parameters typed as `VectorSource | undefined`
-- `src/lib/savedViews.ts`
-  - previously imported `FacilityFilterState` from `src/lib/facilityFilters.ts`, even though that module did not export the type
-
 Implication:
 
-- this repo recently had a documentation and validation gap where the fast signals were green but the release path was red
-- the immediate blockers are fixed, but `npm run build` should still be treated as the authoritative health check before describing the tree as deployable
+- this repo previously had a documentation and validation gap where the fast signals were green but the release path was red
+- that immediate blocker is fixed, but `npm run build` should still be treated as the authoritative health check before describing the tree as deployable

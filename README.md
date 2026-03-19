@@ -45,10 +45,9 @@ jj status
 
 Current validation read:
 
-- `src/features/map/tooltipController.ts`
-  - the tooltip helper contract now explicitly accepts the `null` source case returned by OpenLayers layer accessors.
-- `src/lib/savedViews.ts`
-  - `FacilityFilterState` now imports from the schema source of truth instead of a non-exporting helper module.
+- `npm run build` is the release gate for this repo.
+- `npm run test` and `npm run typecheck` are useful fast signals, but they should not be treated as a substitute for `build`.
+- recent production work has focused on shrinking `src/features/map/MapWorkspace.tsx` by extracting testable map helpers rather than expanding product scope.
 
 Why this matters:
 
@@ -110,6 +109,12 @@ Why this matters:
 - Point-selection and overlap-grouping logic now lives in `src/features/map/pointSelection.ts`, with direct tests in `tests/pointSelection.test.ts`.
 - Boundary/JMC resolution logic now lives in `src/features/map/boundarySelection.ts`, with direct tests in `tests/boundarySelection.test.ts`.
 - Docked tooltip rendering/state synchronization now lives in `src/features/map/tooltipController.ts`, with direct tests in `tests/tooltipController.test.ts`.
+- Map click-selection orchestration now lives in `src/features/map/singleClickSelection.ts`, with direct tests in `tests/singleClickSelection.test.ts`.
+- Selection highlight synchronization now lives in `src/features/map/selectionHighlights.ts`, with direct tests in `tests/selectionHighlights.test.ts`.
+- Lookup-source selection now lives in `src/features/map/lookupSources.ts`, with direct tests in `tests/lookupSources.test.ts`.
+- Overlay lookup/assignment dataset bootstrapping now lives in `src/features/map/overlayLookupBootstrap.ts`, with direct tests in `tests/overlayLookupBootstrap.test.ts`.
+- Map shell setup/teardown now lives in `src/features/map/mapWorkspaceLifecycle.ts`, with direct tests in `tests/mapWorkspaceLifecycle.test.ts`.
+- Viewport synchronization now lives in `src/features/map/viewportSync.ts`, with direct tests in `tests/viewportSync.test.ts`.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
 - Scenario assignment resolution is covered in `tests/scenarioAssignments.test.ts`.
@@ -120,3 +125,14 @@ Why this matters:
 - The current sidebar prototype is modularized under `src/prototypes/sidebarPrototype/` with shared seed data in `data.ts`, shared UI primitives in `PrototypeControls.tsx`, extracted floating-callout geometry in `floatingCallout.ts`, shared accordion wrappers in `PrototypeAccordion.tsx`, and local prototype rules in `src/prototypes/sidebarPrototype/README.md`.
 - The current sidebar prototype is isolated from production runtime state: it uses a prototype-local top bar shell, mock/local UI state, Radix accordion primitives for pane expansion, and a custom floating PMC row editor instead of the production store or map pane.
 - The floating callout geometry contract is covered directly in `tests/floatingCallout.test.ts` so top clamp, bottom clamp, and drift behavior can be tuned without re-deriving the math from component code.
+
+## Current production focus
+
+The current production focus is map-core hardening and modularization, not new end-user feature breadth.
+
+Near-term production priorities:
+
+1. Extract runtime layer reconciliation out of `MapWorkspace.tsx`.
+2. Extract overlay boundary-layer reconciliation out of `MapWorkspace.tsx`.
+3. Add stronger tests around preset/reset interaction with live selection state.
+4. Keep `npm run build` as the authoritative health check before describing the app as deployable.

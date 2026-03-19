@@ -131,6 +131,12 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Point hit detection, overlap grouping, point coordinate parsing, and tooltip-entry assembly are now extracted into `src/features/map/pointSelection.ts` instead of living only inside `MapWorkspace.tsx`.
   - Boundary-name resolution, selected-boundary JMC resolution, and selected-region outline feature resolution are now extracted into `src/features/map/boundarySelection.ts`.
   - Docked tooltip rendering/state synchronization now routes through `src/features/map/tooltipController.ts` instead of being fully inlined in `MapWorkspace.tsx`.
+  - Point-first vs boundary-fallback click orchestration now routes through `src/features/map/singleClickSelection.ts`.
+  - Selected point, selected boundary, and selected JMC outline highlight synchronization now routes through `src/features/map/selectionHighlights.ts`.
+  - Lookup-source selection now routes through `src/features/map/lookupSources.ts`.
+  - Overlay lookup/assignment dataset bootstrapping now routes through `src/features/map/overlayLookupBootstrap.ts`.
+  - Map shell setup/teardown now routes through `src/features/map/mapWorkspaceLifecycle.ts`.
+  - Viewport apply/read synchronization now routes through `src/features/map/viewportSync.ts`.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
@@ -167,91 +173,21 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extend the saved-view storage abstraction beyond local browser storage.
-   Keep the current local/static implementation boundary, then add richer saved-view management and future repository/profile-backed storage without rewriting UI or map code.
-   Concretely:
-   - keep `SavedViewStore` as the stable boundary for production UI code
-   - add rename/edit-description support on top of the existing dialog flow
-   - decide whether saved filters should reuse this storage path or live behind a parallel store
-   - add repository/serverless implementations behind the same interface
-   - keep schema validation mandatory at the store boundary, not optional in callers
-2. Extend the facility filter model beyond text search.
-   Add typed metadata facets, export-field definitions, saved-filter state, and filter presets so future facility workflows stay in the same domain layer.
-   Concretely:
-   - add first-class filter types for region, facility type, and visibility/default-state
-   - define filter serialization so saved views and saved filters share the same payload
-   - keep filter UI generation data-driven from filter definitions where practical
-   - add a clear distinction between active filters, preset filters, and ad hoc search text
-3. Expand the facility schema/domain model with future metadata fields.
-   Keep tooltip, filtering, search, export, and future profile state aligned to the shared `FacilityRecord` contract instead of raw feature reads.
-   Concretely:
-   - define candidate metadata fields before wiring them into UI one by one
-   - distinguish raw imported properties from derived runtime fields
-   - add export-oriented labels/field definitions so export does not read arbitrary feature keys
-   - keep tooltip/search/export field choices explicit and versionable
-4. Extend the shared assignment model so future NHS/custom regrouping is data-driven.
-   Avoid script-specific transformation logic for new region products or manual regrouping.
-   Concretely:
-   - add explicit assignment manifests/config for future region products
-   - separate source geography identity from scenario grouping identity
-   - support override tables without embedding regrouping rules in runtime map code
-   - keep preprocessing scripts consumers of shared config, not owners of it
-5. Add NHS and future custom overlay families to the production overlay model.
-   Use the existing overlay-family metadata layer and section builders so new overlay types slot into the UI without architectural rework.
-   Concretely:
-   - add production-ready `nhsRegions` and `customRegions` overlay definitions
-   - surface those families in `OverlayPanel` sections only when datasets exist
-   - keep family-level visibility, titles, and ordering in selector metadata
-   - avoid introducing one-off preset-specific overlay UI paths
-6. Extend overlay metadata only when needed for production behavior.
-   Candidates include descriptions, family-level defaults, visibility presets, scenario-specific empty-state copy, and export eligibility.
-   Concretely:
-   - add metadata only when it drives UI, persistence, or export behavior
-   - keep display metadata separate from geometry/style state
-   - reserve room for access-control metadata later without mixing it into map logic
-7. Expand direct tests for map interaction behavior beyond the extracted units.
-   Add higher-value coverage for selected-point highlight behavior, boundary-only selection flows, overlay interaction combinations, and scenario-specific region highlighting.
-   Concretely:
-   - cover selected point highlight + tooltip sync
-   - cover boundary-only clicks with no point selection path
-   - cover scenario-specific outer-boundary highlight resolution
-   - cover facility filtering interaction with point selection and paging
-8. Add an end-to-end test slice for core user workflows.
-   Focus on scenario switching, facility search/filtering, boundary selection, point paging, and the local saved-view dialog/restore flow.
-   Concretely:
-   - keep the first slice small and deterministic
-   - cover one happy path per major workflow before broadening matrix coverage
-   - add a saved/open/delete workflow check against local browser storage before layering in remote persistence
-9. Add a production Docker path for the static app.
-   Use a multi-stage build with compiled Vite assets and a minimal static web server image, with explicit version pinning and a clear upgrade path.
-   Concretely:
-   - add a multi-stage Dockerfile
-   - add a minimal runtime image for static assets
-   - document build args and subpath configuration
-   - make the production container path compatible with future auth/storage service additions
-10. Decide what state should persist across reloads before auth exists.
-   Region style choices, scenario selection, overlay visibility, and facility filter state should be treated explicitly rather than incidentally.
-   Concretely:
-   - separate convenience persistence from formal saved views
-   - decide what is auto-restored locally vs only restored from explicit saved views and explicit dialog actions
-   - keep this policy documented before wiring local storage behavior
-11. Add a lightweight auth abstraction before real authentication.
-   Define the frontend-facing contract for user identity, access to saved views, and shared-view permissions before choosing a provider.
-   Concretely:
-   - define a minimal `AuthProvider` contract
-   - keep anonymous/local use working without auth
-   - model identity, session status, and access checks separately from map state
-12. Define the share model for saved views early.
-   Decide on ownership, copy-vs-reference behavior, editability, and link-based vs account-based sharing so the persistence layer matches the intended product.
-   Concretely:
-   - decide whether shared views are immutable snapshots or live collaborative references
-   - define edit rights separately from view rights
-   - make link-sharing and account-sharing explicit modes in the domain model
-13. Continue UI cleanup where it buys clarity.
-   Reduce remaining compounded spacing or popover inconsistencies, but keep this behind the domain/model work unless the user surfaces a concrete UX issue.
-14. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales only with explicit product sign-off.
-15. Keep working areas separated: app UI work vs geodata preprocessing; avoid cross-threading changes when user flags the wrong development area.
-16. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+1. Extract runtime layer reconciliation from `src/features/map/MapWorkspace.tsx`.
+   The main `layers` effect still creates/removes vector layers and applies point/polygon styles inline.
+2. Extract overlay boundary-layer reconciliation from `src/features/map/MapWorkspace.tsx`.
+   The `overlayLayers` effect still owns source swapping, visibility, styling, and removal inline.
+3. Add stronger production tests for selection state across preset/reset transitions.
+   The extracted map helpers are well-covered now; the next high-value protection is the end-user state flow when the active preset changes or resets.
+4. Keep future overlay lookup products generic.
+   JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
+5. Extend the facility filter/domain model only when a production workflow needs it.
+   Region/type/default-state filters, export field definitions, and saved-filter state should stay in the shared domain layer rather than ad hoc UI code.
+6. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
+   Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
+7. Add a production Docker path once the current map/runtime hardening phase is complete.
+8. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
+9. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 

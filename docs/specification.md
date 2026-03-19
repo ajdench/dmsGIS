@@ -132,3 +132,14 @@ Current implementation direction:
 - Testing
 - Performance tuning
 - Deployment hardening
+
+## 10. Current implementation emphasis
+
+Current production work is emphasizing map-core hardening and modularization over new feature breadth.
+
+Current priority areas:
+
+- keep shrinking `src/features/map/MapWorkspace.tsx` by extracting runtime responsibilities into small testable modules
+- keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
+- prefer stronger tests around live selection/preset state transitions before adding remote persistence or export polish
+- keep prototype-sidebar work isolated until it is explicitly promoted
