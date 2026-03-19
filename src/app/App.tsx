@@ -1,3 +1,4 @@
+import { SavedViewsDialog } from '../components/layout/SavedViewsDialog';
 import { TopBar } from '../components/layout/TopBar';
 import { RightSidebar } from '../components/layout/RightSidebar';
 import { MapWorkspace } from '../features/map/MapWorkspace';
@@ -10,6 +11,7 @@ export function App() {
         <MapWorkspace />
         <RightSidebar />
       </div>
+      <SavedViewsDialog />
     </div>
   );
 }

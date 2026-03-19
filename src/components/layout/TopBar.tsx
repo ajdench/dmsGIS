@@ -1,9 +1,10 @@
 import { exportCurrentMapView } from '../../features/export/exportCurrentMapView';
-import { openSavedView, saveCurrentView } from '../../lib/browser/savedViewActions';
 import { useAppStore } from '../../store/appStore';
 
 export function TopBar() {
-  const appState = useAppStore();
+  const openSavedViewsDialog = useAppStore((state) => state.openSavedViewsDialog);
+  const resetActiveViewPreset = useAppStore((state) => state.resetActiveViewPreset);
+  const setNotice = useAppStore((state) => state.setNotice);
 
   return (
     <header className="topbar">
@@ -17,18 +18,14 @@ export function TopBar() {
         <button
           type="button"
           className="button button--ghost"
-          onClick={() => {
-            void openSavedView(appState);
-          }}
+          onClick={() => openSavedViewsDialog('open')}
         >
           Open
         </button>
         <button
           type="button"
           className="button button--ghost"
-          onClick={() => {
-            void saveCurrentView(appState);
-          }}
+          onClick={() => openSavedViewsDialog('save')}
         >
           Save
         </button>
@@ -37,7 +34,7 @@ export function TopBar() {
           className="button button--ghost"
           onClick={() => {
             exportCurrentMapView();
-            appState.setNotice('Export is not implemented yet');
+            setNotice('Export is not implemented yet');
           }}
         >
           Export
@@ -45,7 +42,7 @@ export function TopBar() {
         <button
           type="button"
           className="button button--primary"
-          onClick={() => appState.resetActiveViewPreset()}
+          onClick={() => resetActiveViewPreset()}
         >
           Reset
         </button>

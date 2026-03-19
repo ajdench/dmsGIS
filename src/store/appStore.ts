@@ -49,12 +49,15 @@ interface AppState {
   currentViewPresetState: ViewPresetState | null;
   mapViewport: MapViewportState;
   selection: SelectionState;
+  savedViewsDialogMode: 'closed' | 'open' | 'save';
   isLoading: boolean;
   error: string | null;
   notice: string | null;
   loadLayers: () => Promise<void>;
   activateViewPreset: (preset: ViewPresetId) => void;
   resetActiveViewPreset: () => void;
+  openSavedViewsDialog: (mode: 'open' | 'save') => void;
+  closeSavedViewsDialog: () => void;
   toggleLayer: (id: string) => void;
   setLayerOpacity: (id: string, opacity: number) => void;
   setBasemapProvider: (provider: BasemapProvider) => void;
@@ -128,6 +131,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentViewPresetState: null,
   mapViewport: createDefaultMapViewport(),
   selection: createDefaultSelectionState(),
+  savedViewsDialogMode: 'closed',
   isLoading: false,
   error: null,
   notice: null,
@@ -211,6 +215,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       notice: 'Reset active view preset',
     });
   },
+  openSavedViewsDialog: (mode) => set({ savedViewsDialogMode: mode }),
+  closeSavedViewsDialog: () => set({ savedViewsDialogMode: 'closed' }),
   toggleLayer: (id) =>
     set((state) => ({
       layers: state.layers.map((layer) =>
