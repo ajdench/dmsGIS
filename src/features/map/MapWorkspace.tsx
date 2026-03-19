@@ -45,6 +45,7 @@ import {
   getActiveAssignmentLookupSource,
   getActiveScenarioOutlineLookupSource,
 } from './lookupSources';
+import { resolveSingleClickSelection } from './singleClickSelection';
 import {
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
@@ -537,76 +538,42 @@ export function MapWorkspace() {
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
-      const visibleRegions = new Map(
-        regions.map((region) => [region.name, region]),
-      );
-      const pointLayers = new Set<VectorLayer<VectorSource>>();
-      for (const layer of layers) {
-        if (layer.type !== 'point' || !layer.visible) continue;
-        const mapLayer = layerRefs.current.get(layer.id);
-        if (mapLayer) {
-          pointLayers.add(mapLayer);
-        }
-      }
-      const hitFeatures = getDirectPointHitsAtPixel(
+      const selectionResult = resolveSingleClickSelection({
         map,
-        event.pixel,
-        pointLayers,
-        visibleRegions,
+        pixel: event.pixel,
+        coordinate: event.coordinate as [number, number],
+        layers,
+        regions,
+        overlayLayers,
+        layerRefs: layerRefs.current,
+        regionBoundaryRefs: regionBoundaryRefs.current,
         facilitySymbolShape,
         facilitySymbolSize,
         facilitySearchQuery,
-      );
+        activeViewPreset,
+        getJmcNameAtCoordinate: (coordinate, preset) =>
+          findJmcNameAtCoordinate(
+            coordinate,
+            getActiveAssignmentLookupSource(
+              regionBoundaryRefs.current,
+              jmcAssignmentLookupSourceRef.current,
+            ),
+            null,
+            preset,
+          ),
+      });
 
-      if (hitFeatures.length > 0) {
-        const clusteredHitFeatures = expandPointHitCluster(
-          map,
-          hitFeatures,
-          pointLayers,
-          visibleRegions,
-          facilitySymbolShape,
-          facilitySymbolSize,
-          event.pixel,
-          facilitySearchQuery,
-        );
-        pointTooltipEntriesRef.current = collectPointTooltipEntries(
-          {
-            features: clusteredHitFeatures,
-            fallbackCoordinate: event.coordinate as [number, number],
-            regions,
-            activeViewPreset,
-            getBoundaryNameAtCoordinate: (coordinate) => {
-              const boundaryFeature = findCareBoardBoundaryAtCoordinate(
-                coordinate,
-                overlayLayers,
-                regionBoundaryRefs.current,
-              );
-              return boundaryFeature ? getBoundaryName(boundaryFeature) : null;
-            },
-            getJmcNameAtCoordinate: (coordinate, preset) =>
-              findJmcNameAtCoordinate(
-                coordinate,
-                getActiveAssignmentLookupSource(
-                  regionBoundaryRefs.current,
-                  jmcAssignmentLookupSourceRef.current,
-                ),
-                null,
-                preset,
-              ),
-            facilitySearchQuery,
-          },
-        );
+      if (selectionResult.pointEntries.length > 0) {
+        pointTooltipEntriesRef.current = selectionResult.pointEntries;
         pointTooltipIndexRef.current = 0;
         renderPointTooltip();
         return;
       }
 
-      const selectedFeature = findCareBoardBoundaryAtCoordinate(
+      selectBoundary(
+        selectionResult.boundaryFeature,
         event.coordinate as [number, number],
-        overlayLayers,
-        regionBoundaryRefs.current,
       );
-      selectBoundary(selectedFeature, event.coordinate as [number, number]);
       pointTooltipEntriesRef.current = [];
       pointTooltipIndexRef.current = 0;
       renderPointTooltip();
