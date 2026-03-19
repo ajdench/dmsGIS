@@ -52,6 +52,11 @@ import {
   type OverlayLookupDatasetDefinition,
 } from './overlayLookupBootstrap';
 import {
+  cleanupMapWorkspaceRefs,
+  initializeMapWorkspaceShell,
+  type BasemapLayerSet,
+} from './mapWorkspaceLifecycle';
+import {
   syncBoundaryHighlightForPoint,
   syncJmcOutlineHighlight,
 } from './selectionHighlights';
@@ -74,16 +79,6 @@ import {
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
 import { useAppStore } from '../../store/appStore';
-
-interface BasemapLayerSet {
-  oceanFill: VectorLayer<VectorSource>;
-  landFill: VectorLayer<VectorSource>;
-  countryBorders: VectorLayer<VectorSource>;
-  ukInternalBorders: VectorLayer<VectorSource>;
-  countryLabels: VectorLayer<VectorSource>;
-  majorCities: VectorLayer<VectorSource>;
-  seaLabels: VectorLayer<VectorSource>;
-}
 
 export function MapWorkspace() {
   const layers = useAppStore((state) => state.layers);
@@ -211,40 +206,20 @@ export function MapWorkspace() {
       return;
     }
 
-    mapRef.current = new OLMap({
+    const shell = initializeMapWorkspaceShell({
       target: ref.current,
-      view: new View({
-        center: fromLonLat([-2.5, 54.5]),
-        zoom: 5.6,
-      }),
-      layers: [],
+      createBasemapLayers,
+      setBasemapSources,
+      createSelectedBoundaryLayer,
+      createSelectedJmcBoundaryLayer,
+      createSelectedPointLayer,
     });
-    const initialView = mapRef.current.getView();
-    setMapViewport({
-      center: (initialView.getCenter() as [number, number]) ?? [0, 0],
-      zoom: initialView.getZoom() ?? 0,
-      rotation: initialView.getRotation() ?? 0,
-    });
-
-    const basemapLayers = createBasemapLayers();
-    basemapRef.current = basemapLayers;
-    setBasemapSources(basemapLayers);
-    mapRef.current.addLayer(basemapLayers.oceanFill);
-    mapRef.current.addLayer(basemapLayers.landFill);
-    mapRef.current.addLayer(basemapLayers.countryBorders);
-    mapRef.current.addLayer(basemapLayers.ukInternalBorders);
-    mapRef.current.addLayer(basemapLayers.seaLabels);
-    mapRef.current.addLayer(basemapLayers.countryLabels);
-    mapRef.current.addLayer(basemapLayers.majorCities);
-    const selectedBoundaryLayer = createSelectedBoundaryLayer();
-    selectedBoundaryRef.current = selectedBoundaryLayer;
-    mapRef.current.addLayer(selectedBoundaryLayer);
-    const selectedJmcBoundaryLayer = createSelectedJmcBoundaryLayer();
-    selectedJmcBoundaryRef.current = selectedJmcBoundaryLayer;
-    mapRef.current.addLayer(selectedJmcBoundaryLayer);
-    const selectedPointLayer = createSelectedPointLayer();
-    selectedPointRef.current = selectedPointLayer;
-    mapRef.current.addLayer(selectedPointLayer);
+    mapRef.current = shell.map;
+    basemapRef.current = shell.basemapLayers;
+    selectedBoundaryRef.current = shell.selectedBoundaryLayer;
+    selectedJmcBoundaryRef.current = shell.selectedJmcBoundaryLayer;
+    selectedPointRef.current = shell.selectedPointLayer;
+    setMapViewport(shell.initialViewport);
 
     const overlayRegionLookupSource = new VectorSource();
     jmcBoundaryLookupSourceRef.current = overlayRegionLookupSource;
@@ -294,32 +269,33 @@ export function MapWorkspace() {
     });
 
     return () => {
-      mapRef.current?.setTarget(undefined);
-      mapRef.current = null;
-      basemapRef.current = null;
-      regionBoundaryRefs.current.clear();
-      regionBoundaryPathRefs.current.clear();
-      selectedBoundaryRef.current = null;
-      selectedJmcBoundaryRef.current = null;
-      selectedPointRef.current = null;
-      jmcBoundaryLookupSourceRef.current = null;
-      scenarioBoundaryLookupSourcesRef.current.clear();
-      jmcAssignmentLookupSourceRef.current = null;
-      jmcAssignmentByBoundaryNameRef.current.clear();
-      pointTooltipRootRef.current = null;
-      pointTooltipHeaderRef.current = null;
-      pointTooltipNameRef.current = null;
-      pointTooltipSubnameRef.current = null;
-      pointTooltipContextRef.current = null;
-      pointTooltipFooterRef.current = null;
-      pointTooltipPageRef.current = null;
-      pointTooltipPrevRef.current = null;
-      pointTooltipNextRef.current = null;
-      pointTooltipEntriesRef.current = [];
-      pointTooltipIndexRef.current = 0;
-      selectedBoundaryNameRef.current = null;
-      selectedJmcNameRef.current = null;
-      layerRefs.current.clear();
+      cleanupMapWorkspaceRefs({
+        mapRef,
+        basemapRef,
+        regionBoundaryRefs,
+        regionBoundaryPathRefs,
+        selectedBoundaryRef,
+        selectedJmcBoundaryRef,
+        selectedPointRef,
+        jmcBoundaryLookupSourceRef,
+        scenarioBoundaryLookupSourcesRef,
+        jmcAssignmentLookupSourceRef,
+        jmcAssignmentByBoundaryNameRef,
+        pointTooltipRootRef,
+        pointTooltipHeaderRef,
+        pointTooltipNameRef,
+        pointTooltipSubnameRef,
+        pointTooltipContextRef,
+        pointTooltipFooterRef,
+        pointTooltipPageRef,
+        pointTooltipPrevRef,
+        pointTooltipNextRef,
+        pointTooltipEntriesRef,
+        pointTooltipIndexRef,
+        selectedBoundaryNameRef,
+        selectedJmcNameRef,
+        layerRefs,
+      });
     };
   }, []);
 
