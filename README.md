@@ -115,6 +115,8 @@ Why this matters:
 - Overlay lookup/assignment dataset bootstrapping now lives in `src/features/map/overlayLookupBootstrap.ts`, with direct tests in `tests/overlayLookupBootstrap.test.ts`.
 - Map shell setup/teardown now lives in `src/features/map/mapWorkspaceLifecycle.ts`, with direct tests in `tests/mapWorkspaceLifecycle.test.ts`.
 - Viewport synchronization now lives in `src/features/map/viewportSync.ts`, with direct tests in `tests/viewportSync.test.ts`.
+- Runtime layer reconciliation now lives in `src/features/map/runtimeLayerReconciliation.ts`, with direct tests in `tests/runtimeLayerReconciliation.test.ts`.
+- Overlay boundary-layer reconciliation now lives in `src/features/map/overlayBoundaryReconciliation.ts`, with direct tests in `tests/overlayBoundaryReconciliation.test.ts`.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
 - Scenario assignment resolution is covered in `tests/scenarioAssignments.test.ts`.
@@ -132,7 +134,7 @@ The current production focus is map-core hardening and modularization, not new e
 
 Near-term production priorities:
 
-1. Extract runtime layer reconciliation out of `MapWorkspace.tsx`.
-2. Extract overlay boundary-layer reconciliation out of `MapWorkspace.tsx`.
-3. Add stronger tests around preset/reset interaction with live selection state.
+1. Extract the remaining style/render rule helpers out of `MapWorkspace.tsx`, starting with region-boundary styling and facility-layer styling.
+2. Add broader production interaction coverage around boundary-only clicks, scenario-specific outer-boundary highlighting, and filtered point paging.
+3. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
 4. Keep `npm run build` as the authoritative health check before describing the app as deployable.

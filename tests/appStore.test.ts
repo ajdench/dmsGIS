@@ -155,6 +155,11 @@ describe('appStore region controls', () => {
       facilitySymbolShape: 'square',
       facilitySymbolSize: 9,
       regionGlobalOpacity: 0.25,
+      selection: {
+        facilityIds: ['FAC-1'],
+        boundaryName: 'Boundary A',
+        jmcName: 'JMC North',
+      },
     });
 
     useAppStore.getState().activateViewPreset('coa3a');
@@ -172,6 +177,11 @@ describe('appStore region controls', () => {
     expect(state.facilitySymbolShape).toBe('circle');
     expect(state.facilitySymbolSize).toBe(3.5);
     expect(state.regionGlobalOpacity).toBe(1);
+    expect(state.selection).toEqual({
+      facilityIds: [],
+      boundaryName: null,
+      jmcName: null,
+    });
   });
 
   it('reset clears transient search and selection while restoring the active preset state', () => {

@@ -177,7 +177,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   activateViewPreset: (preset) => {
     const currentViewPresetState = get().currentViewPresetState;
     if (!currentViewPresetState) {
-      set({ activeViewPreset: preset });
+      set({
+        activeViewPreset: preset,
+        selection: createDefaultSelectionState(),
+      });
       return;
     }
 
@@ -205,6 +208,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       facilitySymbolSize: nextState.facilitySymbolSize,
       facilitySearchQuery: nextState.facilitySearchQuery,
       basemap: { ...nextState.basemap },
+      selection: createDefaultSelectionState(),
     });
   },
   resetActiveViewPreset: () => {

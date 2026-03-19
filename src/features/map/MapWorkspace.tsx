@@ -56,6 +56,8 @@ import {
   initializeMapWorkspaceShell,
   type BasemapLayerSet,
 } from './mapWorkspaceLifecycle';
+import { reconcileRuntimeLayers } from './runtimeLayerReconciliation';
+import { reconcileOverlayBoundaryLayers } from './overlayBoundaryReconciliation';
 import { getViewportFromMap, syncViewportToMap } from './viewportSync';
 import {
   syncBoundaryHighlightForPoint,
@@ -363,40 +365,14 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
-    const byId = new globalThis.Map(overlayLayers.map((layer) => [layer.id, layer]));
-
-    overlayLayers.forEach((layerConfig) => {
-      let boundaryLayer = regionBoundaryRefs.current.get(layerConfig.id);
-      if (!boundaryLayer) {
-        boundaryLayer = createRegionBoundaryLayer(layerConfig, activeViewPreset);
-        regionBoundaryRefs.current.set(layerConfig.id, boundaryLayer);
-        map.addLayer(boundaryLayer);
-      }
-
-      const sourceUrl = new URL(
-        layerConfig.path,
-        new URL(import.meta.env.BASE_URL, window.location.origin),
-      ).toString();
-      const previousSourceUrl = regionBoundaryPathRefs.current.get(layerConfig.id);
-      if (previousSourceUrl !== sourceUrl || !boundaryLayer.getSource()) {
-        boundaryLayer.setSource(
-          new VectorSource({
-            url: sourceUrl,
-            format: new GeoJSON(),
-          }),
-        );
-        regionBoundaryPathRefs.current.set(layerConfig.id, sourceUrl);
-      }
-      boundaryLayer.setVisible(layerConfig.visible);
-      boundaryLayer.setStyle(createRegionBoundaryStyle(layerConfig, activeViewPreset));
-    });
-
-    regionBoundaryRefs.current.forEach((layerRef, id) => {
-      if (byId.has(id)) return;
-      map.removeLayer(layerRef);
-      regionBoundaryRefs.current.delete(id);
-      regionBoundaryPathRefs.current.delete(id);
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers,
+      activeViewPreset,
+      regionBoundaryRefs: regionBoundaryRefs.current,
+      regionBoundaryPathRefs: regionBoundaryPathRefs.current,
+      createBoundaryLayer: createRegionBoundaryLayer,
+      getBoundaryLayerStyle: createRegionBoundaryStyle,
     });
   }, [overlayLayers, activeViewPreset]);
 
@@ -491,34 +467,11 @@ export function MapWorkspace() {
     const regionByName = new Map<string, RegionStyle>(
       regions.map((region) => [region.name, region]),
     );
-
-    const getVectorLayer = (layer: LayerState) => {
-      const existing = layerRefs.current.get(layer.id);
-      if (existing) return existing;
-
-      const vectorLayer = new VectorLayer({
-        source: new VectorSource({
-          url: layer.path,
-          format: new GeoJSON(),
-        }),
-        zIndex: layer.type === 'point' ? 35 : 1,
-        style: getStyleForLayer(
-          layer,
-          regionByName,
-          facilitySymbolShape,
-          facilitySymbolSize,
-          facilityFilters,
-        ),
-      });
-
-      map.addLayer(vectorLayer);
-      layerRefs.current.set(layer.id, vectorLayer);
-      return vectorLayer;
-    };
-
-    layers.forEach((layer) => {
-      const vectorLayer = getVectorLayer(layer);
-      vectorLayer.setStyle(
+    reconcileRuntimeLayers({
+      map,
+      layers,
+      layerRefs: layerRefs.current,
+      getLayerStyle: (layer) =>
         getStyleForLayer(
           layer,
           regionByName,
@@ -526,17 +479,6 @@ export function MapWorkspace() {
           facilitySymbolSize,
           facilityFilters,
         ),
-      );
-      vectorLayer.setVisible(layer.visible);
-      vectorLayer.setOpacity(layer.opacity);
-    });
-
-    layerRefs.current.forEach((vectorLayer, id) => {
-      const exists = layers.some((layer) => layer.id === id);
-      if (!exists) {
-        map.removeLayer(vectorLayer);
-        layerRefs.current.delete(id);
-      }
     });
   }, [
     layers,

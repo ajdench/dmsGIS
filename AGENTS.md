@@ -137,6 +137,9 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
   - Overlay lookup/assignment dataset bootstrapping now routes through `src/features/map/overlayLookupBootstrap.ts`.
   - Map shell setup/teardown now routes through `src/features/map/mapWorkspaceLifecycle.ts`.
   - Viewport apply/read synchronization now routes through `src/features/map/viewportSync.ts`.
+  - Runtime layer reconciliation now routes through `src/features/map/runtimeLayerReconciliation.ts`.
+  - Overlay boundary-layer reconciliation now routes through `src/features/map/overlayBoundaryReconciliation.ts`.
+  - Activating a different production preset now clears the transient live selection state before the new preset view is shown.
 - Layer order is explicit: point symbols and point selection highlight render above care-board boundary layers/highlights.
 - Boundary overlay z-order is explicit: PMC unpopulated below PMC populated, both below care board boundaries.
 - Map click handling is unified into a single `singleclick` flow (point-first, boundary fallback) to avoid duplicate hit detection/event-path overhead.
@@ -173,21 +176,19 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 ## Next steps
 
-1. Extract runtime layer reconciliation from `src/features/map/MapWorkspace.tsx`.
-   The main `layers` effect still creates/removes vector layers and applies point/polygon styles inline.
-2. Extract overlay boundary-layer reconciliation from `src/features/map/MapWorkspace.tsx`.
-   The `overlayLayers` effect still owns source swapping, visibility, styling, and removal inline.
-3. Add stronger production tests for selection state across preset/reset transitions.
-   The extracted map helpers are well-covered now; the next high-value protection is the end-user state flow when the active preset changes or resets.
-4. Keep future overlay lookup products generic.
+1. Extract the remaining style/render rule helpers from `src/features/map/MapWorkspace.tsx`.
+   Start with region-boundary styling and facility-layer styling so `MapWorkspace` keeps moving toward orchestration-only code.
+2. Add broader production interaction coverage.
+   Highest-value next cases are boundary-only clicks, scenario-specific outer-boundary highlight resolution, and filtered point paging behavior.
+3. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
-5. Extend the facility filter/domain model only when a production workflow needs it.
+4. Extend the facility filter/domain model only when a production workflow needs it.
    Region/type/default-state filters, export field definitions, and saved-filter state should stay in the shared domain layer rather than ad hoc UI code.
-6. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
+5. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
-7. Add a production Docker path once the current map/runtime hardening phase is complete.
-8. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
-9. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+6. Add a production Docker path once the current map/runtime hardening phase is complete.
+7. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
+8. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Forbidden shortcuts
 
