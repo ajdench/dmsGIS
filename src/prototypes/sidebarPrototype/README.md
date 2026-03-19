@@ -25,11 +25,13 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
 - PMC row editors are grouped into `Points` and `Border` sections
 - Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline
+- Repeated simple sub-pane sections, such as Basemap and Labels colour/opacity blocks, should be defined from shared config data rather than duplicated JSX
 - Use red-tinted `Off` state styling and green-tinted `On` state styling, including hover treatment
 - Prevent large pane content, especially Facilities, from visually running beyond the available panel space
 - Do not duplicate `Visible` controls inside section bodies when `On/Off` already exists in the header
 - For PMC-style dynamic lists, do not add an inner scrollbar; let the sub-pane grow and let the outer sidebar handle scrolling
 - Use the prototype-local top bar shell rather than importing the production `TopBar`
+- Keep prototype-only visual tuning in `prototype.css` and prototype-local tokens unless the change is explicitly being promoted into shared production styling
 
 ## Current files
 

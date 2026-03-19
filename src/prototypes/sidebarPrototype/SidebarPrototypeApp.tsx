@@ -211,39 +211,22 @@ export function SidebarPrototypeApp() {
                 onValueChange={setOpenBasemapSections}
                 level="subpane"
               >
-                <PrototypeSection
-                  id="land"
-                  title="Land"
-                  enabled={sectionEnabled.land}
-                  onEnabledToggle={() => toggleKey('land', setSectionEnabled)}
-                  badge={`${Math.round(landOpacity * 100)}%`}
-                  badgeSwatch="#ecf0e6"
-                >
-                  <PrototypeColourOpacityFields
-                    colourId="land-colour"
-                    colourValue="#ecf0e6"
-                    opacityId="land-opacity"
-                    opacityValue={landOpacity}
-                    onOpacityChange={setLandOpacity}
+                {BASEMAP_SIMPLE_SECTIONS.map((section) => (
+                  <PrototypeSimpleSection
+                    key={section.id}
+                    section={section}
+                    enabled={sectionEnabled[section.id]}
+                    onEnabledToggle={() =>
+                      toggleKey(section.id, setSectionEnabled)
+                    }
+                    opacityValue={
+                      section.id === 'land' ? landOpacity : seaOpacity
+                    }
+                    onOpacityChange={
+                      section.id === 'land' ? setLandOpacity : setSeaOpacity
+                    }
                   />
-                </PrototypeSection>
-
-                <PrototypeSection
-                  id="sea"
-                  title="Sea"
-                  enabled={sectionEnabled.sea}
-                  onEnabledToggle={() => toggleKey('sea', setSectionEnabled)}
-                  badge={`${Math.round(seaOpacity * 100)}%`}
-                  badgeSwatch="#d9e7f5"
-                >
-                  <PrototypeColourOpacityFields
-                    colourId="sea-colour"
-                    colourValue="#d9e7f5"
-                    opacityId="sea-opacity"
-                    opacityValue={seaOpacity}
-                    onOpacityChange={setSeaOpacity}
-                  />
-                </PrototypeSection>
+                ))}
               </PrototypeAccordion>
             </PrototypePanel>
 
@@ -379,43 +362,26 @@ export function SidebarPrototypeApp() {
                 onValueChange={setOpenLabelSections}
                 level="subpane"
               >
-                <PrototypeSection
-                  id="country-labels"
-                  title="Countries"
-                  enabled={sectionEnabled['country-labels']}
-                  onEnabledToggle={() =>
-                    toggleKey('country-labels', setSectionEnabled)
-                  }
-                  badge={`${Math.round(countryLabelOpacity * 100)}%`}
-                  badgeSwatch="#0f172a"
-                >
-                  <PrototypeColourOpacityFields
-                    colourId="country-label-colour"
-                    colourValue="#0f172a"
-                    opacityId="country-label-opacity"
-                    opacityValue={countryLabelOpacity}
-                    onOpacityChange={setCountryLabelOpacity}
+                {LABEL_SIMPLE_SECTIONS.map((section) => (
+                  <PrototypeSimpleSection
+                    key={section.id}
+                    section={section}
+                    enabled={sectionEnabled[section.id]}
+                    onEnabledToggle={() =>
+                      toggleKey(section.id, setSectionEnabled)
+                    }
+                    opacityValue={
+                      section.id === 'country-labels'
+                        ? countryLabelOpacity
+                        : majorCityOpacity
+                    }
+                    onOpacityChange={
+                      section.id === 'country-labels'
+                        ? setCountryLabelOpacity
+                        : setMajorCityOpacity
+                    }
                   />
-                </PrototypeSection>
-
-                <PrototypeSection
-                  id="major-cities"
-                  title="Cities"
-                  enabled={sectionEnabled['major-cities']}
-                  onEnabledToggle={() =>
-                    toggleKey('major-cities', setSectionEnabled)
-                  }
-                  badge={`${Math.round(majorCityOpacity * 100)}%`}
-                  badgeSwatch="#1f2937"
-                >
-                  <PrototypeColourOpacityFields
-                    colourId="major-city-colour"
-                    colourValue="#1f2937"
-                    opacityId="major-city-opacity"
-                    opacityValue={majorCityOpacity}
-                    onOpacityChange={setMajorCityOpacity}
-                  />
-                </PrototypeSection>
+                ))}
               </PrototypeAccordion>
             </PrototypePanel>
 
@@ -482,6 +448,14 @@ interface PrototypeColourOpacityFieldsProps {
   opacityId: string;
   opacityValue: number;
   onOpacityChange: (value: number) => void;
+}
+
+interface PrototypeSimpleSectionConfig {
+  id: string;
+  title: string;
+  colourId: string;
+  colourValue: string;
+  opacityId: string;
 }
 
 interface PrototypePresetRowProps {
@@ -632,6 +606,39 @@ function PrototypeColourOpacityFields({
         onChange={onOpacityChange}
       />
     </>
+  );
+}
+
+function PrototypeSimpleSection({
+  section,
+  enabled,
+  onEnabledToggle,
+  opacityValue,
+  onOpacityChange,
+}: {
+  section: PrototypeSimpleSectionConfig;
+  enabled: boolean;
+  onEnabledToggle: () => void;
+  opacityValue: number;
+  onOpacityChange: (value: number) => void;
+}) {
+  return (
+    <PrototypeSection
+      id={section.id}
+      title={section.title}
+      enabled={enabled}
+      onEnabledToggle={onEnabledToggle}
+      badge={`${Math.round(opacityValue * 100)}%`}
+      badgeSwatch={section.colourValue}
+    >
+      <PrototypeColourOpacityFields
+        colourId={section.colourId}
+        colourValue={section.colourValue}
+        opacityId={section.opacityId}
+        opacityValue={opacityValue}
+        onOpacityChange={onOpacityChange}
+      />
+    </PrototypeSection>
   );
 }
 

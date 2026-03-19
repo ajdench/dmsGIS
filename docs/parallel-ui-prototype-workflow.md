@@ -29,6 +29,7 @@ Current example:
 Current sidebar-prototype interaction notes:
 
 - pane and sub-pane expand/collapse behavior uses Radix accordion primitives
+- repeated simple pane sections are config-driven from prototype seed data instead of hand-duplicated JSX
 - PMC row style editing currently uses a custom floating callout tied to the row pill rather than a production-integrated store path
 - floating callout placement math is extracted into a dedicated helper so geometry can be tested separately from rendering
 - the floating PMC callout is prototype-only and is intentionally tuned for interaction review, not yet treated as a production component API
@@ -46,8 +47,9 @@ The main app entry remains:
 3. Do not connect prototypes to `useAppStore` unless the explicit goal is state-integration testing.
 4. Use mock data inside `src/prototypes/` by default.
 5. Keep prototype CSS scoped to the prototype folder unless a shared token truly belongs in `src/styles/global.css`.
-6. Treat prototypes as disposable exploration code until a design is chosen.
-7. Migrate approved patterns into reusable app components only after the prototype is signed off.
+6. Keep prototype-only typography and control tuning out of shared production CSS unless that promotion is explicitly intended.
+7. Treat prototypes as disposable exploration code until a design is chosen.
+8. Migrate approved patterns into reusable app components only after the prototype is signed off.
 
 Strict development loop for this repo:
 
