@@ -45,6 +45,12 @@ import {
   getActiveAssignmentLookupSource,
   getActiveScenarioOutlineLookupSource,
 } from './lookupSources';
+import {
+  loadOverlayAssignmentDataset,
+  loadOverlayLookupDatasets,
+  resolveDataUrl,
+  type OverlayLookupDatasetDefinition,
+} from './overlayLookupBootstrap';
 import { resolveSingleClickSelection } from './singleClickSelection';
 import {
   applyBoundarySelection,
@@ -258,79 +264,52 @@ export function MapWorkspace() {
     selectedPointRef.current = selectedPointLayer;
     mapRef.current.addLayer(selectedPointLayer);
 
-    const jmcLookupSource = new VectorSource();
-    jmcBoundaryLookupSourceRef.current = jmcLookupSource;
-    const jmcAssignmentSource = new VectorSource();
-    jmcAssignmentLookupSourceRef.current = jmcAssignmentSource;
-    fetch(resolveDataUrl('data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson'))
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load JMC boundaries: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((geojson) => {
-        jmcLookupSource.clear();
-        jmcLookupSource.addFeatures(
-          new GeoJSON().readFeatures(geojson, {
-            featureProjection: 'EPSG:3857',
-          }),
-        );
-      })
-      .catch((error) => {
-        console.error('Failed to load JMC lookup boundaries', error);
-      });
+    const overlayRegionLookupSource = new VectorSource();
+    jmcBoundaryLookupSourceRef.current = overlayRegionLookupSource;
+    const overlayAssignmentSource = new VectorSource();
+    jmcAssignmentLookupSourceRef.current = overlayAssignmentSource;
+    const lookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [
+      {
+        key: 'current',
+        path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
+        source: overlayRegionLookupSource,
+        errorLabel: 'Failed to load JMC lookup boundaries',
+      },
+    ];
     for (const preset of getScenarioBoundaryLookupPresets()) {
       const path = getScenarioLookupBoundaryPath(preset);
       if (!path) continue;
       const scenarioLookupSource = new VectorSource();
       scenarioBoundaryLookupSourcesRef.current.set(preset, scenarioLookupSource);
-      fetch(resolveDataUrl(path))
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(
-              `Failed to load ${preset} boundaries: ${response.status}`,
-            );
-          }
-          return response.json();
-        })
-        .then((geojson) => {
-          scenarioLookupSource.clear();
-          scenarioLookupSource.addFeatures(
-            new GeoJSON().readFeatures(geojson, {
-              featureProjection: 'EPSG:3857',
-            }),
-          );
-        })
-        .catch((error) => {
-          console.error(`Failed to load ${preset} boundary lookup`, error);
-        });
-    }
-    fetch(resolveDataUrl('data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'))
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load JMC assignments: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((geojson) => {
-        jmcAssignmentSource.clear();
-        const features = new GeoJSON().readFeatures(geojson, {
-          featureProjection: 'EPSG:3857',
-        });
-        jmcAssignmentSource.addFeatures(features);
-        jmcAssignmentByBoundaryNameRef.current = new Map(
-          features.flatMap((feature) => {
-            const boundaryName = String(feature.get('boundary_name') ?? '').trim();
-            const jmcName = getJmcRegionName(feature);
-            if (!boundaryName || !jmcName) return [];
-            return [[boundaryName, jmcName] as const];
-          }),
-        );
-      })
-      .catch((error) => {
-        console.error('Failed to load JMC assignment lookup', error);
+      lookupDatasets.push({
+        key: preset,
+        path,
+        source: scenarioLookupSource,
+        errorLabel: `Failed to load ${preset} boundary lookup`,
       });
+    }
+    void loadOverlayLookupDatasets({
+      datasets: lookupDatasets,
+      resolveUrl: resolveDataUrl,
+      onError: (message, error) => {
+        console.error(message, error);
+      },
+    });
+    void loadOverlayAssignmentDataset({
+      dataset: {
+        path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+        source: overlayAssignmentSource,
+        errorLabel: 'Failed to load JMC assignment lookup',
+      },
+      resolveUrl: resolveDataUrl,
+      getBoundaryName: (feature) => String(feature.get('boundary_name') ?? ''),
+      getAssignmentName: getJmcRegionName,
+      onError: (message, error) => {
+        console.error(message, error);
+      },
+    }).then((assignmentMap) => {
+      jmcAssignmentByBoundaryNameRef.current = assignmentMap;
+    });
 
     return () => {
       mapRef.current?.setTarget(undefined);
@@ -1289,10 +1268,6 @@ function getRegionBoundaryLayerZIndex(layer: OverlayLayerStyle): number {
     return 6;
   }
   return 4;
-}
-
-function resolveDataUrl(path: string): string {
-  return new URL(path, window.location.origin + import.meta.env.BASE_URL).toString();
 }
 
 function getStyleForLayer(
