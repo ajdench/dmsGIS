@@ -2,19 +2,26 @@ import { PmcPanel } from '../groups/PmcPanel';
 import { useAppStore } from '../../store/appStore';
 
 export function SelectionPanel() {
-  const regions = useAppStore((state) => state.regions);
+  const facilityFilterOptions = useAppStore(
+    (state) => state.facilityFilterOptions,
+  );
   const facilitySearchQuery = useAppStore(
     (state) => state.facilityFilters.searchQuery,
   );
   const selectedRegions = useAppStore((state) => state.facilityFilters.regions);
+  const selectedTypes = useAppStore((state) => state.facilityFilters.types);
   const setFacilitySearchQuery = useAppStore(
     (state) => state.setFacilitySearchQuery,
   );
   const setFacilityFilterRegions = useAppStore(
     (state) => state.setFacilityFilterRegions,
   );
+  const setFacilityFilterTypes = useAppStore(
+    (state) => state.setFacilityFilterTypes,
+  );
 
   const selectedRegion = selectedRegions.length === 1 ? selectedRegions[0] : '';
+  const selectedType = selectedTypes.length === 1 ? selectedTypes[0] : '';
 
   return (
     <section className="panel">
@@ -35,9 +42,28 @@ export function SelectionPanel() {
         }
       >
         <option value="">All regions</option>
-        {regions.map((region) => (
-          <option key={region.name} value={region.name}>
-            {region.name}
+        {facilityFilterOptions.regions.map((region) => (
+          <option key={region} value={region}>
+            {region}
+          </option>
+        ))}
+      </select>
+      <label className="field-label" htmlFor="facility-type-filter">
+        Type
+      </label>
+      <select
+        id="facility-type-filter"
+        className="select"
+        aria-label="Filter facilities by type"
+        value={selectedType}
+        onChange={(event) =>
+          setFacilityFilterTypes(event.target.value ? [event.target.value] : [])
+        }
+      >
+        <option value="">All types</option>
+        {facilityFilterOptions.types.map((type) => (
+          <option key={type} value={type}>
+            {type}
           </option>
         ))}
       </select>

@@ -145,5 +145,5 @@ Current priority areas:
 - prefer broader production interaction coverage around selection/highlight flows before adding remote persistence or export polish
 - treat the current map-core modularization pass as complete enough to stop unless a new hotspot or regression appears
 - treat facility filters as a shared typed domain contract first, and only then choose which facets to surface in the production UI
-- the first promoted production facet is now `region`; additional facets should layer onto the same contract rather than reintroducing search-only assumptions
+- the first promoted production facets are now `region` and `type`; additional facets should layer onto the same contract rather than reintroducing search-only assumptions
 - keep prototype-sidebar work isolated until it is explicitly promoted

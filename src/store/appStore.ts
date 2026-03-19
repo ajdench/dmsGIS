@@ -40,6 +40,11 @@ interface ViewPresetState {
   basemap: BasemapSettings;
 }
 
+interface FacilityFilterOptions {
+  regions: string[];
+  types: string[];
+}
+
 interface AppState {
   layers: LayerState[];
   regions: RegionStyle[];
@@ -48,6 +53,7 @@ interface AppState {
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
   facilityFilters: FacilityFilterState;
+  facilityFilterOptions: FacilityFilterOptions;
   basemap: BasemapSettings;
   activeViewPreset: ViewPresetId;
   currentViewPresetState: ViewPresetState | null;
@@ -136,6 +142,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   facilitySymbolShape: 'circle',
   facilitySymbolSize: 3.5,
   facilityFilters: createFacilityFilterState(),
+  facilityFilterOptions: {
+    regions: [],
+    types: [],
+  },
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
   currentViewPresetState: null,
@@ -153,6 +163,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       const regions = facilitiesLayer
         ? await loadRegionStyles(facilitiesLayer.path, get().facilitySymbolSize)
         : [];
+      const facilityFilterOptions = facilitiesLayer
+        ? await loadFacilityFilterOptions(facilitiesLayer.path)
+        : { regions: [], types: [] };
       const layers = manifestLayers.map((layer) => ({
         id: layer.id,
         name: layer.name,
@@ -173,6 +186,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
         facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
         basemap: { ...currentViewPresetState.basemap },
+        facilityFilterOptions,
         currentViewPresetState,
         activeViewPreset: 'current',
         isLoading: false,
@@ -553,6 +567,40 @@ async function loadRegionStyles(
       }));
   } catch {
     return [];
+  }
+}
+
+async function loadFacilityFilterOptions(
+  path: string,
+): Promise<FacilityFilterOptions> {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) {
+      return { regions: [], types: [] };
+    }
+    const geojson = (await response.json()) as {
+      features?: Array<{ properties?: Record<string, unknown> }>;
+    };
+    const features = geojson.features ?? [];
+    const regions = new Set<string>();
+    const types = new Set<string>();
+
+    for (const feature of features) {
+      const props = parseFacilityProperties(feature.properties ?? {});
+      if (props.region.trim()) {
+        regions.add(props.region.trim());
+      }
+      if (props.type.trim()) {
+        types.add(props.type.trim());
+      }
+    }
+
+    return {
+      regions: [...regions].sort((a, b) => a.localeCompare(b)),
+      types: [...types].sort((a, b) => a.localeCompare(b)),
+    };
+  } catch {
+    return { regions: [], types: [] };
   }
 }
 

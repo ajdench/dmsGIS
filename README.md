@@ -104,7 +104,7 @@ Why this matters:
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
 - Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search, and that state is carried through the production store plus saved-session snapshot/apply paths.
-- The production Facilities pane now surfaces `region` as the first promoted typed filter facet, while `type` and `default visibility` remain domain-ready but not yet exposed in the UI.
+- The production Facilities pane now surfaces `region` and `type` as promoted typed filter facets, while `default visibility` remains domain-ready but not yet exposed in the UI.
 - Saved-view and map-session behavior is covered in `tests/savedViews.test.ts`.
 - Local saved-view persistence and action helpers are covered in `tests/savedViewStore.test.ts` and `tests/savedViewActions.test.ts`.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
@@ -140,7 +140,7 @@ The current production focus is map-core hardening and modularization, not new e
 
 Near-term production priorities:
 
-1. Decide whether `type` or `default visibility` should be the next promoted facility filter facet in the production UI.
+1. Decide whether `default visibility` should be the next promoted facility filter facet in the production UI.
 2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
 3. Continue production work in real domain areas, not by extracting for its own sake.
 4. Keep `npm run build` as the authoritative health check before describing the app as deployable.
