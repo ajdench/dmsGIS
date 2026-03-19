@@ -174,6 +174,144 @@ describe('appStore region controls', () => {
     expect(state.regionGlobalOpacity).toBe(1);
   });
 
+  it('reset clears transient search and selection while restoring the active preset state', () => {
+    useAppStore.setState({
+      activeViewPreset: 'current',
+      currentViewPresetState: {
+        layers: [
+          {
+            id: 'facilities',
+            name: 'Facilities',
+            type: 'point',
+            path: 'data/facilities/facilities.geojson',
+            visible: true,
+            opacity: 1,
+          },
+        ],
+        regions: [
+          {
+            name: 'North',
+            visible: true,
+            color: '#a7c636',
+            opacity: 1,
+            borderVisible: true,
+            borderColor: '#ffffff',
+            borderOpacity: 0,
+            symbolSize: 3.5,
+          },
+        ],
+        overlayLayers: [
+          {
+            id: 'pmcPopulatedCareBoardBoundaries',
+            name: 'PMC populated care board boundaries',
+            path: 'data/regions/UK_Active_Components_Codex_v10_geojson.geojson',
+            family: 'boardBoundaries',
+            visible: true,
+            opacity: 0.3,
+            borderVisible: true,
+            borderColor: '#ffffff',
+            borderOpacity: 0,
+            swatchColor: '#ed5151',
+          },
+        ],
+        regionGlobalOpacity: 1,
+        facilitySymbolShape: 'circle',
+        facilitySymbolSize: 3.5,
+        facilitySearchQuery: 'baseline',
+        basemap: {
+          provider: 'localDetailed',
+          scale: '10m',
+          landFillColor: '#ecf0e6',
+          landFillOpacity: 1,
+          showLandFill: true,
+          countryBorderColor: '#EBEBEB',
+          countryBorderOpacity: 1,
+          showCountryBorders: true,
+          countryLabelColor: '#0f172a',
+          countryLabelOpacity: 1,
+          showCountryLabels: false,
+          majorCityColor: '#1f2937',
+          majorCityOpacity: 1,
+          showMajorCities: false,
+          seaFillColor: '#d9e7f5',
+          seaFillOpacity: 1,
+          showSeaFill: true,
+          seaLabelColor: '#334155',
+          seaLabelOpacity: 1,
+          showSeaLabels: false,
+        },
+      },
+      layers: [
+        {
+          id: 'facilities',
+          name: 'Facilities',
+          type: 'point',
+          path: 'data/facilities/facilities.geojson',
+          visible: false,
+          opacity: 0.25,
+        },
+      ],
+      regions: [
+        {
+          name: 'North',
+          visible: false,
+          color: '#000000',
+          opacity: 0.2,
+          borderVisible: false,
+          borderColor: '#000000',
+          borderOpacity: 1,
+          symbolSize: 9,
+        },
+      ],
+      overlayLayers: [
+        {
+          id: 'pmcPopulatedCareBoardBoundaries',
+          name: 'PMC populated care board boundaries',
+          path: 'data/regions/UK_Active_Components_Codex_v10_geojson.geojson',
+          family: 'boardBoundaries',
+          visible: false,
+          opacity: 1,
+          borderVisible: false,
+          borderColor: '#000000',
+          borderOpacity: 1,
+          swatchColor: '#000000',
+        },
+      ],
+      facilitySearchQuery: 'temporary search',
+      selection: {
+        facilityIds: ['FAC-1'],
+        boundaryName: 'Boundary A',
+        jmcName: 'JMC North',
+      },
+    });
+
+    useAppStore.getState().resetActiveViewPreset();
+
+    const state = useAppStore.getState();
+    expect(state.layers[0]).toMatchObject({ visible: true, opacity: 1 });
+    expect(state.regions[0]).toMatchObject({
+      visible: true,
+      color: '#a7c636',
+      opacity: 1,
+      symbolSize: 3.5,
+    });
+    expect(state.overlayLayers[0]).toMatchObject({
+      visible: true,
+      opacity: 0.3,
+      borderVisible: true,
+      borderColor: '#ffffff',
+      borderOpacity: 0,
+      swatchColor: '#ed5151',
+    });
+    expect(state.facilitySearchQuery).toBe('');
+    expect(state.selection).toEqual({
+      facilityIds: [],
+      boundaryName: null,
+      jmcName: null,
+    });
+    expect(state.notice).toBe('Reset active view preset');
+  });
+
   it('maps coa3a to the JMC boundary dataset', () => {
     useAppStore.setState({
       activeViewPreset: 'current',

@@ -42,6 +42,10 @@ import {
 } from './pointSelection';
 import { renderDockedTooltip } from './tooltipController';
 import {
+  getActiveAssignmentLookupSource,
+  getActiveScenarioOutlineLookupSource,
+} from './lookupSources';
+import {
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
   findJmcNameForBoundarySelection,
@@ -169,18 +173,15 @@ export function MapWorkspace() {
           return;
         }
         selectedJmcSource.clear();
-        const liveScenarioBoundarySource = regionBoundaryRefs.current
-          .get('pmcUnpopulatedCareBoardBoundaries')
-          ?.getSource();
-        const activeScenarioBoundarySource =
-          liveScenarioBoundarySource && liveScenarioBoundarySource.getFeatures().length > 0
-            ? liveScenarioBoundarySource
-            : scenarioBoundaryLookupSourcesRef.current.get(activeViewPreset) ?? null;
         const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
           entry.coordinate,
           entry.jmcName,
           activeViewPreset,
-          activeScenarioBoundarySource,
+          getActiveScenarioOutlineLookupSource(
+            regionBoundaryRefs.current,
+            scenarioBoundaryLookupSourcesRef.current,
+            activeViewPreset,
+          ),
           jmcBoundaryLookupSourceRef.current,
         );
         for (const boundary of matchedJmcBoundaries) {
@@ -499,9 +500,10 @@ export function MapWorkspace() {
     const selectBoundary = (feature: Feature | null, coordinate?: [number, number]) => {
       const selectedSource = selectedBoundaryLayer.getSource();
       const selectedJmcSource = selectedJmcBoundaryLayer.getSource();
-      const activeAssignmentSource =
-        regionBoundaryRefs.current.get('careBoardBoundaries')?.getSource() ??
-        jmcAssignmentLookupSourceRef.current;
+      const activeAssignmentSource = getActiveAssignmentLookupSource(
+        regionBoundaryRefs.current,
+        jmcAssignmentLookupSourceRef.current,
+      );
       if (!selectedSource) return;
       selectedSource.clear();
       selectedJmcSource?.clear();
@@ -567,9 +569,6 @@ export function MapWorkspace() {
           event.pixel,
           facilitySearchQuery,
         );
-        const activeAssignmentSource =
-          regionBoundaryRefs.current.get('careBoardBoundaries')?.getSource() ??
-          jmcAssignmentLookupSourceRef.current;
         pointTooltipEntriesRef.current = collectPointTooltipEntries(
           {
             features: clusteredHitFeatures,
@@ -585,7 +584,15 @@ export function MapWorkspace() {
               return boundaryFeature ? getBoundaryName(boundaryFeature) : null;
             },
             getJmcNameAtCoordinate: (coordinate, preset) =>
-              findJmcNameAtCoordinate(coordinate, activeAssignmentSource, null, preset),
+              findJmcNameAtCoordinate(
+                coordinate,
+                getActiveAssignmentLookupSource(
+                  regionBoundaryRefs.current,
+                  jmcAssignmentLookupSourceRef.current,
+                ),
+                null,
+                preset,
+              ),
             facilitySearchQuery,
           },
         );
