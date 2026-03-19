@@ -1,4 +1,10 @@
+import { exportCurrentMapView } from '../../features/export/exportCurrentMapView';
+import { openSavedView, saveCurrentView } from '../../lib/browser/savedViewActions';
+import { useAppStore } from '../../store/appStore';
+
 export function TopBar() {
+  const appState = useAppStore();
+
   return (
     <header className="topbar">
       <div className="topbar__brand">
@@ -8,10 +14,41 @@ export function TopBar() {
         </div>
       </div>
       <div className="topbar__actions">
-        <button className="button button--ghost">Open</button>
-        <button className="button button--ghost">Save</button>
-        <button className="button button--ghost">Export</button>
-        <button className="button button--primary">Reset</button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => {
+            void openSavedView(appState);
+          }}
+        >
+          Open
+        </button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => {
+            void saveCurrentView(appState);
+          }}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => {
+            exportCurrentMapView();
+            appState.setNotice('Export is not implemented yet');
+          }}
+        >
+          Export
+        </button>
+        <button
+          type="button"
+          className="button button--primary"
+          onClick={() => appState.resetActiveViewPreset()}
+        >
+          Reset
+        </button>
       </div>
     </header>
   );

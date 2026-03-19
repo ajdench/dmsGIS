@@ -20,6 +20,7 @@ import type {
 } from '../../types';
 
 export interface PointTooltipEntry {
+  facilityId: string;
   facilityName: string;
   coordinate: [number, number];
   boundaryName: string | null;
@@ -230,6 +231,7 @@ export function collectPointTooltipEntries(params: {
     if (seen.has(key)) continue;
     seen.add(key);
     entries.push({
+      facilityId: facility.id,
       facilityName: name,
       coordinate,
       boundaryName,

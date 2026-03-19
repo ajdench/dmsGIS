@@ -522,4 +522,126 @@ describe('appStore region controls', () => {
       ['careBoardBoundaries', 'boardBoundaries'],
     ]);
   });
+
+  it('creates and reapplies a map session snapshot from store state', () => {
+    useAppStore.setState({
+      activeViewPreset: 'coa3a',
+      layers: [
+        {
+          id: 'facilities',
+          name: 'Facilities',
+          type: 'point',
+          path: 'data/facilities/facilities.geojson',
+          visible: true,
+          opacity: 0.8,
+        },
+      ],
+      overlayLayers: [
+        {
+          id: 'careBoardBoundaries',
+          name: 'Care board boundaries',
+          path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+          family: 'boardBoundaries',
+          visible: true,
+          opacity: 0.4,
+          borderVisible: true,
+          borderColor: '#8f8f8f',
+          borderOpacity: 0.14,
+          swatchColor: '#8f8f8f',
+        },
+      ],
+      regions: [
+        {
+          name: 'North',
+          visible: true,
+          color: '#a7c636',
+          opacity: 0.6,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0.2,
+          symbolSize: 4.5,
+        },
+      ],
+      regionGlobalOpacity: 0.6,
+      facilitySymbolShape: 'diamond',
+      facilitySymbolSize: 4.5,
+      facilitySearchQuery: 'north',
+      basemap: {
+        provider: 'localDetailed',
+        scale: '10m',
+        landFillColor: '#ecf0e6',
+        landFillOpacity: 1,
+        showLandFill: true,
+        countryBorderColor: '#EBEBEB',
+        countryBorderOpacity: 1,
+        showCountryBorders: true,
+        countryLabelColor: '#0f172a',
+        countryLabelOpacity: 1,
+        showCountryLabels: false,
+        majorCityColor: '#1f2937',
+        majorCityOpacity: 1,
+        showMajorCities: false,
+        seaFillColor: '#d9e7f5',
+        seaFillOpacity: 1,
+        showSeaFill: true,
+        seaLabelColor: '#334155',
+        seaLabelOpacity: 1,
+        showSeaLabels: false,
+      },
+      mapViewport: {
+        center: [100, 200],
+        zoom: 5.5,
+        rotation: 0.25,
+      },
+      selection: {
+        facilityIds: ['ABC'],
+        boundaryName: 'Boundary A',
+        jmcName: 'JMC North',
+      },
+    });
+
+    const snapshot = useAppStore.getState().createMapSessionSnapshot();
+
+    useAppStore.setState({
+      activeViewPreset: 'current',
+      layers: [],
+      overlayLayers: [],
+      regions: [],
+      regionGlobalOpacity: 1,
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      facilitySearchQuery: '',
+      mapViewport: {
+        center: [0, 0],
+        zoom: 0,
+        rotation: 0,
+      },
+      selection: {
+        facilityIds: [],
+        boundaryName: null,
+        jmcName: null,
+      },
+    });
+
+    useAppStore.getState().applyMapSessionState(snapshot);
+
+    const state = useAppStore.getState();
+    expect(state.activeViewPreset).toBe('coa3a');
+    expect(state.facilitySearchQuery).toBe('north');
+    expect(state.mapViewport).toEqual({
+      center: [100, 200],
+      zoom: 5.5,
+      rotation: 0.25,
+    });
+    expect(state.selection).toEqual({
+      facilityIds: ['ABC'],
+      boundaryName: 'Boundary A',
+      jmcName: 'JMC North',
+    });
+    expect(state.facilitySymbolShape).toBe('diamond');
+    expect(state.overlayLayers[0]).toMatchObject({
+      id: 'careBoardBoundaries',
+      opacity: 0.4,
+    });
+  });
 });

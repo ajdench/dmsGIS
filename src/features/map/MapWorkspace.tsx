@@ -76,12 +76,15 @@ export function MapWorkspace() {
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
   const facilitySearchQuery = useAppStore((state) => state.facilitySearchQuery);
+  const mapViewport = useAppStore((state) => state.mapViewport);
   const facilityFilters = getFacilityFilterDefinitions(
     createFacilityFilterState({ searchQuery: facilitySearchQuery }),
   );
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
   const overlayLayers = useAppStore((state) => state.overlayLayers);
+  const setMapViewport = useAppStore((state) => state.setMapViewport);
+  const setSelection = useAppStore((state) => state.setSelection);
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<OLMap | null>(null);
   const basemapRef = useRef<BasemapLayerSet | null>(null);
@@ -195,6 +198,21 @@ export function MapWorkspace() {
       },
       createSelectedPointStyle,
     });
+
+    const currentEntry = pointTooltipEntriesRef.current[pointTooltipIndexRef.current];
+    if (currentEntry) {
+      setSelection({
+        facilityIds: currentEntry.facilityId ? [currentEntry.facilityId] : [],
+        boundaryName: selectedBoundaryNameRef.current ?? currentEntry.boundaryName,
+        jmcName: selectedJmcNameRef.current ?? currentEntry.jmcName,
+      });
+    } else {
+      setSelection({
+        facilityIds: [],
+        boundaryName: selectedBoundaryNameRef.current,
+        jmcName: selectedJmcNameRef.current,
+      });
+    }
   };
 
   useEffect(() => {
@@ -209,6 +227,12 @@ export function MapWorkspace() {
         zoom: 5.6,
       }),
       layers: [],
+    });
+    const initialView = mapRef.current.getView();
+    setMapViewport({
+      center: (initialView.getCenter() as [number, number]) ?? [0, 0],
+      zoom: initialView.getZoom() ?? 0,
+      rotation: initialView.getRotation() ?? 0,
     });
 
     const basemapLayers = createBasemapLayers();
@@ -342,6 +366,52 @@ export function MapWorkspace() {
   }, [loadLayers]);
 
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const view = map.getView();
+    const currentCenter = view.getCenter() as [number, number] | undefined;
+    const nextCenter = mapViewport.center;
+    const currentZoom = view.getZoom() ?? 0;
+    const currentRotation = view.getRotation() ?? 0;
+
+    const centerChanged =
+      !currentCenter ||
+      Math.abs(currentCenter[0] - nextCenter[0]) > 0.001 ||
+      Math.abs(currentCenter[1] - nextCenter[1]) > 0.001;
+    const zoomChanged = Math.abs(currentZoom - mapViewport.zoom) > 0.001;
+    const rotationChanged = Math.abs(currentRotation - mapViewport.rotation) > 0.001;
+
+    if (centerChanged) {
+      view.setCenter(nextCenter);
+    }
+    if (zoomChanged) {
+      view.setZoom(mapViewport.zoom);
+    }
+    if (rotationChanged) {
+      view.setRotation(mapViewport.rotation);
+    }
+  }, [mapViewport]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const moveKey: EventsKey = map.on('moveend', () => {
+      const view = map.getView();
+      setMapViewport({
+        center: (view.getCenter() as [number, number]) ?? [0, 0],
+        zoom: view.getZoom() ?? 0,
+        rotation: view.getRotation() ?? 0,
+      });
+    });
+
+    return () => {
+      unByKey(moveKey);
+    };
+  }, [setMapViewport]);
+
+  useEffect(() => {
     const basemapLayers = basemapRef.current;
     if (!basemapLayers) return;
     const urls = getBasemapUrls();
@@ -439,6 +509,11 @@ export function MapWorkspace() {
       if (!feature) {
         selectedBoundaryNameRef.current = null;
         selectedJmcNameRef.current = null;
+        setSelection({
+          facilityIds: [],
+          boundaryName: null,
+          jmcName: null,
+        });
         return;
       }
 
@@ -452,6 +527,11 @@ export function MapWorkspace() {
         jmcBoundaryLookupSourceRef.current,
         activeViewPreset,
       );
+      setSelection({
+        facilityIds: [],
+        boundaryName: selectedBoundaryNameRef.current,
+        jmcName: selectedJmcNameRef.current,
+      });
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
@@ -536,6 +616,7 @@ export function MapWorkspace() {
     facilitySymbolSize,
     facilitySearchQuery,
     activeViewPreset,
+    setSelection,
   ]);
 
   useEffect(() => {

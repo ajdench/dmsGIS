@@ -16,7 +16,13 @@ import {
   getScenarioOutlineLayerConfig,
   isScenarioPreset,
 } from '../lib/config/viewPresets';
+import { createMapSessionState } from '../lib/savedViews';
 import { parseFacilityProperties } from '../lib/schemas/facilities';
+import type {
+  MapSessionState,
+  MapViewportState,
+  SelectionState,
+} from '../lib/schemas/savedViews';
 import { fetchLayerManifest } from '../lib/services/layers';
 
 interface ViewPresetState {
@@ -26,7 +32,7 @@ interface ViewPresetState {
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
-  facilitySearchQuery: string;
+  facilitySearchQuery?: string;
   basemap: BasemapSettings;
 }
 
@@ -37,13 +43,18 @@ interface AppState {
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
+  facilitySearchQuery: string;
   basemap: BasemapSettings;
   activeViewPreset: ViewPresetId;
   currentViewPresetState: ViewPresetState | null;
+  mapViewport: MapViewportState;
+  selection: SelectionState;
   isLoading: boolean;
   error: string | null;
+  notice: string | null;
   loadLayers: () => Promise<void>;
   activateViewPreset: (preset: ViewPresetId) => void;
+  resetActiveViewPreset: () => void;
   toggleLayer: (id: string) => void;
   setLayerOpacity: (id: string, opacity: number) => void;
   setBasemapProvider: (provider: BasemapProvider) => void;
@@ -92,11 +103,16 @@ interface AppState {
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
   setFacilitySearchQuery: (query: string) => void;
+  setMapViewport: (viewport: MapViewportState) => void;
+  setSelection: (selection: Partial<SelectionState>) => void;
   setOverlayLayerVisibility: (id: string, visible: boolean) => void;
   setOverlayLayerOpacity: (id: string, opacity: number) => void;
   setOverlayLayerBorderVisibility: (id: string, visible: boolean) => void;
   setOverlayLayerBorderColor: (id: string, color: string) => void;
   setOverlayLayerBorderOpacity: (id: string, opacity: number) => void;
+  createMapSessionSnapshot: () => MapSessionState;
+  applyMapSessionState: (session: MapSessionState) => void;
+  setNotice: (notice: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -110,8 +126,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
   currentViewPresetState: null,
+  mapViewport: createDefaultMapViewport(),
+  selection: createDefaultSelectionState(),
   isLoading: false,
   error: null,
+  notice: null,
   loadLayers: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -143,6 +162,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         currentViewPresetState,
         activeViewPreset: 'current',
         isLoading: false,
+        notice: null,
       });
     } catch (error) {
       const message =
@@ -166,6 +186,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
             facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
             facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
+            facilitySearchQuery: currentViewPresetState.facilitySearchQuery ?? '',
             basemap: { ...currentViewPresetState.basemap },
           }
         : createScenarioViewPresetState(currentViewPresetState, preset);
@@ -178,7 +199,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       regionGlobalOpacity: nextState.regionGlobalOpacity,
       facilitySymbolShape: nextState.facilitySymbolShape,
       facilitySymbolSize: nextState.facilitySymbolSize,
+      facilitySearchQuery: nextState.facilitySearchQuery,
       basemap: { ...nextState.basemap },
+    });
+  },
+  resetActiveViewPreset: () => {
+    get().activateViewPreset(get().activeViewPreset);
+    set({
+      facilitySearchQuery: '',
+      selection: createDefaultSelectionState(),
+      notice: 'Reset active view preset',
     });
   },
   toggleLayer: (id) =>
@@ -323,6 +353,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       };
     }),
   setFacilitySearchQuery: (query) => set({ facilitySearchQuery: query }),
+  setMapViewport: (viewport) => set({ mapViewport: viewport }),
+  setSelection: (selection) =>
+    set((state) => ({
+      selection: {
+        facilityIds: selection.facilityIds ?? state.selection.facilityIds,
+        boundaryName:
+          selection.boundaryName === undefined
+            ? state.selection.boundaryName
+            : selection.boundaryName,
+        jmcName:
+          selection.jmcName === undefined
+            ? state.selection.jmcName
+            : selection.jmcName,
+      },
+    })),
   setOverlayLayerVisibility: (id, visible) =>
     set((state) => ({
       overlayLayers: state.overlayLayers.map((layer) =>
@@ -366,6 +411,43 @@ export const useAppStore = create<AppState>((set, get) => ({
           : layer,
       ),
     })),
+  createMapSessionSnapshot: () => {
+    const state = get();
+    return createMapSessionState({
+      activeViewPreset: state.activeViewPreset,
+      viewport: state.mapViewport,
+      basemap: state.basemap,
+      layers: state.layers,
+      overlayLayers: state.overlayLayers,
+      regions: state.regions,
+      regionGlobalOpacity: state.regionGlobalOpacity,
+      facilitySymbolShape: state.facilitySymbolShape,
+      facilitySymbolSize: state.facilitySymbolSize,
+      facilityFilters: {
+        searchQuery: state.facilitySearchQuery,
+      },
+      selection: state.selection,
+    });
+  },
+  applyMapSessionState: (session) =>
+    set({
+      activeViewPreset: session.activeViewPreset,
+      mapViewport: { ...session.viewport },
+      basemap: { ...session.basemap },
+      layers: cloneLayers(session.layers),
+      overlayLayers: cloneOverlayLayers(session.overlayLayers),
+      regions: cloneRegions(session.regions),
+      regionGlobalOpacity: session.regionGlobalOpacity,
+      facilitySymbolShape: session.facilities.symbolShape,
+      facilitySymbolSize: session.facilities.symbolSize,
+      facilitySearchQuery: session.facilities.filters.searchQuery,
+      selection: {
+        facilityIds: [...session.selection.facilityIds],
+        boundaryName: session.selection.boundaryName,
+        jmcName: session.selection.jmcName,
+      },
+    }),
+  setNotice: (notice) => set({ notice }),
 }));
 
 async function loadRegionStyles(
@@ -492,6 +574,22 @@ function createDefaultBasemapSettings(): BasemapSettings {
   };
 }
 
+function createDefaultMapViewport(): MapViewportState {
+  return {
+    center: [0, 0],
+    zoom: 0,
+    rotation: 0,
+  };
+}
+
+function createDefaultSelectionState(): SelectionState {
+  return {
+    facilityIds: [],
+    boundaryName: null,
+    jmcName: null,
+  };
+}
+
 function createDefaultOverlayLayers(): OverlayLayerStyle[] {
   return [
     {
@@ -544,6 +642,7 @@ function createViewPresetState({
     regionGlobalOpacity: 1,
     facilitySymbolShape: 'circle',
     facilitySymbolSize: 3.5,
+    facilitySearchQuery: '',
     basemap: createDefaultBasemapSettings(),
   };
 }
@@ -559,6 +658,7 @@ function createScenarioViewPresetState(
     regionGlobalOpacity: source.regionGlobalOpacity,
     facilitySymbolShape: source.facilitySymbolShape,
     facilitySymbolSize: source.facilitySymbolSize,
+    facilitySearchQuery: source.facilitySearchQuery ?? '',
     basemap: { ...source.basemap },
   };
 }

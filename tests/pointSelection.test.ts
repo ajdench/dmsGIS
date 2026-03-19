@@ -52,6 +52,7 @@ describe('pointSelection', () => {
 
     expect(entries).toEqual([
       {
+        facilityId: '',
         facilityName: 'Test Facility',
         coordinate: [1, 2],
         boundaryName: 'Boundary A',
