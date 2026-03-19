@@ -1,14 +1,33 @@
-import { useState, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { SliderField } from '../../components/controls/SliderField';
+import { computeFloatingCalloutPlacement } from './floatingCallout';
 
 interface PrototypeToggleButtonProps {
   enabled: boolean;
   onClick?: () => void;
 }
 
-interface PrototypeMetricPillProps {
+interface PrototypeMetricPillProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
   value: string;
   swatch?: string;
+  swatchShape?: PrototypeShape;
+  swatchBorderColor?: string;
+  swatchBorderWidth?: number;
+  swatchBorderOpacity?: number;
+  asButton?: boolean;
+  ariaExpanded?: boolean;
+  ariaHaspopup?: 'dialog';
 }
 
 interface PrototypeControlFieldProps {
@@ -19,7 +38,8 @@ interface PrototypeControlFieldProps {
 interface PrototypeColorFieldProps {
   id: string;
   label: string;
-  defaultValue: string;
+  value: string;
+  onChange?: (value: string) => void;
 }
 
 interface PrototypeSliderControlProps {
@@ -40,6 +60,31 @@ interface PrototypeStaticRowProps {
   value: string;
   swatch?: string;
 }
+
+type PrototypeShape = 'circle' | 'square' | 'diamond' | 'triangle';
+export type { PrototypeShape };
+
+interface PrototypeShapePickerProps {
+  value: PrototypeShape;
+  onChange: (value: PrototypeShape) => void;
+}
+
+interface PrototypePopoverProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  trigger: ReactNode;
+  children: ReactNode;
+  scrollContainer?: HTMLElement | null;
+  portalContainer?: HTMLElement | null;
+  viewportContainer?: HTMLElement | null;
+}
+
+const SHAPE_OPTIONS: PrototypeShape[] = [
+  'circle',
+  'square',
+  'diamond',
+  'triangle',
+];
 
 export function PrototypeToggleButton({
   enabled,
@@ -69,27 +114,71 @@ export function PrototypeToggleButton({
   );
 }
 
-export function PrototypeMetricPill({
-  value,
-  swatch,
-}: PrototypeMetricPillProps) {
+export const PrototypeMetricPill = forwardRef<
+  HTMLButtonElement,
+  PrototypeMetricPillProps
+>(function PrototypeMetricPill(
+  {
+    value,
+    swatch,
+    swatchShape = 'circle',
+    swatchBorderColor = 'rgba(148, 163, 184, 0.6)',
+    swatchBorderWidth = 1,
+    swatchBorderOpacity = 1,
+    asButton = false,
+    ariaExpanded,
+    ariaHaspopup,
+    className,
+    type,
+    ...buttonProps
+  },
+  ref,
+) {
+  const content = (
+    <>
+      {swatch ? (
+        <span
+          className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}`}
+          style={{
+            backgroundColor: swatch,
+            borderColor: swatchBorderColor,
+            borderWidth: `${swatchBorderWidth}px`,
+            opacity: swatchBorderOpacity,
+          }}
+          aria-hidden="true"
+        />
+      ) : null}
+      <span>{value}</span>
+    </>
+  );
+
+  if (asButton) {
+    return (
+      <button
+        ref={ref}
+        type={type ?? 'button'}
+        className={`prototype-metric-pill prototype-metric-pill--button${
+          swatch ? ' prototype-metric-pill--swatch' : ''
+        }${className ? ` ${className}` : ''}`}
+        aria-expanded={ariaExpanded}
+        aria-haspopup={ariaHaspopup}
+        {...buttonProps}
+      >
+        {content}
+      </button>
+    );
+  }
+
   return (
     <span
       className={`prototype-metric-pill${
         swatch ? ' prototype-metric-pill--swatch' : ''
       }`}
     >
-      {swatch ? (
-        <span
-          className="prototype-metric-pill__swatch"
-          style={{ backgroundColor: swatch }}
-          aria-hidden="true"
-        />
-      ) : null}
-      <span>{value}</span>
+      {content}
     </span>
   );
-}
+});
 
 export function PrototypeControlField({
   label,
@@ -106,7 +195,8 @@ export function PrototypeControlField({
 export function PrototypeColorField({
   id,
   label,
-  defaultValue,
+  value,
+  onChange,
 }: PrototypeColorFieldProps) {
   return (
     <div className="prototype-control-field">
@@ -117,7 +207,8 @@ export function PrototypeColorField({
         id={id}
         className="color-input color-input--popover"
         type="color"
-        defaultValue={defaultValue}
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
       />
     </div>
   );
@@ -168,6 +259,170 @@ export function PrototypeStaticRow({
         <PrototypeToggleButton enabled={enabled} onClick={onToggle} />
         <PrototypeMetricPill value={value} swatch={swatch} />
       </span>
+    </div>
+  );
+}
+
+export function PrototypeShapePicker({
+  value,
+  onChange,
+}: PrototypeShapePickerProps) {
+  return (
+    <div className="prototype-shape-picker" role="group" aria-label="Shape">
+      {SHAPE_OPTIONS.map((shape) => (
+        <button
+          key={shape}
+          type="button"
+          className={`prototype-shape-button${
+            value === shape ? ' is-selected' : ''
+          }`}
+          onClick={() => onChange(shape)}
+          aria-pressed={value === shape}
+          aria-label={shape}
+        >
+          <span
+            className={`prototype-shape-icon prototype-shape-icon--${shape}`}
+            aria-hidden="true"
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function PrototypePopover({
+  open,
+  onOpenChange,
+  trigger,
+  children,
+  scrollContainer,
+  portalContainer,
+  viewportContainer,
+}: PrototypePopoverProps) {
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [positionStyle, setPositionStyle] = useState<CSSProperties | null>(null);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const updatePosition = () => {
+      const triggerElement = triggerRef.current;
+      const contentElement = contentRef.current;
+      const sidebarElement = scrollContainer;
+      const viewportElement = viewportContainer;
+
+      if (
+        !triggerElement ||
+        !contentElement ||
+        !sidebarElement ||
+        !viewportElement
+      ) {
+        return;
+      }
+
+      const triggerRect = triggerElement.getBoundingClientRect();
+      const contentRect = contentElement.getBoundingClientRect();
+      const viewportRect = viewportElement.getBoundingClientRect();
+
+      const portalRect = portalContainer?.getBoundingClientRect();
+      const placement = computeFloatingCalloutPlacement({
+        triggerRect,
+        contentRect,
+        viewportRect,
+        portalRect,
+      });
+
+      setPositionStyle({
+        position: 'absolute',
+        top: placement.top,
+        left: placement.left,
+        ['--prototype-popover-triangle-y' as string]: `${placement.triangleCenter}px`,
+      });
+    };
+
+    updatePosition();
+
+    let frameId: number | null = null;
+    const scheduleUpdate = () => {
+      if (frameId !== null) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = null;
+        updatePosition();
+      });
+    };
+
+    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('scroll', scheduleUpdate, true);
+    scrollContainer?.addEventListener('scroll', scheduleUpdate);
+
+    return () => {
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener('resize', scheduleUpdate);
+      window.removeEventListener('scroll', scheduleUpdate, true);
+      scrollContainer?.removeEventListener('scroll', scheduleUpdate);
+    };
+  }, [open, portalContainer, scrollContainer, viewportContainer]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (
+        target &&
+        !triggerRef.current?.contains(target) &&
+        !contentRef.current?.contains(target)
+      ) {
+        onOpenChange(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onOpenChange(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open, onOpenChange]);
+
+  return (
+    <div className="prototype-popover-anchor">
+      <div
+        ref={triggerRef}
+        onClick={() => onOpenChange(!open)}
+        className="prototype-popover-anchor__trigger"
+      >
+        {trigger}
+      </div>
+      {open
+        ? createPortal(
+            <div
+              ref={contentRef}
+              className="prototype-popover prototype-popover--floating"
+              style={positionStyle ?? undefined}
+            >
+              {children}
+            </div>,
+            portalContainer ?? document.body,
+          )
+        : null}
     </div>
   );
 }

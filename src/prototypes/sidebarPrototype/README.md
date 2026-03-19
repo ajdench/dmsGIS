@@ -19,6 +19,12 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Keep header control styling consistent across sub-pane rows
 - Use the same compact control sizing for pane headers and row controls
 - Keep the colour swatch and opacity/value inside a single pill
+- In PMC-style region lists, clicking the pill should open a floating style callout that remains visually attached to the source pill with a sliding edge pointer
+- PMC global controls should seed region-row styles at reset and should override matching row properties again when a global PMC control changes
+- Region-row edits should then remain local until another matching global PMC control is changed
+- PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
+- PMC row editors are grouped into `Points` and `Border` sections
+- Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline
 - Use red-tinted `Off` state styling and green-tinted `On` state styling, including hover treatment
 - Prevent large pane content, especially Facilities, from visually running beyond the available panel space
 - Do not duplicate `Visible` controls inside section bodies when `On/Off` already exists in the header
@@ -30,6 +36,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - `data.ts`
 - `main.tsx`
 - `PrototypeControls.tsx`
+- `floatingCallout.ts`
 - `SidebarPrototypeApp.tsx`
 - `PrototypeAccordion.tsx`
 - `prototype.css`

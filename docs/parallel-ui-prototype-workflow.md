@@ -26,6 +26,13 @@ Current example:
 - prototype styles: `src/prototypes/sidebarPrototype/prototype.css`
 - prototype-local notes: `src/prototypes/sidebarPrototype/README.md`
 
+Current sidebar-prototype interaction notes:
+
+- pane and sub-pane expand/collapse behavior uses Radix accordion primitives
+- PMC row style editing currently uses a custom floating callout tied to the row pill rather than a production-integrated store path
+- floating callout placement math is extracted into a dedicated helper so geometry can be tested separately from rendering
+- the floating PMC callout is prototype-only and is intentionally tuned for interaction review, not yet treated as a production component API
+
 The main app entry remains:
 
 - `index.html`
@@ -42,6 +49,14 @@ The main app entry remains:
 6. Treat prototypes as disposable exploration code until a design is chosen.
 7. Migrate approved patterns into reusable app components only after the prototype is signed off.
 
+Strict development loop for this repo:
+
+1. prove the interaction quickly
+2. if the same area is touched again, extract surviving logic from JSX/CSS glue into helpers or hooks
+3. name constants before adding more behavior on top
+4. add focused tests for any non-trivial pure logic before describing the area as stable
+5. update prototype-local docs and then checkpoint with `jj`
+
 ## Folder strategy
 
 Keep prototype work under:
@@ -54,6 +69,7 @@ Suggested contents:
 - `data.ts`
 - `<PrototypeName>App.tsx`
 - `PrototypeControls.tsx`
+- `floatingCallout.ts` or equivalent extracted behavior helper when geometry/motion becomes non-trivial
 - `PrototypeAccordion.tsx`
 - `prototype.css`
 - `README.md`
@@ -113,6 +129,7 @@ For this repo, likely candidates for promotion are:
 - sub-pane wrappers
 - shared control row patterns
 - shared toggle and metric-pill controls
+- PMC row style-editor trigger and floating callout behavior, if approved
 - fixed alignment/grid helpers for right-edge pane controls
 
 ## JJ and branch hygiene

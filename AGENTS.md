@@ -47,6 +47,8 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 - Do not assume prototype behavior should match production wiring yet.
 - When changing the main app, avoid coupling to prototype-only components or styles.
 - When discussing future UI work, keep production recommendations separate from prototype recommendations unless the user explicitly asks to promote prototype work.
+- The current sidebar prototype uses a prototype-local top bar shell, Radix accordion primitives for pane expansion, and a custom floating PMC row editor/callout driven by local state.
+- When prototype interaction math becomes non-trivial, extract it into a dedicated helper/hook and add focused tests before treating the area as stable.
 
 ## Current implementation notes
 
