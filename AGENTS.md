@@ -164,28 +164,84 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 
 1. Add a storage abstraction for saved states and saved filters.
    Start with a local/static implementation boundary so profile-backed persistence and sharing can be added later without rewriting UI or map code.
+   Concretely:
+   - define `SavedViewStore` and `SavedFilterStore` interfaces in production code
+   - support list/get/save/delete operations separately from UI components
+   - add a local in-browser implementation first for deterministic development and testing
+   - keep repository/serverless implementations behind the same interface
+   - make schema validation mandatory at the store boundary, not optional in callers
 2. Extend the facility filter model beyond text search.
    Add typed metadata facets, export-field definitions, saved-filter state, and filter presets so future facility workflows stay in the same domain layer.
+   Concretely:
+   - add first-class filter types for region, facility type, and visibility/default-state
+   - define filter serialization so saved views and saved filters share the same payload
+   - keep filter UI generation data-driven from filter definitions where practical
+   - add a clear distinction between active filters, preset filters, and ad hoc search text
 3. Expand the facility schema/domain model with future metadata fields.
    Keep tooltip, filtering, search, export, and future profile state aligned to the shared `FacilityRecord` contract instead of raw feature reads.
+   Concretely:
+   - define candidate metadata fields before wiring them into UI one by one
+   - distinguish raw imported properties from derived runtime fields
+   - add export-oriented labels/field definitions so export does not read arbitrary feature keys
+   - keep tooltip/search/export field choices explicit and versionable
 4. Extend the shared assignment model so future NHS/custom regrouping is data-driven.
    Avoid script-specific transformation logic for new region products or manual regrouping.
+   Concretely:
+   - add explicit assignment manifests/config for future region products
+   - separate source geography identity from scenario grouping identity
+   - support override tables without embedding regrouping rules in runtime map code
+   - keep preprocessing scripts consumers of shared config, not owners of it
 5. Add NHS and future custom overlay families to the production overlay model.
    Use the existing overlay-family metadata layer and section builders so new overlay types slot into the UI without architectural rework.
+   Concretely:
+   - add production-ready `nhsRegions` and `customRegions` overlay definitions
+   - surface those families in `OverlayPanel` sections only when datasets exist
+   - keep family-level visibility, titles, and ordering in selector metadata
+   - avoid introducing one-off preset-specific overlay UI paths
 6. Extend overlay metadata only when needed for production behavior.
    Candidates include descriptions, family-level defaults, visibility presets, scenario-specific empty-state copy, and export eligibility.
+   Concretely:
+   - add metadata only when it drives UI, persistence, or export behavior
+   - keep display metadata separate from geometry/style state
+   - reserve room for access-control metadata later without mixing it into map logic
 7. Expand direct tests for map interaction behavior beyond the extracted units.
    Add higher-value coverage for selected-point highlight behavior, boundary-only selection flows, overlay interaction combinations, and scenario-specific region highlighting.
+   Concretely:
+   - cover selected point highlight + tooltip sync
+   - cover boundary-only clicks with no point selection path
+   - cover scenario-specific outer-boundary highlight resolution
+   - cover facility filtering interaction with point selection and paging
 8. Add an end-to-end test slice for core user workflows.
    Focus on scenario switching, facility search/filtering, boundary selection, point paging, and saved-state restore once persistence exists.
+   Concretely:
+   - keep the first slice small and deterministic
+   - cover one happy path per major workflow before broadening matrix coverage
+   - add saved/open workflow checks only after the storage abstraction exists
 9. Add a production Docker path for the static app.
    Use a multi-stage build with compiled Vite assets and a minimal static web server image, with explicit version pinning and a clear upgrade path.
+   Concretely:
+   - add a multi-stage Dockerfile
+   - add a minimal runtime image for static assets
+   - document build args and subpath configuration
+   - make the production container path compatible with future auth/storage service additions
 10. Decide what state should persist across reloads before auth exists.
    Region style choices, scenario selection, overlay visibility, and facility filter state should be treated explicitly rather than incidentally.
+   Concretely:
+   - separate convenience persistence from formal saved views
+   - decide what is auto-restored locally vs only restored from explicit saved views
+   - keep this policy documented before wiring local storage behavior
 11. Add a lightweight auth abstraction before real authentication.
    Define the frontend-facing contract for user identity, access to saved views, and shared-view permissions before choosing a provider.
+   Concretely:
+   - define a minimal `AuthProvider` contract
+   - keep anonymous/local use working without auth
+   - model identity, session status, and access checks separately from map state
 12. Define the share model for saved views early.
    Decide on ownership, copy-vs-reference behavior, editability, and link-based vs account-based sharing so the persistence layer matches the intended product.
+   Concretely:
+   - decide whether shared views are immutable snapshots or live collaborative references
+   - define edit rights separately from view rights
+   - make link-sharing and account-sharing explicit modes in the domain model
 13. Continue UI cleanup where it buys clarity.
    Reduce remaining compounded spacing or popover inconsistencies, but keep this behind the domain/model work unless the user surfaces a concrete UX issue.
 14. Future basemap task: if multi-scale basemap is needed again, reintroduce additional preprocessed scales only with explicit product sign-off.
