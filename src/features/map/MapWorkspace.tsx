@@ -47,6 +47,7 @@ import {
 } from './lookupSources';
 import { resolveSingleClickSelection } from './singleClickSelection';
 import {
+  applyBoundarySelection,
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
   findJmcNameForBoundarySelection,
@@ -499,42 +500,22 @@ export function MapWorkspace() {
     if (!map || !selectedBoundaryLayer || !selectedJmcBoundaryLayer) return;
 
     const selectBoundary = (feature: Feature | null, coordinate?: [number, number]) => {
-      const selectedSource = selectedBoundaryLayer.getSource();
-      const selectedJmcSource = selectedJmcBoundaryLayer.getSource();
-      const activeAssignmentSource = getActiveAssignmentLookupSource(
-        regionBoundaryRefs.current,
-        jmcAssignmentLookupSourceRef.current,
-      );
-      if (!selectedSource) return;
-      selectedSource.clear();
-      selectedJmcSource?.clear();
-
-      if (!feature) {
-        selectedBoundaryNameRef.current = null;
-        selectedJmcNameRef.current = null;
-        setSelection({
-          facilityIds: [],
-          boundaryName: null,
-          jmcName: null,
-        });
-        return;
-      }
-
-      selectedSource.addFeature(feature.clone());
-      selectedBoundaryNameRef.current = getBoundaryName(feature);
-      selectedJmcNameRef.current = findJmcNameForBoundarySelection(
+      const appliedSelection = applyBoundarySelection({
         feature,
         coordinate,
-        jmcAssignmentByBoundaryNameRef.current,
-        activeAssignmentSource,
-        jmcBoundaryLookupSourceRef.current,
+        selectedBoundaryLayer,
+        selectedJmcBoundaryLayer,
+        assignmentByBoundaryName: jmcAssignmentByBoundaryNameRef.current,
+        assignmentSource: getActiveAssignmentLookupSource(
+          regionBoundaryRefs.current,
+          jmcAssignmentLookupSourceRef.current,
+        ),
+        boundarySource: jmcBoundaryLookupSourceRef.current,
         activeViewPreset,
-      );
-      setSelection({
-        facilityIds: [],
-        boundaryName: selectedBoundaryNameRef.current,
-        jmcName: selectedJmcNameRef.current,
       });
+      selectedBoundaryNameRef.current = appliedSelection.boundaryName;
+      selectedJmcNameRef.current = appliedSelection.jmcName;
+      setSelection(appliedSelection.selection);
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {

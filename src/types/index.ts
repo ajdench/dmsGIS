@@ -74,3 +74,9 @@ export interface Facility {
   latitude: number;
   longitude: number;
 }
+
+export interface SelectionState {
+  facilityIds: string[];
+  boundaryName: string | null;
+  jmcName: string | null;
+}

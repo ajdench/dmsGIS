@@ -3,7 +3,24 @@ import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import { getScenarioRegionName, isScenarioPreset } from '../../lib/config/viewPresets';
-import type { OverlayLayerStyle, ViewPresetId } from '../../types';
+import type { OverlayLayerStyle, SelectionState, ViewPresetId } from '../../types';
+
+interface ApplyBoundarySelectionParams {
+  feature: Feature | null;
+  coordinate?: [number, number];
+  selectedBoundaryLayer: VectorLayer<VectorSource>;
+  selectedJmcBoundaryLayer: VectorLayer<VectorSource>;
+  assignmentByBoundaryName: Map<string, string>;
+  assignmentSource: VectorSource | null;
+  boundarySource: VectorSource | null;
+  activeViewPreset: ViewPresetId;
+}
+
+export interface AppliedBoundarySelectionState {
+  boundaryName: string | null;
+  jmcName: string | null;
+  selection: SelectionState;
+}
 
 export function getBoundaryName(feature: Feature): string {
   const value =
@@ -99,6 +116,71 @@ export function findJmcNameForBoundarySelection(
     boundarySource,
     activeViewPreset,
   );
+}
+
+export function applyBoundarySelection(
+  params: ApplyBoundarySelectionParams,
+): AppliedBoundarySelectionState {
+  const {
+    feature,
+    coordinate,
+    selectedBoundaryLayer,
+    selectedJmcBoundaryLayer,
+    assignmentByBoundaryName,
+    assignmentSource,
+    boundarySource,
+    activeViewPreset,
+  } = params;
+  const selectedSource = selectedBoundaryLayer.getSource();
+  const selectedJmcSource = selectedJmcBoundaryLayer.getSource();
+
+  if (!selectedSource) {
+    return {
+      boundaryName: null,
+      jmcName: null,
+      selection: {
+        facilityIds: [],
+        boundaryName: null,
+        jmcName: null,
+      },
+    };
+  }
+
+  selectedSource.clear();
+  selectedJmcSource?.clear();
+
+  if (!feature) {
+    return {
+      boundaryName: null,
+      jmcName: null,
+      selection: {
+        facilityIds: [],
+        boundaryName: null,
+        jmcName: null,
+      },
+    };
+  }
+
+  selectedSource.addFeature(feature.clone());
+  const boundaryName = getBoundaryName(feature);
+  const jmcName = findJmcNameForBoundarySelection(
+    feature,
+    coordinate,
+    assignmentByBoundaryName,
+    assignmentSource,
+    boundarySource,
+    activeViewPreset,
+  );
+
+  return {
+    boundaryName,
+    jmcName,
+    selection: {
+      facilityIds: [],
+      boundaryName,
+      jmcName,
+    },
+  };
 }
 
 export function getSelectedJmcOutlineFeatures(
