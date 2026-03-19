@@ -1,9 +1,8 @@
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import type { FacilitySymbolShape } from '../../types';
 import type { PointTooltipEntry } from './pointSelection';
+import { syncSelectedPointHighlight } from './selectionHighlights';
 
 export interface TooltipDomRefs {
   root: HTMLDivElement | null;
@@ -114,23 +113,12 @@ export function renderDockedTooltip(
 
   root.classList.remove('map-tooltip-card--name-right');
   root.classList.remove('map-tooltip-card--hidden');
-  if (selectedPointSource) {
-    selectedPointSource.clear();
-    selectedPointSource.addFeature(
-      new Feature({
-        geometry: new Point(current.coordinate),
-      }),
-    );
-  }
-  if (selectedPointLayer) {
-    selectedPointLayer.setStyle(
-      createSelectedPointStyle(
-        facilitySymbolShape,
-        current.symbolSize,
-        current.hasVisibleBorder,
-      ) as never,
-    );
-  }
+  syncSelectedPointHighlight({
+    entry: current,
+    selectedPointLayer,
+    facilitySymbolShape,
+    createSelectedPointStyle,
+  });
 
   return index;
 }

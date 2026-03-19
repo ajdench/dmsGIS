@@ -51,6 +51,10 @@ import {
   resolveDataUrl,
   type OverlayLookupDatasetDefinition,
 } from './overlayLookupBootstrap';
+import {
+  syncBoundaryHighlightForPoint,
+  syncJmcOutlineHighlight,
+} from './selectionHighlights';
 import { resolveSingleClickSelection } from './singleClickSelection';
 import {
   applyBoundarySelection,
@@ -156,50 +160,28 @@ export function MapWorkspace() {
       selectedPointLayer: selectedPointRef.current,
       selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
       setSelectedBoundaryForPoint: (entry) => {
-        const selectedBoundarySource = selectedBoundaryRef.current?.getSource();
-        if (!selectedBoundarySource) {
-          return;
-        }
-        selectedBoundarySource.clear();
-        const matchedBoundary = findCareBoardBoundaryAtCoordinate(
-          entry.coordinate,
+        const nextState = syncBoundaryHighlightForPoint({
+          entry,
           overlayLayers,
-          regionBoundaryRefs.current,
-        );
-        if (matchedBoundary) {
-          selectedBoundarySource.addFeature(matchedBoundary.clone());
-          selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
-          selectedJmcNameRef.current = entry.jmcName;
-        } else {
-          selectedBoundaryNameRef.current = null;
-          selectedJmcNameRef.current = entry.jmcName;
-        }
+          regionBoundaryRefs: regionBoundaryRefs.current,
+          selectedBoundaryLayer: selectedBoundaryRef.current,
+        });
+        selectedBoundaryNameRef.current = nextState.boundaryName;
+        selectedJmcNameRef.current = nextState.jmcName;
       },
       syncSelectedJmcBoundaries: (entry) => {
-        const selectedJmcSource = selectedJmcBoundaryRef.current?.getSource();
-        if (!selectedJmcSource) {
-          return;
-        }
-        selectedJmcSource.clear();
-        const matchedJmcBoundaries = getSelectedJmcOutlineFeatures(
-          entry.coordinate,
-          entry.jmcName,
+        syncJmcOutlineHighlight({
+          entry,
           activeViewPreset,
-          getActiveScenarioOutlineLookupSource(
+          selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
+          scenarioBoundarySource: getActiveScenarioOutlineLookupSource(
             regionBoundaryRefs.current,
             scenarioBoundaryLookupSourcesRef.current,
             activeViewPreset,
           ),
-          jmcBoundaryLookupSourceRef.current,
-        );
-        for (const boundary of matchedJmcBoundaries) {
-          const outline = boundary.clone();
-          outline.set(
-            'selectionColor',
-            getSelectedJmcOutlineColor(boundary, activeViewPreset),
-          );
-          selectedJmcSource.addFeature(outline);
-        }
+          jmcBoundaryLookupSource: jmcBoundaryLookupSourceRef.current,
+          getSelectedOutlineColor: getSelectedJmcOutlineColor,
+        });
       },
       setSelectedBoundaryState: (boundaryName, jmcName) => {
         selectedBoundaryNameRef.current = boundaryName;
