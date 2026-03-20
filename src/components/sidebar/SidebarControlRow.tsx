@@ -10,6 +10,7 @@ interface SidebarControlRowProps {
   swatchColor?: string;
   swatchOpacity?: number;
   children: ReactNode;
+  trailingControl?: ReactNode;
 }
 
 export function SidebarControlRow({
@@ -21,21 +22,36 @@ export function SidebarControlRow({
   swatchColor,
   swatchOpacity = 1,
   children,
+  trailingControl,
 }: SidebarControlRowProps) {
   const [open, setOpen] = useState(false);
+  const [suppressHoverPreview, setSuppressHoverPreview] = useState(false);
 
   return (
-    <div className="sidebar-inline-row">
-      <span className="sidebar-inline-row__label">{label}</span>
-      <span className="sidebar-inline-row__meta">
+    <section className="sidebar-section-card">
+      <div className="sidebar-section-card__bar">
+        <span className="sidebar-section-card__title-wrap">
+          <span className="sidebar-section-card__title">{label}</span>
+        </span>
+        <span className="sidebar-section-card__meta">
         <button
           type="button"
           className={`sidebar-toggle-button${enabled ? ' is-on' : ' is-off'}`}
-          onClick={() => onEnabledChange(!enabled)}
+          data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
+          onClick={() => {
+            setSuppressHoverPreview(true);
+            onEnabledChange(!enabled);
+          }}
+          onMouseLeave={() => setSuppressHoverPreview(false)}
           aria-label={`${label} visible`}
           aria-pressed={enabled}
         >
-          {enabled ? 'On' : 'Off'}
+          <span className="sidebar-toggle-button__label sidebar-toggle-button__label--default">
+            {enabled ? 'On' : 'Off'}
+          </span>
+          <span className="sidebar-toggle-button__label sidebar-toggle-button__label--hover">
+            {enabled ? 'Off' : 'On'}
+          </span>
         </button>
         <SidebarPopover
           open={open}
@@ -61,7 +77,9 @@ export function SidebarControlRow({
         >
           {children}
         </SidebarPopover>
-      </span>
-    </div>
+        {trailingControl}
+        </span>
+      </div>
+    </section>
   );
 }
