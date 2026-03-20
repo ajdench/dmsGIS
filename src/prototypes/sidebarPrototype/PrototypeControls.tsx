@@ -138,14 +138,7 @@ function buildMixedSwatchBackground(stops: SwatchStop[]) {
   }
 
   const normalizedStops = stops.slice(0, 4);
-  const segment = 100 / normalizedStops.length;
-  const gradientStops = normalizedStops
-    .map((stop, index) => {
-      const start = segment * index;
-      const end = segment * (index + 1);
-      return `${applyOpacityToColor(stop.color, stop.opacity ?? 1)} ${start}% ${end}%`;
-    })
-    .join(', ');
+  const gradientStops = buildBlendedGradientStops(normalizedStops, 0.34);
 
   return `conic-gradient(from 225deg, ${gradientStops})`;
 }
@@ -161,16 +154,40 @@ function buildMixedRectSwatchBackground(stops: SwatchStop[]) {
   }
 
   const normalizedStops = stops.slice(0, 4);
-  const segment = 100 / normalizedStops.length;
-  const gradientStops = normalizedStops
-    .map((stop, index) => {
-      const start = segment * index;
-      const end = segment * (index + 1);
-      return `${applyOpacityToColor(stop.color, stop.opacity ?? 1)} ${start}% ${end}%`;
-    })
-    .join(', ');
+  const gradientStops = buildBlendedGradientStops(normalizedStops, 0.2);
 
   return `linear-gradient(90deg, ${gradientStops})`;
+}
+
+function buildBlendedGradientStops(stops: SwatchStop[], featherRatio: number) {
+  const normalizedStops = stops.map((stop) =>
+    applyOpacityToColor(stop.color, stop.opacity ?? 1),
+  );
+
+  if (normalizedStops.length === 1) {
+    return `${normalizedStops[0]} 0% 100%`;
+  }
+
+  const segment = 100 / normalizedStops.length;
+  const feather = segment * featherRatio;
+  const gradientStops: string[] = [`${normalizedStops[0]} 0%`];
+
+  normalizedStops.forEach((color, index) => {
+    const boundary = segment * (index + 1);
+    const nextColor = normalizedStops[index + 1];
+
+    if (!nextColor) {
+      gradientStops.push(`${color} 100%`);
+      return;
+    }
+
+    gradientStops.push(`${color} ${Math.max(0, boundary - feather)}%`);
+    gradientStops.push(
+      `${nextColor} ${Math.min(100, boundary + feather)}%`,
+    );
+  });
+
+  return gradientStops.join(', ');
 }
 
 function buildSwatchStyle({

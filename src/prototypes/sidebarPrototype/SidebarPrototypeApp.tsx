@@ -30,6 +30,8 @@ import {
   PrototypeToggleButton,
 } from './PrototypeControls';
 
+type LabelSectionId = (typeof LABEL_SIMPLE_SECTIONS)[number]['id'];
+
 interface RegionStyleState {
   shape: PrototypeShape;
   size: number;
@@ -39,6 +41,18 @@ interface RegionStyleState {
   borderWidth: number;
   borderOpacity: number;
 }
+
+interface LabelStyleState {
+  size: number;
+  opacity: number;
+  color: string;
+  borderColor: string;
+  borderWidth: number;
+  borderOpacity: number;
+}
+
+type LabelStyleKey = keyof LabelStyleState;
+type LabelStylesRecord = Record<LabelSectionId, LabelStyleState>;
 
 type RegionStyleKey =
   | 'shape'
@@ -59,10 +73,33 @@ const INITIAL_FACILITY_STYLE: RegionStyleState = {
   borderOpacity: 0.2,
 };
 
+const INITIAL_LABEL_STYLES: LabelStylesRecord = {
+  'country-labels': {
+    size: 8,
+    opacity: 0.4,
+    color: '#0f172a',
+    borderColor: '#f8fafc',
+    borderWidth: 0.5,
+    borderOpacity: 0.3,
+  },
+  'major-cities': {
+    size: 6,
+    opacity: 0.65,
+    color: '#1f2937',
+    borderColor: '#f8fafc',
+    borderWidth: 0.5,
+    borderOpacity: 0.35,
+  },
+};
+
 function buildInitialRegionStyles() {
   return Object.fromEntries(
     REGION_ROWS.map((region) => [region, { ...INITIAL_FACILITY_STYLE }]),
   ) as Record<string, RegionStyleState>;
+}
+
+function buildInitialLabelStyles() {
+  return structuredClone(INITIAL_LABEL_STYLES);
 }
 
 function getMixedRegionColors(
@@ -124,8 +161,6 @@ export function SidebarPrototypeApp() {
   const [facilityBorderOpacity, setFacilityBorderOpacity] = useState(
     INITIAL_FACILITY_STYLE.borderOpacity,
   );
-  const [countryLabelOpacity, setCountryLabelOpacity] = useState(0.4);
-  const [majorCityOpacity, setMajorCityOpacity] = useState(0.65);
   const [paneEnabled, setPaneEnabled] =
     useState<Record<string, boolean>>(INITIAL_PANE_ENABLED);
   const [sectionEnabled, setSectionEnabled] =
@@ -137,6 +172,8 @@ export function SidebarPrototypeApp() {
   const [openRegionPopover, setOpenRegionPopover] = useState<string | null>(null);
   const [regionStyles, setRegionStyles] =
     useState<Record<string, RegionStyleState>>(buildInitialRegionStyles);
+  const [labelStyles, setLabelStyles] =
+    useState<LabelStylesRecord>(buildInitialLabelStyles);
   const mixedFacilityColors = getMixedRegionColors(regionStyles, 'color');
   const mixedFacilityBorderColors = getMixedRegionColors(
     regionStyles,
@@ -184,6 +221,21 @@ export function SidebarPrototypeApp() {
 
     applyFacilityStyle(key, value);
   };
+
+  const setLabelStyle = <K extends LabelStyleKey>(
+    sectionId: LabelSectionId,
+    key: K,
+    value: LabelStyleState[K],
+  ) => {
+    setLabelStyles((current) => ({
+      ...current,
+      [sectionId]: {
+        ...current[sectionId],
+        [key]: value,
+      },
+    }));
+  };
+
   const resetPrototypeState = () => {
     setOpenPanes(DEFAULT_OPEN_PANES);
     setOpenBasemapSections(DEFAULT_BASEMAP_SECTIONS);
@@ -200,14 +252,13 @@ export function SidebarPrototypeApp() {
     setFacilityBorderColor(INITIAL_FACILITY_STYLE.borderColor);
     setFacilityBorderWidth(INITIAL_FACILITY_STYLE.borderWidth);
     setFacilityBorderOpacity(INITIAL_FACILITY_STYLE.borderOpacity);
-    setCountryLabelOpacity(0.4);
-    setMajorCityOpacity(0.65);
     setPaneEnabled(INITIAL_PANE_ENABLED);
     setSectionEnabled(INITIAL_SECTION_ENABLED);
     setRegionEnabled(buildInitialRegionEnabled);
     setOverlayRowEnabled(INITIAL_OVERLAY_ROW_ENABLED);
     setOpenRegionPopover(null);
     setRegionStyles(buildInitialRegionStyles);
+    setLabelStyles(buildInitialLabelStyles);
   };
 
   return (
@@ -395,22 +446,16 @@ export function SidebarPrototypeApp() {
                 level="subpane"
               >
                 {LABEL_SIMPLE_SECTIONS.map((section) => (
-                  <PrototypeSimpleSection
+                  <PrototypeLabelSection
                     key={section.id}
                     section={section}
                     enabled={sectionEnabled[section.id]}
                     onEnabledToggle={() =>
                       toggleKey(section.id, setSectionEnabled)
                     }
-                    opacityValue={
-                      section.id === 'country-labels'
-                        ? countryLabelOpacity
-                        : majorCityOpacity
-                    }
-                    onOpacityChange={
-                      section.id === 'country-labels'
-                        ? setCountryLabelOpacity
-                        : setMajorCityOpacity
+                    styleState={labelStyles[section.id]}
+                    onStyleChange={(key, value) =>
+                      setLabelStyle(section.id, key, value)
                     }
                   />
                 ))}
@@ -492,6 +537,25 @@ interface PrototypeSimpleSectionConfig {
   colourId: string;
   colourValue: string;
   opacityId: string;
+}
+
+interface PrototypeLabelSectionProps {
+  section: PrototypeSimpleSectionConfig;
+  enabled: boolean;
+  onEnabledToggle: () => void;
+  styleState: LabelStyleState;
+  onStyleChange: <K extends LabelStyleKey>(
+    key: K,
+    value: LabelStyleState[K],
+  ) => void;
+}
+
+interface PrototypeSimpleSectionProps {
+  section: PrototypeSimpleSectionConfig;
+  enabled: boolean;
+  onEnabledToggle: () => void;
+  opacityValue: number;
+  onOpacityChange: (value: number) => void;
 }
 
 interface PrototypePresetRowProps {
@@ -663,13 +727,7 @@ function PrototypeSimpleSection({
   onEnabledToggle,
   opacityValue,
   onOpacityChange,
-}: {
-  section: PrototypeSimpleSectionConfig;
-  enabled: boolean;
-  onEnabledToggle: () => void;
-  opacityValue: number;
-  onOpacityChange: (value: number) => void;
-}) {
+}: PrototypeSimpleSectionProps) {
   return (
     <PrototypeSection
       id={section.id}
@@ -688,6 +746,86 @@ function PrototypeSimpleSection({
         opacityValue={opacityValue}
         onOpacityChange={onOpacityChange}
       />
+    </PrototypeSection>
+  );
+}
+
+function PrototypeLabelSection({
+  section,
+  enabled,
+  onEnabledToggle,
+  styleState,
+  onStyleChange,
+}: PrototypeLabelSectionProps) {
+  return (
+    <PrototypeSection
+      id={section.id}
+      title={section.title}
+      enabled={enabled}
+      onEnabledToggle={onEnabledToggle}
+      badge={`${Math.round(styleState.opacity * 100)}%`}
+      badgeSwatch={styleState.color}
+      badgeSwatchOpacity={styleState.opacity}
+    >
+      <PrototypeControlSection title="Text">
+        <PrototypeColorField
+          id={section.colourId}
+          label="Colour"
+          value={styleState.color}
+          opacityPreview={styleState.opacity}
+          onChange={(color) => onStyleChange('color', color)}
+        />
+
+        <PrototypeSliderControl
+          id={`${section.id}-size`}
+          label="Size"
+          value={styleState.size}
+          min={1}
+          max={18}
+          step={0.5}
+          mode="raw"
+          onChange={(size) => onStyleChange('size', size)}
+        />
+
+        <PrototypeSliderControl
+          id={section.opacityId}
+          label="Opacity"
+          value={styleState.opacity}
+          onChange={(opacity) => onStyleChange('opacity', opacity)}
+        />
+      </PrototypeControlSection>
+
+      <div className="prototype-popover__divider" aria-hidden="true" />
+
+      <PrototypeControlSection title="Border">
+        <PrototypeColorField
+          id={`${section.id}-border-colour`}
+          label="Colour"
+          value={styleState.borderColor}
+          opacityPreview={styleState.borderOpacity}
+          onChange={(borderColor) => onStyleChange('borderColor', borderColor)}
+        />
+
+        <PrototypeSliderControl
+          id={`${section.id}-border-width`}
+          label="Thickness"
+          value={styleState.borderWidth}
+          min={0}
+          max={6}
+          step={0.5}
+          mode="raw"
+          onChange={(borderWidth) => onStyleChange('borderWidth', borderWidth)}
+        />
+
+        <PrototypeSliderControl
+          id={`${section.id}-border-opacity`}
+          label="Opacity"
+          value={styleState.borderOpacity}
+          onChange={(borderOpacity) =>
+            onStyleChange('borderOpacity', borderOpacity)
+          }
+        />
+      </PrototypeControlSection>
     </PrototypeSection>
   );
 }

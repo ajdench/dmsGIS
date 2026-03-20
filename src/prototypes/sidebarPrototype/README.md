@@ -42,6 +42,13 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - `SidebarPrototypeApp.tsx`
 - `PrototypeAccordion.tsx`
 - `prototype.css`
+- `VERSIONS.md`
+
+## Versioning
+
+- use `VERSIONS.md` to record stable prototype milestones
+- treat the `jj` commit labeled `Snapshot sidebar prototype v1` as the saved `v1` baseline
+- treat the new empty working copy created immediately after that checkpoint as the start of `v2`
 
 ## Promotion guidance
 

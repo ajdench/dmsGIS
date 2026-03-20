@@ -65,6 +65,7 @@ Why this matters:
 - `docs/internal-architecture-principles.md`
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
+- `src/prototypes/sidebarPrototype/VERSIONS.md`
 - `AGENTS.md`
 - `docs/prompts/`
 
