@@ -28,12 +28,13 @@ export function SidebarPopover({
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [positionStyle, setPositionStyle] = useState<CSSProperties | null>(null);
-  const portalTarget = typeof document === 'undefined' ? null : document.body;
 
   const sidebarElement = useMemo(
     () => anchorRef.current?.closest('.sidebar--right') as HTMLElement | null,
     [open],
   );
+  const portalTarget =
+    sidebarElement ?? (typeof document === 'undefined' ? null : document.body);
 
   useLayoutEffect(() => {
     if (!open || !anchorRef.current || !contentRef.current || !sidebarElement) {
@@ -44,6 +45,7 @@ export function SidebarPopover({
       const triggerRect = anchorRef.current?.getBoundingClientRect();
       const contentRect = contentRef.current?.getBoundingClientRect();
       const viewportRect = sidebarElement.getBoundingClientRect();
+      const portalRect = portalTarget?.getBoundingClientRect();
       if (!triggerRect || !contentRect) {
         return;
       }
@@ -52,10 +54,11 @@ export function SidebarPopover({
         triggerRect,
         contentRect,
         viewportRect,
+        portalRect,
       });
 
       setPositionStyle({
-        position: 'fixed',
+        position: 'absolute',
         top: placement.top,
         left: placement.left,
         ['--sidebar-popover-triangle-y' as string]: `${placement.triangleCenter}px`,
@@ -85,7 +88,7 @@ export function SidebarPopover({
       window.removeEventListener('scroll', scheduleUpdate, true);
       sidebarElement.removeEventListener('scroll', scheduleUpdate);
     };
-  }, [open, sidebarElement]);
+  }, [open, portalTarget, sidebarElement]);
 
   useEffect(() => {
     if (!open) return;

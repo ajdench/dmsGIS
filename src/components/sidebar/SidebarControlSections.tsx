@@ -41,8 +41,9 @@ export function SidebarControlSections({
   return (
     <>
       {sections.map((section) => (
-        <div key={section.title} className="popover-section">
-          <p className="popover-section__title">{section.title}</p>
+        <section key={section.title} className="sidebar-control-section">
+          <div className="sidebar-popover__section-title">{section.title}</div>
+          <div className="sidebar-control-section__content">
           {section.fields.map((field) => (
             <SidebarControlField
               key={field.id}
@@ -50,7 +51,8 @@ export function SidebarControlSections({
               ariaLabelPrefix={`${ariaLabelPrefix} ${section.title}`}
             />
           ))}
-        </div>
+          </div>
+        </section>
       ))}
     </>
   );
