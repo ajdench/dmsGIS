@@ -26,6 +26,7 @@ Current example:
 - prototype popover field definitions: `src/prototypes/sidebarPrototype/popoverFields.tsx`
 - prototype production-preparation note: `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 - prototype promotion boundary note: `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
+- prototype promotion plan: `src/prototypes/sidebarPrototype/PROMOTION.md`
 - prototype style-state domain: `src/prototypes/sidebarPrototype/prototypeStyleState.ts`
 - prototype sortable helper: `src/prototypes/sidebarPrototype/sortableList.ts`
 - prototype styles: `src/prototypes/sidebarPrototype/prototype.css`

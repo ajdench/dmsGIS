@@ -51,6 +51,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - `PrototypeControls.tsx`
 - `floatingCallout.ts`
 - `popoverFields.tsx`
+- `PROMOTION.md`
 - `PROMOTION_BOUNDARY.md`
 - `PRODUCTION_PREPARATION.md`
 - `prototypeStyleState.ts`
@@ -63,6 +64,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 Production-aware migration notes:
 
 - `PRODUCTION_PREPARATION.md` maps the current prototype modules onto the inspected production sidebar files and suggests a promotion order without changing the production app yet
+- `PROMOTION.md` communicates the current readiness state, promotion requirements, and the recommended production migration sequence
 - `PROMOTION_BOUNDARY.md` defines what is currently a promotion candidate versus what should remain prototype-only
 
 Current focused prototype tests:
