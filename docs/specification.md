@@ -135,15 +135,53 @@ Current implementation direction:
 
 ## 10. Current implementation emphasis
 
-Current production work is emphasizing map-core hardening and modularization over new feature breadth.
+Current production work should emphasize improving the shipped production app before expanding product breadth.
 
 Current priority areas:
 
-- keep shrinking `src/features/map/MapWorkspace.tsx` by extracting runtime responsibilities into small testable modules
+- improve existing production workflows and usability before taking on more future-facing scope
 - keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
-- prefer broader production interaction coverage around selection/highlight flows before adding remote persistence or export polish
-- treat the current map-core modularization pass as complete enough to stop unless a new hotspot or regression appears
-- treat facility filters as a shared typed domain contract first, and only then choose which facets to surface in the production UI
-- the promoted production facility facets are now `region`, `type`, and `default visibility`; further work should refine the same contract rather than reintroducing search-only assumptions
+- keep treating facility filters as a shared typed domain contract; future work should refine usability, not rebuild parallel state
+- prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
+
+## 11. Future functionality areas
+
+### Functional areas
+
+These are future user-facing capability areas. They should stay documented and visible, but they should not displace current production improvement work unless explicitly prioritized.
+
+- facility-filter usability and saved-filter behavior
+  improve clarity, reset flows, active-filter visibility, and eventually save/reuse filter combinations
+- richer saved-view management and remote storage backends
+  extend beyond local browser storage into repository-backed or service-backed implementations behind the same contract
+- future overlay families such as NHS/custom regions
+  add new overlay products through the same metadata/bootstrap path rather than separate runtime forks
+- export completion and polish
+  finish the exposed export workflow and make it reliable enough for operational use
+- authenticated/shareable saved-view behavior
+  add identity, ownership, and sharing without changing the underlying saved-view contract
+- deliberate promotion of approved prototype interaction patterns
+  move only approved interaction ideas into production, one pattern at a time
+
+### Non-functional areas
+
+These are future quality, maintainability, and delivery areas. They are not end-user features, but they strongly affect product reliability and development speed.
+
+- release-gate discipline around `build`
+  keep the real deployable build green and treat it as the authoritative health signal
+- broader workflow and interaction testing
+  add more protection around real end-user flows, not only isolated helpers
+- runtime/map performance
+  reduce heavy payloads, avoid unnecessary layer churn, and keep interaction smooth on larger datasets
+- deployment and containerization
+  preserve the static-first path while making the app easy to build and serve in a minimal container
+- architecture consistency between production and prototype paths
+  keep both paths healthy without letting one leak assumptions into the other
+- clearer prototype-to-production promotion rules
+  make it explicit when a prototype idea is experimental, approved, or promoted
+
+## 12. Architectural working rules
+
+Future implementation should follow the internal architecture principles documented in [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md).

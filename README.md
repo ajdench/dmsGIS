@@ -62,6 +62,7 @@ Why this matters:
 ## Documents
 
 - `docs/specification.md`
+- `docs/internal-architecture-principles.md`
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
 - `AGENTS.md`
@@ -136,11 +137,31 @@ Why this matters:
 
 ## Current production focus
 
-The current production focus is map-core hardening and modularization, not new end-user feature breadth.
+The current production focus is improving the shipped production app before expanding into more future-facing capability areas.
 
 Near-term production priorities:
 
-1. Decide whether the next facility-filter step is polish/usability work or to stop and move to the next production domain area.
+1. Improve production workflows and usability in existing domain areas before taking on more breadth.
 2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Continue production work in real domain areas, not by extracting for its own sake.
+3. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
 4. Keep `npm run build` as the authoritative health check before describing the app as deployable.
+
+## Future functionality areas
+
+Functional areas:
+
+- facility-filter usability and saved-filter behavior
+- richer saved-view management and future remote storage
+- future overlay families such as NHS/custom regions
+- export completion and polish
+- any explicit promotion of approved prototype interaction patterns
+
+Non-functional areas:
+
+- build/release validation discipline
+- broader workflow and interaction testing
+- map/runtime performance
+- deployment/container path
+- architecture consistency and clearer promotion rules from prototype to production
+
+See [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md) for the working rules that should guide future development across both production and prototype paths.

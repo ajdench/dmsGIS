@@ -19,6 +19,38 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 9. Centralise schemas in `src/lib/schemas/`.
 10. Add or update tests for non-trivial logic.
 
+## Internal architecture principles
+
+Apply these principles to future development in this repo:
+
+1. Keep a stable production spine.
+   Typed domain models, schemas, store contracts, runtime map seams, and shared config are the source of truth.
+2. Put meaning in domain modules, not presentation components.
+   UI components should render and dispatch; business meaning belongs in `src/lib/` and focused feature helpers.
+3. Keep large components orchestration-focused.
+   Extract bounded responsibilities into testable helpers, but stop extracting once the parent reads mainly as orchestration.
+4. Prefer config/data over runtime special cases.
+   New overlays, scenarios, and similar behavior should slot in through shared config and prepared data where possible.
+5. Keep production and prototype intentionally separate.
+   Prototype code explores interaction and visuals; production code carries runtime correctness and maintainability.
+6. Promote by pattern, not by copy.
+   When a prototype idea is approved, rebuild it on top of production state/contracts rather than copying prototype code wholesale.
+7. Put persistence behind explicit versioned boundaries.
+   Saved, restored, or shared state should always flow through schemas and storage/service interfaces.
+8. Prefer typed state objects over scattered scalar fields when a feature grows.
+   The facility-filter model is the pattern to follow.
+9. Promote shared primitives/tokens only when they are truly shared and stable.
+10. Validate against actual release risk.
+   `npm run build` remains the release gate.
+11. Add tests at the seam where behavior is introduced or extracted.
+12. Prefer progressive promotion over broad rewrites.
+
+Working stance:
+
+- improve the shipped production app before expanding future-facing capability areas
+- keep future functionality areas documented, but do not let them displace current production improvement work unless explicitly prioritized
+- keep prototype exploration active but isolated until promotion is explicit
+
 ## Version control workflow
 
 - Use `jj` for local checkpointing in this repo.
@@ -192,6 +224,25 @@ The application is not a full GIS editor. It consumes prepared geospatial datase
 5. Add a production Docker path once the current map/runtime hardening phase is complete.
 6. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
 7. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+
+## Future functionality areas
+
+Functional areas:
+
+- facility-filter usability and saved-filter behavior
+- richer saved-view management and future remote storage
+- future overlay families such as NHS/custom regions
+- export completion/polish
+- authenticated identity/share behavior for saved views
+- explicit promotion of approved prototype interaction patterns
+
+Non-functional areas:
+
+- build/release validation discipline
+- broader workflow and interaction testing
+- map/runtime performance
+- deployment/container path
+- clearer production/prototype promotion rules
 
 ## Forbidden shortcuts
 
