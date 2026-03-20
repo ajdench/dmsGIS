@@ -1,20 +1,20 @@
 import rawConfig from './viewPresets.json';
 import type { ViewPresetId } from '../../types';
 
-type PopulationState = 'unpopulated' | 'populated' | 'outline';
+export type PopulationState = 'unpopulated' | 'populated' | 'outline';
 
-interface PresetRegionGroup {
+export interface PresetRegionGroup {
   name: string;
   sourceRegions: string[];
   colors: Record<PopulationState, string>;
 }
 
-interface ScenarioBoardLayerConfig {
+export interface ScenarioBoardLayerConfig {
   path: string;
   opacity: number;
 }
 
-interface ScenarioOutlineLayerConfig {
+export interface ScenarioOutlineLayerConfig {
   name: string;
   path: string;
   visible: boolean;
@@ -24,7 +24,7 @@ interface ScenarioOutlineLayerConfig {
   swatchColor: string;
 }
 
-interface ScenarioPresetConfig {
+export interface ScenarioPresetConfig {
   id: ViewPresetId;
   label: string;
   assignment?: {

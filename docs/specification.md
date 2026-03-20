@@ -143,6 +143,11 @@ Current priority areas:
 - keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
 - keep treating facility filters as a shared typed domain contract; the active production surface is search-only, and any future metadata facets should reuse the same contract rather than rebuild parallel state
+- treat current scenario presets as baseline workspaces for future editing rather than the final editable architecture
+- make the boundary-system split explicit:
+  - `Current` uses the legacy ICB/HB basis
+  - scenario work should use the 2026 ICB/HB basis
+- future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 
@@ -158,6 +163,8 @@ These are future user-facing capability areas. They should stay documented and v
   extend beyond local browser storage into repository-backed or service-backed implementations behind the same contract
 - future overlay families such as NHS/custom regions
   add new overlay products through the same metadata/bootstrap path rather than separate runtime forks
+- editable scenario workspace / Playground behavior
+  support boundary reassignment, derived region redraw, and future facility-metadata-driven calculations on top of authoritative boundary-unit systems
 - export completion and polish
   finish the exposed export workflow and make it reliable enough for operational use
 - authenticated/shareable saved-view behavior

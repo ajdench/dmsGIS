@@ -102,6 +102,8 @@ Why this matters:
   - `UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson`
 - Shared preset/scenario configuration now lives in `src/lib/config/viewPresets.json` and `src/lib/config/viewPresets.ts`; runtime UI/store code and scenario preprocessing scripts read from that shared definition.
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
+- Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
+- Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so the current scenario presets can be treated as baseline workspaces for future editable Playground behavior instead of only as hard-coded runtime presets.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
@@ -163,5 +165,11 @@ Non-functional areas:
 - map/runtime performance
 - deployment/container path
 - architecture consistency and clearer promotion rules from prototype to production
+
+Planned production-architecture direction for the future Playground:
+
+- treat `Current` as a baseline on the legacy ICB/HB boundary system
+- treat `SJC JMC`, `COA 3a`, and `COA 3b` as baseline scenario workspaces on the 2026 ICB/HB boundary system
+- move toward editable boundary-unit assignment plus derived scenario-region redraw, instead of relying on bespoke static outline files as the primary source of truth
 
 See [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md) for the working rules that should guide future development across both production and prototype paths.

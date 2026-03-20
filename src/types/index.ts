@@ -61,6 +61,10 @@ export interface OverlayLayerStyle {
 export type RegionBoundaryLayerStyle = OverlayLayerStyle;
 
 export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
+export type BoundarySystemId = 'legacyIcbHb' | 'icbHb2026';
+export type ScenarioWorkspaceId =
+  | Exclude<ViewPresetId, 'current'>
+  | 'dphcEstimateCoaPlayground';
 export type OverlayFamily =
   | 'boardBoundaries'
   | 'scenarioRegions'
