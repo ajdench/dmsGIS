@@ -9,7 +9,12 @@ export function buildScenarioWorkspaceSummary(
   workspace: DerivedScenarioWorkspace,
   facilitySummary: ScenarioFacilityMetricSummary,
 ): ScenarioWorkspaceSummary {
-  const facilityRegionLookup = new Map(
+  const facilityRegionLookupById = new Map(
+    facilitySummary.regions
+      .filter((region) => region.regionId)
+      .map((region) => [region.regionId as string, region]),
+  );
+  const facilityRegionLookupByLabel = new Map(
     facilitySummary.regions.map((region) => [region.regionName, region]),
   );
 
@@ -19,7 +24,9 @@ export function buildScenarioWorkspaceSummary(
     totalAssignedBoundaryUnits: workspace.totalAssignedBoundaryUnits,
     totalFacilities: facilitySummary.totalFacilities,
     regions: workspace.regions.map((region) => {
-      const facilityRegion = facilityRegionLookup.get(region.label);
+      const facilityRegion =
+        facilityRegionLookupById.get(region.regionId) ??
+        facilityRegionLookupByLabel.get(region.label);
       return {
         regionId: region.regionId,
         label: region.label,

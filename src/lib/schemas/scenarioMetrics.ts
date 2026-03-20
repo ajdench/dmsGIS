@@ -8,6 +8,7 @@ export const scenarioFacilityTypeMetricSchema = z.object({
 });
 
 export const scenarioFacilityRegionMetricSchema = z.object({
+  regionId: z.string().trim().min(1).nullable(),
   regionName: z.string().trim().min(1),
   facilityCount: z.number().int().min(0),
   facilityTypes: z.array(scenarioFacilityTypeMetricSchema),

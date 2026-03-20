@@ -4,7 +4,7 @@ import {
   parseScenarioFacilityMetricSummary,
   type ScenarioFacilityMetricSummary,
 } from '../../lib/schemas/scenarioMetrics';
-import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
+import { getEffectiveFacilityRecord, getEffectiveFacilityRegionAssignment } from './scenarioFacilityMapping';
 
 export function buildScenarioFacilityMetricSummary(
   facilityFeatures: FeatureLike[],
@@ -13,14 +13,19 @@ export function buildScenarioFacilityMetricSummary(
   const facilitiesByRegion = new Map<string, number>();
   const facilitiesByType = new Map<string, number>();
   const facilitiesByRegionAndType = new Map<string, Map<string, number>>();
+  const regionIdByName = new Map<string, string | null>();
 
   for (const feature of facilityFeatures) {
     const facility = getEffectiveFacilityRecord(feature, assignmentSource);
-    const regionName = facility.region;
+    const { regionId, regionName } = getEffectiveFacilityRegionAssignment(
+      feature,
+      assignmentSource,
+    );
     const typeName = facility.type;
 
     facilitiesByRegion.set(regionName, (facilitiesByRegion.get(regionName) ?? 0) + 1);
     facilitiesByType.set(typeName, (facilitiesByType.get(typeName) ?? 0) + 1);
+    regionIdByName.set(regionName, regionId);
 
     const regionTypeMap = facilitiesByRegionAndType.get(regionName) ?? new Map();
     regionTypeMap.set(typeName, (regionTypeMap.get(typeName) ?? 0) + 1);
@@ -31,6 +36,7 @@ export function buildScenarioFacilityMetricSummary(
     totalFacilities: facilityFeatures.length,
     regions: [...facilitiesByRegion.entries()]
       .map(([regionName, facilityCount]) => ({
+        regionId: regionIdByName.get(regionName) ?? null,
         regionName,
         facilityCount,
         facilityTypes: [...(facilitiesByRegionAndType.get(regionName) ?? new Map()).entries()]

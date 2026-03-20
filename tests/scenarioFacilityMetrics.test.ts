@@ -31,6 +31,7 @@ describe('scenarioFacilityMetrics', () => {
             [0, 10],
             [0, 0],
           ]]),
+          scenario_region_id: 'londonEast',
           region_name: 'COA 3b London and East',
         }),
         new Feature({
@@ -41,6 +42,7 @@ describe('scenarioFacilityMetrics', () => {
             [10, 10],
             [10, 0],
           ]]),
+          scenario_region_id: 'southEast',
           region_name: 'COA 3b South East',
         }),
       ],
@@ -52,6 +54,7 @@ describe('scenarioFacilityMetrics', () => {
       totalFacilities: 2,
       regions: [
         {
+          regionId: 'londonEast',
           regionName: 'COA 3b London and East',
           facilityCount: 1,
           facilityTypes: [
@@ -62,6 +65,7 @@ describe('scenarioFacilityMetrics', () => {
           ],
         },
         {
+          regionId: 'southEast',
           regionName: 'COA 3b South East',
           facilityCount: 1,
           facilityTypes: [

@@ -52,6 +52,19 @@ describe('scenarioWorkspaceRuntime', () => {
           region_name: 'COA 3b South East',
           jmc_name: 'COA 3b South East',
         }),
+        new Feature({
+          geometry: new Polygon([[
+            [10, 0],
+            [20, 0],
+            [20, 10],
+            [10, 10],
+            [10, 0],
+          ]]),
+          boundary_name: 'NHS Kent and Medway Integrated Care Board',
+          boundary_unit_id: 'UNIT-KENT',
+          region_name: 'COA 3b South East',
+          jmc_name: 'COA 3b South East',
+        }),
       ],
     });
     const draft = upsertScenarioWorkspaceAssignment(
@@ -65,11 +78,14 @@ describe('scenarioWorkspaceRuntime', () => {
       baselineAssignmentSource,
       draft,
     );
-    const updatedFeature = runtimeState.assignmentSource?.getFeatures()[0];
+    const updatedFeatures = runtimeState.assignmentSource?.getFeatures() ?? [];
+    const updatedFeature = updatedFeatures[0];
+    const untouchedFeature = updatedFeatures[1];
 
     expect(updatedFeature?.get('region_name')).toBe('COA 3b London and East');
     expect(updatedFeature?.get('jmc_name')).toBe('COA 3b London and East');
     expect(updatedFeature?.get('scenario_region_id')).toBe('coa3b_london_east');
+    expect(untouchedFeature?.get('scenario_region_id')).toBe('coa3b_south_east');
     expect(runtimeState.assignmentByBoundaryName.get('NHS Essex Integrated Care Board')).toBe(
       'COA 3b London and East',
     );

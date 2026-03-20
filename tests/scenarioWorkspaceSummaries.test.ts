@@ -31,6 +31,7 @@ describe('scenarioWorkspaceSummaries', () => {
           totalFacilities: 3,
           regions: [
             {
+              regionId: 'londonEast',
               regionName: 'COA 3b London and East',
               facilityCount: 2,
               facilityTypes: [
@@ -45,6 +46,7 @@ describe('scenarioWorkspaceSummaries', () => {
               ],
             },
             {
+              regionId: 'southEast',
               regionName: 'COA 3b South East',
               facilityCount: 1,
               facilityTypes: [

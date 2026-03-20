@@ -6,6 +6,7 @@ import VectorSource from 'ol/source/Vector';
 import {
   buildScenarioFacilityMetrics,
   getEffectiveFacilityRecord,
+  getEffectiveFacilityRegionAssignment,
   getEffectiveFacilityRegionName,
 } from '../src/features/map/scenarioFacilityMapping';
 
@@ -38,6 +39,7 @@ describe('scenarioFacilityMapping', () => {
             [0, 10],
             [0, 0],
           ]]),
+          scenario_region_id: 'londonEast',
           region_name: 'COA 3b London and East',
         }),
       ],
@@ -49,6 +51,12 @@ describe('scenarioFacilityMapping', () => {
     expect(
       getEffectiveFacilityRecord(createFacilityFeature(), assignmentSource).searchText,
     ).toContain('coa 3b london and east');
+    expect(
+      getEffectiveFacilityRegionAssignment(createFacilityFeature(), assignmentSource),
+    ).toEqual({
+      regionId: 'londonEast',
+      regionName: 'COA 3b London and East',
+    });
   });
 
   it('builds facility counts from remapped scenario regions', () => {
@@ -62,6 +70,7 @@ describe('scenarioFacilityMapping', () => {
             [0, 10],
             [0, 0],
           ]]),
+          scenario_region_id: 'londonEast',
           region_name: 'COA 3b London and East',
         }),
       ],

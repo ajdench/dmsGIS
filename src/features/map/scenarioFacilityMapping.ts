@@ -12,14 +12,29 @@ export interface ScenarioFacilityMetrics {
   facilitiesByRegion: Map<string, number>;
 }
 
+export interface EffectiveFacilityRegionAssignment {
+  regionId: string | null;
+  regionName: string;
+}
+
 export function getEffectiveFacilityRegionName(
   feature: FeatureLike,
   assignmentSource: VectorSource | null,
 ): string {
+  return getEffectiveFacilityRegionAssignment(feature, assignmentSource).regionName;
+}
+
+export function getEffectiveFacilityRegionAssignment(
+  feature: FeatureLike,
+  assignmentSource: VectorSource | null,
+): EffectiveFacilityRegionAssignment {
   const properties = getFacilityFeatureProperties(feature);
   const coordinate = getFeaturePointCoordinate(feature);
   if (!coordinate || !assignmentSource) {
-    return properties.region;
+    return {
+      regionId: null,
+      regionName: properties.region,
+    };
   }
 
   const assignmentFeature =
@@ -27,13 +42,21 @@ export function getEffectiveFacilityRegionName(
       .getFeatures()
       .find((candidate) => candidate.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
   if (!assignmentFeature) {
-    return properties.region;
+    return {
+      regionId: null,
+      regionName: properties.region,
+    };
   }
 
-  const mappedRegion = String(
+  const regionName = String(
     assignmentFeature.get('region_name') ?? assignmentFeature.get('jmc_name') ?? '',
   ).trim();
-  return mappedRegion || properties.region;
+  const regionId = String(assignmentFeature.get('scenario_region_id') ?? '').trim();
+
+  return {
+    regionId: regionId || null,
+    regionName: regionName || properties.region,
+  };
 }
 
 export function getEffectiveFacilityRecord(
@@ -41,9 +64,10 @@ export function getEffectiveFacilityRecord(
   assignmentSource: VectorSource | null,
 ): FacilityRecord {
   const properties = getFacilityFeatureProperties(feature);
+  const regionAssignment = getEffectiveFacilityRegionAssignment(feature, assignmentSource);
   return createFacilityRecord({
     ...properties,
-    region: getEffectiveFacilityRegionName(feature, assignmentSource),
+    region: regionAssignment.regionName,
   });
 }
 

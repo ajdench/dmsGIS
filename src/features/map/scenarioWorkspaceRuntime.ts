@@ -5,7 +5,10 @@ import type {
   ScenarioWorkspaceDraft,
 } from '../../lib/schemas/scenarioWorkspaces';
 import { getScenarioWorkspaceBaseline } from '../../lib/config/scenarioWorkspaces';
-import { getScenarioBoundaryUnitId } from '../../lib/scenarioWorkspaceAssignments';
+import {
+  getScenarioBoundaryUnitId,
+  resolveScenarioWorkspaceRegionId,
+} from '../../lib/scenarioWorkspaceAssignments';
 import type { ScenarioWorkspaceId } from '../../types';
 
 export interface ScenarioWorkspaceRuntimeState {
@@ -48,9 +51,18 @@ export function buildScenarioWorkspaceRuntimeState(
     const boundaryUnitId = getScenarioBoundaryUnitId(
       clone.getProperties() as Record<string, unknown>,
     );
-    const scenarioRegionId = boundaryUnitId
-      ? assignmentByBoundaryUnitId.get(boundaryUnitId)
-      : null;
+    const scenarioRegionId =
+      (boundaryUnitId ? assignmentByBoundaryUnitId.get(boundaryUnitId) : null) ??
+      resolveScenarioWorkspaceRegionId(
+        workspaceId,
+        String(
+          clone.get('source_region_name') ??
+            clone.get('region_name') ??
+            clone.get('jmc_name') ??
+            '',
+        ),
+        String(clone.get('boundary_name') ?? ''),
+      );
     if (!scenarioRegionId) {
       return clone;
     }
