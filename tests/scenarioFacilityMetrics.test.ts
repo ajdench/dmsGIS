@@ -54,10 +54,28 @@ describe('scenarioFacilityMetrics', () => {
         {
           regionName: 'COA 3b London and East',
           facilityCount: 1,
+          facilityTypes: [
+            {
+              typeName: 'pmc-facility',
+              facilityCount: 1,
+            },
+          ],
         },
         {
           regionName: 'COA 3b South East',
           facilityCount: 1,
+          facilityTypes: [
+            {
+              typeName: 'pmc-facility',
+              facilityCount: 1,
+            },
+          ],
+        },
+      ],
+      facilityTypes: [
+        {
+          typeName: 'pmc-facility',
+          facilityCount: 2,
         },
       ],
     });
