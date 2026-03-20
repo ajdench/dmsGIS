@@ -125,6 +125,7 @@ Working stance:
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
 - Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding logic in UI components.
 - That combined summary path now prefers stable `scenarioRegionId` wiring where runtime assignment features provide it, with label-based fallback kept only as a transition path.
+- The first approved sidebar-prototype promotion slice is now live in production Labels: shared sidebar row/popover primitives live in `src/components/sidebar/`, while pane-specific label field definitions stay feature-owned in `src/features/labels/labelPanelFields.ts` and continue to drive store-backed basemap label state through `src/store/appStore.ts`.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - The prepared NHS England region overlay design is:
   - distinct `nhsRegions` overlay family
