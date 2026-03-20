@@ -78,6 +78,21 @@ export function getScenarioWorkspaceAssignmentDatasetPath(
   return source?.kind === 'static-dataset' ? source.path : null;
 }
 
+export function getScenarioWorkspaceIdForPreset(
+  presetId: string,
+): ScenarioWorkspaceId | null {
+  if (scenarioPresetIds.includes(presetId as Exclude<ScenarioWorkspaceId, 'dphcEstimateCoaPlayground'>)) {
+    return presetId as Exclude<ScenarioWorkspaceId, 'dphcEstimateCoaPlayground'>;
+  }
+  return null;
+}
+
+export function getScenarioWorkspaceRegionIds(
+  workspaceId: ScenarioWorkspaceId,
+): string[] {
+  return getScenarioWorkspaceBaseline(workspaceId)?.regions.map((region) => region.id) ?? [];
+}
+
 export function createScenarioWorkspaceDraft(
   workspaceId: ScenarioWorkspaceId,
 ): ScenarioWorkspaceDraft {

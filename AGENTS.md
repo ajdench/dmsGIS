@@ -115,6 +115,8 @@ Working stance:
 - Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
 - Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so existing scenario presets can be treated as baseline workspaces for future editable Playground behavior rather than only as hard-coded runtime presets.
 - Runtime map lookup sources now also distinguish between authoritative boundary-system lookup sources and scenario outline lookup sources, reducing direct preset-to-file coupling in the selection path while preserving current behavior.
+- Stable scenario boundary-assignment helpers now live in `src/lib/scenarioWorkspaceAssignments.ts`, so future Playground reassignment work can target boundary-unit ids and scenario-region ids instead of relying only on display-name matching.
+- Derived editable-scenario workspace summaries now live in `src/lib/scenarioWorkspaceDerived.ts`, giving future redraw/calculation work a production-side source of truth to build from.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - Facility properties now have a schema layer in `src/lib/schemas/facilities.ts`, with `src/lib/facilities.ts` providing normalized facility records and feature-property access for current runtime consumers.
 - Facility filter state now has an explicit schema in `src/lib/schemas/facilities.ts`, and `src/lib/facilityFilters.ts` owns production filter definitions/matching so future metadata facets can reuse the same typed facility-filter path.
@@ -128,6 +130,7 @@ Working stance:
 - A local browser-backed saved-view storage boundary now exists in `src/lib/services/savedViewStore.ts`, with schema-backed list/save/get/delete helpers routed through `src/lib/browser/savedViewActions.ts`.
 - The production `TopBar` now opens an in-app saved-views dialog (`src/components/layout/SavedViewsDialog.tsx`) for local save/open/delete flows instead of using browser prompts.
 - Store snapshot/apply support now exists for saved views: production state includes saved-view dialog mode, map viewport state, current selection state, and schema-backed map-session snapshot/apply helpers in `src/store/appStore.ts`.
+- Production state now also includes explicit scenario-workspace draft/editor state in `src/store/appStore.ts`, so future Playground work can stage boundary reassignment and derived summaries without mutating preset config directly.
 - Current Overlays items in `Current` mode are:
   - `PMC populated care board boundaries` (`UK_Active_Components_Codex_v10_geojson.geojson`)
   - `PMC unpopulated care board boundaries` (`UK_Inactive_Remainder_Codex_v10_geojson.geojson`)
@@ -223,6 +226,7 @@ Working stance:
    Search is the current active production filter surface. If metadata facets return later, they should reuse the same typed contract rather than reintroducing ad hoc UI state.
 4. Treat current scenario presets as baseline workspaces, not as the final editable model.
    Future Playground work should edit authoritative boundary-unit assignments and derive region redraw/metrics from them instead of treating bespoke static outline files as the primary source of truth.
+   Keep editable workspace state in the production draft/editor layer rather than patching preset config objects at runtime.
 5. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
 6. Add a production Docker path once the current map/runtime hardening phase is complete.

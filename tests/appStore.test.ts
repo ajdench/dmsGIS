@@ -818,4 +818,110 @@ describe('appStore region controls', () => {
       opacity: 0.4,
     });
   });
+
+  it('tracks an active scenario workspace draft alongside scenario presets', () => {
+    useAppStore.setState({
+      activeViewPreset: 'current',
+      currentViewPresetState: {
+        layers: [],
+        regions: [],
+        overlayLayers: [],
+        regionGlobalOpacity: 1,
+        facilitySymbolShape: 'circle',
+        facilitySymbolSize: 3.5,
+        basemap: {
+          provider: 'localDetailed',
+          scale: '10m',
+          landFillColor: '#ecf0e6',
+          landFillOpacity: 1,
+          showLandFill: true,
+          countryBorderColor: '#EBEBEB',
+          countryBorderOpacity: 1,
+          showCountryBorders: true,
+          countryLabelColor: '#0f172a',
+          countryLabelOpacity: 1,
+          showCountryLabels: false,
+          majorCityColor: '#1f2937',
+          majorCityOpacity: 1,
+          showMajorCities: false,
+          seaFillColor: '#d9e7f5',
+          seaFillOpacity: 1,
+          showSeaFill: true,
+          seaLabelColor: '#334155',
+          seaLabelOpacity: 1,
+          showSeaLabels: false,
+        },
+      },
+    });
+
+    useAppStore.getState().activateViewPreset('coa3b');
+
+    const state = useAppStore.getState();
+    expect(state.activeScenarioWorkspaceId).toBe('coa3b');
+    expect(state.scenarioWorkspaceDrafts.coa3b).toMatchObject({
+      id: 'coa3b',
+      boundarySystemId: 'icbHb2026',
+      assignments: [],
+    });
+  });
+
+  it('stores boundary reassignment drafts and exposes derived region counts', () => {
+    useAppStore.getState().activateScenarioWorkspace('dphcEstimateCoaPlayground');
+    useAppStore.getState().assignScenarioWorkspaceBoundaryUnit(
+      'dphcEstimateCoaPlayground',
+      'UNIT-123',
+      'coa3b_london_east',
+    );
+    useAppStore.getState().selectScenarioWorkspaceBoundaryUnit('UNIT-123');
+
+    const state = useAppStore.getState();
+    expect(
+      state.scenarioWorkspaceDrafts.dphcEstimateCoaPlayground?.assignments,
+    ).toEqual([
+      {
+        boundaryUnitId: 'UNIT-123',
+        scenarioRegionId: 'coa3b_london_east',
+      },
+    ]);
+    expect(state.scenarioWorkspaceEditor).toEqual({
+      selectedBoundaryUnitId: 'UNIT-123',
+      selectedScenarioRegionId: 'coa3b_london_east',
+      pendingScenarioRegionId: 'coa3b_london_east',
+      isDirty: true,
+    });
+    expect(
+      useAppStore
+        .getState()
+        .getDerivedScenarioWorkspace('dphcEstimateCoaPlayground')
+        ?.regions.find((region) => region.regionId === 'coa3b_london_east'),
+    ).toEqual({
+      regionId: 'coa3b_london_east',
+      label: 'COA 3b London and East',
+      assignmentCount: 1,
+    });
+  });
+
+  it('resets a scenario workspace draft back to an empty editable baseline', () => {
+    useAppStore.getState().activateScenarioWorkspace('dphcEstimateCoaPlayground');
+    useAppStore.getState().assignScenarioWorkspaceBoundaryUnit(
+      'dphcEstimateCoaPlayground',
+      'UNIT-123',
+      'coa3b_london_east',
+    );
+
+    useAppStore
+      .getState()
+      .resetScenarioWorkspaceDraft('dphcEstimateCoaPlayground');
+
+    const state = useAppStore.getState();
+    expect(
+      state.scenarioWorkspaceDrafts.dphcEstimateCoaPlayground?.assignments,
+    ).toEqual([]);
+    expect(state.scenarioWorkspaceEditor).toEqual({
+      selectedBoundaryUnitId: null,
+      selectedScenarioRegionId: null,
+      pendingScenarioRegionId: null,
+      isDirty: false,
+    });
+  });
 });

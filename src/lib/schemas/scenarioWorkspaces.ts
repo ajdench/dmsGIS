@@ -55,6 +55,27 @@ export const scenarioWorkspaceDraftSchema = z.object({
   assignments: z.array(scenarioBoundaryAssignmentSchema).default([]),
 });
 
+export const scenarioWorkspaceEditorStateSchema = z.object({
+  selectedBoundaryUnitId: z.string().trim().min(1).nullable().default(null),
+  selectedScenarioRegionId: z.string().trim().min(1).nullable().default(null),
+  pendingScenarioRegionId: z.string().trim().min(1).nullable().default(null),
+  isDirty: z.boolean().default(false),
+});
+
+export const derivedScenarioWorkspaceRegionSchema = z.object({
+  regionId: z.string().trim().min(1),
+  label: z.string().trim().min(1),
+  assignmentCount: z.number().int().min(0),
+});
+
+export const derivedScenarioWorkspaceSchema = z.object({
+  workspaceId: scenarioWorkspaceIdSchema,
+  boundarySystemId: boundarySystemIdSchema,
+  totalAssignedBoundaryUnits: z.number().int().min(0),
+  assignmentLookup: z.record(z.string(), z.string()),
+  regions: z.array(derivedScenarioWorkspaceRegionSchema),
+});
+
 export type ScenarioWorkspaceId = z.infer<typeof scenarioWorkspaceIdSchema>;
 export type ScenarioRegionDefinition = z.infer<typeof scenarioRegionDefinitionSchema>;
 export type ScenarioWorkspaceBaseline = z.infer<
@@ -64,6 +85,15 @@ export type ScenarioBoundaryAssignment = z.infer<
   typeof scenarioBoundaryAssignmentSchema
 >;
 export type ScenarioWorkspaceDraft = z.infer<typeof scenarioWorkspaceDraftSchema>;
+export type ScenarioWorkspaceEditorState = z.infer<
+  typeof scenarioWorkspaceEditorStateSchema
+>;
+export type DerivedScenarioWorkspaceRegion = z.infer<
+  typeof derivedScenarioWorkspaceRegionSchema
+>;
+export type DerivedScenarioWorkspace = z.infer<
+  typeof derivedScenarioWorkspaceSchema
+>;
 
 export function parseScenarioWorkspaceBaseline(
   input: unknown,
@@ -75,4 +105,16 @@ export function parseScenarioWorkspaceDraft(
   input: unknown,
 ): ScenarioWorkspaceDraft {
   return scenarioWorkspaceDraftSchema.parse(input);
+}
+
+export function parseScenarioWorkspaceEditorState(
+  input: unknown,
+): ScenarioWorkspaceEditorState {
+  return scenarioWorkspaceEditorStateSchema.parse(input);
+}
+
+export function parseDerivedScenarioWorkspace(
+  input: unknown,
+): DerivedScenarioWorkspace {
+  return derivedScenarioWorkspaceSchema.parse(input);
 }

@@ -8,6 +8,7 @@ import type {
   OverlayLayerStyle,
   OverlayFamily,
   RegionStyle,
+  ScenarioWorkspaceId,
   ViewPresetId,
 } from '../types';
 import {
@@ -19,6 +20,12 @@ import {
 import { createFacilityFilterState } from '../lib/facilityFilters';
 import { createMapSessionState } from '../lib/savedViews';
 import {
+  createScenarioWorkspaceDraft,
+  getScenarioWorkspaceIdForPreset,
+} from '../lib/config/scenarioWorkspaces';
+import { deriveScenarioWorkspaceFromDraft } from '../lib/scenarioWorkspaceDerived';
+import { upsertScenarioWorkspaceAssignment } from '../lib/scenarioWorkspaceAssignments';
+import {
   parseFacilityProperties,
   type FacilityFilterState,
 } from '../lib/schemas/facilities';
@@ -27,6 +34,11 @@ import type {
   MapViewportState,
   SelectionState,
 } from '../lib/schemas/savedViews';
+import type {
+  DerivedScenarioWorkspace,
+  ScenarioWorkspaceDraft,
+  ScenarioWorkspaceEditorState,
+} from '../lib/schemas/scenarioWorkspaces';
 import { fetchLayerManifest } from '../lib/services/layers';
 
 interface ViewPresetState {
@@ -50,7 +62,12 @@ interface AppState {
   facilityFilters: FacilityFilterState;
   basemap: BasemapSettings;
   activeViewPreset: ViewPresetId;
+  activeScenarioWorkspaceId: ScenarioWorkspaceId | null;
   currentViewPresetState: ViewPresetState | null;
+  scenarioWorkspaceDrafts: Partial<
+    Record<ScenarioWorkspaceId, ScenarioWorkspaceDraft>
+  >;
+  scenarioWorkspaceEditor: ScenarioWorkspaceEditorState;
   mapViewport: MapViewportState;
   selection: SelectionState;
   savedViewsDialogMode: 'closed' | 'open' | 'save';
@@ -59,7 +76,22 @@ interface AppState {
   notice: string | null;
   loadLayers: () => Promise<void>;
   activateViewPreset: (preset: ViewPresetId) => void;
+  activateScenarioWorkspace: (workspaceId: ScenarioWorkspaceId | null) => void;
   resetActiveViewPreset: () => void;
+  ensureScenarioWorkspaceDraft: (
+    workspaceId: ScenarioWorkspaceId,
+  ) => ScenarioWorkspaceDraft;
+  selectScenarioWorkspaceBoundaryUnit: (boundaryUnitId: string | null) => void;
+  setScenarioWorkspacePendingRegion: (scenarioRegionId: string | null) => void;
+  assignScenarioWorkspaceBoundaryUnit: (
+    workspaceId: ScenarioWorkspaceId,
+    boundaryUnitId: string,
+    scenarioRegionId: string,
+  ) => void;
+  resetScenarioWorkspaceDraft: (workspaceId: ScenarioWorkspaceId) => void;
+  getDerivedScenarioWorkspace: (
+    workspaceId: ScenarioWorkspaceId,
+  ) => DerivedScenarioWorkspace | null;
   openSavedViewsDialog: (mode: 'open' | 'save') => void;
   closeSavedViewsDialog: () => void;
   toggleLayer: (id: string) => void;
@@ -133,7 +165,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   facilityFilters: createFacilityFilterState(),
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
+  activeScenarioWorkspaceId: null,
   currentViewPresetState: null,
+  scenarioWorkspaceDrafts: {},
+  scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
   mapViewport: createDefaultMapViewport(),
   selection: createDefaultSelectionState(),
   savedViewsDialogMode: 'closed',
@@ -170,6 +205,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         basemap: { ...currentViewPresetState.basemap },
         currentViewPresetState,
         activeViewPreset: 'current',
+        activeScenarioWorkspaceId: null,
         isLoading: false,
         notice: null,
       });
@@ -181,9 +217,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   activateViewPreset: (preset) => {
     const currentViewPresetState = get().currentViewPresetState;
+    const workspaceId = getScenarioWorkspaceIdForPreset(preset);
+    const nextDrafts = workspaceId
+      ? ensureScenarioWorkspaceDrafts(get().scenarioWorkspaceDrafts, workspaceId)
+      : get().scenarioWorkspaceDrafts;
     if (!currentViewPresetState) {
       set({
         activeViewPreset: preset,
+        activeScenarioWorkspaceId: workspaceId,
+        scenarioWorkspaceDrafts: nextDrafts,
+        scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
         selection: createDefaultSelectionState(),
       });
       return;
@@ -207,6 +250,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set({
       activeViewPreset: preset,
+      activeScenarioWorkspaceId: workspaceId,
       layers: cloneLayers(nextState.layers),
       regions: cloneRegions(nextState.regions),
       overlayLayers: cloneOverlayLayers(nextState.overlayLayers),
@@ -215,16 +259,118 @@ export const useAppStore = create<AppState>((set, get) => ({
       facilitySymbolSize: nextState.facilitySymbolSize,
       facilityFilters: createFacilityFilterState(nextState.facilityFilters),
       basemap: { ...nextState.basemap },
+      scenarioWorkspaceDrafts: nextDrafts,
+      scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
       selection: createDefaultSelectionState(),
     });
   },
+  activateScenarioWorkspace: (workspaceId) =>
+    set((state) => ({
+      activeScenarioWorkspaceId: workspaceId,
+      scenarioWorkspaceDrafts: workspaceId
+        ? ensureScenarioWorkspaceDrafts(state.scenarioWorkspaceDrafts, workspaceId)
+        : state.scenarioWorkspaceDrafts,
+      scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
+    })),
   resetActiveViewPreset: () => {
     get().activateViewPreset(get().activeViewPreset);
     set({
       facilityFilters: createFacilityFilterState(),
+      scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
       selection: createDefaultSelectionState(),
       notice: 'Reset active view preset',
     });
+  },
+  ensureScenarioWorkspaceDraft: (workspaceId) => {
+    const current = get().scenarioWorkspaceDrafts[workspaceId];
+    if (current) {
+      return current;
+    }
+
+    const nextDraft = createScenarioWorkspaceDraft(workspaceId);
+    set((state) => ({
+      scenarioWorkspaceDrafts: {
+        ...state.scenarioWorkspaceDrafts,
+        [workspaceId]: nextDraft,
+      },
+    }));
+    return nextDraft;
+  },
+  selectScenarioWorkspaceBoundaryUnit: (boundaryUnitId) =>
+    set((state) => {
+      const activeWorkspaceId = state.activeScenarioWorkspaceId;
+      const activeDraft = activeWorkspaceId
+        ? state.scenarioWorkspaceDrafts[activeWorkspaceId]
+        : null;
+      const assignment = boundaryUnitId
+        ? activeDraft?.assignments.find(
+            (entry) => entry.boundaryUnitId === boundaryUnitId,
+          ) ?? null
+        : null;
+
+      return {
+        scenarioWorkspaceEditor: createScenarioWorkspaceEditorState({
+          selectedBoundaryUnitId: boundaryUnitId,
+          selectedScenarioRegionId: assignment?.scenarioRegionId ?? null,
+          pendingScenarioRegionId: assignment?.scenarioRegionId ?? null,
+          isDirty: state.scenarioWorkspaceEditor.isDirty,
+        }),
+      };
+    }),
+  setScenarioWorkspacePendingRegion: (scenarioRegionId) =>
+    set((state) => ({
+      scenarioWorkspaceEditor: createScenarioWorkspaceEditorState({
+        ...state.scenarioWorkspaceEditor,
+        pendingScenarioRegionId: scenarioRegionId,
+      }),
+    })),
+  assignScenarioWorkspaceBoundaryUnit: (
+    workspaceId,
+    boundaryUnitId,
+    scenarioRegionId,
+  ) =>
+    set((state) => {
+      const currentDraft =
+        state.scenarioWorkspaceDrafts[workspaceId] ??
+        createScenarioWorkspaceDraft(workspaceId);
+      const nextDraft = upsertScenarioWorkspaceAssignment(
+        currentDraft,
+        boundaryUnitId,
+        scenarioRegionId,
+      );
+
+      return {
+        scenarioWorkspaceDrafts: {
+          ...state.scenarioWorkspaceDrafts,
+          [workspaceId]: nextDraft,
+        },
+        scenarioWorkspaceEditor:
+          state.activeScenarioWorkspaceId === workspaceId
+            ? createScenarioWorkspaceEditorState({
+                selectedBoundaryUnitId: boundaryUnitId,
+                selectedScenarioRegionId: scenarioRegionId,
+                pendingScenarioRegionId: scenarioRegionId,
+                isDirty: true,
+              })
+            : state.scenarioWorkspaceEditor,
+      };
+    }),
+  resetScenarioWorkspaceDraft: (workspaceId) =>
+    set((state) => ({
+      scenarioWorkspaceDrafts: {
+        ...state.scenarioWorkspaceDrafts,
+        [workspaceId]: createScenarioWorkspaceDraft(workspaceId),
+      },
+      scenarioWorkspaceEditor:
+        state.activeScenarioWorkspaceId === workspaceId
+          ? createDefaultScenarioWorkspaceEditorState()
+          : state.scenarioWorkspaceEditor,
+    })),
+  getDerivedScenarioWorkspace: (workspaceId) => {
+    const draft =
+      get().scenarioWorkspaceDrafts[workspaceId] ??
+      createScenarioWorkspaceDraft(workspaceId);
+    return deriveScenarioWorkspaceFromDraft(draft);
   },
   openSavedViewsDialog: (mode) => set({ savedViewsDialogMode: mode }),
   closeSavedViewsDialog: () => set({ savedViewsDialogMode: 'closed' }),
@@ -609,6 +755,35 @@ function createDefaultSelectionState(): SelectionState {
     facilityIds: [],
     boundaryName: null,
     jmcName: null,
+  };
+}
+
+function createDefaultScenarioWorkspaceEditorState(): ScenarioWorkspaceEditorState {
+  return createScenarioWorkspaceEditorState({});
+}
+
+function createScenarioWorkspaceEditorState(
+  input: Partial<ScenarioWorkspaceEditorState>,
+): ScenarioWorkspaceEditorState {
+  return {
+    selectedBoundaryUnitId: input.selectedBoundaryUnitId ?? null,
+    selectedScenarioRegionId: input.selectedScenarioRegionId ?? null,
+    pendingScenarioRegionId: input.pendingScenarioRegionId ?? null,
+    isDirty: input.isDirty ?? false,
+  };
+}
+
+function ensureScenarioWorkspaceDrafts(
+  drafts: Partial<Record<ScenarioWorkspaceId, ScenarioWorkspaceDraft>>,
+  workspaceId: ScenarioWorkspaceId,
+): Partial<Record<ScenarioWorkspaceId, ScenarioWorkspaceDraft>> {
+  if (drafts[workspaceId]) {
+    return drafts;
+  }
+
+  return {
+    ...drafts,
+    [workspaceId]: createScenarioWorkspaceDraft(workspaceId),
   };
 }
 

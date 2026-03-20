@@ -108,6 +108,9 @@ Why this matters:
   - authoritative boundary-system lookup sources
   - scenario outline lookup sources
   This keeps current behavior but reduces the direct preset-to-file coupling inside the map selection path.
+- Stable scenario boundary-assignment helpers now live in `src/lib/scenarioWorkspaceAssignments.ts`, so future reassignment work can target boundary-unit ids and scenario-region ids instead of depending only on display-name matching.
+- Derived editable-workspace summaries now live in `src/lib/scenarioWorkspaceDerived.ts`, so future region redraw and calculation work has a production-side source of truth to build from.
+- The production store now has explicit scenario-workspace draft/editor state in `src/store/appStore.ts`, including active workspace tracking, boundary reassignment drafts, and derived workspace access for future Playground behavior.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
@@ -175,5 +178,6 @@ Planned production-architecture direction for the future Playground:
 - treat `Current` as a baseline on the legacy ICB/HB boundary system
 - treat `SJC JMC`, `COA 3a`, and `COA 3b` as baseline scenario workspaces on the 2026 ICB/HB boundary system
 - move toward editable boundary-unit assignment plus derived scenario-region redraw, instead of relying on bespoke static outline files as the primary source of truth
+- keep editable workspace state in a dedicated production draft/editor layer rather than mutating preset config directly at runtime
 
 See [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md) for the working rules that should guide future development across both production and prototype paths.

@@ -151,6 +151,11 @@ Current priority areas:
   - authoritative boundary-system lookup
   - scenario outline lookup
   - future editable assignment lookup
+- keep editable scenario work grounded in stable ids:
+  - boundary-unit ids should be the authoritative reassignment target
+  - scenario-region ids should be the authoritative grouping target
+  - display labels should stay presentation-level, not become the only linkage
+- keep a dedicated production draft/editor state for future Playground work instead of mutating preset config objects in place
 - future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
