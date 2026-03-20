@@ -113,6 +113,8 @@ Working stance:
 - Visible preset labels, dataset paths, scenario region groupings, palette values, and boundary overrides are now centralized in `src/lib/config/viewPresets.json` with runtime helpers in `src/lib/config/viewPresets.ts`.
 - Scenario assignment names and codes are now part of the shared config model: `src/lib/config/scenarioAssignments.ts` resolves scenario region names/codes from the preset config, and the COA board-generation scripts consume the same assignment metadata instead of hard-coded code rules.
 - Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
+- NHS England region prep metadata now lives in `src/lib/config/nhsEnglandRegions.ts`, with a typed seven-region catalogue plus validated 2026 English ICB-to-region assignments keyed by `boundary_code`.
+- NHS England region research and overlay-preparation notes now live in `docs/nhs-england-region-overlay-2026.md`; treat this as validated production prep, not as a shipped runtime overlay yet.
 - Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so existing scenario presets can be treated as baseline workspaces for future editable Playground behavior rather than only as hard-coded runtime presets.
 - Runtime map lookup sources now also distinguish between authoritative boundary-system lookup sources and scenario outline lookup sources, reducing direct preset-to-file coupling in the selection path while preserving current behavior.
 - Stable scenario boundary-assignment helpers now live in `src/lib/scenarioWorkspaceAssignments.ts`, so future Playground reassignment work can target boundary-unit ids and scenario-region ids instead of relying only on display-name matching.
@@ -122,6 +124,11 @@ Working stance:
 - Derived scenario outline generation now uses Turf dissolve in `src/features/map/derivedScenarioOutlineSource.ts`, so edited assignments can produce clean merged Region outlines instead of only grouped board geometries.
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
+- The prepared NHS England region overlay design is:
+  - distinct `nhsRegions` overlay family
+  - authoritative board basis `icbHb2026`
+  - static assignment data keyed by `boundary_code`
+  - optional dissolved seven-region outlines as a later companion dataset rather than the primary lookup source
 - Facility properties now have a schema layer in `src/lib/schemas/facilities.ts`, with `src/lib/facilities.ts` providing normalized facility records and feature-property access for current runtime consumers.
 - Facility filter state now has an explicit schema in `src/lib/schemas/facilities.ts`, and `src/lib/facilityFilters.ts` owns production filter definitions/matching so future metadata facets can reuse the same typed facility-filter path.
 - The active production facility filter path is currently search-only; if metadata facets return later, they should plug back into the same shared typed contract rather than a parallel UI-only state path.
@@ -219,23 +226,25 @@ Working stance:
 - CSS: global styles imported through `src/main.tsx` (no direct link in `index.html`).
 - Playwright: `playwright.config.ts` boots Vite on port `4180`; e2e checks app shell visibility via role-based locators.
 - Tests: `tests/appStore.test.ts` covers PMC global opacity broadcast, global size propagation with per-region override, and boundary layer opacity clamping.
-- Tests also cover shared preset config, extracted point/boundary/tooltip modules, overlay-family classification for current vs scenario boundary layers, the saved-view domain contract, local saved-view storage, and saved-view action helpers.
+- Tests also cover shared preset config, extracted point/boundary/tooltip modules, overlay-family classification for current vs scenario boundary layers, NHS England 2026 board-to-region assignment coverage, the saved-view domain contract, local saved-view storage, and saved-view action helpers.
 
 ## Next steps
 
 1. Treat the current `MapWorkspace` hardening/modularization pass as complete unless a new bounded hotspot appears.
 2. Keep future overlay lookup products generic.
    JMC is just the first overlay-lookup example. New NHS/custom overlay families should plug into the same metadata and bootstrap path rather than introducing a JMC-specific runtime fork.
-3. Keep the production facility filter path simple unless a real workflow needs more.
+3. Promote the prepared NHS England region overlay via data, not runtime special cases.
+   Build a static 2026 board-assignment dataset keyed by `boundary_code`, keep non-England boards out of the NHS England assignment catalogue, and add dissolved seven-region outlines only as a companion display layer if needed.
+4. Keep the production facility filter path simple unless a real workflow needs more.
    Search is the current active production filter surface. If metadata facets return later, they should reuse the same typed contract rather than reintroducing ad hoc UI state.
-4. Treat current scenario presets as baseline workspaces, not as the final editable model.
+5. Treat current scenario presets as baseline workspaces, not as the final editable model.
    Future Playground work should edit authoritative boundary-unit assignments and derive region redraw/metrics from them instead of treating bespoke static outline files as the primary source of truth.
    Keep editable workspace state in the production draft/editor layer rather than patching preset config objects at runtime.
-5. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
+6. Extend saved-view storage beyond local browser storage only after the production map/runtime seams are stable.
    Keep `SavedViewStore` as the boundary, keep schema validation mandatory, and add remote implementations behind the same contract later.
-6. Add a production Docker path once the current map/runtime hardening phase is complete.
-7. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
-8. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
+7. Add a production Docker path once the current map/runtime hardening phase is complete.
+8. Keep working areas separated: production app vs prototype sidebar vs geodata preprocessing.
+9. When deploying to a different subpath, set `VITE_BASE_PATH` accordingly.
 
 ## Future functionality areas
 
@@ -244,6 +253,7 @@ Functional areas:
 - facility-filter usability and saved-filter behavior
 - richer saved-view management and future remote storage
 - future overlay families such as NHS/custom regions
+- promotion of the prepared NHS England region overlay from validated config into production runtime data/UI
 - export completion/polish
 - authenticated identity/share behavior for saved views
 - explicit promotion of approved prototype interaction patterns

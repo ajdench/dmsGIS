@@ -103,6 +103,8 @@ Why this matters:
 - Shared preset/scenario configuration now lives in `src/lib/config/viewPresets.json` and `src/lib/config/viewPresets.ts`; runtime UI/store code and scenario preprocessing scripts read from that shared definition.
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
 - Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
+- NHS England region prep for the 2026 boundary basis now lives in `src/lib/config/nhsEnglandRegions.ts`, with a typed seven-region catalogue and validated board-to-region assignments for all 36 English 2026 ICB features.
+- NHS England region research/design notes now live in `docs/nhs-england-region-overlay-2026.md`; the production overlay family exists in the model as `nhsRegions`, but the runtime overlay itself is still preparation work rather than a shipped map layer.
 - Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so the current scenario presets can be treated as baseline workspaces for future editable Playground behavior instead of only as hard-coded runtime presets.
 - Runtime map lookup sources now also distinguish between:
   - authoritative boundary-system lookup sources
@@ -139,6 +141,7 @@ Why this matters:
 - Interaction coverage now also includes boundary-only tooltip hiding/reset behavior, scenario outline resolution, and filtered overlapping-point selection paths.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
+- NHS England region assignment coverage is validated in `tests/nhsEnglandRegions.test.ts`, including a full check that every English `ICB` feature in the 2026 board GeoJSON resolves to exactly one NHS England region.
 - Scenario assignment resolution is covered in `tests/scenarioAssignments.test.ts`.
 - Facility schema normalization is covered in `tests/facilitySchema.test.ts`.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
@@ -156,8 +159,10 @@ Near-term production priorities:
 
 1. Improve production workflows and usability in existing domain areas before taking on more breadth.
 2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
-4. Keep `npm run build` as the authoritative health check before describing the app as deployable.
+3. Promote the NHS England region overlay through the same pattern as scenario overlays.
+   Build a static 2026 board-assignment dataset keyed by `boundary_code`, and add an optional dissolved outline dataset only when the visible overlay is ready to ship.
+4. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
+5. Keep `npm run build` as the authoritative health check before describing the app as deployable.
 
 ## Future functionality areas
 
@@ -166,6 +171,7 @@ Functional areas:
 - facility-filter usability and saved-filter behavior
 - richer saved-view management and future remote storage
 - future overlay families such as NHS/custom regions
+- promotion of the prepared NHS England region overlay from typed config/documentation into production runtime data and UI
 - export completion and polish
 - any explicit promotion of approved prototype interaction patterns
 
