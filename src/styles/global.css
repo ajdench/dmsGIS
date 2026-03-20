@@ -655,6 +655,45 @@
     color: color-mix(in srgb, var(--text) 88%, white);
   }
 
+  .sidebar-panel-shell {
+    overflow: clip;
+    padding: 0;
+  }
+
+  .sidebar-panel-shell__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--compact-control-height);
+    padding: var(--space-4);
+  }
+
+  .sidebar-panel-shell__title-wrap {
+    display: grid;
+    gap: 0.18rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .sidebar-panel-shell__title {
+    margin: 0;
+  }
+
+  .sidebar-panel-shell__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .sidebar-panel-shell__content {
+    display: grid;
+    gap: var(--space-y-optical);
+    padding: 0 var(--space-4) calc(var(--space-4) + 1px);
+    min-width: 0;
+  }
+
   .stack-row {
     @apply flex items-center;
     gap: var(--space-2);

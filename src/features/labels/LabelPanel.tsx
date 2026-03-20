@@ -1,3 +1,4 @@
+import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
 import { useAppStore } from '../../store/appStore';
@@ -27,8 +28,7 @@ export function LabelPanel() {
   });
 
   return (
-    <section className="panel panel--labels">
-      <h2>Labels</h2>
+    <SidebarPanelShell title="Labels" className="panel--labels">
       <div className="stack-col sidebar-section-list">
         {rows.map((row) => (
           <SidebarControlRow
@@ -48,6 +48,6 @@ export function LabelPanel() {
           </SidebarControlRow>
         ))}
       </div>
-    </section>
+    </SidebarPanelShell>
   );
 }
