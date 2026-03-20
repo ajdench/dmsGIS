@@ -16,14 +16,16 @@ import {
 } from 'ol/style';
 import type {
   BasemapSettings,
+  BoundarySystemId,
   FacilitySymbolShape,
   RegionStyle,
   ViewPresetId,
 } from '../../types';
+import { BOUNDARY_SYSTEMS } from '../../lib/config/boundarySystems';
 import {
-  getScenarioBoundaryLookupPresets,
-  getScenarioLookupBoundaryPath,
-} from '../../lib/config/viewPresets';
+  getScenarioWorkspaceLookupBoundaryPath,
+  getScenarioWorkspacePresetIds,
+} from '../../lib/config/scenarioWorkspaces';
 import {
   type PointTooltipEntry,
 } from './pointSelection';
@@ -32,6 +34,7 @@ import {
   getActiveAssignmentLookupSource,
   getActiveScenarioOutlineLookupSource,
 } from './lookupSources';
+import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
 import {
   loadOverlayAssignmentDataset,
   loadOverlayLookupDatasets,
@@ -94,6 +97,9 @@ export function MapWorkspace() {
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const boundarySystemLookupSourcesRef = useRef<
+    Map<BoundarySystemId, VectorSource>
+  >(new Map());
   const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
   const scenarioBoundaryLookupSourcesRef = useRef<
     Map<ViewPresetId, VectorSource>
@@ -160,7 +166,10 @@ export function MapWorkspace() {
             scenarioBoundaryLookupSourcesRef.current,
             activeViewPreset,
           ),
-          jmcBoundaryLookupSource: jmcBoundaryLookupSourceRef.current,
+          jmcBoundaryLookupSource: getActiveBoundarySystemLookupSource(
+            boundarySystemLookupSourcesRef.current,
+            activeViewPreset,
+          ),
           getSelectedOutlineColor: getSelectedJmcOutlineColor,
         });
       },
@@ -207,32 +216,36 @@ export function MapWorkspace() {
     selectedPointRef.current = shell.selectedPointLayer;
     setMapViewport(shell.initialViewport);
 
-    const overlayRegionLookupSource = new VectorSource();
-    jmcBoundaryLookupSourceRef.current = overlayRegionLookupSource;
+    const boundarySystemLookupDatasets: OverlayLookupDatasetDefinition<BoundarySystemId>[] =
+      Object.values(BOUNDARY_SYSTEMS).map((boundarySystem) => {
+        const source = new VectorSource();
+        boundarySystemLookupSourcesRef.current.set(boundarySystem.id, source);
+        return {
+          key: boundarySystem.id,
+          path: boundarySystem.interactionBoundaryPath,
+          source,
+          errorLabel: `Failed to load ${boundarySystem.id} interaction boundaries`,
+        };
+      });
+    jmcBoundaryLookupSourceRef.current =
+      boundarySystemLookupSourcesRef.current.get('legacyIcbHb') ?? null;
     const overlayAssignmentSource = new VectorSource();
     jmcAssignmentLookupSourceRef.current = overlayAssignmentSource;
-    const lookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [
-      {
-        key: 'current',
-        path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
-        source: overlayRegionLookupSource,
-        errorLabel: 'Failed to load JMC lookup boundaries',
-      },
-    ];
-    for (const preset of getScenarioBoundaryLookupPresets()) {
-      const path = getScenarioLookupBoundaryPath(preset);
+    const scenarioLookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [];
+    for (const preset of getScenarioWorkspacePresetIds()) {
+      const path = getScenarioWorkspaceLookupBoundaryPath(preset);
       if (!path) continue;
       const scenarioLookupSource = new VectorSource();
       scenarioBoundaryLookupSourcesRef.current.set(preset, scenarioLookupSource);
-      lookupDatasets.push({
+      scenarioLookupDatasets.push({
         key: preset,
         path,
         source: scenarioLookupSource,
-        errorLabel: `Failed to load ${preset} boundary lookup`,
+        errorLabel: `Failed to load ${preset} scenario outline lookup`,
       });
     }
     void loadOverlayLookupDatasets({
-      datasets: lookupDatasets,
+      datasets: [...boundarySystemLookupDatasets, ...scenarioLookupDatasets],
       resolveUrl: resolveDataUrl,
       onError: (message, error) => {
         console.error(message, error);
@@ -264,6 +277,7 @@ export function MapWorkspace() {
         selectedBoundaryRef,
         selectedJmcBoundaryRef,
         selectedPointRef,
+        boundarySystemLookupSourcesRef,
         jmcBoundaryLookupSourceRef,
         scenarioBoundaryLookupSourcesRef,
         jmcAssignmentLookupSourceRef,
@@ -381,7 +395,10 @@ export function MapWorkspace() {
           regionBoundaryRefs.current,
           jmcAssignmentLookupSourceRef.current,
         ),
-        boundarySource: jmcBoundaryLookupSourceRef.current,
+        boundarySource: getActiveBoundarySystemLookupSource(
+          boundarySystemLookupSourcesRef.current,
+          activeViewPreset,
+        ),
         activeViewPreset,
       });
       selectedBoundaryNameRef.current = appliedSelection.boundaryName;
@@ -410,7 +427,10 @@ export function MapWorkspace() {
               regionBoundaryRefs.current,
               jmcAssignmentLookupSourceRef.current,
             ),
-            null,
+            getActiveBoundarySystemLookupSource(
+              boundarySystemLookupSourcesRef.current,
+              preset,
+            ),
             preset,
           ),
       });

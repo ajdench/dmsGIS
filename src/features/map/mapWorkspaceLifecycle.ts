@@ -4,7 +4,7 @@ import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import { fromLonLat } from 'ol/proj';
 import type { PointTooltipEntry, } from './pointSelection';
-import type { ViewPresetId } from '../../types';
+import type { BoundarySystemId, ViewPresetId } from '../../types';
 
 export interface BasemapLayerSet {
   oceanFill: VectorLayer<VectorSource>;
@@ -51,6 +51,7 @@ export interface CleanupMapWorkspaceRefsParams {
   selectedBoundaryRef: MutableRefLike<VectorLayer<VectorSource> | null>;
   selectedJmcBoundaryRef: MutableRefLike<VectorLayer<VectorSource> | null>;
   selectedPointRef: MutableRefLike<VectorLayer<VectorSource> | null>;
+  boundarySystemLookupSourcesRef: MutableRefLike<Map<BoundarySystemId, VectorSource>>;
   jmcBoundaryLookupSourceRef: MutableRefLike<VectorSource | null>;
   scenarioBoundaryLookupSourcesRef: MutableRefLike<Map<ViewPresetId, VectorSource>>;
   jmcAssignmentLookupSourceRef: MutableRefLike<VectorSource | null>;
@@ -139,6 +140,7 @@ export function cleanupMapWorkspaceRefs(
   refs.selectedBoundaryRef.current = null;
   refs.selectedJmcBoundaryRef.current = null;
   refs.selectedPointRef.current = null;
+  refs.boundarySystemLookupSourcesRef.current.clear();
   refs.jmcBoundaryLookupSourceRef.current = null;
   refs.scenarioBoundaryLookupSourcesRef.current.clear();
   refs.jmcAssignmentLookupSourceRef.current = null;

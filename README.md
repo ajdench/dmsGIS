@@ -104,6 +104,10 @@ Why this matters:
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
 - Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
 - Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so the current scenario presets can be treated as baseline workspaces for future editable Playground behavior instead of only as hard-coded runtime presets.
+- Runtime map lookup sources now also distinguish between:
+  - authoritative boundary-system lookup sources
+  - scenario outline lookup sources
+  This keeps current behavior but reduces the direct preset-to-file coupling inside the map selection path.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.

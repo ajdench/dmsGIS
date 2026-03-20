@@ -147,6 +147,10 @@ Current priority areas:
 - make the boundary-system split explicit:
   - `Current` uses the legacy ICB/HB basis
   - scenario work should use the 2026 ICB/HB basis
+- keep runtime lookup sources split by responsibility:
+  - authoritative boundary-system lookup
+  - scenario outline lookup
+  - future editable assignment lookup
 - future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
