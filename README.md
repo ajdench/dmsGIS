@@ -59,10 +59,16 @@ Why this matters:
 
 - GitHub Pages: https://ajdench.github.io/dmsGIS/
 
+## Production versioning
+
+- `Version 1` is saved as Git tag `production-v1`
+- current production development should now be treated as `Version 2`
+
 ## Documents
 
 - `docs/specification.md`
 - `docs/internal-architecture-principles.md`
+- `docs/production-versions.md`
 - `AGENTS.md`
 - `docs/prompts/`
 
