@@ -37,6 +37,7 @@ import {
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
 import { buildScenarioWorkspaceRuntimeState } from './scenarioWorkspaceRuntime';
+import { buildDerivedScenarioOutlineSource } from './derivedScenarioOutlineSource';
 import {
   loadOverlayAssignmentDataset,
   loadOverlayLookupDatasets,
@@ -116,6 +117,7 @@ export function MapWorkspace() {
   >(new Map());
   const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
   const scenarioWorkspaceAssignmentSourceRef = useRef<VectorSource | null>(null);
+  const scenarioWorkspaceDerivedOutlineSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
   const scenarioWorkspaceAssignmentByBoundaryNameRef = useRef<Map<string, string>>(
     new Map(),
@@ -176,6 +178,7 @@ export function MapWorkspace() {
           activeViewPreset,
           selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
           scenarioBoundarySource:
+            scenarioWorkspaceDerivedOutlineSourceRef.current ??
             scenarioWorkspaceAssignmentSourceRef.current ??
             getActiveScenarioOutlineLookupSource(
               regionBoundaryRefs.current,
@@ -300,6 +303,7 @@ export function MapWorkspace() {
         scenarioBoundaryLookupSourcesRef,
         jmcAssignmentLookupSourceRef,
         scenarioWorkspaceAssignmentSourceRef,
+        scenarioWorkspaceDerivedOutlineSourceRef,
         jmcAssignmentByBoundaryNameRef,
         scenarioWorkspaceAssignmentByBoundaryNameRef,
         pointTooltipRootRef,
@@ -389,9 +393,11 @@ export function MapWorkspace() {
         'careBoardBoundaries',
         scenarioWorkspaceAssignmentSourceRef.current,
       );
+    }
+    if (scenarioWorkspaceDerivedOutlineSourceRef.current) {
       runtimeSourceOverrides.set(
         'pmcUnpopulatedCareBoardBoundaries',
-        scenarioWorkspaceAssignmentSourceRef.current,
+        scenarioWorkspaceDerivedOutlineSourceRef.current,
       );
     }
     reconcileOverlayBoundaryLayers({
@@ -414,6 +420,7 @@ export function MapWorkspace() {
       activeScenarioWorkspaceId !== activePresetWorkspaceId
     ) {
       scenarioWorkspaceAssignmentSourceRef.current = null;
+      scenarioWorkspaceDerivedOutlineSourceRef.current = null;
       scenarioWorkspaceAssignmentByBoundaryNameRef.current = new Map();
       return;
     }
@@ -428,6 +435,8 @@ export function MapWorkspace() {
       activeScenarioWorkspaceDraft,
     );
     scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
+    scenarioWorkspaceDerivedOutlineSourceRef.current =
+      buildDerivedScenarioOutlineSource(runtimeState.assignmentSource);
     scenarioWorkspaceAssignmentByBoundaryNameRef.current =
       runtimeState.assignmentByBoundaryName;
   }, [activeViewPreset, activeScenarioWorkspaceId, activeScenarioWorkspaceDraft]);

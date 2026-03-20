@@ -68,6 +68,7 @@ describe('mapWorkspaceLifecycle', () => {
     };
     const jmcAssignmentLookupSourceRef = { current: new VectorSource() };
     const scenarioWorkspaceAssignmentSourceRef = { current: new VectorSource() };
+    const scenarioWorkspaceDerivedOutlineSourceRef = { current: new VectorSource() };
     const jmcAssignmentByBoundaryNameRef = { current: new Map([['A', 'B']]) };
     const scenarioWorkspaceAssignmentByBoundaryNameRef = {
       current: new Map([['Boundary A', 'COA 3b North']]),
@@ -100,6 +101,7 @@ describe('mapWorkspaceLifecycle', () => {
       scenarioBoundaryLookupSourcesRef,
       jmcAssignmentLookupSourceRef,
       scenarioWorkspaceAssignmentSourceRef,
+      scenarioWorkspaceDerivedOutlineSourceRef,
       jmcAssignmentByBoundaryNameRef,
       scenarioWorkspaceAssignmentByBoundaryNameRef,
       pointTooltipRootRef: pointTooltipRootRef as never,
@@ -130,6 +132,7 @@ describe('mapWorkspaceLifecycle', () => {
     expect(scenarioBoundaryLookupSourcesRef.current.size).toBe(0);
     expect(jmcAssignmentLookupSourceRef.current).toBeNull();
     expect(scenarioWorkspaceAssignmentSourceRef.current).toBeNull();
+    expect(scenarioWorkspaceDerivedOutlineSourceRef.current).toBeNull();
     expect(jmcAssignmentByBoundaryNameRef.current.size).toBe(0);
     expect(scenarioWorkspaceAssignmentByBoundaryNameRef.current.size).toBe(0);
     expect(pointTooltipEntriesRef.current).toEqual([]);
