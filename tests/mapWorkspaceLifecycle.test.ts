@@ -59,12 +59,19 @@ describe('mapWorkspaceLifecycle', () => {
     const selectedBoundaryRef = { current: new VectorLayer() };
     const selectedJmcBoundaryRef = { current: new VectorLayer() };
     const selectedPointRef = { current: new VectorLayer() };
+    const boundarySystemLookupSourcesRef = {
+      current: new Map([['legacyIcbHb', new VectorSource()] as const]),
+    };
     const jmcBoundaryLookupSourceRef = { current: new VectorSource() };
     const scenarioBoundaryLookupSourcesRef = {
       current: new Map([['coa3a', new VectorSource()] as const]),
     };
     const jmcAssignmentLookupSourceRef = { current: new VectorSource() };
+    const scenarioWorkspaceAssignmentSourceRef = { current: new VectorSource() };
     const jmcAssignmentByBoundaryNameRef = { current: new Map([['A', 'B']]) };
+    const scenarioWorkspaceAssignmentByBoundaryNameRef = {
+      current: new Map([['Boundary A', 'COA 3b North']]),
+    };
     const pointTooltipRootRef = { current: {} };
     const pointTooltipHeaderRef = { current: {} };
     const pointTooltipNameRef = { current: {} };
@@ -88,10 +95,13 @@ describe('mapWorkspaceLifecycle', () => {
       selectedBoundaryRef,
       selectedJmcBoundaryRef,
       selectedPointRef,
+      boundarySystemLookupSourcesRef,
       jmcBoundaryLookupSourceRef,
       scenarioBoundaryLookupSourcesRef,
       jmcAssignmentLookupSourceRef,
+      scenarioWorkspaceAssignmentSourceRef,
       jmcAssignmentByBoundaryNameRef,
+      scenarioWorkspaceAssignmentByBoundaryNameRef,
       pointTooltipRootRef: pointTooltipRootRef as never,
       pointTooltipHeaderRef: pointTooltipHeaderRef as never,
       pointTooltipNameRef: pointTooltipNameRef as never,
@@ -115,10 +125,13 @@ describe('mapWorkspaceLifecycle', () => {
     expect(selectedBoundaryRef.current).toBeNull();
     expect(selectedJmcBoundaryRef.current).toBeNull();
     expect(selectedPointRef.current).toBeNull();
+    expect(boundarySystemLookupSourcesRef.current.size).toBe(0);
     expect(jmcBoundaryLookupSourceRef.current).toBeNull();
     expect(scenarioBoundaryLookupSourcesRef.current.size).toBe(0);
     expect(jmcAssignmentLookupSourceRef.current).toBeNull();
+    expect(scenarioWorkspaceAssignmentSourceRef.current).toBeNull();
     expect(jmcAssignmentByBoundaryNameRef.current.size).toBe(0);
+    expect(scenarioWorkspaceAssignmentByBoundaryNameRef.current.size).toBe(0);
     expect(pointTooltipEntriesRef.current).toEqual([]);
     expect(pointTooltipIndexRef.current).toBe(0);
     expect(selectedBoundaryNameRef.current).toBeNull();

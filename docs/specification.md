@@ -157,6 +157,7 @@ Current priority areas:
   - display labels should stay presentation-level, not become the only linkage
 - keep a dedicated production draft/editor state for future Playground work instead of mutating preset config objects in place
 - future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
+- let runtime selection/highlight paths consume draft-aware assignment sources before attempting full region redraw, so the editing architecture can be validated incrementally
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 

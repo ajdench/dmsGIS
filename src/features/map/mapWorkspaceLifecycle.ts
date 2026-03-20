@@ -55,7 +55,9 @@ export interface CleanupMapWorkspaceRefsParams {
   jmcBoundaryLookupSourceRef: MutableRefLike<VectorSource | null>;
   scenarioBoundaryLookupSourcesRef: MutableRefLike<Map<ViewPresetId, VectorSource>>;
   jmcAssignmentLookupSourceRef: MutableRefLike<VectorSource | null>;
+  scenarioWorkspaceAssignmentSourceRef: MutableRefLike<VectorSource | null>;
   jmcAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
+  scenarioWorkspaceAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
   pointTooltipRootRef: MutableRefLike<HTMLDivElement | null>;
   pointTooltipHeaderRef: MutableRefLike<HTMLDivElement | null>;
   pointTooltipNameRef: MutableRefLike<HTMLDivElement | null>;
@@ -144,7 +146,9 @@ export function cleanupMapWorkspaceRefs(
   refs.jmcBoundaryLookupSourceRef.current = null;
   refs.scenarioBoundaryLookupSourcesRef.current.clear();
   refs.jmcAssignmentLookupSourceRef.current = null;
+  refs.scenarioWorkspaceAssignmentSourceRef.current = null;
   refs.jmcAssignmentByBoundaryNameRef.current.clear();
+  refs.scenarioWorkspaceAssignmentByBoundaryNameRef.current.clear();
   refs.pointTooltipRootRef.current = null;
   refs.pointTooltipHeaderRef.current = null;
   refs.pointTooltipNameRef.current = null;

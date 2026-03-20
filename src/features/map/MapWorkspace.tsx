@@ -25,6 +25,7 @@ import { BOUNDARY_SYSTEMS } from '../../lib/config/boundarySystems';
 import {
   getScenarioWorkspaceLookupBoundaryPath,
   getScenarioWorkspacePresetIds,
+  getScenarioWorkspaceIdForPreset,
 } from '../../lib/config/scenarioWorkspaces';
 import {
   type PointTooltipEntry,
@@ -35,6 +36,7 @@ import {
   getActiveScenarioOutlineLookupSource,
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
+import { buildScenarioWorkspaceRuntimeState } from './scenarioWorkspaceRuntime';
 import {
   loadOverlayAssignmentDataset,
   loadOverlayLookupDatasets,
@@ -75,6 +77,14 @@ export function MapWorkspace() {
   const layers = useAppStore((state) => state.layers);
   const regions = useAppStore((state) => state.regions);
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
+  const activeScenarioWorkspaceId = useAppStore(
+    (state) => state.activeScenarioWorkspaceId,
+  );
+  const activeScenarioWorkspaceDraft = useAppStore((state) =>
+    state.activeScenarioWorkspaceId
+      ? state.scenarioWorkspaceDrafts[state.activeScenarioWorkspaceId] ?? null
+      : null,
+  );
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
   const facilityFilters = useAppStore((state) => state.facilityFilters);
@@ -105,7 +115,11 @@ export function MapWorkspace() {
     Map<ViewPresetId, VectorSource>
   >(new Map());
   const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
+  const scenarioWorkspaceAssignmentSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
+  const scenarioWorkspaceAssignmentByBoundaryNameRef = useRef<Map<string, string>>(
+    new Map(),
+  );
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
@@ -161,15 +175,19 @@ export function MapWorkspace() {
           entry,
           activeViewPreset,
           selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
-          scenarioBoundarySource: getActiveScenarioOutlineLookupSource(
-            regionBoundaryRefs.current,
-            scenarioBoundaryLookupSourcesRef.current,
-            activeViewPreset,
-          ),
-          jmcBoundaryLookupSource: getActiveBoundarySystemLookupSource(
-            boundarySystemLookupSourcesRef.current,
-            activeViewPreset,
-          ),
+          scenarioBoundarySource:
+            scenarioWorkspaceAssignmentSourceRef.current ??
+            getActiveScenarioOutlineLookupSource(
+              regionBoundaryRefs.current,
+              scenarioBoundaryLookupSourcesRef.current,
+              activeViewPreset,
+            ),
+          jmcBoundaryLookupSource:
+            scenarioWorkspaceAssignmentSourceRef.current ??
+            getActiveBoundarySystemLookupSource(
+              boundarySystemLookupSourcesRef.current,
+              activeViewPreset,
+            ),
           getSelectedOutlineColor: getSelectedJmcOutlineColor,
         });
       },
@@ -281,7 +299,9 @@ export function MapWorkspace() {
         jmcBoundaryLookupSourceRef,
         scenarioBoundaryLookupSourcesRef,
         jmcAssignmentLookupSourceRef,
+        scenarioWorkspaceAssignmentSourceRef,
         jmcAssignmentByBoundaryNameRef,
+        scenarioWorkspaceAssignmentByBoundaryNameRef,
         pointTooltipRootRef,
         pointTooltipHeaderRef,
         pointTooltipNameRef,
@@ -375,6 +395,32 @@ export function MapWorkspace() {
   }, [overlayLayers, activeViewPreset]);
 
   useEffect(() => {
+    const activePresetWorkspaceId = getScenarioWorkspaceIdForPreset(activeViewPreset);
+    if (
+      !activePresetWorkspaceId ||
+      !activeScenarioWorkspaceId ||
+      activeScenarioWorkspaceId !== activePresetWorkspaceId
+    ) {
+      scenarioWorkspaceAssignmentSourceRef.current = null;
+      scenarioWorkspaceAssignmentByBoundaryNameRef.current = new Map();
+      return;
+    }
+
+    const baselineAssignmentSource = getActiveAssignmentLookupSource(
+      regionBoundaryRefs.current,
+      jmcAssignmentLookupSourceRef.current,
+    );
+    const runtimeState = buildScenarioWorkspaceRuntimeState(
+      activeScenarioWorkspaceId,
+      baselineAssignmentSource,
+      activeScenarioWorkspaceDraft,
+    );
+    scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
+    scenarioWorkspaceAssignmentByBoundaryNameRef.current =
+      runtimeState.assignmentByBoundaryName;
+  }, [activeViewPreset, activeScenarioWorkspaceId, activeScenarioWorkspaceDraft]);
+
+  useEffect(() => {
     renderPointTooltip();
   }, [facilitySymbolShape, facilitySymbolSize]);
 
@@ -390,11 +436,16 @@ export function MapWorkspace() {
         coordinate,
         selectedBoundaryLayer,
         selectedJmcBoundaryLayer,
-        assignmentByBoundaryName: jmcAssignmentByBoundaryNameRef.current,
-        assignmentSource: getActiveAssignmentLookupSource(
-          regionBoundaryRefs.current,
-          jmcAssignmentLookupSourceRef.current,
-        ),
+        assignmentByBoundaryName:
+          scenarioWorkspaceAssignmentByBoundaryNameRef.current.size > 0
+            ? scenarioWorkspaceAssignmentByBoundaryNameRef.current
+            : jmcAssignmentByBoundaryNameRef.current,
+        assignmentSource:
+          scenarioWorkspaceAssignmentSourceRef.current ??
+          getActiveAssignmentLookupSource(
+            regionBoundaryRefs.current,
+            jmcAssignmentLookupSourceRef.current,
+          ),
         boundarySource: getActiveBoundarySystemLookupSource(
           boundarySystemLookupSourcesRef.current,
           activeViewPreset,
@@ -423,10 +474,11 @@ export function MapWorkspace() {
         getJmcNameAtCoordinate: (coordinate, preset) =>
           findJmcNameAtCoordinate(
             coordinate,
-            getActiveAssignmentLookupSource(
-              regionBoundaryRefs.current,
-              jmcAssignmentLookupSourceRef.current,
-            ),
+            scenarioWorkspaceAssignmentSourceRef.current ??
+              getActiveAssignmentLookupSource(
+                regionBoundaryRefs.current,
+                jmcAssignmentLookupSourceRef.current,
+              ),
             getActiveBoundarySystemLookupSource(
               boundarySystemLookupSourcesRef.current,
               preset,
