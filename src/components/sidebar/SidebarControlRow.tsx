@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { SidebarPopover } from './SidebarPopover';
 
 interface SidebarControlRowProps {
   label: string;
@@ -21,7 +22,7 @@ export function SidebarControlRow({
   swatchOpacity = 1,
   children,
 }: SidebarControlRowProps) {
-  const detailsRef = useOutsideClose();
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="sidebar-inline-row">
@@ -36,45 +37,31 @@ export function SidebarControlRow({
         >
           {enabled ? 'On' : 'Off'}
         </button>
-        <details className="color-popover sidebar-control-row__meta" ref={detailsRef}>
-          <summary
-            className="sidebar-metric-pill sidebar-metric-pill--button"
-            aria-label={pillAriaLabel}
-          >
-            {swatchColor ? (
-              <span
-                className="sidebar-metric-pill__swatch"
-                style={{ backgroundColor: swatchColor, opacity: swatchOpacity }}
-                aria-hidden="true"
-              />
-            ) : null}
-            <span className="sidebar-metric-pill__value">{pillLabel}</span>
-          </summary>
-          <div className="color-popover__panel sidebar-control-row__panel">{children}</div>
-        </details>
+        <SidebarPopover
+          open={open}
+          onOpenChange={setOpen}
+          trigger={
+            <button
+              type="button"
+              className="sidebar-metric-pill sidebar-metric-pill--button"
+              aria-label={pillAriaLabel}
+              aria-expanded={open}
+              aria-haspopup="dialog"
+            >
+              {swatchColor ? (
+                <span
+                  className="sidebar-metric-pill__swatch"
+                  style={{ backgroundColor: swatchColor, opacity: swatchOpacity }}
+                  aria-hidden="true"
+                />
+              ) : null}
+              <span className="sidebar-metric-pill__value">{pillLabel}</span>
+            </button>
+          }
+        >
+          {children}
+        </SidebarPopover>
       </span>
     </div>
   );
-}
-
-function useOutsideClose() {
-  const detailsRef = useRef<HTMLDetailsElement | null>(null);
-
-  useEffect(() => {
-    const handlePointerDown = (event: PointerEvent) => {
-      const details = detailsRef.current;
-      if (!details?.open) return;
-      const target = event.target;
-      if (target instanceof Node && !details.contains(target)) {
-        details.removeAttribute('open');
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-    };
-  }, []);
-
-  return detailsRef;
 }

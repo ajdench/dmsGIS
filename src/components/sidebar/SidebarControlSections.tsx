@@ -47,7 +47,7 @@ export function SidebarControlSections({
             <SidebarControlField
               key={field.id}
               field={field}
-              ariaLabelPrefix={ariaLabelPrefix}
+              ariaLabelPrefix={`${ariaLabelPrefix} ${section.title}`}
             />
           ))}
         </div>
