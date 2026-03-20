@@ -706,7 +706,7 @@
     justify-content: space-between;
     gap: var(--space-3);
     min-height: var(--compact-control-height);
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-3);
   }
 
   .sidebar-panel-shell__title-wrap {
