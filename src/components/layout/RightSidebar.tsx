@@ -1,7 +1,8 @@
 import { BasemapPanel } from '../../features/basemap/BasemapPanel';
 import { SelectionPanel } from '../../features/facilities/SelectionPanel';
-import { GroupPanel } from '../../features/groups/GroupPanel';
+import { OverlayPanel } from '../../features/groups/OverlayPanel';
 import { LabelPanel } from '../../features/labels/LabelPanel';
+import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { useAppStore } from '../../store/appStore';
 import type { ViewPresetId } from '../../types';
 import { SidebarStatus } from './SidebarStatus';
@@ -15,34 +16,19 @@ export function RightSidebar() {
       <SidebarStatus />
       <BasemapPanel />
       <div className="sidebar-action-row" aria-label="Map presets">
-        <PresetButton
-          id="current"
-          label="Current"
-          activeViewPreset={activeViewPreset}
-          activateViewPreset={activateViewPreset}
-        />
-        <PresetButton
-          id="coa3a"
-          label="COA 3a"
-          activeViewPreset={activeViewPreset}
-          activateViewPreset={activateViewPreset}
-        />
-        <PresetButton
-          id="coa3b"
-          label="COA 3b"
-          activeViewPreset={activeViewPreset}
-          activateViewPreset={activateViewPreset}
-        />
-        <PresetButton
-          id="coa3c"
-          label="COA 3c"
-          activeViewPreset={activeViewPreset}
-          activateViewPreset={activateViewPreset}
-        />
+        {VIEW_PRESET_BUTTONS.map((preset) => (
+          <PresetButton
+            key={preset.id}
+            id={preset.id}
+            label={preset.label}
+            activeViewPreset={activeViewPreset}
+            activateViewPreset={activateViewPreset}
+          />
+        ))}
       </div>
       <SelectionPanel />
       <LabelPanel />
-      <GroupPanel mode="regions" />
+      <OverlayPanel />
     </aside>
   );
 }

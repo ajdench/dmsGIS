@@ -5,36 +5,69 @@ import type {
   BasemapSettings,
   FacilitySymbolShape,
   LayerState,
-  RegionBoundaryLayerStyle,
+  OverlayLayerStyle,
+  OverlayFamily,
   RegionStyle,
   ViewPresetId,
 } from '../types';
+import {
+  BOARD_BOUNDARY_BASE_STYLE,
+  getScenarioBoardLayerConfig,
+  getScenarioOutlineLayerConfig,
+  isScenarioPreset,
+} from '../lib/config/viewPresets';
+import { createFacilityFilterState } from '../lib/facilityFilters';
+import { createMapSessionState } from '../lib/savedViews';
+import {
+  parseFacilityProperties,
+  type FacilityFilterState,
+} from '../lib/schemas/facilities';
+import type {
+  MapSessionState,
+  MapViewportState,
+  SelectionState,
+} from '../lib/schemas/savedViews';
 import { fetchLayerManifest } from '../lib/services/layers';
 
 interface ViewPresetState {
   layers: LayerState[];
   regions: RegionStyle[];
-  regionBoundaryLayers: RegionBoundaryLayerStyle[];
+  overlayLayers: OverlayLayerStyle[];
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
+  facilityFilters?: FacilityFilterState;
   basemap: BasemapSettings;
+}
+
+interface FacilityFilterOptions {
+  regions: string[];
+  types: string[];
 }
 
 interface AppState {
   layers: LayerState[];
   regions: RegionStyle[];
-  regionBoundaryLayers: RegionBoundaryLayerStyle[];
+  overlayLayers: OverlayLayerStyle[];
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
+  facilityFilters: FacilityFilterState;
+  facilityFilterOptions: FacilityFilterOptions;
   basemap: BasemapSettings;
   activeViewPreset: ViewPresetId;
   currentViewPresetState: ViewPresetState | null;
+  mapViewport: MapViewportState;
+  selection: SelectionState;
+  savedViewsDialogMode: 'closed' | 'open' | 'save';
   isLoading: boolean;
   error: string | null;
+  notice: string | null;
   loadLayers: () => Promise<void>;
   activateViewPreset: (preset: ViewPresetId) => void;
+  resetActiveViewPreset: () => void;
+  openSavedViewsDialog: (mode: 'open' | 'save') => void;
+  closeSavedViewsDialog: () => void;
   toggleLayer: (id: string) => void;
   setLayerOpacity: (id: string, opacity: number) => void;
   setBasemapProvider: (provider: BasemapProvider) => void;
@@ -82,25 +115,46 @@ interface AppState {
   setAllRegionBorderOpacity: (opacity: number) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
-  setRegionBoundaryLayerVisibility: (id: string, visible: boolean) => void;
-  setRegionBoundaryLayerOpacity: (id: string, opacity: number) => void;
-  setRegionBoundaryLayerBorderVisibility: (id: string, visible: boolean) => void;
-  setRegionBoundaryLayerBorderColor: (id: string, color: string) => void;
-  setRegionBoundaryLayerBorderOpacity: (id: string, opacity: number) => void;
+  setFacilitySearchQuery: (query: string) => void;
+  setFacilityFilterRegions: (regions: string[]) => void;
+  setFacilityFilterTypes: (types: string[]) => void;
+  setFacilityDefaultVisibilityFilter: (
+    value: FacilityFilterState['defaultVisibility'],
+  ) => void;
+  resetFacilityFilters: () => void;
+  setMapViewport: (viewport: MapViewportState) => void;
+  setSelection: (selection: Partial<SelectionState>) => void;
+  setOverlayLayerVisibility: (id: string, visible: boolean) => void;
+  setOverlayLayerOpacity: (id: string, opacity: number) => void;
+  setOverlayLayerBorderVisibility: (id: string, visible: boolean) => void;
+  setOverlayLayerBorderColor: (id: string, color: string) => void;
+  setOverlayLayerBorderOpacity: (id: string, opacity: number) => void;
+  createMapSessionSnapshot: () => MapSessionState;
+  applyMapSessionState: (session: MapSessionState) => void;
+  setNotice: (notice: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   layers: [],
   regions: [],
-  regionBoundaryLayers: createDefaultRegionBoundaryLayers(),
+  overlayLayers: createDefaultOverlayLayers(),
   regionGlobalOpacity: 1,
   facilitySymbolShape: 'circle',
   facilitySymbolSize: 3.5,
+  facilityFilters: createFacilityFilterState(),
+  facilityFilterOptions: {
+    regions: [],
+    types: [],
+  },
   basemap: createDefaultBasemapSettings(),
   activeViewPreset: 'current',
   currentViewPresetState: null,
+  mapViewport: createDefaultMapViewport(),
+  selection: createDefaultSelectionState(),
+  savedViewsDialogMode: 'closed',
   isLoading: false,
   error: null,
+  notice: null,
   loadLayers: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -109,6 +163,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       const regions = facilitiesLayer
         ? await loadRegionStyles(facilitiesLayer.path, get().facilitySymbolSize)
         : [];
+      const facilityFilterOptions = facilitiesLayer
+        ? await loadFacilityFilterOptions(facilitiesLayer.path)
+        : { regions: [], types: [] };
       const layers = manifestLayers.map((layer) => ({
         id: layer.id,
         name: layer.name,
@@ -124,16 +181,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({
         layers,
         regions,
-        regionBoundaryLayers: cloneRegionBoundaryLayers(
-          currentViewPresetState.regionBoundaryLayers,
-        ),
+        overlayLayers: cloneOverlayLayers(currentViewPresetState.overlayLayers),
         regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
         facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
         facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
         basemap: { ...currentViewPresetState.basemap },
+        facilityFilterOptions,
         currentViewPresetState,
         activeViewPreset: 'current',
         isLoading: false,
+        notice: null,
       });
     } catch (error) {
       const message =
@@ -144,7 +201,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   activateViewPreset: (preset) => {
     const currentViewPresetState = get().currentViewPresetState;
     if (!currentViewPresetState) {
-      set({ activeViewPreset: preset });
+      set({
+        activeViewPreset: preset,
+        selection: createDefaultSelectionState(),
+      });
       return;
     }
 
@@ -153,27 +213,40 @@ export const useAppStore = create<AppState>((set, get) => ({
         ? {
             layers: cloneLayers(currentViewPresetState.layers),
             regions: cloneRegions(currentViewPresetState.regions),
-            regionBoundaryLayers: cloneRegionBoundaryLayers(
-              currentViewPresetState.regionBoundaryLayers,
-            ),
+            overlayLayers: cloneOverlayLayers(currentViewPresetState.overlayLayers),
             regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
             facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
             facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
+            facilityFilters: createFacilityFilterState(
+              currentViewPresetState.facilityFilters,
+            ),
             basemap: { ...currentViewPresetState.basemap },
           }
-        : createScenarioViewPresetState(currentViewPresetState);
+        : createScenarioViewPresetState(currentViewPresetState, preset);
 
     set({
       activeViewPreset: preset,
       layers: cloneLayers(nextState.layers),
       regions: cloneRegions(nextState.regions),
-      regionBoundaryLayers: cloneRegionBoundaryLayers(nextState.regionBoundaryLayers),
+      overlayLayers: cloneOverlayLayers(nextState.overlayLayers),
       regionGlobalOpacity: nextState.regionGlobalOpacity,
       facilitySymbolShape: nextState.facilitySymbolShape,
       facilitySymbolSize: nextState.facilitySymbolSize,
+      facilityFilters: createFacilityFilterState(nextState.facilityFilters),
       basemap: { ...nextState.basemap },
+      selection: createDefaultSelectionState(),
     });
   },
+  resetActiveViewPreset: () => {
+    get().activateViewPreset(get().activeViewPreset);
+    set({
+      facilityFilters: createFacilityFilterState(),
+      selection: createDefaultSelectionState(),
+      notice: 'Reset active view preset',
+    });
+  },
+  openSavedViewsDialog: (mode) => set({ savedViewsDialogMode: mode }),
+  closeSavedViewsDialog: () => set({ savedViewsDialogMode: 'closed' }),
   toggleLayer: (id) =>
     set((state) => ({
       layers: state.layers.map((layer) =>
@@ -315,31 +388,75 @@ export const useAppStore = create<AppState>((set, get) => ({
         })),
       };
     }),
-  setRegionBoundaryLayerVisibility: (id, visible) =>
+  setFacilitySearchQuery: (query) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        searchQuery: query,
+      }),
+    })),
+  setFacilityFilterRegions: (regions) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        regions,
+      }),
+    })),
+  setFacilityFilterTypes: (types) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        types,
+      }),
+    })),
+  setFacilityDefaultVisibilityFilter: (value) =>
+    set((state) => ({
+      facilityFilters: createFacilityFilterState({
+        ...state.facilityFilters,
+        defaultVisibility: value,
+      }),
+    })),
+  resetFacilityFilters: () => set({ facilityFilters: createFacilityFilterState() }),
+  setMapViewport: (viewport) => set({ mapViewport: viewport }),
+  setSelection: (selection) =>
+    set((state) => ({
+      selection: {
+        facilityIds: selection.facilityIds ?? state.selection.facilityIds,
+        boundaryName:
+          selection.boundaryName === undefined
+            ? state.selection.boundaryName
+            : selection.boundaryName,
+        jmcName:
+          selection.jmcName === undefined
+            ? state.selection.jmcName
+            : selection.jmcName,
+      },
+    })),
+  setOverlayLayerVisibility: (id, visible) =>
+    set((state) => ({
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id ? { ...layer, visible } : layer,
       ),
     })),
-  setRegionBoundaryLayerOpacity: (id, opacity) =>
+  setOverlayLayerOpacity: (id, opacity) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id
           ? { ...layer, opacity: Math.max(0, Math.min(1, opacity)) }
           : layer,
       ),
     })),
-  setRegionBoundaryLayerBorderVisibility: (id, visible) =>
+  setOverlayLayerBorderVisibility: (id, visible) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id ? { ...layer, borderVisible: visible } : layer,
       ),
     })),
-  setRegionBoundaryLayerBorderColor: (id, color) =>
+  setOverlayLayerBorderColor: (id, color) =>
     set((state) => {
       const normalized = normalizeSolidColor(color);
       return {
-        regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+        overlayLayers: state.overlayLayers.map((layer) =>
           layer.id === id
             ? {
                 ...layer,
@@ -350,14 +467,49 @@ export const useAppStore = create<AppState>((set, get) => ({
         ),
       };
     }),
-  setRegionBoundaryLayerBorderOpacity: (id, opacity) =>
+  setOverlayLayerBorderOpacity: (id, opacity) =>
     set((state) => ({
-      regionBoundaryLayers: state.regionBoundaryLayers.map((layer) =>
+      overlayLayers: state.overlayLayers.map((layer) =>
         layer.id === id
           ? { ...layer, borderOpacity: Math.max(0, Math.min(1, opacity)) }
           : layer,
       ),
     })),
+  createMapSessionSnapshot: () => {
+    const state = get();
+    return createMapSessionState({
+      activeViewPreset: state.activeViewPreset,
+      viewport: state.mapViewport,
+      basemap: state.basemap,
+      layers: state.layers,
+      overlayLayers: state.overlayLayers,
+      regions: state.regions,
+      regionGlobalOpacity: state.regionGlobalOpacity,
+      facilitySymbolShape: state.facilitySymbolShape,
+      facilitySymbolSize: state.facilitySymbolSize,
+      facilityFilters: state.facilityFilters,
+      selection: state.selection,
+    });
+  },
+  applyMapSessionState: (session) =>
+    set({
+      activeViewPreset: session.activeViewPreset,
+      mapViewport: { ...session.viewport },
+      basemap: { ...session.basemap },
+      layers: cloneLayers(session.layers),
+      overlayLayers: cloneOverlayLayers(session.overlayLayers),
+      regions: cloneRegions(session.regions),
+      regionGlobalOpacity: session.regionGlobalOpacity,
+      facilitySymbolShape: session.facilities.symbolShape,
+      facilitySymbolSize: session.facilities.symbolSize,
+      facilityFilters: createFacilityFilterState(session.facilities.filters),
+      selection: {
+        facilityIds: [...session.selection.facilityIds],
+        boundaryName: session.selection.boundaryName,
+        jmcName: session.selection.jmcName,
+      },
+    }),
+  setNotice: (notice) => set({ notice }),
 }));
 
 async function loadRegionStyles(
@@ -385,12 +537,11 @@ async function loadRegionStyles(
     >();
 
     for (const feature of features) {
-      const props = feature.properties ?? {};
-      const region = String(props.region ?? 'Unassigned');
-      const colorRaw = String(props.point_color_hex ?? '#64748b');
-      const color = colorRaw.startsWith('#') ? colorRaw : `#${colorRaw}`;
+      const props = parseFacilityProperties(feature.properties ?? {});
+      const region = props.region;
+      const color = props.point_color_hex;
       const opacity = 1;
-      const visible = Number(props.default_visible ?? 1) !== 0;
+      const visible = props.default_visible !== 0;
 
       const existing = byRegion.get(region);
       if (existing) {
@@ -416,6 +567,40 @@ async function loadRegionStyles(
       }));
   } catch {
     return [];
+  }
+}
+
+async function loadFacilityFilterOptions(
+  path: string,
+): Promise<FacilityFilterOptions> {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) {
+      return { regions: [], types: [] };
+    }
+    const geojson = (await response.json()) as {
+      features?: Array<{ properties?: Record<string, unknown> }>;
+    };
+    const features = geojson.features ?? [];
+    const regions = new Set<string>();
+    const types = new Set<string>();
+
+    for (const feature of features) {
+      const props = parseFacilityProperties(feature.properties ?? {});
+      if (props.region.trim()) {
+        regions.add(props.region.trim());
+      }
+      if (props.type.trim()) {
+        types.add(props.type.trim());
+      }
+    }
+
+    return {
+      regions: [...regions].sort((a, b) => a.localeCompare(b)),
+      types: [...types].sort((a, b) => a.localeCompare(b)),
+    };
+  } catch {
+    return { regions: [], types: [] };
   }
 }
 
@@ -485,12 +670,29 @@ function createDefaultBasemapSettings(): BasemapSettings {
   };
 }
 
-function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
+function createDefaultMapViewport(): MapViewportState {
+  return {
+    center: [0, 0],
+    zoom: 0,
+    rotation: 0,
+  };
+}
+
+function createDefaultSelectionState(): SelectionState {
+  return {
+    facilityIds: [],
+    boundaryName: null,
+    jmcName: null,
+  };
+}
+
+function createDefaultOverlayLayers(): OverlayLayerStyle[] {
   return [
     {
       id: 'pmcPopulatedCareBoardBoundaries',
       name: 'PMC populated care board boundaries',
       path: 'data/regions/UK_Active_Components_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0.3,
       borderVisible: true,
@@ -502,6 +704,7 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       id: 'pmcUnpopulatedCareBoardBoundaries',
       name: 'PMC unpopulated care board boundaries',
       path: 'data/regions/UK_Inactive_Remainder_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0.2,
       borderVisible: true,
@@ -513,12 +716,13 @@ function createDefaultRegionBoundaryLayers(): RegionBoundaryLayerStyle[] {
       id: 'careBoardBoundaries',
       name: 'Care board boundaries',
       path: 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_geojson.geojson',
+      family: 'boardBoundaries',
       visible: true,
       opacity: 0,
       borderVisible: true,
-      borderColor: '#999999',
-      borderOpacity: 0.1,
-      swatchColor: '#999999',
+      borderColor: BOARD_BOUNDARY_BASE_STYLE.borderColor,
+      borderOpacity: BOARD_BOUNDARY_BASE_STYLE.borderOpacity,
+      swatchColor: BOARD_BOUNDARY_BASE_STYLE.swatchColor,
     },
   ];
 }
@@ -530,31 +734,79 @@ function createViewPresetState({
   return {
     layers: cloneLayers(layers),
     regions: cloneRegions(regions),
-    regionBoundaryLayers: createDefaultRegionBoundaryLayers(),
+    overlayLayers: createDefaultOverlayLayers(),
     regionGlobalOpacity: 1,
     facilitySymbolShape: 'circle',
     facilitySymbolSize: 3.5,
+    facilityFilters: createFacilityFilterState(),
     basemap: createDefaultBasemapSettings(),
   };
 }
 
 function createScenarioViewPresetState(
   source: ViewPresetState,
+  preset: ViewPresetId,
 ): ViewPresetState {
   return {
     layers: cloneLayers(source.layers),
     regions: cloneRegions(source.regions),
-    regionBoundaryLayers: cloneRegionBoundaryLayers(source.regionBoundaryLayers).map(
-      (layer) => ({
-        ...layer,
-        visible: false,
-      }),
-    ),
+    overlayLayers: createScenarioOverlayLayers(source.overlayLayers, preset),
     regionGlobalOpacity: source.regionGlobalOpacity,
     facilitySymbolShape: source.facilitySymbolShape,
     facilitySymbolSize: source.facilitySymbolSize,
+    facilityFilters: createFacilityFilterState(source.facilityFilters),
     basemap: { ...source.basemap },
   };
+}
+
+function createScenarioOverlayLayers(
+  layers: OverlayLayerStyle[],
+  preset: ViewPresetId,
+): OverlayLayerStyle[] {
+  const hiddenLayers = cloneOverlayLayers(layers).map((layer) => ({
+    ...layer,
+    visible: false,
+  }));
+
+  if (!isScenarioPreset(preset)) {
+    return hiddenLayers;
+  }
+
+  const boardLayer = getScenarioBoardLayerConfig(preset);
+  const outlineLayer = getScenarioOutlineLayerConfig(preset);
+  if (!boardLayer || !outlineLayer) {
+    return hiddenLayers;
+  }
+
+  return hiddenLayers.map((layer) =>
+    layer.id === 'careBoardBoundaries'
+      ? {
+          ...layer,
+          name: BOARD_BOUNDARY_BASE_STYLE.name,
+          path: boardLayer.path,
+          family: 'boardBoundaries',
+          visible: true,
+          opacity: boardLayer.opacity,
+          borderVisible: true,
+          borderColor: BOARD_BOUNDARY_BASE_STYLE.borderColor,
+          borderOpacity: BOARD_BOUNDARY_BASE_STYLE.borderOpacity,
+          swatchColor: BOARD_BOUNDARY_BASE_STYLE.swatchColor,
+        }
+      : layer.id === 'pmcUnpopulatedCareBoardBoundaries'
+          ? {
+              ...layer,
+              name: outlineLayer.name,
+              path: outlineLayer.path,
+              family: 'scenarioRegions',
+              visible: outlineLayer.visible,
+              opacity: outlineLayer.opacity,
+              borderVisible: true,
+              borderColor: outlineLayer.borderColor,
+              borderOpacity: outlineLayer.borderOpacity,
+              swatchColor: outlineLayer.swatchColor,
+            }
+      : layer,
+  );
 }
 
 function cloneLayers(layers: LayerState[]): LayerState[] {
@@ -565,8 +817,8 @@ function cloneRegions(regions: RegionStyle[]): RegionStyle[] {
   return regions.map((region) => ({ ...region }));
 }
 
-function cloneRegionBoundaryLayers(
-  layers: RegionBoundaryLayerStyle[],
-): RegionBoundaryLayerStyle[] {
+function cloneOverlayLayers(
+  layers: OverlayLayerStyle[],
+): OverlayLayerStyle[] {
   return layers.map((layer) => ({ ...layer }));
 }

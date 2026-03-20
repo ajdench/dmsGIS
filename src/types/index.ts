@@ -45,10 +45,11 @@ export interface RegionStyle {
   symbolSize: number;
 }
 
-export interface RegionBoundaryLayerStyle {
+export interface OverlayLayerStyle {
   id: string;
   name: string;
   path: string;
+  family: OverlayFamily;
   visible: boolean;
   opacity: number;
   borderVisible: boolean;
@@ -57,7 +58,14 @@ export interface RegionBoundaryLayerStyle {
   swatchColor: string;
 }
 
+export type RegionBoundaryLayerStyle = OverlayLayerStyle;
+
 export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
+export type OverlayFamily =
+  | 'boardBoundaries'
+  | 'scenarioRegions'
+  | 'nhsRegions'
+  | 'customRegions';
 
 export interface Facility {
   id: string;
@@ -65,4 +73,10 @@ export interface Facility {
   type: string;
   latitude: number;
   longitude: number;
+}
+
+export interface SelectionState {
+  facilityIds: string[];
+  boundaryName: string | null;
+  jmcName: string | null;
 }

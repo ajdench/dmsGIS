@@ -11,6 +11,14 @@
     --font-size-body: 0.875rem;
     --font-size-label: 0.75rem;
     --font-size-small: 0.75rem;
+    --font-size-header-title: var(--font-size-title);
+    --font-size-header-subtitle: var(--font-size-small);
+    --font-size-header-button: var(--font-size-small);
+    --font-size-control-title: var(--font-size-panel-title);
+    --font-size-control-subtitle: var(--font-size-small);
+    --font-size-control-compact: 0.8rem;
+    --font-size-control-numeric: 0.8rem;
+    --font-size-control-icon: 0.92rem;
     --font-size-region-min: 0.68rem;
     --font-size-region-ideal: 0.22vw + 0.66rem;
     --font-size-region-max: 0.875rem;
@@ -193,11 +201,11 @@
 
   .topbar__title {
     @apply font-semibold tracking-tight;
-    font-size: var(--font-size-title);
+    font-size: var(--font-size-header-title);
   }
 
   .topbar__subtitle {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-header-subtitle);
     color: var(--muted);
   }
 
@@ -216,7 +224,7 @@
     padding-right: 0.625rem;
     padding-top: 0;
     padding-bottom: 0;
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-header-button);
     line-height: 1.25rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -330,6 +338,95 @@
     z-index: 8;
   }
 
+  .dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0.24);
+    backdrop-filter: blur(4px);
+  }
+
+  .dialog-card {
+    width: min(34rem, calc(100vw - 3rem));
+    max-height: min(38rem, calc(100vh - 3rem));
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .dialog-card__header,
+  .dialog-card__section-header,
+  .dialog-card__actions,
+  .saved-view-list__item,
+  .saved-view-list__actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .dialog-card__header,
+  .dialog-card__section-header,
+  .saved-view-list__item {
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .dialog-card__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .dialog-card__actions,
+  .saved-view-list__actions {
+    gap: var(--space-2);
+  }
+
+  .field-label {
+    font-size: var(--font-size-label);
+    color: var(--text-secondary);
+  }
+
+  .saved-view-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .saved-view-list__item {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-strong);
+  }
+
+  .saved-view-list__copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .saved-view-list__title {
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .saved-view-list__meta {
+    font-size: var(--font-size-small);
+    color: var(--muted);
+  }
+
   .map-tooltip-card--dock {
     position: absolute;
     top: var(--map-tooltip-inset);
@@ -346,6 +443,20 @@
     line-height: 1;
     white-space: nowrap;
     text-align: left;
+  }
+
+  .map-tooltip-card__subname {
+    display: block;
+    margin-top: calc(var(--map-tooltip-gap) - 2px);
+    font-size: var(--map-tooltip-name-font-size);
+    font-weight: var(--map-tooltip-name-weight);
+    line-height: 1;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .map-tooltip-card__subname--hidden {
+    display: none;
   }
 
   .map-tooltip-card--name-right .map-tooltip-card__name {
@@ -877,10 +988,11 @@
   }
 
   .slider-value__button {
-    @apply inline-flex h-full w-full items-center justify-center border-0 p-0 text-xs font-semibold;
+    @apply inline-flex h-full w-full items-center justify-center border-0 p-0 font-semibold;
     background: #f8fafc;
     color: var(--text-secondary);
     cursor: pointer;
+    font-size: var(--font-size-small);
     line-height: 1;
   }
 
@@ -911,10 +1023,11 @@
   }
 
   .slider-value__input {
-    @apply h-full w-full border-0 bg-white p-0 text-center text-xs;
+    @apply h-full w-full border-0 bg-white p-0 text-center;
     min-width: 0;
     color: var(--text-secondary);
     appearance: textfield;
+    font-size: var(--font-size-control-numeric);
     line-height: var(--slider-value-height);
     padding: 0;
   }

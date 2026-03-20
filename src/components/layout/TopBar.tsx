@@ -1,4 +1,11 @@
+import { exportCurrentMapView } from '../../features/export/exportCurrentMapView';
+import { useAppStore } from '../../store/appStore';
+
 export function TopBar() {
+  const openSavedViewsDialog = useAppStore((state) => state.openSavedViewsDialog);
+  const resetActiveViewPreset = useAppStore((state) => state.resetActiveViewPreset);
+  const setNotice = useAppStore((state) => state.setNotice);
+
   return (
     <header className="topbar">
       <div className="topbar__brand">
@@ -8,10 +15,37 @@ export function TopBar() {
         </div>
       </div>
       <div className="topbar__actions">
-        <button className="button button--ghost">Open</button>
-        <button className="button button--ghost">Save</button>
-        <button className="button button--ghost">Export</button>
-        <button className="button button--primary">Reset</button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => openSavedViewsDialog('open')}
+        >
+          Open
+        </button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => openSavedViewsDialog('save')}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="button button--ghost"
+          onClick={() => {
+            exportCurrentMapView();
+            setNotice('Export is not implemented yet');
+          }}
+        >
+          Export
+        </button>
+        <button
+          type="button"
+          className="button button--primary"
+          onClick={() => resetActiveViewPreset()}
+        >
+          Reset
+        </button>
       </div>
     </header>
   );

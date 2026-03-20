@@ -1,13 +1,10 @@
 import { useEffect, useRef } from 'react';
 import OLMap from 'ol/Map';
-import View from 'ol/View';
-import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
+import VectorLayer from 'ol/layer/Vector';
 import type { FeatureLike } from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
-import { fromLonLat } from 'ol/proj';
-import Point from 'ol/geom/Point';
 import { unByKey } from 'ol/Observable';
 import type { EventsKey } from 'ol/events';
 import {
@@ -15,44 +12,76 @@ import {
   Stroke,
   Style,
   Circle as CircleStyle,
-  RegularShape,
   Text as TextStyle,
 } from 'ol/style';
 import type {
   BasemapSettings,
   FacilitySymbolShape,
-  LayerState,
-  RegionBoundaryLayerStyle,
   RegionStyle,
+  ViewPresetId,
 } from '../../types';
+import {
+  getScenarioBoundaryLookupPresets,
+  getScenarioLookupBoundaryPath,
+} from '../../lib/config/viewPresets';
+import {
+  type PointTooltipEntry,
+} from './pointSelection';
+import { renderDockedTooltip } from './tooltipController';
+import {
+  getActiveAssignmentLookupSource,
+  getActiveScenarioOutlineLookupSource,
+} from './lookupSources';
+import {
+  loadOverlayAssignmentDataset,
+  loadOverlayLookupDatasets,
+  resolveDataUrl,
+  type OverlayLookupDatasetDefinition,
+} from './overlayLookupBootstrap';
+import {
+  cleanupMapWorkspaceRefs,
+  initializeMapWorkspaceShell,
+  type BasemapLayerSet,
+} from './mapWorkspaceLifecycle';
+import { reconcileRuntimeLayers } from './runtimeLayerReconciliation';
+import { reconcileOverlayBoundaryLayers } from './overlayBoundaryReconciliation';
+import { getViewportFromMap, syncViewportToMap } from './viewportSync';
+import {
+  syncBoundaryHighlightForPoint,
+  syncJmcOutlineHighlight,
+} from './selectionHighlights';
+import {
+  createRegionBoundaryLayer,
+  createRegionBoundaryStyle,
+  getSelectedJmcOutlineColor,
+} from './boundaryLayerStyles';
+import { getStyleForLayer } from './facilityLayerStyles';
+import { createPointSymbol, withOpacity } from './mapStyleUtils';
+import { resolveSingleClickSelection } from './singleClickSelection';
+import {
+  applyBoundarySelection,
+  findJmcNameAtCoordinate,
+} from './boundarySelection';
+import {
+  getFacilityFilterDefinitions,
+} from '../../lib/facilityFilters';
+import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import { useAppStore } from '../../store/appStore';
-
-interface BasemapLayerSet {
-  oceanFill: VectorLayer<VectorSource>;
-  landFill: VectorLayer<VectorSource>;
-  countryBorders: VectorLayer<VectorSource>;
-  ukInternalBorders: VectorLayer<VectorSource>;
-  countryLabels: VectorLayer<VectorSource>;
-  majorCities: VectorLayer<VectorSource>;
-  seaLabels: VectorLayer<VectorSource>;
-}
-
-interface PointTooltipEntry {
-  facilityName: string;
-  coordinate: [number, number];
-  boundaryName: string | null;
-  hasVisibleBorder: boolean;
-  symbolSize: number;
-}
 
 export function MapWorkspace() {
   const layers = useAppStore((state) => state.layers);
   const regions = useAppStore((state) => state.regions);
+  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
+  const facilityFilters = useAppStore((state) => state.facilityFilters);
+  const mapViewport = useAppStore((state) => state.mapViewport);
+  const facilityFilterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const loadLayers = useAppStore((state) => state.loadLayers);
   const basemap = useAppStore((state) => state.basemap);
-  const regionBoundaryLayers = useAppStore((state) => state.regionBoundaryLayers);
+  const overlayLayers = useAppStore((state) => state.overlayLayers);
+  const setMapViewport = useAppStore((state) => state.setMapViewport);
+  const setSelection = useAppStore((state) => state.setSelection);
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<OLMap | null>(null);
   const basemapRef = useRef<BasemapLayerSet | null>(null);
@@ -63,10 +92,18 @@ export function MapWorkspace() {
     new globalThis.Map(),
   );
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const jmcBoundaryLookupSourceRef = useRef<VectorSource | null>(null);
+  const scenarioBoundaryLookupSourcesRef = useRef<
+    Map<ViewPresetId, VectorSource>
+  >(new Map());
+  const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
+  const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
+  const pointTooltipSubnameRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipContextRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipFooterRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipPageRef = useRef<HTMLSpanElement | null>(null);
@@ -75,121 +112,78 @@ export function MapWorkspace() {
   const pointTooltipEntriesRef = useRef<PointTooltipEntry[]>([]);
   const pointTooltipIndexRef = useRef(0);
   const selectedBoundaryNameRef = useRef<string | null>(null);
+  const selectedJmcNameRef = useRef<string | null>(null);
   const layerRefs = useRef<globalThis.Map<string, VectorLayer<VectorSource>>>(
     new globalThis.Map(),
   );
 
   const renderPointTooltip = () => {
-    const root = pointTooltipRootRef.current;
-    const header = pointTooltipHeaderRef.current;
-    const name = pointTooltipNameRef.current;
-    const context = pointTooltipContextRef.current;
-    const footer = pointTooltipFooterRef.current;
-    const page = pointTooltipPageRef.current;
-    const prev = pointTooltipPrevRef.current;
-    const next = pointTooltipNextRef.current;
-    if (!root || !header || !name || !context || !footer || !page || !prev || !next) {
-      return;
-    }
+    pointTooltipIndexRef.current = renderDockedTooltip({
+      dom: {
+        root: pointTooltipRootRef.current,
+        header: pointTooltipHeaderRef.current,
+        name: pointTooltipNameRef.current,
+        subname: pointTooltipSubnameRef.current,
+        context: pointTooltipContextRef.current,
+        footer: pointTooltipFooterRef.current,
+        page: pointTooltipPageRef.current,
+        prev: pointTooltipPrevRef.current,
+        next: pointTooltipNextRef.current,
+      },
+      state: {
+        entries: pointTooltipEntriesRef.current,
+        index: pointTooltipIndexRef.current,
+        boundaryName: selectedBoundaryNameRef.current,
+        jmcName: selectedJmcNameRef.current,
+      },
+      facilitySymbolShape,
+      facilitySymbolSize,
+      selectedPointLayer: selectedPointRef.current,
+      selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
+      setSelectedBoundaryForPoint: (entry) => {
+        const nextState = syncBoundaryHighlightForPoint({
+          entry,
+          overlayLayers,
+          regionBoundaryRefs: regionBoundaryRefs.current,
+          selectedBoundaryLayer: selectedBoundaryRef.current,
+        });
+        selectedBoundaryNameRef.current = nextState.boundaryName;
+        selectedJmcNameRef.current = nextState.jmcName;
+      },
+      syncSelectedJmcBoundaries: (entry) => {
+        syncJmcOutlineHighlight({
+          entry,
+          activeViewPreset,
+          selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
+          scenarioBoundarySource: getActiveScenarioOutlineLookupSource(
+            regionBoundaryRefs.current,
+            scenarioBoundaryLookupSourcesRef.current,
+            activeViewPreset,
+          ),
+          jmcBoundaryLookupSource: jmcBoundaryLookupSourceRef.current,
+          getSelectedOutlineColor: getSelectedJmcOutlineColor,
+        });
+      },
+      setSelectedBoundaryState: (boundaryName, jmcName) => {
+        selectedBoundaryNameRef.current = boundaryName;
+        selectedJmcNameRef.current = jmcName;
+      },
+      createSelectedPointStyle,
+    });
 
-    const entries = pointTooltipEntriesRef.current;
-    const selectedPointSource = selectedPointRef.current?.getSource();
-    const selectedPointLayer = selectedPointRef.current;
-    if (entries.length === 0) {
-      const boundaryName = selectedBoundaryNameRef.current;
-      if (!boundaryName) {
-        name.textContent = '';
-        context.textContent = '';
-        page.textContent = '';
-        prev.disabled = true;
-        next.disabled = true;
-        footer.classList.add('map-tooltip-card__footer--hidden');
-        context.classList.add('map-tooltip-card__context--hidden');
-        root.classList.remove('map-tooltip-card--name-right');
-        root.classList.add('map-tooltip-card--hidden');
-        if (selectedPointSource) {
-          selectedPointSource.clear();
-        }
-        if (selectedPointLayer) {
-          selectedPointLayer.setStyle(
-            createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
-          );
-        }
-        return;
-      }
-
-      name.textContent = boundaryName;
-      context.textContent = '';
-      page.textContent = '';
-      prev.disabled = true;
-      next.disabled = true;
-      footer.classList.add('map-tooltip-card__footer--hidden');
-      context.classList.add('map-tooltip-card__context--hidden');
-      root.classList.remove('map-tooltip-card--name-right');
-      root.classList.remove('map-tooltip-card--hidden');
-      if (selectedPointSource) {
-        selectedPointSource.clear();
-      }
-      if (selectedPointLayer) {
-        selectedPointLayer.setStyle(
-          createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false),
-        );
-      }
-      return;
-    }
-
-    const index = Math.max(
-      0,
-      Math.min(pointTooltipIndexRef.current, entries.length - 1),
-    );
-    pointTooltipIndexRef.current = index;
-    const current = entries[index];
-    name.textContent = current.facilityName;
-    page.textContent = `Page ${index + 1} of ${entries.length}`;
-    context.textContent = current.boundaryName ?? '';
-    prev.disabled = index === 0;
-    next.disabled = index >= entries.length - 1;
-    footer.classList.remove('map-tooltip-card__footer--hidden');
-    if (current.boundaryName) {
-      context.classList.remove('map-tooltip-card__context--hidden');
+    const currentEntry = pointTooltipEntriesRef.current[pointTooltipIndexRef.current];
+    if (currentEntry) {
+      setSelection({
+        facilityIds: currentEntry.facilityId ? [currentEntry.facilityId] : [],
+        boundaryName: selectedBoundaryNameRef.current ?? currentEntry.boundaryName,
+        jmcName: selectedJmcNameRef.current ?? currentEntry.jmcName,
+      });
     } else {
-      context.classList.add('map-tooltip-card__context--hidden');
-    }
-
-    const selectedBoundarySource = selectedBoundaryRef.current?.getSource();
-    if (selectedBoundarySource) {
-      selectedBoundarySource.clear();
-      const matchedBoundary = findCareBoardBoundaryAtCoordinate(
-        current.coordinate,
-        regionBoundaryLayers,
-        regionBoundaryRefs.current,
-      );
-      if (matchedBoundary) {
-        selectedBoundarySource.addFeature(matchedBoundary.clone());
-        selectedBoundaryNameRef.current = getBoundaryName(matchedBoundary);
-      } else {
-        selectedBoundaryNameRef.current = null;
-      }
-    }
-
-    root.classList.remove('map-tooltip-card--name-right');
-    root.classList.remove('map-tooltip-card--hidden');
-    if (selectedPointSource) {
-      selectedPointSource.clear();
-      selectedPointSource.addFeature(
-        new Feature({
-          geometry: new Point(current.coordinate),
-        }),
-      );
-    }
-    if (selectedPointLayer) {
-      selectedPointLayer.setStyle(
-        createSelectedPointStyle(
-          facilitySymbolShape,
-          current.symbolSize,
-          current.hasVisibleBorder,
-        ),
-      );
+      setSelection({
+        facilityIds: [],
+        boundaryName: selectedBoundaryNameRef.current,
+        jmcName: selectedJmcNameRef.current,
+      });
     }
   };
 
@@ -198,52 +192,97 @@ export function MapWorkspace() {
       return;
     }
 
-    mapRef.current = new OLMap({
+    const shell = initializeMapWorkspaceShell({
       target: ref.current,
-      view: new View({
-        center: fromLonLat([-2.5, 54.5]),
-        zoom: 5.6,
-      }),
-      layers: [],
+      createBasemapLayers,
+      setBasemapSources,
+      createSelectedBoundaryLayer,
+      createSelectedJmcBoundaryLayer,
+      createSelectedPointLayer,
+    });
+    mapRef.current = shell.map;
+    basemapRef.current = shell.basemapLayers;
+    selectedBoundaryRef.current = shell.selectedBoundaryLayer;
+    selectedJmcBoundaryRef.current = shell.selectedJmcBoundaryLayer;
+    selectedPointRef.current = shell.selectedPointLayer;
+    setMapViewport(shell.initialViewport);
+
+    const overlayRegionLookupSource = new VectorSource();
+    jmcBoundaryLookupSourceRef.current = overlayRegionLookupSource;
+    const overlayAssignmentSource = new VectorSource();
+    jmcAssignmentLookupSourceRef.current = overlayAssignmentSource;
+    const lookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [
+      {
+        key: 'current',
+        path: 'data/regions/UK_JMC_Boundaries_AGOL_Ready_Codex_v01_geojson.geojson',
+        source: overlayRegionLookupSource,
+        errorLabel: 'Failed to load JMC lookup boundaries',
+      },
+    ];
+    for (const preset of getScenarioBoundaryLookupPresets()) {
+      const path = getScenarioLookupBoundaryPath(preset);
+      if (!path) continue;
+      const scenarioLookupSource = new VectorSource();
+      scenarioBoundaryLookupSourcesRef.current.set(preset, scenarioLookupSource);
+      lookupDatasets.push({
+        key: preset,
+        path,
+        source: scenarioLookupSource,
+        errorLabel: `Failed to load ${preset} boundary lookup`,
+      });
+    }
+    void loadOverlayLookupDatasets({
+      datasets: lookupDatasets,
+      resolveUrl: resolveDataUrl,
+      onError: (message, error) => {
+        console.error(message, error);
+      },
+    });
+    void loadOverlayAssignmentDataset({
+      dataset: {
+        path: 'data/regions/UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson',
+        source: overlayAssignmentSource,
+        errorLabel: 'Failed to load JMC assignment lookup',
+      },
+      resolveUrl: resolveDataUrl,
+      getBoundaryName: (feature) => String(feature.get('boundary_name') ?? ''),
+      getAssignmentName: (feature) =>
+        String(feature.get('region_name') ?? feature.get('jmc_name') ?? '').trim(),
+      onError: (message, error) => {
+        console.error(message, error);
+      },
+    }).then((assignmentMap) => {
+      jmcAssignmentByBoundaryNameRef.current = assignmentMap;
     });
 
-    const basemapLayers = createBasemapLayers();
-    basemapRef.current = basemapLayers;
-    setBasemapSources(basemapLayers);
-    mapRef.current.addLayer(basemapLayers.oceanFill);
-    mapRef.current.addLayer(basemapLayers.landFill);
-    mapRef.current.addLayer(basemapLayers.countryBorders);
-    mapRef.current.addLayer(basemapLayers.ukInternalBorders);
-    mapRef.current.addLayer(basemapLayers.seaLabels);
-    mapRef.current.addLayer(basemapLayers.countryLabels);
-    mapRef.current.addLayer(basemapLayers.majorCities);
-    const selectedBoundaryLayer = createSelectedBoundaryLayer();
-    selectedBoundaryRef.current = selectedBoundaryLayer;
-    mapRef.current.addLayer(selectedBoundaryLayer);
-    const selectedPointLayer = createSelectedPointLayer();
-    selectedPointRef.current = selectedPointLayer;
-    mapRef.current.addLayer(selectedPointLayer);
-
     return () => {
-      mapRef.current?.setTarget(undefined);
-      mapRef.current = null;
-      basemapRef.current = null;
-      regionBoundaryRefs.current.clear();
-      regionBoundaryPathRefs.current.clear();
-      selectedBoundaryRef.current = null;
-      selectedPointRef.current = null;
-      pointTooltipRootRef.current = null;
-      pointTooltipHeaderRef.current = null;
-      pointTooltipNameRef.current = null;
-      pointTooltipContextRef.current = null;
-      pointTooltipFooterRef.current = null;
-      pointTooltipPageRef.current = null;
-      pointTooltipPrevRef.current = null;
-      pointTooltipNextRef.current = null;
-      pointTooltipEntriesRef.current = [];
-      pointTooltipIndexRef.current = 0;
-      selectedBoundaryNameRef.current = null;
-      layerRefs.current.clear();
+      cleanupMapWorkspaceRefs({
+        mapRef,
+        basemapRef,
+        regionBoundaryRefs,
+        regionBoundaryPathRefs,
+        selectedBoundaryRef,
+        selectedJmcBoundaryRef,
+        selectedPointRef,
+        jmcBoundaryLookupSourceRef,
+        scenarioBoundaryLookupSourcesRef,
+        jmcAssignmentLookupSourceRef,
+        jmcAssignmentByBoundaryNameRef,
+        pointTooltipRootRef,
+        pointTooltipHeaderRef,
+        pointTooltipNameRef,
+        pointTooltipSubnameRef,
+        pointTooltipContextRef,
+        pointTooltipFooterRef,
+        pointTooltipPageRef,
+        pointTooltipPrevRef,
+        pointTooltipNextRef,
+        pointTooltipEntriesRef,
+        pointTooltipIndexRef,
+        selectedBoundaryNameRef,
+        selectedJmcNameRef,
+        layerRefs,
+      });
     };
   }, []);
 
@@ -252,6 +291,25 @@ export function MapWorkspace() {
       console.error('Failed to load layers', error);
     });
   }, [loadLayers]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    syncViewportToMap(map, mapViewport);
+  }, [mapViewport]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const moveKey: EventsKey = map.on('moveend', () => {
+      setMapViewport(getViewportFromMap(map));
+    });
+
+    return () => {
+      unByKey(moveKey);
+    };
+  }, [setMapViewport]);
 
   useEffect(() => {
     const basemapLayers = basemapRef.current;
@@ -291,42 +349,16 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
-    const byId = new globalThis.Map(regionBoundaryLayers.map((layer) => [layer.id, layer]));
-
-    regionBoundaryLayers.forEach((layerConfig) => {
-      let boundaryLayer = regionBoundaryRefs.current.get(layerConfig.id);
-      if (!boundaryLayer) {
-        boundaryLayer = createRegionBoundaryLayer(layerConfig);
-        regionBoundaryRefs.current.set(layerConfig.id, boundaryLayer);
-        map.addLayer(boundaryLayer);
-      }
-
-      const sourceUrl = new URL(
-        layerConfig.path,
-        new URL(import.meta.env.BASE_URL, window.location.origin),
-      ).toString();
-      const previousSourceUrl = regionBoundaryPathRefs.current.get(layerConfig.id);
-      if (previousSourceUrl !== sourceUrl || !boundaryLayer.getSource()) {
-        boundaryLayer.setSource(
-          new VectorSource({
-            url: sourceUrl,
-            format: new GeoJSON(),
-          }),
-        );
-        regionBoundaryPathRefs.current.set(layerConfig.id, sourceUrl);
-      }
-      boundaryLayer.setVisible(layerConfig.visible);
-      boundaryLayer.setStyle(createRegionBoundaryStyle(layerConfig));
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers,
+      activeViewPreset,
+      regionBoundaryRefs: regionBoundaryRefs.current,
+      regionBoundaryPathRefs: regionBoundaryPathRefs.current,
+      createBoundaryLayer: createRegionBoundaryLayer,
+      getBoundaryLayerStyle: createRegionBoundaryStyle,
     });
-
-    regionBoundaryRefs.current.forEach((layerRef, id) => {
-      if (byId.has(id)) return;
-      map.removeLayer(layerRef);
-      regionBoundaryRefs.current.delete(id);
-      regionBoundaryPathRefs.current.delete(id);
-    });
-  }, [regionBoundaryLayers]);
+  }, [overlayLayers, activeViewPreset]);
 
   useEffect(() => {
     renderPointTooltip();
@@ -335,71 +367,65 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     const selectedBoundaryLayer = selectedBoundaryRef.current;
-    if (!map || !selectedBoundaryLayer) return;
+    const selectedJmcBoundaryLayer = selectedJmcBoundaryRef.current;
+    if (!map || !selectedBoundaryLayer || !selectedJmcBoundaryLayer) return;
 
-    const selectBoundary = (feature: Feature | null) => {
-      const selectedSource = selectedBoundaryLayer.getSource();
-      if (!selectedSource) return;
-      selectedSource.clear();
-
-      if (!feature) {
-        selectedBoundaryNameRef.current = null;
-        return;
-      }
-
-      selectedSource.addFeature(feature.clone());
-      selectedBoundaryNameRef.current = getBoundaryName(feature);
+    const selectBoundary = (feature: Feature | null, coordinate?: [number, number]) => {
+      const appliedSelection = applyBoundarySelection({
+        feature,
+        coordinate,
+        selectedBoundaryLayer,
+        selectedJmcBoundaryLayer,
+        assignmentByBoundaryName: jmcAssignmentByBoundaryNameRef.current,
+        assignmentSource: getActiveAssignmentLookupSource(
+          regionBoundaryRefs.current,
+          jmcAssignmentLookupSourceRef.current,
+        ),
+        boundarySource: jmcBoundaryLookupSourceRef.current,
+        activeViewPreset,
+      });
+      selectedBoundaryNameRef.current = appliedSelection.boundaryName;
+      selectedJmcNameRef.current = appliedSelection.jmcName;
+      setSelection(appliedSelection.selection);
     };
 
     const clickKey: EventsKey = map.on('singleclick', (event) => {
-      const visibleRegions = new Map(
-        regions.map((region) => [region.name, region]),
-      );
-      const pointLayers = new Set<VectorLayer<VectorSource>>();
-      for (const layer of layers) {
-        if (layer.type !== 'point' || !layer.visible) continue;
-        const mapLayer = layerRefs.current.get(layer.id);
-        if (mapLayer) {
-          pointLayers.add(mapLayer);
-        }
-      }
-      const hitFeatures = getDirectPointHitsAtPixel(
+      const selectionResult = resolveSingleClickSelection({
         map,
-        event.pixel,
-        pointLayers,
-        visibleRegions,
+        pixel: event.pixel,
+        coordinate: event.coordinate as [number, number],
+        layers,
+        regions,
+        overlayLayers,
+        layerRefs: layerRefs.current,
+        regionBoundaryRefs: regionBoundaryRefs.current,
         facilitySymbolShape,
         facilitySymbolSize,
-      );
+        facilityFilters,
+        activeViewPreset,
+        getJmcNameAtCoordinate: (coordinate, preset) =>
+          findJmcNameAtCoordinate(
+            coordinate,
+            getActiveAssignmentLookupSource(
+              regionBoundaryRefs.current,
+              jmcAssignmentLookupSourceRef.current,
+            ),
+            null,
+            preset,
+          ),
+      });
 
-      if (hitFeatures.length > 0) {
-        const clusteredHitFeatures = expandPointHitCluster(
-          map,
-          hitFeatures,
-          pointLayers,
-          visibleRegions,
-          facilitySymbolShape,
-          facilitySymbolSize,
-          event.pixel,
-        );
-        pointTooltipEntriesRef.current = collectPointTooltipEntries(
-          clusteredHitFeatures,
-          event.coordinate as [number, number],
-          regionBoundaryLayers,
-          regionBoundaryRefs.current,
-          regions,
-        );
+      if (selectionResult.pointEntries.length > 0) {
+        pointTooltipEntriesRef.current = selectionResult.pointEntries;
         pointTooltipIndexRef.current = 0;
         renderPointTooltip();
         return;
       }
 
-      const selectedFeature = findCareBoardBoundaryAtCoordinate(
+      selectBoundary(
+        selectionResult.boundaryFeature,
         event.coordinate as [number, number],
-        regionBoundaryLayers,
-        regionBoundaryRefs.current,
       );
-      selectBoundary(selectedFeature);
       pointTooltipEntriesRef.current = [];
       pointTooltipIndexRef.current = 0;
       renderPointTooltip();
@@ -408,7 +434,16 @@ export function MapWorkspace() {
     return () => {
       unByKey(clickKey);
     };
-  }, [regionBoundaryLayers, layers, regions, facilitySymbolSize]);
+  }, [
+    overlayLayers,
+    layers,
+    regions,
+    facilitySymbolShape,
+    facilitySymbolSize,
+    facilityFilters,
+    activeViewPreset,
+    setSelection,
+  ]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -416,47 +451,26 @@ export function MapWorkspace() {
     const regionByName = new Map<string, RegionStyle>(
       regions.map((region) => [region.name, region]),
     );
-
-    const getVectorLayer = (layer: LayerState) => {
-      const existing = layerRefs.current.get(layer.id);
-      if (existing) return existing;
-
-      const vectorLayer = new VectorLayer({
-        source: new VectorSource({
-          url: layer.path,
-          format: new GeoJSON(),
-        }),
-        zIndex: layer.type === 'point' ? 35 : 1,
-        style: getStyleForLayer(
+    reconcileRuntimeLayers({
+      map,
+      layers,
+      layerRefs: layerRefs.current,
+      getLayerStyle: (layer) =>
+        getStyleForLayer(
           layer,
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
+          facilityFilterDefinitions,
         ),
-      });
-
-      map.addLayer(vectorLayer);
-      layerRefs.current.set(layer.id, vectorLayer);
-      return vectorLayer;
-    };
-
-    layers.forEach((layer) => {
-      const vectorLayer = getVectorLayer(layer);
-      vectorLayer.setStyle(
-        getStyleForLayer(layer, regionByName, facilitySymbolShape, facilitySymbolSize),
-      );
-      vectorLayer.setVisible(layer.visible);
-      vectorLayer.setOpacity(layer.opacity);
     });
-
-    layerRefs.current.forEach((vectorLayer, id) => {
-      const exists = layers.some((layer) => layer.id === id);
-      if (!exists) {
-        map.removeLayer(vectorLayer);
-        layerRefs.current.delete(id);
-      }
-    });
-  }, [layers, regions, facilitySymbolShape, facilitySymbolSize]);
+  }, [
+    layers,
+    regions,
+    facilitySymbolShape,
+    facilitySymbolSize,
+    facilityFilters,
+  ]);
 
   return (
     <main className="map-panel">
@@ -509,23 +523,16 @@ export function MapWorkspace() {
             className="map-tooltip-card__context map-tooltip-card__context--hidden"
             ref={pointTooltipContextRef}
           />
+          <div
+            className="map-tooltip-card__subname map-tooltip-card__subname--hidden"
+            ref={pointTooltipSubnameRef}
+          />
         </div>
         <div className="map-canvas" ref={ref} />
       </div>
     </main>
   );
 }
-
-function createRegionBoundaryLayer(
-  layerConfig: RegionBoundaryLayerStyle,
-): VectorLayer<VectorSource> {
-  return new VectorLayer({
-    source: new VectorSource(),
-    style: createRegionBoundaryStyle(layerConfig),
-    zIndex: getRegionBoundaryLayerZIndex(layerConfig.id),
-  });
-}
-
 function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
   return new VectorLayer({
     source: new VectorSource(),
@@ -539,6 +546,23 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
       }),
     }),
     zIndex: 20,
+  });
+}
+
+function createSelectedJmcBoundaryLayer(): VectorLayer<VectorSource> {
+  return new VectorLayer({
+    source: new VectorSource(),
+    style: (feature) =>
+      new Style({
+        stroke: new Stroke({
+          color: String(feature.get('selectionColor') ?? '#419632'),
+          width: 1.5,
+        }),
+        fill: new Fill({
+          color: 'rgba(0, 0, 0, 0)',
+        }),
+      }),
+    zIndex: 25,
   });
 }
 
@@ -821,493 +845,4 @@ function createSeaLabelStyle(basemap?: BasemapSettings) {
     cache.set(label, style);
     return style;
   };
-}
-
-function withOpacity(hex: string, opacity: number): string {
-  const value = hex.replace('#', '');
-  if (value.length !== 6) return hex;
-  const r = Number.parseInt(value.slice(0, 2), 16);
-  const g = Number.parseInt(value.slice(2, 4), 16);
-  const b = Number.parseInt(value.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-}
-
-function createPointSymbol(
-  shape: FacilitySymbolShape,
-  size: number,
-  fillColor: string,
-  borderColor: string,
-  borderWidth: number,
-) {
-  if (shape === 'circle') {
-    return new CircleStyle({
-      radius: size,
-      fill: new Fill({ color: fillColor }),
-      stroke: new Stroke({ color: borderColor, width: borderWidth }),
-    });
-  }
-
-  if (shape === 'square') {
-    return new RegularShape({
-      points: 4,
-      radius: size * 1.05,
-      angle: Math.PI / 4,
-      fill: new Fill({ color: fillColor }),
-      stroke: new Stroke({ color: borderColor, width: borderWidth }),
-    });
-  }
-
-  if (shape === 'diamond') {
-    return new RegularShape({
-      points: 4,
-      radius: size * 1.05,
-      angle: 0,
-      fill: new Fill({ color: fillColor }),
-      stroke: new Stroke({ color: borderColor, width: borderWidth }),
-    });
-  }
-
-  return new RegularShape({
-    points: 3,
-    radius: size * 1.15,
-    angle: 0,
-    fill: new Fill({ color: fillColor }),
-    stroke: new Stroke({ color: borderColor, width: borderWidth }),
-  });
-}
-
-function createRegionBoundaryStyle(layer: RegionBoundaryLayerStyle) {
-  const strokeColor = withOpacity(layer.borderColor, layer.borderOpacity);
-  const strokeWidth = layer.borderVisible ? 1 : 0;
-  const fillOpacity = layer.opacity;
-  const cache = new Map<string, Style>();
-
-  return (feature: FeatureLike) => {
-    const rawColor = String(feature.get('fill_color_hex') ?? 'ed5151').replace('#', '');
-    const baseColor = /^([0-9a-fA-F]{6})$/.test(rawColor)
-      ? `#${rawColor}`
-      : layer.swatchColor;
-    const existing = cache.get(baseColor);
-    if (existing) return existing;
-
-    const style = new Style({
-      stroke: new Stroke({
-        color: strokeColor,
-        width: strokeWidth,
-      }),
-      fill: new Fill({
-        color: withOpacity(baseColor, fillOpacity),
-      }),
-    });
-    cache.set(baseColor, style);
-    return style;
-  };
-}
-
-function getRegionBoundaryLayerZIndex(layerId: string): number {
-  if (layerId === 'pmcUnpopulatedCareBoardBoundaries') {
-    return 4;
-  }
-  if (layerId === 'pmcPopulatedCareBoardBoundaries') {
-    return 5;
-  }
-  if (layerId === 'careBoardBoundaries') {
-    return 6;
-  }
-  return 4;
-}
-
-function findCareBoardBoundaryAtCoordinate(
-  coordinate: [number, number],
-  regionBoundaryLayers: RegionBoundaryLayerStyle[],
-  regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
-): Feature | null {
-  for (const config of regionBoundaryLayers) {
-    if (config.id !== 'careBoardBoundaries') continue;
-    if (!config.visible) continue;
-    const layer = regionBoundaryRefs.get(config.id);
-    const source = layer?.getSource();
-    if (!source) continue;
-    const hit = source
-      .getFeatures()
-      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
-    if (hit) {
-      return hit;
-    }
-  }
-
-  return null;
-}
-
-function getDirectPointHitsAtPixel(
-  map: OLMap,
-  pixel: number[],
-  pointLayers: Set<VectorLayer<VectorSource>>,
-  regionsByName: Map<string, RegionStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-): FeatureLike[] {
-  const hits = map.getFeaturesAtPixel(pixel, {
-    hitTolerance: 0,
-    layerFilter: (layerCandidate) =>
-      pointLayers.has(layerCandidate as VectorLayer<VectorSource>),
-  });
-
-  return hits.filter((feature) => {
-    const coordinate = getPointCoordinate(feature);
-    if (!coordinate) return false;
-    const featurePixel = map.getPixelFromCoordinate(coordinate);
-    const dx = featurePixel[0] - pixel[0];
-    const dy = featurePixel[1] - pixel[1];
-    const distance = Math.hypot(dx, dy);
-    const radius = getPointSelectionRadius(
-      feature,
-      regionsByName,
-      facilitySymbolShape,
-      facilitySymbolSize,
-    );
-    return distance <= radius + 0.75;
-  });
-}
-
-function expandPointHitCluster(
-  map: OLMap,
-  seedFeatures: FeatureLike[],
-  pointLayers: Set<VectorLayer<VectorSource>>,
-  regionsByName: Map<string, RegionStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-  clickPixel: number[],
-): FeatureLike[] {
-  const candidates = collectVisiblePointCandidates(
-    map,
-    pointLayers,
-    regionsByName,
-    facilitySymbolShape,
-    facilitySymbolSize,
-  );
-  const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
-  const seeds: PointSelectionCandidate[] = [];
-  const selected = new Set<string>();
-
-  for (const feature of seedFeatures) {
-    const candidate = getPointSelectionCandidate(
-      map,
-      feature,
-      regionsByName,
-      facilitySymbolShape,
-      facilitySymbolSize,
-    );
-    if (!candidate || selected.has(candidate.key)) continue;
-    seeds.push(candidate);
-    selected.add(candidate.key);
-  }
-
-  for (const candidate of candidates) {
-    if (selected.has(candidate.key)) continue;
-    if (seeds.some((seed) => pointCandidatesOverlap(seed, candidate))) {
-      selected.add(candidate.key);
-    }
-  }
-
-  return [...selected]
-    .map((key) => candidatesByKey.get(key))
-    .filter((candidate): candidate is PointSelectionCandidate => candidate !== undefined)
-    .map((candidate) => candidate.feature)
-    .sort((a, b) => {
-      const aCoordinate = getPointCoordinate(a);
-      const bCoordinate = getPointCoordinate(b);
-      if (aCoordinate && bCoordinate) {
-        const aPixel = map.getPixelFromCoordinate(aCoordinate);
-        const bPixel = map.getPixelFromCoordinate(bCoordinate);
-        const aDistance = Math.hypot(
-          aPixel[0] - clickPixel[0],
-          aPixel[1] - clickPixel[1],
-        );
-        const bDistance = Math.hypot(
-          bPixel[0] - clickPixel[0],
-          bPixel[1] - clickPixel[1],
-        );
-        if (aDistance !== bDistance) {
-          return aDistance - bDistance;
-        }
-      }
-
-      const aName = String(a.get('name') ?? '');
-      const bName = String(b.get('name') ?? '');
-      return aName.localeCompare(bName);
-    });
-}
-
-interface PointSelectionCandidate {
-  key: string;
-  feature: FeatureLike;
-  pixel: [number, number];
-  radius: number;
-}
-
-function collectVisiblePointCandidates(
-  map: OLMap,
-  pointLayers: Set<VectorLayer<VectorSource>>,
-  regionsByName: Map<string, RegionStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-): PointSelectionCandidate[] {
-  const candidates: PointSelectionCandidate[] = [];
-
-  for (const layer of pointLayers) {
-    const source = layer.getSource();
-    if (!source) continue;
-
-    for (const feature of source.getFeatures()) {
-      if (!isPointFeatureSelectable(feature, regionsByName)) continue;
-      const candidate = getPointSelectionCandidate(
-        map,
-        feature,
-        regionsByName,
-        facilitySymbolShape,
-        facilitySymbolSize,
-      );
-      if (candidate) {
-        candidates.push(candidate);
-      }
-    }
-  }
-
-  return candidates;
-}
-
-function getPointSelectionCandidate(
-  map: OLMap,
-  feature: FeatureLike,
-  regionsByName: Map<string, RegionStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-): PointSelectionCandidate | null {
-  const coordinate = getPointCoordinate(feature);
-  if (!coordinate) return null;
-
-  const name = String(feature.get('name') ?? '').trim();
-  const pixel = map.getPixelFromCoordinate(coordinate);
-  const radius = getPointSelectionRadius(
-    feature,
-    regionsByName,
-    facilitySymbolShape,
-    facilitySymbolSize,
-  );
-
-  return {
-    key: `${name}:${coordinate[0].toFixed(6)}:${coordinate[1].toFixed(6)}`,
-    feature,
-    pixel: [pixel[0], pixel[1]],
-    radius,
-  };
-}
-
-function isPointFeatureSelectable(
-  feature: FeatureLike,
-  regionsByName: Map<string, RegionStyle>,
-): boolean {
-  const regionName = String(feature.get('region') ?? 'Unassigned');
-  const regionStyle = regionsByName.get(regionName);
-  const defaultVisible = Number(feature.get('default_visible') ?? 1) !== 0;
-
-  if (regionStyle) {
-    return regionStyle.visible;
-  }
-
-  return defaultVisible;
-}
-
-function getPointSelectionRadius(
-  feature: FeatureLike,
-  regionsByName: Map<string, RegionStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-): number {
-  const regionName = String(feature.get('region') ?? 'Unassigned');
-  const regionStyle = regionsByName.get(regionName);
-  const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
-  const borderVisible = regionStyle?.borderVisible ?? true;
-  const borderOpacity = regionStyle?.borderOpacity ?? 1;
-  const borderWidth = borderVisible && borderOpacity > 0.01 ? 1 : 0;
-  const shape = facilitySymbolShape;
-
-  return getRenderedPointPixelRadius(shape, symbolSize, borderWidth);
-}
-
-function pointCandidatesOverlap(
-  a: PointSelectionCandidate,
-  b: PointSelectionCandidate,
-): boolean {
-  const dx = a.pixel[0] - b.pixel[0];
-  const dy = a.pixel[1] - b.pixel[1];
-  const distance = Math.hypot(dx, dy);
-  return distance <= a.radius + b.radius + 0.75;
-}
-
-function getRenderedPointPixelRadius(
-  shape: FacilitySymbolShape,
-  size: number,
-  borderWidth: number,
-): number {
-  if (shape === 'circle') {
-    return size + borderWidth;
-  }
-
-  if (shape === 'square' || shape === 'diamond') {
-    return size * 1.05 + borderWidth;
-  }
-
-  return size * 1.15 + borderWidth;
-}
-
-function getBoundaryName(feature: Feature): string {
-  const value =
-    feature.get('boundary_name') ??
-    feature.get('parent_name') ??
-    feature.get('name') ??
-    feature.get('NAME') ??
-    feature.get('component_name');
-  if (value === undefined || value === null || String(value).trim() === '') {
-    return 'Boundary';
-  }
-  return String(value);
-}
-
-function collectPointTooltipEntries(
-  features: FeatureLike[],
-  fallbackCoordinate: [number, number],
-  regionBoundaryLayers: RegionBoundaryLayerStyle[],
-  regionBoundaryRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
-  regions: RegionStyle[],
-): PointTooltipEntry[] {
-  const entries: PointTooltipEntry[] = [];
-  const seen = new Set<string>();
-  const regionsByName = new Map(regions.map((region) => [region.name, region]));
-
-  for (const feature of features) {
-    const rawName = feature.get('name');
-    if (rawName === undefined || rawName === null) continue;
-    const name = String(rawName).trim();
-    if (!name) continue;
-
-    const coordinate = getPointCoordinate(feature) ?? fallbackCoordinate;
-    const boundaryFeature = findCareBoardBoundaryAtCoordinate(
-      coordinate,
-      regionBoundaryLayers,
-      regionBoundaryRefs,
-    );
-    const boundaryName = boundaryFeature ? getBoundaryName(boundaryFeature) : null;
-    const regionName = String(feature.get('region') ?? 'Unassigned');
-    const regionStyle = regionsByName.get(regionName);
-    const hasVisibleBorder =
-      (regionStyle?.borderVisible ?? true) &&
-      (regionStyle?.borderOpacity ?? 1) > 0.01;
-    const symbolSize = regionStyle?.symbolSize ?? 3.5;
-    const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    entries.push({
-      facilityName: name,
-      coordinate,
-      boundaryName,
-      hasVisibleBorder,
-      symbolSize,
-    });
-  }
-
-  return entries;
-}
-
-function getPointCoordinate(feature: FeatureLike): [number, number] | null {
-  if (typeof (feature as Feature).getGeometry === 'function') {
-    const geometry = (feature as Feature).getGeometry();
-    if (
-      geometry &&
-      geometry.getType() === 'Point' &&
-      typeof
-        (geometry as unknown as { getCoordinates?: () => number[] })
-          .getCoordinates === 'function'
-    ) {
-      const coordinates = (
-        geometry as unknown as { getCoordinates: () => number[] }
-      ).getCoordinates();
-      if (coordinates.length >= 2) {
-        return [coordinates[0], coordinates[1]];
-      }
-    }
-  }
-
-  const renderFeature = feature as unknown as {
-    getType?: () => string;
-    getFlatCoordinates?: () => number[];
-  };
-  if (
-    typeof renderFeature.getType === 'function' &&
-    renderFeature.getType() === 'Point' &&
-    typeof renderFeature.getFlatCoordinates === 'function'
-  ) {
-    const flatCoordinates = renderFeature.getFlatCoordinates();
-    if (flatCoordinates.length >= 2) {
-      return [flatCoordinates[0], flatCoordinates[1]];
-    }
-  }
-
-  return null;
-}
-
-function getStyleForLayer(
-  layer: LayerState,
-  regions: Map<string, RegionStyle>,
-  symbolShape: FacilitySymbolShape,
-  symbolSize: number,
-) {
-  if (layer.type === 'point') {
-    const cache = new Map<string, Style>();
-    return (feature: FeatureLike) => {
-      const regionName = String(feature.get('region') ?? 'Unassigned');
-      const regionStyle = regions.get(regionName);
-      const defaultVisible = Number(feature.get('default_visible') ?? 1) !== 0;
-      if ((regionStyle && !regionStyle.visible) || (!regionStyle && !defaultVisible)) {
-        return undefined;
-      }
-
-      const hex =
-        regionStyle?.color ??
-        ((feature.get('point_color_hex') as string | undefined) ?? '#0066cc');
-      const opacity = regionStyle ? regionStyle.opacity : 1;
-      const borderVisible = regionStyle?.borderVisible ?? true;
-      const borderColor = regionStyle?.borderColor ?? '#ffffff';
-      const borderOpacity = regionStyle?.borderOpacity ?? 1;
-      const resolvedSize = regionStyle?.symbolSize ?? symbolSize;
-      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${symbolShape}:${resolvedSize}`;
-      const existing = cache.get(key);
-      if (existing) {
-        return existing;
-      }
-
-      const style = new Style({
-        image: createPointSymbol(
-          symbolShape,
-          resolvedSize,
-          withOpacity(hex, opacity),
-          withOpacity(borderColor, borderOpacity),
-          borderVisible ? 1 : 0,
-        ),
-      });
-      cache.set(key, style);
-      return style;
-    };
-  }
-
-  return new Style({
-    stroke: new Stroke({
-      color: '#2b4c7e',
-      width: 2,
-    }),
-    fill: new Fill({
-      color: 'rgba(43, 76, 126, 0.15)',
-    }),
-  });
 }
