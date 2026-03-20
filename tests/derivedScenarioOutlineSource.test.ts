@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import Feature from 'ol/Feature';
 import Polygon from 'ol/geom/Polygon';
 import VectorSource from 'ol/source/Vector';
-import MultiPolygon from 'ol/geom/MultiPolygon';
 import { buildDerivedScenarioOutlineSource } from '../src/features/map/derivedScenarioOutlineSource';
 
 describe('derivedScenarioOutlineSource', () => {
@@ -37,7 +36,7 @@ describe('derivedScenarioOutlineSource', () => {
 
     expect(derivedSource?.getFeatures()).toHaveLength(1);
     expect(derivedFeature?.get('region_name')).toBe('COA 3b London and East');
-    expect(derivedFeature?.getGeometry()).toBeInstanceOf(MultiPolygon);
-    expect((derivedFeature?.getGeometry() as MultiPolygon).getPolygons()).toHaveLength(2);
+    expect(derivedFeature?.getGeometry()).toBeInstanceOf(Polygon);
+    expect((derivedFeature?.getGeometry() as Polygon).getCoordinates()[0]).toHaveLength(5);
   });
 });
