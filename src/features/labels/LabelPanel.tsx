@@ -25,7 +25,7 @@ export function LabelPanel() {
   return (
     <section className="panel panel--labels">
       <h2>Labels</h2>
-      <div className="stack-col">
+      <div className="stack-col sidebar-section-list">
         {rows.map((row) => (
           <SidebarControlRow
             key={row.id}

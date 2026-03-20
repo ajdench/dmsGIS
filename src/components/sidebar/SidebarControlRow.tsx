@@ -24,35 +24,35 @@ export function SidebarControlRow({
   const detailsRef = useOutsideClose();
 
   return (
-    <div className="color-control sidebar-control-row">
-      <label className="stack-row stack-row--tight color-control__label sidebar-control-row__label">
-        <input
-          className="checkbox"
-          type="checkbox"
-          checked={enabled}
-          onChange={(event) => onEnabledChange(event.currentTarget.checked)}
+    <div className="sidebar-inline-row">
+      <span className="sidebar-inline-row__label">{label}</span>
+      <span className="sidebar-inline-row__meta">
+        <button
+          type="button"
+          className={`sidebar-toggle-button${enabled ? ' is-on' : ' is-off'}`}
+          onClick={() => onEnabledChange(!enabled)}
           aria-label={`${label} visible`}
-        />
-        <span>{label}</span>
-      </label>
-      <details className="color-popover sidebar-control-row__meta" ref={detailsRef}>
-        <summary
-          className="color-popover__summary color-popover__summary--fixed"
-          aria-label={pillAriaLabel}
+          aria-pressed={enabled}
         >
-          {swatchColor ? (
-            <span
-              className="color-popover__swatch"
-              style={{ backgroundColor: swatchColor, opacity: swatchOpacity }}
-              aria-hidden="true"
-            />
-          ) : (
-            <span className="color-popover__swatch" aria-hidden="true" />
-          )}
-          <span className="color-popover__percent">{pillLabel}</span>
-        </summary>
-        <div className="color-popover__panel">{children}</div>
-      </details>
+          {enabled ? 'On' : 'Off'}
+        </button>
+        <details className="color-popover sidebar-control-row__meta" ref={detailsRef}>
+          <summary
+            className="sidebar-metric-pill sidebar-metric-pill--button"
+            aria-label={pillAriaLabel}
+          >
+            {swatchColor ? (
+              <span
+                className="sidebar-metric-pill__swatch"
+                style={{ backgroundColor: swatchColor, opacity: swatchOpacity }}
+                aria-hidden="true"
+              />
+            ) : null}
+            <span className="sidebar-metric-pill__value">{pillLabel}</span>
+          </summary>
+          <div className="color-popover__panel sidebar-control-row__panel">{children}</div>
+        </details>
+      </span>
     </div>
   );
 }

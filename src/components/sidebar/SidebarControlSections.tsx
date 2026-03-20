@@ -65,24 +65,31 @@ function SidebarControlField({
 }) {
   if (field.kind === 'color') {
     return (
-      <>
+      <div className="sidebar-control-field">
         <label className="field-label" htmlFor={field.id}>
           {field.label}
         </label>
-        <input
-          id={field.id}
-          className="color-input color-input--popover"
-          type="color"
-          value={field.value}
-          onChange={(event) => field.onChange(event.currentTarget.value)}
-          aria-label={`${ariaLabelPrefix} ${field.label}`}
-        />
-      </>
+        <div className="sidebar-color-field__control">
+          <span
+            className="sidebar-color-field__preview"
+            style={{ background: `linear-gradient(${field.value}, ${field.value})` }}
+            aria-hidden="true"
+          />
+          <input
+            id={field.id}
+            className="color-input color-input--popover sidebar-color-field__input"
+            type="color"
+            value={field.value}
+            onChange={(event) => field.onChange(event.currentTarget.value)}
+            aria-label={`${ariaLabelPrefix} ${field.label}`}
+          />
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="sidebar-control-field">
       <label className="field-label" htmlFor={field.id}>
         {field.label}
       </label>
@@ -96,6 +103,6 @@ function SidebarControlField({
         ariaLabel={`${ariaLabelPrefix} ${field.label}`}
         mode={field.mode ?? 'percent'}
       />
-    </>
+    </div>
   );
 }
