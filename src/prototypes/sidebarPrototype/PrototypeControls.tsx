@@ -88,6 +88,56 @@ interface PrototypeControlSectionProps {
   children: ReactNode;
 }
 
+interface PrototypePillPopoverProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  value: string;
+  swatch?: string;
+  swatchOpacity?: number;
+  swatchMix?: SwatchStop[];
+  swatchShape?: PrototypeShape;
+  swatchBorderColor?: string;
+  swatchBorderWidth?: number;
+  swatchBorderOpacity?: number;
+  scrollContainer?: HTMLElement | null;
+  portalContainer?: HTMLElement | null;
+  viewportContainer?: HTMLElement | null;
+  children: ReactNode;
+}
+
+interface PrototypeDragHandleProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
+  label: string;
+}
+
+interface PrototypeMetaControlsProps {
+  enabled?: boolean;
+  onEnabledToggle?: () => void;
+  pillPopover?: ReactNode;
+  trailingControl?: ReactNode;
+}
+
+interface PrototypeSectionCardShellProps {
+  title: string;
+  enabled?: boolean;
+  onEnabledToggle?: () => void;
+  pillPopover?: ReactNode;
+  trailingControl?: ReactNode;
+  body?: ReactNode;
+  style?: CSSProperties;
+  isDragging?: boolean;
+}
+
+interface PrototypeInlineRowShellProps {
+  label: string;
+  enabled: boolean;
+  onEnabledToggle: () => void;
+  pillPopover: ReactNode;
+  trailingControl?: ReactNode;
+  style?: CSSProperties;
+  isDragging?: boolean;
+}
+
 interface SwatchStop {
   color: string;
   opacity?: number;
@@ -344,6 +394,144 @@ export function PrototypeControlSection({
       <div className="prototype-popover__section-title">{title}</div>
       <div className="prototype-control-section__content">{children}</div>
     </section>
+  );
+}
+
+export function PrototypePillPopover({
+  open,
+  onOpenChange,
+  value,
+  swatch,
+  swatchOpacity,
+  swatchMix,
+  swatchShape,
+  swatchBorderColor,
+  swatchBorderWidth,
+  swatchBorderOpacity,
+  scrollContainer,
+  portalContainer,
+  viewportContainer,
+  children,
+}: PrototypePillPopoverProps) {
+  return (
+    <PrototypePopover
+      open={open}
+      onOpenChange={onOpenChange}
+      scrollContainer={scrollContainer}
+      portalContainer={portalContainer}
+      viewportContainer={viewportContainer}
+      trigger={
+        <PrototypeMetricPill
+          value={value}
+          swatch={swatch}
+          swatchOpacity={swatchOpacity}
+          swatchMix={swatchMix}
+          swatchShape={swatchShape}
+          swatchBorderColor={swatchBorderColor}
+          swatchBorderWidth={swatchBorderWidth}
+          swatchBorderOpacity={swatchBorderOpacity}
+          asButton
+          ariaExpanded={open}
+          ariaHaspopup="dialog"
+        />
+      }
+    >
+      <div className="prototype-popover__content">{children}</div>
+    </PrototypePopover>
+  );
+}
+
+export const PrototypeDragHandle = forwardRef<
+  HTMLButtonElement,
+  PrototypeDragHandleProps
+>(function PrototypeDragHandle({ label, className, ...buttonProps }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={`prototype-drag-handle${className ? ` ${className}` : ''}`}
+      aria-label={`Reorder ${label}`}
+      {...buttonProps}
+    >
+      <span className="prototype-drag-handle__dots" aria-hidden="true">
+        ⋮⋮
+      </span>
+    </button>
+  );
+});
+
+export function PrototypeMetaControls({
+  enabled,
+  onEnabledToggle,
+  pillPopover,
+  trailingControl,
+}: PrototypeMetaControlsProps) {
+  return (
+    <span className="prototype-accordion-item__meta">
+      {typeof enabled === 'boolean' ? (
+        <PrototypeToggleButton enabled={enabled} onClick={onEnabledToggle} />
+      ) : null}
+      {pillPopover}
+      {trailingControl}
+    </span>
+  );
+}
+
+export function PrototypeSectionCardShell({
+  title,
+  enabled,
+  onEnabledToggle,
+  pillPopover,
+  trailingControl,
+  body,
+  style,
+  isDragging = false,
+}: PrototypeSectionCardShellProps) {
+  return (
+    <section
+      className={`prototype-section-card${isDragging ? ' is-dragging' : ''}`}
+      style={style}
+    >
+      <div className="prototype-section-card__bar">
+        <span className="prototype-accordion-item__title-wrap">
+          <span className="prototype-accordion-item__title">{title}</span>
+        </span>
+        <PrototypeMetaControls
+          enabled={enabled}
+          onEnabledToggle={onEnabledToggle}
+          pillPopover={pillPopover}
+          trailingControl={trailingControl}
+        />
+      </div>
+      {body ? <div className="prototype-section-card__body">{body}</div> : null}
+    </section>
+  );
+}
+
+export function PrototypeInlineRowShell({
+  label,
+  enabled,
+  onEnabledToggle,
+  pillPopover,
+  trailingControl,
+  style,
+  isDragging = false,
+}: PrototypeInlineRowShellProps) {
+  return (
+    <div
+      className={`prototype-region-row${isDragging ? ' is-dragging' : ''}`}
+      style={style}
+    >
+      <span className="color-control__label color-control__label--region">
+        {label}
+      </span>
+      <PrototypeMetaControls
+        enabled={enabled}
+        onEnabledToggle={onEnabledToggle}
+        pillPopover={pillPopover}
+        trailingControl={trailingControl}
+      />
+    </div>
   );
 }
 

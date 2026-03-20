@@ -1,20 +1,22 @@
 # Prototype Blockers
 
-This prototype lane currently has TypeScript/build blockers that are separate from the production app work.
+This prototype lane previously had TypeScript/build blockers that were separate from the production app work.
 
-Current known blockers:
+Current status:
 
-- `SidebarPrototypeApp.tsx` has callback type mismatches where strongly typed handlers are being passed to props that currently expect plain `string` / `string | number` signatures.
-- `SidebarPrototypeApp.tsx` references `PrototypeColorField` and `PrototypeSliderControl`, but those names are not currently in scope at build time.
+- the previously recorded prototype-only build blockers are now resolved
+- prototype field-builder callbacks are now aligned with the extracted style-state domain types
+- `SidebarPrototypeApp.tsx` has the required prototype control imports back in scope
+- full repo `npm run build` now passes again
 
 What this means:
 
-- full repo `npm run build` is currently blocked by prototype-only typing issues
-- recent production architecture work is not the cause of the full-build failure
-- prototype fixes should be handled in the prototype lane, not by weakening production typing
+- recent production architecture work was not the cause of the earlier full-build failure
+- the prototype lane can continue without leaving the shared release gate red
+- future prototype blockers should still be handled in the prototype lane, not by weakening production typing
 
 Recommended prototype follow-up:
 
-1. Tighten the relevant prop signatures so they accept the typed callback contracts already used by the prototype state helpers.
-2. Restore or replace the missing `PrototypeColorField` and `PrototypeSliderControl` references.
-3. Re-run full repo `npm run build` after the prototype fix, because that is the shared release gate.
+1. Keep `npm run build` as the shared release gate after prototype refactors, not just `npm run typecheck`.
+2. Keep extracted prototype modules (`PrototypeControls.tsx`, `popoverFields.tsx`, `prototypeStyleState.ts`) aligned so callback contracts stay typed end-to-end.
+3. Add or retain focused tests when shared row-shell or field-builder behavior changes.

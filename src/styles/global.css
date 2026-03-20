@@ -636,6 +636,18 @@
     ring-color: var(--focus);
   }
 
+  .sidebar-action-row__button--full {
+    width: var(--panel-width-right);
+    max-width: 100%;
+    align-self: center;
+  }
+
+  .sidebar-action-row__button-label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25em;
+  }
+
   .panel h2 {
     @apply m-0 font-semibold tracking-normal;
     font-size: var(--font-size-panel-title);

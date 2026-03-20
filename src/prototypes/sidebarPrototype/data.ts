@@ -1,7 +1,13 @@
 export const DEFAULT_OPEN_PANES = ['basemap', 'facilities', 'labels', 'overlays'];
 export const DEFAULT_BASEMAP_SECTIONS = ['land', 'sea'];
 export const DEFAULT_FACILITY_SECTIONS = ['pmc'];
-export const DEFAULT_LABEL_SECTIONS = ['country-labels', 'major-cities'];
+export const DEFAULT_LABEL_SECTIONS = [
+  'country-labels',
+  'major-cities',
+  'region-labels',
+  'network-labels',
+  'facility-labels',
+];
 export const DEFAULT_OVERLAY_SECTIONS = ['board-boundaries'];
 
 export const REGION_ROWS = [
@@ -27,6 +33,9 @@ export const INITIAL_SECTION_ENABLED = {
   pmc: true,
   'country-labels': false,
   'major-cities': true,
+  'region-labels': false,
+  'network-labels': false,
+  'facility-labels': true,
   'board-boundaries': true,
 } satisfies Record<string, boolean>;
 
@@ -88,6 +97,27 @@ export const LABEL_SIMPLE_SECTIONS = [
     colourId: 'major-city-colour',
     colourValue: '#1f2937',
     opacityId: 'major-city-opacity',
+  },
+  {
+    id: 'region-labels',
+    title: 'Regions',
+    colourId: 'region-label-colour',
+    colourValue: '#334155',
+    opacityId: 'region-label-opacity',
+  },
+  {
+    id: 'network-labels',
+    title: 'Networks',
+    colourId: 'network-label-colour',
+    colourValue: '#475569',
+    opacityId: 'network-label-opacity',
+  },
+  {
+    id: 'facility-labels',
+    title: 'Facilities',
+    colourId: 'facility-label-colour',
+    colourValue: '#111827',
+    opacityId: 'facility-label-opacity',
   },
 ] as const;
 

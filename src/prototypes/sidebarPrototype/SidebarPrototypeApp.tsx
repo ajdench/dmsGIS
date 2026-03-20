@@ -1,14 +1,27 @@
 import { useState } from 'react';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  type Modifier,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { PrototypeAccordion, PrototypeAccordionItem } from './PrototypeAccordion';
 import {
   BASEMAP_SIMPLE_SECTIONS,
   buildInitialRegionEnabled,
-  DEFAULT_BASEMAP_SECTIONS,
-  DEFAULT_FACILITY_SECTIONS,
-  DEFAULT_LABEL_SECTIONS,
   DEFAULT_OPEN_PANES,
-  DEFAULT_OVERLAY_SECTIONS,
   INITIAL_OVERLAY_ROW_ENABLED,
   INITIAL_PANE_ENABLED,
   INITIAL_SECTION_ENABLED,
@@ -18,128 +31,62 @@ import {
 } from './data';
 import {
   PrototypeColorField,
-  PrototypeControlField,
-  PrototypeControlSection,
-  PrototypeMetricPill,
-  PrototypePopover,
+  PrototypeDragHandle,
+  PrototypeInlineRowShell,
+  PrototypePillPopover,
+  PrototypeSectionCardShell,
   type PrototypeShape,
   type SwatchStop,
-  PrototypeShapePicker,
   PrototypeSliderControl,
-  PrototypeStaticRow,
-  PrototypeToggleButton,
 } from './PrototypeControls';
+import {
+  buildFacilityControlSections,
+  buildLabelControlSections,
+  buildOverlayControlSections,
+  buildRegionControlSections,
+  renderPrototypeControlSections,
+} from './popoverFields';
+import {
+  applyGlobalStyleChange,
+  buildInitialLabelStyles,
+  buildInitialOverlayStyles,
+  buildInitialRegionStyles,
+  getMixedRegionColors,
+  INITIAL_FACILITY_STYLE,
+  type LabelSectionId,
+  type LabelStyleKey,
+  type LabelStyleState,
+  type LabelStylesRecord,
+  type OverlaySectionId,
+  type OverlayStyleKey,
+  type OverlayStyleState,
+  type OverlayStylesRecord,
+  type RegionStyleKey,
+  type RegionStyleState,
+  updateStyleRecord,
+} from './prototypeStyleState';
+import { reorderItems } from './sortableList';
 
-type LabelSectionId = (typeof LABEL_SIMPLE_SECTIONS)[number]['id'];
-
-interface RegionStyleState {
-  shape: PrototypeShape;
-  size: number;
-  opacity: number;
-  color: string;
-  borderColor: string;
-  borderWidth: number;
-  borderOpacity: number;
-}
-
-interface LabelStyleState {
-  size: number;
-  opacity: number;
-  color: string;
-  borderColor: string;
-  borderWidth: number;
-  borderOpacity: number;
-}
-
-type LabelStyleKey = keyof LabelStyleState;
-type LabelStylesRecord = Record<LabelSectionId, LabelStyleState>;
-
-type RegionStyleKey =
-  | 'shape'
-  | 'size'
-  | 'opacity'
-  | 'color'
-  | 'borderColor'
-  | 'borderWidth'
-  | 'borderOpacity';
-
-const INITIAL_FACILITY_STYLE: RegionStyleState = {
-  shape: 'circle',
-  size: 3.5,
-  opacity: 0.75,
-  color: '#ed5151',
-  borderColor: '#cbd5e1',
-  borderWidth: 1,
-  borderOpacity: 0.2,
-};
-
-const INITIAL_LABEL_STYLES: LabelStylesRecord = {
-  'country-labels': {
-    size: 8,
-    opacity: 0.4,
-    color: '#0f172a',
-    borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.3,
-  },
-  'major-cities': {
-    size: 6,
-    opacity: 0.65,
-    color: '#1f2937',
-    borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.35,
-  },
-};
-
-function buildInitialRegionStyles() {
-  return Object.fromEntries(
-    REGION_ROWS.map((region) => [region, { ...INITIAL_FACILITY_STYLE }]),
-  ) as Record<string, RegionStyleState>;
-}
-
-function buildInitialLabelStyles() {
-  return structuredClone(INITIAL_LABEL_STYLES);
-}
-
-function getMixedRegionColors(
-  regionStyles: Record<string, RegionStyleState>,
-  key: 'color' | 'borderColor',
-) {
-  const opacityKey = key === 'color' ? 'opacity' : 'borderOpacity';
-  const colors = Array.from(
-    new Map(
-      Object.values(regionStyles).map((style) => [
-        `${style[key]}|${style[opacityKey]}`,
-        {
-          color: style[key],
-          opacity: style[opacityKey],
-        },
-      ]),
-    ).values(),
-  );
-
-  return colors.length > 1 ? colors : undefined;
-}
+const restrictToVerticalAxis: Modifier = ({ transform }) => ({
+  ...transform,
+  x: 0,
+});
 
 export function SidebarPrototypeApp() {
   const [workspaceGridElement, setWorkspaceGridElement] =
     useState<HTMLDivElement | null>(null);
   const [sidebarElement, setSidebarElement] = useState<HTMLElement | null>(null);
   const [openPanes, setOpenPanes] = useState<string[]>(DEFAULT_OPEN_PANES);
-  const [openBasemapSections, setOpenBasemapSections] = useState<string[]>(
-    DEFAULT_BASEMAP_SECTIONS,
-  );
-  const [openFacilitySections, setOpenFacilitySections] = useState<string[]>(
-    DEFAULT_FACILITY_SECTIONS,
-  );
-  const [openLabelSections, setOpenLabelSections] = useState<string[]>(
-    DEFAULT_LABEL_SECTIONS,
-  );
-  const [openOverlaySections, setOpenOverlaySections] = useState<string[]>(
-    DEFAULT_OVERLAY_SECTIONS,
-  );
   const [activePreset, setActivePreset] = useState('current');
+  const [basemapSectionOrder, setBasemapSectionOrder] = useState<string[]>(
+    BASEMAP_SIMPLE_SECTIONS.map((section) => section.id),
+  );
+  const [labelSectionOrder, setLabelSectionOrder] = useState<string[]>(
+    LABEL_SIMPLE_SECTIONS.map((section) => section.id),
+  );
+  const [overlaySectionOrder, setOverlaySectionOrder] = useState<OverlaySectionId[]>(
+    OVERLAY_ROWS.map((row) => row.key),
+  );
   const [landOpacity, setLandOpacity] = useState(0.84);
   const [seaOpacity, setSeaOpacity] = useState(0.78);
   const [facilityShape, setFacilityShape] = useState<PrototypeShape>(
@@ -167,6 +114,7 @@ export function SidebarPrototypeApp() {
     useState<Record<string, boolean>>(INITIAL_SECTION_ENABLED);
   const [regionEnabled, setRegionEnabled] =
     useState<Record<string, boolean>>(buildInitialRegionEnabled);
+  const [regionOrder, setRegionOrder] = useState<string[]>([...REGION_ROWS]);
   const [overlayRowEnabled, setOverlayRowEnabled] =
     useState<Record<string, boolean>>(INITIAL_OVERLAY_ROW_ENABLED);
   const [openRegionPopover, setOpenRegionPopover] = useState<string | null>(null);
@@ -174,10 +122,22 @@ export function SidebarPrototypeApp() {
     useState<Record<string, RegionStyleState>>(buildInitialRegionStyles);
   const [labelStyles, setLabelStyles] =
     useState<LabelStylesRecord>(buildInitialLabelStyles);
+  const [overlayStyles, setOverlayStyles] =
+    useState<OverlayStylesRecord>(buildInitialOverlayStyles);
   const mixedFacilityColors = getMixedRegionColors(regionStyles, 'color');
   const mixedFacilityBorderColors = getMixedRegionColors(
     regionStyles,
     'borderColor',
+  );
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 4,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const applyFacilityStyle = <K extends RegionStyleKey>(
@@ -227,22 +187,23 @@ export function SidebarPrototypeApp() {
     key: K,
     value: LabelStyleState[K],
   ) => {
-    setLabelStyles((current) => ({
-      ...current,
-      [sectionId]: {
-        ...current[sectionId],
-        [key]: value,
-      },
-    }));
+    setLabelStyles((current) => updateStyleRecord(current, sectionId, key, value));
+  };
+
+  const setOverlayStyle = <K extends OverlayStyleKey>(
+    sectionId: OverlaySectionId,
+    key: K,
+    value: OverlayStyleState[K],
+  ) => {
+    setOverlayStyles((current) => updateStyleRecord(current, sectionId, key, value));
   };
 
   const resetPrototypeState = () => {
     setOpenPanes(DEFAULT_OPEN_PANES);
-    setOpenBasemapSections(DEFAULT_BASEMAP_SECTIONS);
-    setOpenFacilitySections(DEFAULT_FACILITY_SECTIONS);
-    setOpenLabelSections(DEFAULT_LABEL_SECTIONS);
-    setOpenOverlaySections(DEFAULT_OVERLAY_SECTIONS);
     setActivePreset('current');
+    setBasemapSectionOrder(BASEMAP_SIMPLE_SECTIONS.map((section) => section.id));
+    setLabelSectionOrder(LABEL_SIMPLE_SECTIONS.map((section) => section.id));
+    setOverlaySectionOrder(OVERLAY_ROWS.map((row) => row.key));
     setLandOpacity(0.84);
     setSeaOpacity(0.78);
     setFacilityShape(INITIAL_FACILITY_STYLE.shape);
@@ -255,11 +216,35 @@ export function SidebarPrototypeApp() {
     setPaneEnabled(INITIAL_PANE_ENABLED);
     setSectionEnabled(INITIAL_SECTION_ENABLED);
     setRegionEnabled(buildInitialRegionEnabled);
+    setRegionOrder([...REGION_ROWS]);
     setOverlayRowEnabled(INITIAL_OVERLAY_ROW_ENABLED);
     setOpenRegionPopover(null);
     setRegionStyles(buildInitialRegionStyles);
     setLabelStyles(buildInitialLabelStyles);
+    setOverlayStyles(buildInitialOverlayStyles);
   };
+
+  const handleRegionDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    setRegionOrder((current) =>
+      reorderItems(current, String(active.id), String(over.id)),
+    );
+  };
+
+  const handleSectionDragEnd =
+    <T extends string>(setOrder: React.Dispatch<React.SetStateAction<T[]>>) =>
+    ({ active, over }: DragEndEvent) => {
+      if (!over || active.id === over.id) {
+        return;
+      }
+
+      setOrder((current) =>
+        reorderItems(current, String(active.id) as T, String(over.id) as T),
+      );
+    };
 
   return (
     <div className="app-shell prototype-app-shell">
@@ -283,28 +268,68 @@ export function SidebarPrototypeApp() {
               enabled={paneEnabled.basemap}
               onEnabledToggle={() => toggleKey('basemap', setPaneEnabled)}
             >
-              <PrototypeAccordion
-                value={openBasemapSections}
-                onValueChange={setOpenBasemapSections}
-                level="subpane"
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis]}
+                onDragEnd={handleSectionDragEnd(setBasemapSectionOrder)}
               >
-                {BASEMAP_SIMPLE_SECTIONS.map((section) => (
-                  <PrototypeSimpleSection
-                    key={section.id}
-                    section={section}
-                    enabled={sectionEnabled[section.id]}
-                    onEnabledToggle={() =>
-                      toggleKey(section.id, setSectionEnabled)
-                    }
-                    opacityValue={
-                      section.id === 'land' ? landOpacity : seaOpacity
-                    }
-                    onOpacityChange={
-                      section.id === 'land' ? setLandOpacity : setSeaOpacity
-                    }
-                  />
-                ))}
-              </PrototypeAccordion>
+                <SortableContext
+                  items={basemapSectionOrder}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="prototype-section-list">
+                    {basemapSectionOrder.map((sectionId) => {
+                      const section = BASEMAP_SIMPLE_SECTIONS.find(
+                        (candidate) => candidate.id === sectionId,
+                      );
+
+                      if (!section) {
+                        return null;
+                      }
+
+                      return (
+                        <PrototypeSortablePopoverSection
+                          key={section.id}
+                          id={section.id}
+                          title={section.title}
+                          enabled={sectionEnabled[section.id]}
+                          onEnabledToggle={() =>
+                            toggleKey(section.id, setSectionEnabled)
+                          }
+                          badge={`${
+                            Math.round(
+                              (section.id === 'land' ? landOpacity : seaOpacity) * 100,
+                            )
+                          }%`}
+                          badgeSwatch={section.colourValue}
+                          badgeSwatchOpacity={
+                            section.id === 'land' ? landOpacity : seaOpacity
+                          }
+                          scrollContainer={sidebarElement}
+                          portalContainer={workspaceGridElement}
+                          popoverContent={
+                            <PrototypeColourOpacityFields
+                              colourId={section.colourId}
+                              colourValue={section.colourValue}
+                              colourOpacity={
+                                section.id === 'land' ? landOpacity : seaOpacity
+                              }
+                              opacityId={section.opacityId}
+                              opacityValue={
+                                section.id === 'land' ? landOpacity : seaOpacity
+                              }
+                              onOpacityChange={
+                                section.id === 'land' ? setLandOpacity : setSeaOpacity
+                              }
+                            />
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </PrototypePanel>
 
             <PrototypePresetRow
@@ -312,18 +337,30 @@ export function SidebarPrototypeApp() {
               onPresetChange={setActivePreset}
             />
 
+            <button
+              type="button"
+              className={`button sidebar-action-row__button sidebar-action-row__button--full${
+                activePreset === 'dphc-playground'
+                  ? ' sidebar-action-row__button--active'
+                  : ''
+              }`}
+              onClick={() => setActivePreset('dphc-playground')}
+              aria-pressed={activePreset === 'dphc-playground'}
+            >
+              <span className="sidebar-action-row__button-label">
+                <span>DPHC Estimate COA</span>
+                <em>Playground</em>
+              </span>
+            </button>
+
             <PrototypePanel
               id="facilities"
               title="Facilities"
               enabled={paneEnabled.facilities}
               onEnabledToggle={() => toggleKey('facilities', setPaneEnabled)}
             >
-              <PrototypeAccordion
-                value={openFacilitySections}
-                onValueChange={setOpenFacilitySections}
-                level="subpane"
-              >
-                <PrototypeSection
+              <div className="prototype-section-list">
+                <PrototypeCollapsiblePopoverSection
                   id="pmc"
                   title="PMC"
                   enabled={sectionEnabled.pmc}
@@ -332,99 +369,64 @@ export function SidebarPrototypeApp() {
                   badgeSwatch={facilityColor}
                   badgeSwatchOpacity={facilityOpacity}
                   badgeSwatchMix={mixedFacilityColors}
+                  badgeSwatchBorderColor={facilityBorderColor}
+                  badgeSwatchBorderWidth={facilityBorderWidth}
+                  badgeSwatchBorderOpacity={facilityBorderOpacity}
+                  scrollContainer={sidebarElement}
+                  portalContainer={workspaceGridElement}
+                  popoverContent={renderPrototypeControlSections(
+                    buildFacilityControlSections({
+                      facilityShape,
+                      facilitySymbolSize,
+                      facilityColor,
+                      facilityOpacity,
+                      mixedFacilityColors,
+                      facilityBorderColor,
+                      facilityBorderWidth,
+                      facilityBorderOpacity,
+                      mixedFacilityBorderColors,
+                      setFacilityStyle,
+                    }),
+                  )}
                 >
-                  <PrototypeControlField label="Shape">
-                    <PrototypeShapePicker
-                      value={facilityShape}
-                      onChange={(shape) => setFacilityStyle('shape', shape)}
-                    />
-                  </PrototypeControlField>
-
-                  <PrototypeSliderControl
-                    id="pmc-size"
-                    label="Size"
-                    value={facilitySymbolSize}
-                    min={1}
-                    max={12}
-                    step={0.5}
-                    mode="raw"
-                    onChange={(size) => setFacilityStyle('size', size)}
-                  />
-
-                  <PrototypeColorField
-                    id="pmc-colour"
-                    label="Colour"
-                    value={facilityColor}
-                    opacityPreview={facilityOpacity}
-                    mixedSwatches={mixedFacilityColors}
-                    onChange={(color) => setFacilityStyle('color', color)}
-                  />
-
-                  <PrototypeSliderControl
-                    id="pmc-opacity"
-                    label="Opacity"
-                    value={facilityOpacity}
-                    onChange={(opacity) => setFacilityStyle('opacity', opacity)}
-                  />
-
-                  <PrototypeColorField
-                    id="pmc-border-colour"
-                    label="Border colour"
-                    value={facilityBorderColor}
-                    opacityPreview={facilityBorderOpacity}
-                    mixedSwatches={mixedFacilityBorderColors}
-                    onChange={(borderColor) =>
-                      setFacilityStyle('borderColor', borderColor)
-                    }
-                  />
-
-                  <PrototypeSliderControl
-                    id="pmc-border-width"
-                    label="Line thickness"
-                    value={facilityBorderWidth}
-                    min={0}
-                    max={6}
-                    step={0.5}
-                    mode="raw"
-                    onChange={(borderWidth) =>
-                      setFacilityStyle('borderWidth', borderWidth)
-                    }
-                  />
-
-                  <PrototypeSliderControl
-                    id="pmc-border-opacity"
-                    label="Border opacity"
-                    value={facilityBorderOpacity}
-                    onChange={(borderOpacity) =>
-                      setFacilityStyle('borderOpacity', borderOpacity)
-                    }
-                  />
-
-                  <div className="stack-col prototype-region-list">
-                    {REGION_ROWS.map((region) => (
-                      <PrototypeRegionRow
-                        key={region}
-                        label={region}
-                        enabled={regionEnabled[region]}
-                        onToggle={() => toggleKey(region, setRegionEnabled)}
-                        styleState={regionStyles[region]}
-                        popoverOpen={openRegionPopover === region}
-                        onPopoverOpenChange={(open) =>
-                          setOpenRegionPopover(open ? region : null)
-                        }
-                        scrollContainer={sidebarElement}
-                        portalContainer={workspaceGridElement}
-                        onStyleChange={(nextStyle) =>
-                          setRegionStyles((current) => ({
-                            ...current,
-                            [region]: nextStyle,
-                          }))
-                        }
-                      />
-                    ))}
-                  </div>
-                </PrototypeSection>
-              </PrototypeAccordion>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    modifiers={[restrictToVerticalAxis]}
+                    onDragEnd={handleRegionDragEnd}
+                  >
+                    <SortableContext
+                      items={regionOrder}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="stack-col prototype-region-list">
+                        {regionOrder.map((region) => (
+                          <PrototypeSortableRegionRow
+                            key={region}
+                            id={region}
+                            label={region}
+                            enabled={regionEnabled[region]}
+                            onToggle={() => toggleKey(region, setRegionEnabled)}
+                            styleState={regionStyles[region]}
+                            popoverOpen={openRegionPopover === region}
+                            onPopoverOpenChange={(open) =>
+                              setOpenRegionPopover(open ? region : null)
+                            }
+                            scrollContainer={sidebarElement}
+                            portalContainer={workspaceGridElement}
+                            onStyleChange={(nextStyle) =>
+                              setRegionStyles((current) => ({
+                                ...current,
+                                [region]: nextStyle,
+                              }))
+                            }
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </PrototypeCollapsiblePopoverSection>
+              </div>
 
               <input
                 className="input input--compact"
@@ -440,26 +442,56 @@ export function SidebarPrototypeApp() {
               enabled={paneEnabled.labels}
               onEnabledToggle={() => toggleKey('labels', setPaneEnabled)}
             >
-              <PrototypeAccordion
-                value={openLabelSections}
-                onValueChange={setOpenLabelSections}
-                level="subpane"
-              >
-                {LABEL_SIMPLE_SECTIONS.map((section) => (
-                  <PrototypeLabelSection
-                    key={section.id}
-                    section={section}
-                    enabled={sectionEnabled[section.id]}
-                    onEnabledToggle={() =>
-                      toggleKey(section.id, setSectionEnabled)
-                    }
-                    styleState={labelStyles[section.id]}
-                    onStyleChange={(key, value) =>
-                      setLabelStyle(section.id, key, value)
-                    }
-                  />
-                ))}
-              </PrototypeAccordion>
+              <div className="prototype-section-list">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  modifiers={[restrictToVerticalAxis]}
+                  onDragEnd={handleSectionDragEnd(setLabelSectionOrder)}
+                >
+                  <SortableContext
+                    items={labelSectionOrder}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {labelSectionOrder.map((sectionId) => {
+                      const section = LABEL_SIMPLE_SECTIONS.find(
+                        (candidate) => candidate.id === sectionId,
+                      );
+
+                      if (!section) {
+                        return null;
+                      }
+
+                      return (
+                        <PrototypeSortablePopoverSection
+                          key={section.id}
+                          id={section.id}
+                          title={section.title}
+                          enabled={sectionEnabled[section.id]}
+                          onEnabledToggle={() =>
+                            toggleKey(section.id, setSectionEnabled)
+                          }
+                          badge={`${Math.round(labelStyles[section.id].opacity * 100)}%`}
+                          badgeSwatch={labelStyles[section.id].color}
+                          badgeSwatchOpacity={labelStyles[section.id].opacity}
+                          badgeSwatchBorderColor={labelStyles[section.id].borderColor}
+                          badgeSwatchBorderWidth={labelStyles[section.id].borderWidth}
+                          badgeSwatchBorderOpacity={labelStyles[section.id].borderOpacity}
+                          scrollContainer={sidebarElement}
+                          portalContainer={workspaceGridElement}
+                          popoverContent={renderPrototypeControlSections(
+                            buildLabelControlSections(
+                              section,
+                              labelStyles[section.id],
+                              setLabelStyle,
+                            ),
+                          )}
+                        />
+                      );
+                    })}
+                  </SortableContext>
+                </DndContext>
+              </div>
             </PrototypePanel>
 
             <PrototypePanel
@@ -468,32 +500,56 @@ export function SidebarPrototypeApp() {
               enabled={paneEnabled.overlays}
               onEnabledToggle={() => toggleKey('overlays', setPaneEnabled)}
             >
-              <PrototypeAccordion
-                value={openOverlaySections}
-                onValueChange={setOpenOverlaySections}
-                level="subpane"
-              >
-                <PrototypeSection
-                  id="board-boundaries"
-                  title="Board boundaries"
-                  enabled={sectionEnabled['board-boundaries']}
-                  onEnabledToggle={() =>
-                    toggleKey('board-boundaries', setSectionEnabled)
-                  }
-                  badge="3 layers"
+              <div className="prototype-section-list">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  modifiers={[restrictToVerticalAxis]}
+                  onDragEnd={handleSectionDragEnd(setOverlaySectionOrder)}
                 >
-                  {OVERLAY_ROWS.map((row) => (
-                    <PrototypeStaticRow
-                      key={row.key}
-                      label={row.label}
-                      enabled={overlayRowEnabled[row.key]}
-                      onToggle={() => toggleKey(row.key, setOverlayRowEnabled)}
-                      value={row.value}
-                      swatch={row.swatch}
-                    />
-                  ))}
-                </PrototypeSection>
-              </PrototypeAccordion>
+                  <SortableContext
+                    items={overlaySectionOrder}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {overlaySectionOrder.map((sectionId) => {
+                      const row = OVERLAY_ROWS.find(
+                        (candidate) => candidate.key === sectionId,
+                      );
+
+                      if (!row) {
+                        return null;
+                      }
+
+                      return (
+                        <PrototypeSortablePopoverSection
+                          key={sectionId}
+                          id={sectionId}
+                          title={row.label}
+                          enabled={overlayRowEnabled[sectionId]}
+                          onEnabledToggle={() =>
+                            toggleKey(sectionId, setOverlayRowEnabled)
+                          }
+                          badge={`${Math.round(overlayStyles[sectionId].opacity * 100)}%`}
+                          badgeSwatch={overlayStyles[sectionId].color}
+                          badgeSwatchOpacity={overlayStyles[sectionId].opacity}
+                          badgeSwatchBorderColor={overlayStyles[sectionId].borderColor}
+                          badgeSwatchBorderWidth={overlayStyles[sectionId].borderWidth}
+                          badgeSwatchBorderOpacity={overlayStyles[sectionId].borderOpacity}
+                          scrollContainer={sidebarElement}
+                          portalContainer={workspaceGridElement}
+                          popoverContent={renderPrototypeControlSections(
+                            buildOverlayControlSections(
+                              sectionId,
+                              overlayStyles[sectionId],
+                              setOverlayStyle,
+                            ),
+                          )}
+                        />
+                      );
+                    })}
+                  </SortableContext>
+                </DndContext>
+              </div>
             </PrototypePanel>
           </PrototypeAccordion>
         </aside>
@@ -514,11 +570,19 @@ interface PrototypePanelProps {
   children: React.ReactNode;
 }
 
-interface PrototypeSectionProps extends PrototypePanelProps {
+interface PrototypeSectionProps {
+  id?: string;
+  title: string;
+  enabled: boolean;
+  onEnabledToggle: () => void;
   badge?: string;
   badgeSwatch?: string;
   badgeSwatchOpacity?: number;
   badgeSwatchMix?: SwatchStop[];
+  badgeSwatchBorderColor?: string;
+  badgeSwatchBorderWidth?: number;
+  badgeSwatchBorderOpacity?: number;
+  children?: React.ReactNode;
 }
 
 interface PrototypeColourOpacityFieldsProps {
@@ -539,23 +603,23 @@ interface PrototypeSimpleSectionConfig {
   opacityId: string;
 }
 
-interface PrototypeLabelSectionProps {
-  section: PrototypeSimpleSectionConfig;
-  enabled: boolean;
-  onEnabledToggle: () => void;
-  styleState: LabelStyleState;
-  onStyleChange: <K extends LabelStyleKey>(
-    key: K,
-    value: LabelStyleState[K],
-  ) => void;
+interface PrototypePopoverSectionProps extends PrototypeSectionProps {
+  popoverContent: React.ReactNode;
+  scrollContainer: HTMLElement | null;
+  portalContainer: HTMLDivElement | null;
+  dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  dragHandleRef?: (element: HTMLButtonElement | null) => void;
+  sortableStyle?: React.CSSProperties;
+  isDragging?: boolean;
 }
 
-interface PrototypeSimpleSectionProps {
-  section: PrototypeSimpleSectionConfig;
-  enabled: boolean;
-  onEnabledToggle: () => void;
-  opacityValue: number;
-  onOpacityChange: (value: number) => void;
+interface PrototypeCollapsiblePopoverSectionProps
+  extends PrototypePopoverSectionProps {
+  defaultExpanded?: boolean;
+}
+
+interface PrototypeSortablePopoverSectionProps extends PrototypePopoverSectionProps {
+  id: string;
 }
 
 interface PrototypePresetRowProps {
@@ -573,6 +637,10 @@ interface PrototypeRegionRowProps {
   onStyleChange: (nextStyle: RegionStyleState) => void;
   scrollContainer: HTMLElement | null;
   portalContainer: HTMLDivElement | null;
+  sortableStyle?: React.CSSProperties;
+  dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  dragHandleRef?: (element: HTMLButtonElement | null) => void;
+  isDragging?: boolean;
 }
 
 function PrototypeMapPlaceholder() {
@@ -665,34 +733,6 @@ function PrototypePanel({
   );
 }
 
-function PrototypeSection({
-  id,
-  title,
-  badge,
-  badgeSwatch,
-  badgeSwatchOpacity,
-  badgeSwatchMix,
-  enabled,
-  onEnabledToggle,
-  children,
-}: PrototypeSectionProps) {
-  return (
-    <PrototypeAccordionItem
-      id={id}
-      title={title}
-      badge={badge}
-      badgeSwatch={badgeSwatch}
-      badgeSwatchOpacity={badgeSwatchOpacity}
-      badgeSwatchMix={badgeSwatchMix}
-      enabled={enabled}
-      onEnabledToggle={onEnabledToggle}
-      level="subpane"
-    >
-      <div className="prototype-section__content">{children}</div>
-    </PrototypeAccordionItem>
-  );
-}
-
 function PrototypeColourOpacityFields({
   colourId,
   colourValue,
@@ -721,114 +761,170 @@ function PrototypeColourOpacityFields({
   );
 }
 
-function PrototypeSimpleSection({
-  section,
+function PrototypePopoverSection({
+  title,
+  badge,
+  badgeSwatch,
+  badgeSwatchOpacity,
+  badgeSwatchMix,
+  badgeSwatchBorderColor,
+  badgeSwatchBorderWidth,
+  badgeSwatchBorderOpacity,
   enabled,
   onEnabledToggle,
-  opacityValue,
-  onOpacityChange,
-}: PrototypeSimpleSectionProps) {
+  children,
+  popoverContent,
+  scrollContainer,
+  portalContainer,
+  dragHandleProps,
+  dragHandleRef,
+  sortableStyle,
+  isDragging = false,
+}: PrototypePopoverSectionProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <PrototypeSection
-      id={section.id}
-      title={section.title}
+    <PrototypeSectionCardShell
+      title={title}
       enabled={enabled}
       onEnabledToggle={onEnabledToggle}
-      badge={`${Math.round(opacityValue * 100)}%`}
-      badgeSwatch={section.colourValue}
-      badgeSwatchOpacity={opacityValue}
+      style={sortableStyle}
+      isDragging={isDragging}
+      pillPopover={
+        badge ? (
+          <PrototypePillPopover
+            open={open}
+            onOpenChange={setOpen}
+            value={badge}
+            swatch={badgeSwatch}
+            swatchOpacity={badgeSwatchOpacity}
+            swatchMix={badgeSwatchMix}
+            swatchBorderColor={badgeSwatchBorderColor}
+            swatchBorderWidth={badgeSwatchBorderWidth}
+            swatchBorderOpacity={badgeSwatchBorderOpacity}
+            scrollContainer={scrollContainer}
+            portalContainer={portalContainer}
+            viewportContainer={scrollContainer}
+          >
+            {popoverContent}
+          </PrototypePillPopover>
+        ) : null
+      }
+      trailingControl={
+        <PrototypeDragHandle
+          ref={dragHandleRef}
+          label={title}
+          {...dragHandleProps}
+        />
+      }
+      body={children}
+    />
+  );
+}
+
+function PrototypeSortablePopoverSection({
+  id,
+  ...props
+}: PrototypeSortablePopoverSectionProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
     >
-      <PrototypeColourOpacityFields
-        colourId={section.colourId}
-        colourValue={section.colourValue}
-        colourOpacity={opacityValue}
-        opacityId={section.opacityId}
-        opacityValue={opacityValue}
-        onOpacityChange={onOpacityChange}
+      <PrototypePopoverSection
+        {...props}
+        isDragging={isDragging}
+        dragHandleRef={setActivatorNodeRef}
+        dragHandleProps={{
+          ...attributes,
+          ...listeners,
+        }}
       />
-    </PrototypeSection>
+    </div>
   );
 }
 
-function PrototypeLabelSection({
-  section,
+function PrototypeCollapsiblePopoverSection({
+  title,
+  badge,
+  badgeSwatch,
+  badgeSwatchOpacity,
+  badgeSwatchMix,
+  badgeSwatchBorderColor,
+  badgeSwatchBorderWidth,
+  badgeSwatchBorderOpacity,
   enabled,
   onEnabledToggle,
-  styleState,
-  onStyleChange,
-}: PrototypeLabelSectionProps) {
+  children,
+  popoverContent,
+  scrollContainer,
+  portalContainer,
+  defaultExpanded = true,
+}: PrototypeCollapsiblePopoverSectionProps) {
+  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
   return (
-    <PrototypeSection
-      id={section.id}
-      title={section.title}
+    <PrototypeSectionCardShell
+      title={title}
       enabled={enabled}
       onEnabledToggle={onEnabledToggle}
-      badge={`${Math.round(styleState.opacity * 100)}%`}
-      badgeSwatch={styleState.color}
-      badgeSwatchOpacity={styleState.opacity}
-    >
-      <PrototypeControlSection title="Text">
-        <PrototypeColorField
-          id={section.colourId}
-          label="Colour"
-          value={styleState.color}
-          opacityPreview={styleState.opacity}
-          onChange={(color) => onStyleChange('color', color)}
-        />
-
-        <PrototypeSliderControl
-          id={`${section.id}-size`}
-          label="Size"
-          value={styleState.size}
-          min={1}
-          max={18}
-          step={0.5}
-          mode="raw"
-          onChange={(size) => onStyleChange('size', size)}
-        />
-
-        <PrototypeSliderControl
-          id={section.opacityId}
-          label="Opacity"
-          value={styleState.opacity}
-          onChange={(opacity) => onStyleChange('opacity', opacity)}
-        />
-      </PrototypeControlSection>
-
-      <div className="prototype-popover__divider" aria-hidden="true" />
-
-      <PrototypeControlSection title="Border">
-        <PrototypeColorField
-          id={`${section.id}-border-colour`}
-          label="Colour"
-          value={styleState.borderColor}
-          opacityPreview={styleState.borderOpacity}
-          onChange={(borderColor) => onStyleChange('borderColor', borderColor)}
-        />
-
-        <PrototypeSliderControl
-          id={`${section.id}-border-width`}
-          label="Thickness"
-          value={styleState.borderWidth}
-          min={0}
-          max={6}
-          step={0.5}
-          mode="raw"
-          onChange={(borderWidth) => onStyleChange('borderWidth', borderWidth)}
-        />
-
-        <PrototypeSliderControl
-          id={`${section.id}-border-opacity`}
-          label="Opacity"
-          value={styleState.borderOpacity}
-          onChange={(borderOpacity) =>
-            onStyleChange('borderOpacity', borderOpacity)
-          }
-        />
-      </PrototypeControlSection>
-    </PrototypeSection>
+      pillPopover={
+        badge ? (
+          <PrototypePillPopover
+            open={open}
+            onOpenChange={setOpen}
+            value={badge}
+            swatch={badgeSwatch}
+            swatchOpacity={badgeSwatchOpacity}
+            swatchMix={badgeSwatchMix}
+            swatchBorderColor={badgeSwatchBorderColor}
+            swatchBorderWidth={badgeSwatchBorderWidth}
+            swatchBorderOpacity={badgeSwatchBorderOpacity}
+            scrollContainer={scrollContainer}
+            portalContainer={portalContainer}
+            viewportContainer={scrollContainer}
+          >
+            {popoverContent}
+          </PrototypePillPopover>
+        ) : null
+      }
+      trailingControl={
+        <button
+          type="button"
+          className="prototype-disclosure-button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          aria-label={expanded ? `Collapse ${title}` : `Expand ${title}`}
+        >
+          <span
+            className={`prototype-accordion-item__chevron${
+              expanded ? ' is-open' : ''
+            }`}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </button>
+      }
+      body={expanded ? children : null}
+    />
   );
 }
+
 
 function PrototypeRegionRow({
   label,
@@ -840,156 +936,87 @@ function PrototypeRegionRow({
   onStyleChange,
   scrollContainer,
   portalContainer,
+  sortableStyle,
+  dragHandleProps,
+  dragHandleRef,
+  isDragging = false,
 }: PrototypeRegionRowProps) {
   const opacityValue = `${Math.round(styleState.opacity * 100)}%`;
+  const controlSections = buildRegionControlSections(
+    label,
+    styleState,
+    onStyleChange,
+  );
 
   return (
-    <div className="prototype-region-row">
-      <span className="color-control__label color-control__label--region">
-        {label}
-      </span>
-      <span className="prototype-accordion-item__meta">
-        <PrototypeToggleButton enabled={enabled} onClick={onToggle} />
-        <PrototypePopover
+    <PrototypeInlineRowShell
+      label={label}
+      enabled={enabled}
+      onEnabledToggle={onToggle}
+      style={sortableStyle}
+      isDragging={isDragging}
+      pillPopover={
+        <PrototypePillPopover
           open={popoverOpen}
           onOpenChange={onPopoverOpenChange}
           scrollContainer={scrollContainer}
           portalContainer={portalContainer}
           viewportContainer={scrollContainer}
-          trigger={
-            <PrototypeMetricPill
-              value={opacityValue}
-              swatch={styleState.color}
-              swatchOpacity={styleState.opacity}
-              swatchShape={styleState.shape}
-              swatchBorderColor={styleState.borderColor}
-              swatchBorderWidth={styleState.borderWidth}
-              swatchBorderOpacity={styleState.borderOpacity}
-              asButton
-              ariaExpanded={popoverOpen}
-              ariaHaspopup="dialog"
-            />
-          }
+          value={opacityValue}
+          swatch={styleState.color}
+          swatchOpacity={styleState.opacity}
+          swatchShape={styleState.shape}
+          swatchBorderColor={styleState.borderColor}
+          swatchBorderWidth={styleState.borderWidth}
+          swatchBorderOpacity={styleState.borderOpacity}
         >
-          <div className="prototype-popover__content">
-            <PrototypeControlSection title="Points">
-              <PrototypeControlField label="Shape">
-                <PrototypeShapePicker
-                  value={styleState.shape}
-                  onChange={(shape) =>
-                    onStyleChange({
-                      ...styleState,
-                      shape,
-                    })
-                  }
-                />
-              </PrototypeControlField>
-
-              <PrototypeSliderControl
-                id={`${label}-size`}
-                label="Size"
-                value={styleState.size}
-                min={1}
-                max={12}
-                step={0.5}
-                mode="raw"
-                onChange={(size) =>
-                  onStyleChange({
-                    ...styleState,
-                    size,
-                  })
-                }
-              />
-
-              <PrototypeColorField
-                id={`${label}-colour`}
-                label="Colour"
-                value={styleState.color}
-                opacityPreview={styleState.opacity}
-                onChange={(color) =>
-                  onStyleChange({
-                    ...styleState,
-                    color,
-                  })
-                }
-              />
-
-              <PrototypeSliderControl
-                id={`${label}-opacity`}
-                label="Opacity"
-                value={styleState.opacity}
-                onChange={(opacity) =>
-                  onStyleChange({
-                    ...styleState,
-                    opacity,
-                  })
-                }
-              />
-            </PrototypeControlSection>
-
-            <div className="prototype-popover__divider" aria-hidden="true" />
-            <PrototypeControlSection title="Border">
-              <PrototypeColorField
-                id={`${label}-border-colour`}
-                label="Colour"
-                value={styleState.borderColor}
-                opacityPreview={styleState.borderOpacity}
-                onChange={(borderColor) =>
-                  onStyleChange({
-                    ...styleState,
-                    borderColor,
-                  })
-                }
-              />
-
-              <PrototypeSliderControl
-                id={`${label}-border-width`}
-                label="Thickness"
-                value={styleState.borderWidth}
-                min={0}
-                max={6}
-                step={0.5}
-                mode="raw"
-                onChange={(borderWidth) =>
-                  onStyleChange({
-                    ...styleState,
-                    borderWidth,
-                  })
-                }
-              />
-
-              <PrototypeSliderControl
-                id={`${label}-border-opacity`}
-                label="Opacity"
-                value={styleState.borderOpacity}
-                onChange={(borderOpacity) =>
-                  onStyleChange({
-                    ...styleState,
-                    borderOpacity,
-                  })
-                }
-              />
-            </PrototypeControlSection>
-          </div>
-        </PrototypePopover>
-      </span>
-    </div>
+          {renderPrototypeControlSections(controlSections)}
+        </PrototypePillPopover>
+      }
+      trailingControl={
+        <PrototypeDragHandle
+          ref={dragHandleRef}
+          label={label}
+          {...dragHandleProps}
+        />
+      }
+    />
   );
 }
 
-function applyGlobalStyleChange(
-  current: Record<string, RegionStyleState>,
-  overrides: Partial<RegionStyleState>,
-) {
-  return Object.fromEntries(
-    Object.entries(current).map(([region, style]) => [
-      region,
-      {
-        ...style,
-        ...overrides,
-      },
-    ]),
-  ) as Record<string, RegionStyleState>;
+function PrototypeSortableRegionRow({
+  id,
+  ...props
+}: PrototypeSortableRegionRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      <PrototypeRegionRow
+        {...props}
+        isDragging={isDragging}
+        dragHandleRef={setActivatorNodeRef}
+        dragHandleProps={{
+          ...attributes,
+          ...listeners,
+        }}
+      />
+    </div>
+  );
 }
 
 function toggleKey(
@@ -1000,4 +1027,7 @@ function toggleKey(
     ...current,
     [key]: !current[key],
   }));
+}
+interface PrototypeSortableRegionRowProps extends PrototypeRegionRowProps {
+  id: string;
 }

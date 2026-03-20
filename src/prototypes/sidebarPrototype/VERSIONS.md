@@ -31,9 +31,33 @@ Saved-state rule:
 
 ## v2
 
-`v2` begins immediately after the `v1` checkpoint.
+`v2` is the second stable sidebar prototype milestone and is intended to capture the prototype in a production-preparation state rather than only an interaction-exploration state.
+
+Characteristics captured in `v2`:
+
+- pill-driven popovers for section-level controls inside panes
+- non-collapsible section rows now standardized onto the sortable drag-handle slot
+- PMC restored as a collapsible section because it still owns a visible child list
+- PMC child-row reordering via a dedicated drag handle using `dnd-kit`
+- Overlays treated as a family surface that can host either flat sortable rows or collapsible grouped sections with child items
+- prototype-local preset-button styling where selected state intentionally matches hover background tone while reducing border emphasis
+- common top-level pane-body bottom spacing applied through the shared pane-content rule
+- shared row shells and pill-popover wiring extracted into `PrototypeControls.tsx` to reduce pane-specific markup duplication
+- repeated popover field groups now route through config/build helpers plus a shared section renderer instead of duplicated field JSX
+- popover field builders and rendering helpers are now separated into `popoverFields.tsx`, keeping the app shell focused on state and layout composition
+- shared style-state types/defaults/update helpers are now separated into `prototypeStyleState.ts`, reducing pane-local state duplication
+- focused prototype tests now cover shared row-shell interactions plus extracted field/state helpers
+- pane-specific field builders are now split by pane instead of living in one catch-all module, and the prototype has an explicit promotion-boundary note
+
+Saved-state rule:
+
+- the `jj` commit labeled `Snapshot sidebar prototype v2` is the canonical saved `v2` baseline
+
+## v3
+
+`v3` begins immediately after the `v2` checkpoint.
 
 Working rule:
 
-- treat the new `@` working copy created after the `v1` checkpoint as the start of `v2` development
+- treat the new `@` working copy created after the `v2` checkpoint as the start of `v3` development
 - only record another numbered version when the next coherent reviewable milestone is reached

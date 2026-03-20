@@ -26,6 +26,15 @@ export function RightSidebar() {
           />
         ))}
       </div>
+      <button
+        type="button"
+        className="button sidebar-action-row__button sidebar-action-row__button--full"
+      >
+        <span className="sidebar-action-row__button-label">
+          <span>DPHC Estimate COA</span>
+          <em>Playground</em>
+        </span>
+      </button>
       <SelectionPanel />
       <LabelPanel />
       <OverlayPanel />

@@ -23,6 +23,11 @@ Current example:
 - prototype seed data: `src/prototypes/sidebarPrototype/data.ts`
 - prototype shared controls: `src/prototypes/sidebarPrototype/PrototypeControls.tsx`
 - prototype accordion wrapper: `src/prototypes/sidebarPrototype/PrototypeAccordion.tsx`
+- prototype popover field definitions: `src/prototypes/sidebarPrototype/popoverFields.tsx`
+- prototype production-preparation note: `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
+- prototype promotion boundary note: `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
+- prototype style-state domain: `src/prototypes/sidebarPrototype/prototypeStyleState.ts`
+- prototype sortable helper: `src/prototypes/sidebarPrototype/sortableList.ts`
 - prototype styles: `src/prototypes/sidebarPrototype/prototype.css`
 - prototype-local notes: `src/prototypes/sidebarPrototype/README.md`
 
@@ -31,8 +36,16 @@ Current sidebar-prototype interaction notes:
 - pane and sub-pane expand/collapse behavior uses Radix accordion primitives
 - repeated simple pane sections are config-driven from prototype seed data instead of hand-duplicated JSX
 - PMC row style editing currently uses a custom floating callout tied to the row pill rather than a production-integrated store path
+- PMC row reordering now uses a dedicated drag handle and `dnd-kit`, with reorder math extracted away from component event wiring
+- sortable pane rows now share a common right-edge drag-handle slot; row-end affordances should stay aligned with the pill rail rather than being tuned per pane
+- pane-level files should prefer shared row-shell components over hand-built row markup whenever the interaction contract is the same
+- repeated field groups inside popovers should prefer config-driven section/field definitions over copied JSX once the control pattern stabilizes
+- once shared row-shell behavior stabilizes, add focused interaction tests for toggle, pill, and drag-handle separation instead of relying only on visual review
+- overlay rows are now modeled as a family surface that can later grow into grouped/collapsible sections instead of being treated as permanently flat
 - floating callout placement math is extracted into a dedicated helper so geometry can be tested separately from rendering
 - the floating PMC callout is prototype-only and is intentionally tuned for interaction review, not yet treated as a production component API
+- preset button state tuning should remain prototype-local and tokenized in `prototype.css` until there is an explicit decision to promote it into shared production styling
+- common pane-body spacing adjustments should prefer the shared top-level pane-content rule over one-off pane variants when the intent applies across Basemap, Facilities, Labels, and Overlays
 
 The main app entry remains:
 
@@ -130,7 +143,10 @@ For this repo, likely candidates for promotion are:
 - pane header/content wrappers
 - sub-pane wrappers
 - shared control row patterns
+- shared sortable row shell plus drag-handle slot
+- shared pill-triggered popover shell for compact style editors
 - shared toggle and metric-pill controls
+- shared prototype-to-production style-state domain helpers
 - PMC row style-editor trigger and floating callout behavior, if approved
 - fixed alignment/grid helpers for right-edge pane controls
 

@@ -21,6 +21,9 @@ interface PrototypeAccordionItemProps {
   badgeSwatch?: string;
   badgeSwatchOpacity?: number;
   badgeSwatchMix?: SwatchStop[];
+  badgeSwatchBorderColor?: string;
+  badgeSwatchBorderWidth?: number;
+  badgeSwatchBorderOpacity?: number;
   children: ReactNode;
   level?: 'pane' | 'subpane';
   panel?: boolean;
@@ -54,6 +57,9 @@ export function PrototypeAccordionItem({
   badgeSwatch,
   badgeSwatchOpacity,
   badgeSwatchMix,
+  badgeSwatchBorderColor,
+  badgeSwatchBorderWidth,
+  badgeSwatchBorderOpacity,
   children,
   level = 'pane',
   panel = false,
@@ -87,6 +93,9 @@ export function PrototypeAccordionItem({
                 swatch={badgeSwatch}
                 swatchOpacity={badgeSwatchOpacity}
                 swatchMix={badgeSwatchMix}
+                swatchBorderColor={badgeSwatchBorderColor}
+                swatchBorderWidth={badgeSwatchBorderWidth}
+                swatchBorderOpacity={badgeSwatchBorderOpacity}
               />
             ) : null}
             <Accordion.Trigger className="prototype-disclosure-button">
