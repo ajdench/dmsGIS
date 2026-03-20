@@ -49,9 +49,6 @@ describe('pointSelection', () => {
       getJmcNameAtCoordinate: () => 'JMC North',
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
     });
 
@@ -89,9 +86,6 @@ describe('pointSelection', () => {
       getJmcNameAtCoordinate: () => null,
       facilityFilters: {
         searchQuery: 'missing',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
     });
 

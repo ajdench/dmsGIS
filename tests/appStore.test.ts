@@ -39,26 +39,17 @@ describe('appStore region controls', () => {
     expect(regions.map((region) => region.opacity)).toEqual([0.4, 0.4]);
   });
 
-  it('updates the typed facility filter state through store setters', () => {
+  it('updates the facility search filter state through store setters', () => {
     useAppStore.getState().setFacilitySearchQuery('north');
-    useAppStore.getState().setFacilityFilterRegions(['North']);
-    useAppStore.getState().setFacilityFilterTypes(['pmc-facility']);
-    useAppStore.getState().setFacilityDefaultVisibilityFilter('default-visible');
 
     expect(useAppStore.getState().facilityFilters).toEqual({
       searchQuery: 'north',
-      regions: ['North'],
-      types: ['pmc-facility'],
-      defaultVisibility: 'default-visible',
     });
 
     useAppStore.getState().resetFacilityFilters();
 
     expect(useAppStore.getState().facilityFilters).toEqual({
       searchQuery: '',
-      regions: [],
-      types: [],
-      defaultVisibility: 'all',
     });
   });
 
@@ -252,9 +243,6 @@ describe('appStore region controls', () => {
         facilitySymbolSize: 3.5,
         facilityFilters: {
           searchQuery: 'baseline',
-          regions: [],
-          types: [],
-          defaultVisibility: 'all',
         },
         basemap: {
           provider: 'localDetailed',
@@ -317,9 +305,6 @@ describe('appStore region controls', () => {
       ],
       facilityFilters: {
         searchQuery: 'temporary search',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       selection: {
         facilityIds: ['FAC-1'],
@@ -348,9 +333,6 @@ describe('appStore region controls', () => {
     });
     expect(state.facilityFilters).toEqual({
       searchQuery: '',
-      regions: [],
-      types: [],
-      defaultVisibility: 'all',
     });
     expect(state.selection).toEqual({
       facilityIds: [],
@@ -753,9 +735,6 @@ describe('appStore region controls', () => {
       facilitySymbolSize: 4.5,
       facilityFilters: {
         searchQuery: 'north',
-        regions: ['North'],
-        types: ['pmc-facility'],
-        defaultVisibility: 'default-visible',
       },
       basemap: {
         provider: 'localDetailed',
@@ -803,9 +782,6 @@ describe('appStore region controls', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       mapViewport: {
         center: [0, 0],
@@ -825,9 +801,6 @@ describe('appStore region controls', () => {
     expect(state.activeViewPreset).toBe('coa3a');
     expect(state.facilityFilters).toEqual({
       searchQuery: 'north',
-      regions: ['North'],
-      types: ['pmc-facility'],
-      defaultVisibility: 'default-visible',
     });
     expect(state.mapViewport).toEqual({
       center: [100, 200],

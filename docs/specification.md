@@ -142,7 +142,7 @@ Current priority areas:
 - improve existing production workflows and usability before taking on more future-facing scope
 - keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
-- keep treating facility filters as a shared typed domain contract; future work should refine usability, not rebuild parallel state
+- keep treating facility filters as a shared typed domain contract; the active production surface is search-only, and any future metadata facets should reuse the same contract rather than rebuild parallel state
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 

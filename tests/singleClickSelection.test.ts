@@ -61,9 +61,6 @@ describe('singleClickSelection', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',
@@ -130,9 +127,6 @@ describe('singleClickSelection', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => null,
@@ -206,9 +200,6 @@ describe('singleClickSelection', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: 'alpha',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',

@@ -77,9 +77,6 @@ describe('savedViews', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: 'north',
-        regions: ['North'],
-        types: ['pmc-facility'],
-        defaultVisibility: 'default-visible',
       },
       selection: {
         facilityIds: ['ABC'],
@@ -101,9 +98,6 @@ describe('savedViews', () => {
         symbolSize: 3.5,
         filters: {
           searchQuery: 'north',
-          regions: ['North'],
-          types: ['pmc-facility'],
-          defaultVisibility: 'default-visible',
         },
       },
       selection: {

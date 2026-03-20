@@ -104,9 +104,8 @@ Why this matters:
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
-- Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
-- Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search, and that state is carried through the production store plus saved-session snapshot/apply paths.
-- The production Facilities pane now surfaces `region`, `type`, and `default visibility` as promoted typed filter facets on top of the shared facility-filter contract.
+- Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
+- The production Facilities pane currently exposes search-only filtering; if metadata facets return later, they should reuse the same shared typed filter contract rather than a parallel UI-only path.
 - Saved-view and map-session behavior is covered in `tests/savedViews.test.ts`.
 - Local saved-view persistence and action helpers are covered in `tests/savedViewStore.test.ts` and `tests/savedViewActions.test.ts`.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
