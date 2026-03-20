@@ -123,6 +123,7 @@ Working stance:
 - Overlay boundary reconciliation can now consume that draft-aware runtime source for visible scenario layers, so edited assignments can begin affecting on-map rendering before true dissolved bespoke outlines exist.
 - Derived scenario outline generation now uses Turf dissolve in `src/features/map/derivedScenarioOutlineSource.ts`, so edited assignments can produce clean merged Region outlines instead of only grouped board geometries.
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
+- Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding logic in UI components.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - The prepared NHS England region overlay design is:
   - distinct `nhsRegions` overlay family

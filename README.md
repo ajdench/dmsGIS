@@ -117,6 +117,7 @@ Why this matters:
 - Scenario layer reconciliation can now consume that draft-aware runtime source for the visible scenario map layers, so edited assignments can start affecting what is drawn on the map before true dissolved bespoke outlines are introduced.
 - Derived scenario outline generation now uses Turf dissolve in `src/features/map/derivedScenarioOutlineSource.ts`, so edited assignments can produce clean merged Region outlines instead of only grouped board geometries.
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
+- Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding calculations in UI components.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
@@ -189,5 +190,6 @@ Planned production-architecture direction for the future Playground:
 - treat `SJC JMC`, `COA 3a`, and `COA 3b` as baseline scenario workspaces on the 2026 ICB/HB boundary system
 - move toward editable boundary-unit assignment plus derived scenario-region redraw, instead of relying on bespoke static outline files as the primary source of truth
 - keep editable workspace state in a dedicated production draft/editor layer rather than mutating preset config directly at runtime
+- move current workspace-to-facility summary joins from region labels toward stable scenario-region ids as runtime assignment data grows richer
 
 See [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md) for the working rules that should guide future development across both production and prototype paths.

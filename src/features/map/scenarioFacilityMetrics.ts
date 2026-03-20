@@ -1,22 +1,10 @@
 import type { FeatureLike } from 'ol/Feature';
 import type VectorSource from 'ol/source/Vector';
+import {
+  parseScenarioFacilityMetricSummary,
+  type ScenarioFacilityMetricSummary,
+} from '../../lib/schemas/scenarioMetrics';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
-
-export interface ScenarioFacilityMetricSummary {
-  totalFacilities: number;
-  regions: Array<{
-    regionName: string;
-    facilityCount: number;
-    facilityTypes: Array<{
-      typeName: string;
-      facilityCount: number;
-    }>;
-  }>;
-  facilityTypes: Array<{
-    typeName: string;
-    facilityCount: number;
-  }>;
-}
 
 export function buildScenarioFacilityMetricSummary(
   facilityFeatures: FeatureLike[],
@@ -39,7 +27,7 @@ export function buildScenarioFacilityMetricSummary(
     facilitiesByRegionAndType.set(regionName, regionTypeMap);
   }
 
-  return {
+  return parseScenarioFacilityMetricSummary({
     totalFacilities: facilityFeatures.length,
     regions: [...facilitiesByRegion.entries()]
       .map(([regionName, facilityCount]) => ({
@@ -59,5 +47,5 @@ export function buildScenarioFacilityMetricSummary(
         facilityCount,
       }))
       .sort((a, b) => a.typeName.localeCompare(b.typeName)),
-  };
+  });
 }

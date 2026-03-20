@@ -162,6 +162,8 @@ Current priority areas:
 - use a real dissolve/union step for derived scenario outlines once draft-aware rendering is proven, so bespoke Regions become clean merged shapes rather than grouped board polygons
 - let facility styling, facility selection, and future scenario calculations consume the same draft-aware assignment source, so edited boundary reassignment changes both geometry and facility-derived metrics
 - derived scenario facility summaries should stay additive and explainable: start with counts by region and facility type before introducing more complex DPHC estimate logic
+- keep a reusable combined scenario-summary contract between runtime logic and future Playground UI, so editing panels read prepared summary objects instead of recreating assignment/facility math in components
+- the current workspace-to-facility join may temporarily rely on region labels, but the target architecture should move that join to stable scenario-region ids as soon as assignment/runtime features can supply them
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 

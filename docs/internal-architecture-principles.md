@@ -118,6 +118,24 @@ In plain terms:
 
 - if a future scenario, overlay family, or filter option can be added by updating config/data, that is better than adding another special-case runtime branch
 
+### 5. Keep scenario editing contracts reusable and explainable
+
+Future Playground work should expose prepared summary objects to the UI instead of letting panels recreate map/runtime logic ad hoc.
+
+That means:
+
+- draft workspace assignment summaries should be built once
+- remapped facility summaries should be built once
+- combined scenario summaries should be read by UI panels as data, not recalculated inside components
+
+In plain terms:
+
+- sidebar/editor UI should read a prepared answer
+- it should not have to work out region assignment and facility totals for itself
+
+The current bridge may still join facility summaries to regions by label in places.
+That is acceptable as a transition, but the target is stable scenario-region ids all the way through.
+
 ### 5. Keep production and prototype intentionally separate
 
 Prototype code is not failed production code.
