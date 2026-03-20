@@ -15,6 +15,7 @@ interface ReconcileOverlayBoundaryLayersParams {
   activeViewPreset: ViewPresetId;
   regionBoundaryRefs: Map<string, VectorLayer<VectorSource>>;
   regionBoundaryPathRefs: Map<string, string>;
+  runtimeSourceOverrides?: Map<string, VectorSource>;
   createBoundaryLayer: (
     layer: OverlayLayerStyle,
     preset: ViewPresetId,
@@ -36,6 +37,7 @@ export function reconcileOverlayBoundaryLayers(
     activeViewPreset,
     regionBoundaryRefs,
     regionBoundaryPathRefs,
+    runtimeSourceOverrides = new Map(),
     createBoundaryLayer,
     getBoundaryLayerStyle,
     resolveSourceUrl = resolveOverlayBoundarySourceUrl,
@@ -48,6 +50,17 @@ export function reconcileOverlayBoundaryLayers(
       boundaryLayer = createBoundaryLayer(layerConfig, activeViewPreset);
       regionBoundaryRefs.set(layerConfig.id, boundaryLayer);
       map.addLayer(boundaryLayer);
+    }
+
+    const runtimeOverrideSource = runtimeSourceOverrides.get(layerConfig.id) ?? null;
+    if (runtimeOverrideSource) {
+      if (boundaryLayer.getSource() !== runtimeOverrideSource) {
+        boundaryLayer.setSource(runtimeOverrideSource);
+      }
+      regionBoundaryPathRefs.set(layerConfig.id, `runtime:${layerConfig.id}`);
+      boundaryLayer.setVisible(layerConfig.visible);
+      boundaryLayer.setStyle(getBoundaryLayerStyle(layerConfig, activeViewPreset));
+      return;
     }
 
     const sourceUrl = resolveSourceUrl(layerConfig.path);

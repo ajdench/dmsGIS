@@ -146,4 +146,43 @@ describe('overlayBoundaryReconciliation', () => {
       'https://example.test/data/regions/board-next.geojson',
     );
   });
+
+  it('prefers a runtime override source when one is provided', () => {
+    const map = {
+      addLayer: vi.fn(),
+      removeLayer: vi.fn(),
+    };
+    const activeLayer = new VectorLayer({
+      source: new VectorSource({
+        url: 'https://example.test/data/regions/board.geojson',
+        format: new GeoJSON(),
+      }),
+    });
+    const runtimeSource = new VectorSource();
+    const regionBoundaryRefs = new Map<string, VectorLayer<VectorSource>>([
+      ['careBoardBoundaries', activeLayer],
+    ]);
+    const regionBoundaryPathRefs = new Map<string, string>([
+      ['careBoardBoundaries', 'https://example.test/data/regions/board.geojson'],
+    ]);
+
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers: [createOverlayLayer()],
+      activeViewPreset: 'coa3c',
+      regionBoundaryRefs,
+      regionBoundaryPathRefs,
+      runtimeSourceOverrides: new Map([
+        ['careBoardBoundaries', runtimeSource] as const,
+      ]),
+      createBoundaryLayer: vi.fn(),
+      getBoundaryLayerStyle: vi.fn(() => new Style()),
+      resolveSourceUrl: (path) => `https://example.test/${path}`,
+    });
+
+    expect(activeLayer.getSource()).toBe(runtimeSource);
+    expect(regionBoundaryPathRefs.get('careBoardBoundaries')).toBe(
+      'runtime:careBoardBoundaries',
+    );
+  });
 });

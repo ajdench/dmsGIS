@@ -383,16 +383,28 @@ export function MapWorkspace() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    const runtimeSourceOverrides = new Map<string, VectorSource>();
+    if (scenarioWorkspaceAssignmentSourceRef.current) {
+      runtimeSourceOverrides.set(
+        'careBoardBoundaries',
+        scenarioWorkspaceAssignmentSourceRef.current,
+      );
+      runtimeSourceOverrides.set(
+        'pmcUnpopulatedCareBoardBoundaries',
+        scenarioWorkspaceAssignmentSourceRef.current,
+      );
+    }
     reconcileOverlayBoundaryLayers({
       map,
       overlayLayers,
       activeViewPreset,
       regionBoundaryRefs: regionBoundaryRefs.current,
       regionBoundaryPathRefs: regionBoundaryPathRefs.current,
+      runtimeSourceOverrides,
       createBoundaryLayer: createRegionBoundaryLayer,
       getBoundaryLayerStyle: createRegionBoundaryStyle,
     });
-  }, [overlayLayers, activeViewPreset]);
+  }, [overlayLayers, activeViewPreset, activeScenarioWorkspaceDraft]);
 
   useEffect(() => {
     const activePresetWorkspaceId = getScenarioWorkspaceIdForPreset(activeViewPreset);

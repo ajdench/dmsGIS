@@ -158,6 +158,7 @@ Current priority areas:
 - keep a dedicated production draft/editor state for future Playground work instead of mutating preset config objects in place
 - future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
 - let runtime selection/highlight paths consume draft-aware assignment sources before attempting full region redraw, so the editing architecture can be validated incrementally
+- let visible scenario layers consume the same draft-aware runtime sources before attempting true dissolved outline generation, so edited assignments affect on-map rendering incrementally
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 
