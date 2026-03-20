@@ -20,9 +20,18 @@ export interface SidebarSliderFieldConfig {
   onChange: (value: number) => void;
 }
 
+export interface SidebarToggleFieldConfig {
+  kind: 'toggle';
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
 export type SidebarControlFieldConfig =
   | SidebarColorFieldConfig
-  | SidebarSliderFieldConfig;
+  | SidebarSliderFieldConfig
+  | SidebarToggleFieldConfig;
 
 export interface SidebarControlSectionConfig {
   title: string;
@@ -87,6 +96,22 @@ function SidebarControlField({
           />
         </div>
       </div>
+    );
+  }
+
+  if (field.kind === 'toggle') {
+    return (
+      <label className="sidebar-toggle-field" htmlFor={field.id}>
+        <span className="field-label">{field.label}</span>
+        <input
+          id={field.id}
+          className="checkbox"
+          type="checkbox"
+          checked={field.checked}
+          onChange={(event) => field.onChange(event.currentTarget.checked)}
+          aria-label={`${ariaLabelPrefix} ${field.label}`}
+        />
+      </label>
     );
   }
 

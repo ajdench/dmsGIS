@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SidebarDragHandle } from '../../components/sidebar/SidebarDragHandle';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
@@ -85,6 +86,7 @@ export function LabelPanel() {
               pillAriaLabel={`${row.label} controls`}
               swatchColor={row.swatchColor}
               swatchOpacity={row.swatchOpacity}
+              trailingControl={<SidebarDragHandle label={row.label} />}
             >
               <SidebarControlSections
                 sections={row.sections}
