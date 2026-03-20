@@ -6,6 +6,7 @@ describe('labelPanelFields', () => {
     const setBasemapLayerVisibility = vi.fn();
     const setBasemapElementColor = vi.fn();
     const setBasemapElementOpacity = vi.fn();
+    const setBasemapNumericValue = vi.fn();
 
     const rows = buildLabelPanelRows({
       basemap: {
@@ -33,6 +34,7 @@ describe('labelPanelFields', () => {
       setBasemapLayerVisibility,
       setBasemapElementColor,
       setBasemapElementOpacity,
+      setBasemapNumericValue,
     });
 
     expect(rows.map((row) => row.label)).toEqual([
@@ -41,13 +43,21 @@ describe('labelPanelFields', () => {
       'Sea labels',
     ]);
     expect(rows.map((row) => row.valueLabel)).toEqual(['40%', '65%', '50%']);
+    expect(rows[0].sections.map((section) => section.title)).toEqual([
+      'Text',
+      'Border',
+    ]);
 
     rows[0].onEnabledChange(true);
     rows[1].sections[0].fields[0].onChange('#ffffff');
-    rows[2].sections[0].fields[1].onChange(0.75);
+    rows[0].sections[0].fields[1].onChange(10);
+    rows[2].sections[1].fields[1].onChange(2);
+    rows[2].sections[0].fields[2].onChange(0.75);
 
     expect(setBasemapLayerVisibility).toHaveBeenCalledWith('showCountryLabels', true);
     expect(setBasemapElementColor).toHaveBeenCalledWith('majorCityColor', '#ffffff');
+    expect(setBasemapNumericValue).toHaveBeenCalledWith('countryLabelSize', 10);
+    expect(setBasemapNumericValue).toHaveBeenCalledWith('seaLabelBorderWidth', 2);
     expect(setBasemapElementOpacity).toHaveBeenCalledWith('seaLabelOpacity', 0.75);
   });
 });

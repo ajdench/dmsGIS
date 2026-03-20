@@ -14,12 +14,16 @@ export function LabelPanel() {
   const setBasemapLayerVisibility = useAppStore(
     (state) => state.setBasemapLayerVisibility,
   );
+  const setBasemapNumericValue = useAppStore(
+    (state) => state.setBasemapNumericValue,
+  );
 
   const rows = buildLabelPanelRows({
     basemap,
     setBasemapElementColor,
     setBasemapElementOpacity,
     setBasemapLayerVisibility,
+    setBasemapNumericValue,
   });
 
   return (

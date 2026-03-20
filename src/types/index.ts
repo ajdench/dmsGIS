@@ -22,15 +22,27 @@ export interface BasemapSettings {
   showCountryBorders: boolean;
   countryLabelColor: string;
   countryLabelOpacity: number;
+  countryLabelSize?: number;
+  countryLabelBorderColor?: string;
+  countryLabelBorderWidth?: number;
+  countryLabelBorderOpacity?: number;
   showCountryLabels: boolean;
   majorCityColor: string;
   majorCityOpacity: number;
+  majorCitySize?: number;
+  majorCityBorderColor?: string;
+  majorCityBorderWidth?: number;
+  majorCityBorderOpacity?: number;
   showMajorCities: boolean;
   seaFillColor: string;
   seaFillOpacity: number;
   showSeaFill: boolean;
   seaLabelColor: string;
   seaLabelOpacity: number;
+  seaLabelSize?: number;
+  seaLabelBorderColor?: string;
+  seaLabelBorderWidth?: number;
+  seaLabelBorderOpacity?: number;
   showSeaLabels: boolean;
 }
 

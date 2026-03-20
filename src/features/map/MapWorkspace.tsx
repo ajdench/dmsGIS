@@ -831,6 +831,12 @@ function createCountryLabelStyle(basemap?: BasemapSettings) {
     basemap?.countryLabelColor ?? '#0f172a',
     basemap?.countryLabelOpacity ?? 1,
   );
+  const size = basemap?.countryLabelSize ?? 8;
+  const borderColor = withOpacity(
+    basemap?.countryLabelBorderColor ?? '#f8fafc',
+    basemap?.countryLabelBorderOpacity ?? 0.3,
+  );
+  const borderWidth = basemap?.countryLabelBorderWidth ?? 0.5;
   const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const name = feature.get('NAME_LONG') ?? feature.get('NAME');
@@ -842,11 +848,11 @@ function createCountryLabelStyle(basemap?: BasemapSettings) {
     const style = new Style({
       text: new TextStyle({
         text: label,
-        font: '12px Manrope, sans-serif',
+        font: `${size}px Manrope, sans-serif`,
         fill: new Fill({ color }),
         stroke: new Stroke({
-          color: '#ffffff',
-          width: 3,
+          color: borderColor,
+          width: borderWidth,
         }),
       }),
     });
@@ -860,6 +866,12 @@ function createMajorCityStyle(basemap?: BasemapSettings) {
     basemap?.majorCityColor ?? '#1f2937',
     basemap?.majorCityOpacity ?? 1,
   );
+  const size = basemap?.majorCitySize ?? 6;
+  const borderColor = withOpacity(
+    basemap?.majorCityBorderColor ?? '#f8fafc',
+    basemap?.majorCityBorderOpacity ?? 0.35,
+  );
+  const borderWidth = basemap?.majorCityBorderWidth ?? 0.5;
   const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const isCapital = Number(getFeatureValue(feature, ['adm0cap', 'ADM0CAP']) ?? 0) === 1;
@@ -891,12 +903,12 @@ function createMajorCityStyle(basemap?: BasemapSettings) {
       }),
       text: new TextStyle({
         text: label,
-        font: '11px Manrope, sans-serif',
-        offsetY: -10,
+        font: `${size}px Manrope, sans-serif`,
+        offsetY: -(size + 4),
         fill: new Fill({ color }),
         stroke: new Stroke({
-          color: '#ffffff',
-          width: 3,
+          color: borderColor,
+          width: borderWidth,
         }),
       }),
     });
@@ -920,6 +932,12 @@ function createSeaLabelStyle(basemap?: BasemapSettings) {
     basemap?.seaLabelColor ?? '#334155',
     basemap?.seaLabelOpacity ?? 1,
   );
+  const size = basemap?.seaLabelSize ?? 7;
+  const borderColor = withOpacity(
+    basemap?.seaLabelBorderColor ?? '#f8fafc',
+    basemap?.seaLabelBorderOpacity ?? 0.3,
+  );
+  const borderWidth = basemap?.seaLabelBorderWidth ?? 0.5;
   const cache = new Map<string, Style>();
   return (feature: FeatureLike) => {
     const name = feature.get('name_en') ?? feature.get('name');
@@ -931,11 +949,11 @@ function createSeaLabelStyle(basemap?: BasemapSettings) {
     const style = new Style({
       text: new TextStyle({
         text: label,
-        font: 'italic 11px Manrope, sans-serif',
+        font: `italic ${size}px Manrope, sans-serif`,
         fill: new Fill({ color }),
         stroke: new Stroke({
-          color: '#ffffff',
-          width: 3,
+          color: borderColor,
+          width: borderWidth,
         }),
       }),
     });

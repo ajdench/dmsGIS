@@ -29,13 +29,19 @@ describe('LabelPanel', () => {
     render(createElement(LabelPanel));
 
     fireEvent.click(screen.getByLabelText('Countries controls'));
-    fireEvent.change(screen.getByLabelText('Countries Colour'), {
+    fireEvent.change(screen.getByLabelText('Countries Text Colour'), {
       target: { value: '#ffffff' },
     });
     fireEvent.click(screen.getByLabelText('Countries visible'));
 
     expect(useAppStore.getState().basemap.countryLabelColor).toBe('#ffffff');
     expect(useAppStore.getState().basemap.showCountryLabels).toBe(true);
+    expect(screen.getAllByText('Text').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Border').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Countries Text Size numeric value')).not.toBeNull();
+    expect(
+      screen.getByLabelText('Countries Border Thickness numeric value'),
+    ).not.toBeNull();
     expect(screen.getByText('Cities')).not.toBeNull();
     expect(screen.getByText('Sea labels')).not.toBeNull();
   });

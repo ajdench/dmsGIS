@@ -19,12 +19,34 @@ interface BuildLabelPanelRowsOptions {
     visible: boolean,
   ) => void;
   setBasemapElementColor: (
-    key: 'countryLabelColor' | 'majorCityColor' | 'seaLabelColor',
+    key:
+      | 'countryLabelColor'
+      | 'countryLabelBorderColor'
+      | 'majorCityColor'
+      | 'majorCityBorderColor'
+      | 'seaLabelColor'
+      | 'seaLabelBorderColor',
     color: string,
   ) => void;
   setBasemapElementOpacity: (
-    key: 'countryLabelOpacity' | 'majorCityOpacity' | 'seaLabelOpacity',
+    key:
+      | 'countryLabelOpacity'
+      | 'countryLabelBorderOpacity'
+      | 'majorCityOpacity'
+      | 'majorCityBorderOpacity'
+      | 'seaLabelOpacity'
+      | 'seaLabelBorderOpacity',
     opacity: number,
+  ) => void;
+  setBasemapNumericValue: (
+    key:
+      | 'countryLabelSize'
+      | 'countryLabelBorderWidth'
+      | 'majorCitySize'
+      | 'majorCityBorderWidth'
+      | 'seaLabelSize'
+      | 'seaLabelBorderWidth',
+    value: number,
   ) => void;
 }
 
@@ -33,6 +55,7 @@ export function buildLabelPanelRows({
   setBasemapLayerVisibility,
   setBasemapElementColor,
   setBasemapElementOpacity,
+  setBasemapNumericValue,
 }: BuildLabelPanelRowsOptions): LabelPanelRowConfig[] {
   return [
     {
@@ -58,11 +81,55 @@ export function buildLabelPanelRows({
             },
             {
               kind: 'slider',
+              id: 'country-label-size',
+              label: 'Size',
+              value: basemap.countryLabelSize ?? 8,
+              min: 1,
+              max: 18,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (size) => setBasemapNumericValue('countryLabelSize', size),
+            },
+            {
+              kind: 'slider',
               id: 'country-label-opacity',
               label: 'Opacity',
               value: basemap.countryLabelOpacity,
               onChange: (opacity) =>
                 setBasemapElementOpacity('countryLabelOpacity', opacity),
+            },
+          ],
+        },
+        {
+          title: 'Border',
+          fields: [
+            {
+              kind: 'color',
+              id: 'country-label-border-colour',
+              label: 'Colour',
+              value: basemap.countryLabelBorderColor ?? '#f8fafc',
+              onChange: (color) =>
+                setBasemapElementColor('countryLabelBorderColor', color),
+            },
+            {
+              kind: 'slider',
+              id: 'country-label-border-width',
+              label: 'Thickness',
+              value: basemap.countryLabelBorderWidth ?? 0.5,
+              min: 0,
+              max: 6,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (width) =>
+                setBasemapNumericValue('countryLabelBorderWidth', width),
+            },
+            {
+              kind: 'slider',
+              id: 'country-label-border-opacity',
+              label: 'Opacity',
+              value: basemap.countryLabelBorderOpacity ?? 0.3,
+              onChange: (opacity) =>
+                setBasemapElementOpacity('countryLabelBorderOpacity', opacity),
             },
           ],
         },
@@ -90,11 +157,55 @@ export function buildLabelPanelRows({
             },
             {
               kind: 'slider',
+              id: 'major-city-size',
+              label: 'Size',
+              value: basemap.majorCitySize ?? 6,
+              min: 1,
+              max: 18,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (size) => setBasemapNumericValue('majorCitySize', size),
+            },
+            {
+              kind: 'slider',
               id: 'major-city-opacity',
               label: 'Opacity',
               value: basemap.majorCityOpacity,
               onChange: (opacity) =>
                 setBasemapElementOpacity('majorCityOpacity', opacity),
+            },
+          ],
+        },
+        {
+          title: 'Border',
+          fields: [
+            {
+              kind: 'color',
+              id: 'major-city-border-colour',
+              label: 'Colour',
+              value: basemap.majorCityBorderColor ?? '#f8fafc',
+              onChange: (color) =>
+                setBasemapElementColor('majorCityBorderColor', color),
+            },
+            {
+              kind: 'slider',
+              id: 'major-city-border-width',
+              label: 'Thickness',
+              value: basemap.majorCityBorderWidth ?? 0.5,
+              min: 0,
+              max: 6,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (width) =>
+                setBasemapNumericValue('majorCityBorderWidth', width),
+            },
+            {
+              kind: 'slider',
+              id: 'major-city-border-opacity',
+              label: 'Opacity',
+              value: basemap.majorCityBorderOpacity ?? 0.35,
+              onChange: (opacity) =>
+                setBasemapElementOpacity('majorCityBorderOpacity', opacity),
             },
           ],
         },
@@ -122,11 +233,55 @@ export function buildLabelPanelRows({
             },
             {
               kind: 'slider',
+              id: 'sea-label-size',
+              label: 'Size',
+              value: basemap.seaLabelSize ?? 7,
+              min: 1,
+              max: 18,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (size) => setBasemapNumericValue('seaLabelSize', size),
+            },
+            {
+              kind: 'slider',
               id: 'sea-label-opacity',
               label: 'Opacity',
               value: basemap.seaLabelOpacity,
               onChange: (opacity) =>
                 setBasemapElementOpacity('seaLabelOpacity', opacity),
+            },
+          ],
+        },
+        {
+          title: 'Border',
+          fields: [
+            {
+              kind: 'color',
+              id: 'sea-label-border-colour',
+              label: 'Colour',
+              value: basemap.seaLabelBorderColor ?? '#f8fafc',
+              onChange: (color) =>
+                setBasemapElementColor('seaLabelBorderColor', color),
+            },
+            {
+              kind: 'slider',
+              id: 'sea-label-border-width',
+              label: 'Thickness',
+              value: basemap.seaLabelBorderWidth ?? 0.5,
+              min: 0,
+              max: 6,
+              step: 0.5,
+              mode: 'raw',
+              onChange: (width) =>
+                setBasemapNumericValue('seaLabelBorderWidth', width),
+            },
+            {
+              kind: 'slider',
+              id: 'sea-label-border-opacity',
+              label: 'Opacity',
+              value: basemap.seaLabelBorderOpacity ?? 0.3,
+              onChange: (opacity) =>
+                setBasemapElementOpacity('seaLabelBorderOpacity', opacity),
             },
           ],
         },

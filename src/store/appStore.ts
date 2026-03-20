@@ -103,9 +103,12 @@ interface AppState {
       | 'landFillColor'
       | 'countryBorderColor'
       | 'countryLabelColor'
+      | 'countryLabelBorderColor'
       | 'majorCityColor'
+      | 'majorCityBorderColor'
       | 'seaFillColor'
-      | 'seaLabelColor',
+      | 'seaLabelColor'
+      | 'seaLabelBorderColor',
     color: string,
   ) => void;
   setBasemapElementOpacity: (
@@ -113,10 +116,23 @@ interface AppState {
       | 'landFillOpacity'
       | 'countryBorderOpacity'
       | 'countryLabelOpacity'
+      | 'countryLabelBorderOpacity'
       | 'majorCityOpacity'
+      | 'majorCityBorderOpacity'
       | 'seaFillOpacity'
-      | 'seaLabelOpacity',
+      | 'seaLabelOpacity'
+      | 'seaLabelBorderOpacity',
     opacity: number,
+  ) => void;
+  setBasemapNumericValue: (
+    key:
+      | 'countryLabelSize'
+      | 'countryLabelBorderWidth'
+      | 'majorCitySize'
+      | 'majorCityBorderWidth'
+      | 'seaLabelSize'
+      | 'seaLabelBorderWidth',
+    value: number,
   ) => void;
   setBasemapLayerVisibility: (
     key:
@@ -411,6 +427,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       basemap: { ...state.basemap, [key]: opacity },
     })),
+  setBasemapNumericValue: (key, value) =>
+    set((state) => ({
+      basemap: { ...state.basemap, [key]: value },
+    })),
   setBasemapLayerVisibility: (key, visible) =>
     set((state) => ({
       basemap: { ...state.basemap, [key]: visible },
@@ -699,22 +719,31 @@ function getBasemapOpacityKeyForColor(
     | 'landFillColor'
     | 'countryBorderColor'
     | 'countryLabelColor'
+    | 'countryLabelBorderColor'
     | 'majorCityColor'
+    | 'majorCityBorderColor'
     | 'seaFillColor'
-    | 'seaLabelColor',
+    | 'seaLabelColor'
+    | 'seaLabelBorderColor',
 ):
   | 'landFillOpacity'
   | 'countryBorderOpacity'
   | 'countryLabelOpacity'
+  | 'countryLabelBorderOpacity'
   | 'majorCityOpacity'
+  | 'majorCityBorderOpacity'
   | 'seaFillOpacity'
-  | 'seaLabelOpacity' {
+  | 'seaLabelOpacity'
+  | 'seaLabelBorderOpacity' {
   if (key === 'landFillColor') return 'landFillOpacity';
   if (key === 'countryBorderColor') return 'countryBorderOpacity';
   if (key === 'countryLabelColor') return 'countryLabelOpacity';
+  if (key === 'countryLabelBorderColor') return 'countryLabelBorderOpacity';
   if (key === 'majorCityColor') return 'majorCityOpacity';
+  if (key === 'majorCityBorderColor') return 'majorCityBorderOpacity';
   if (key === 'seaFillColor') return 'seaFillOpacity';
-  return 'seaLabelOpacity';
+  if (key === 'seaLabelColor') return 'seaLabelOpacity';
+  return 'seaLabelBorderOpacity';
 }
 
 function createDefaultBasemapSettings(): BasemapSettings {
