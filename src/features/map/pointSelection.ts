@@ -4,17 +4,13 @@ import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import {
-  getFacilityFeatureProperties,
-  getFacilityRecord,
-} from '../../lib/facilities';
-import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
 import type { FacilityFilterState } from '../../lib/schemas/facilities';
+import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
 import type {
   FacilitySymbolShape,
-  RegionBoundaryLayerStyle,
   RegionStyle,
   ViewPresetId,
 } from '../../types';
@@ -81,6 +77,7 @@ export function getDirectPointHitsAtPixel(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: FacilityFilterState,
+  assignmentSource: VectorSource | null = null,
 ): FeatureLike[] {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const hits = map.getFeaturesAtPixel(pixel, {
@@ -102,6 +99,7 @@ export function getDirectPointHitsAtPixel(
       facilitySymbolShape,
       facilitySymbolSize,
       filterDefinitions,
+      assignmentSource,
     );
     return distance <= radius + 0.75;
   });
@@ -116,6 +114,7 @@ export function expandPointHitCluster(
   facilitySymbolSize: number,
   clickPixel: number[],
   facilityFilters: FacilityFilterState,
+  assignmentSource: VectorSource | null = null,
 ): FeatureLike[] {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const candidates = collectVisiblePointCandidates(
@@ -125,6 +124,7 @@ export function expandPointHitCluster(
     facilitySymbolShape,
     facilitySymbolSize,
     filterDefinitions,
+    assignmentSource,
   );
   const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seeds: PointSelectionCandidate[] = [];
@@ -138,6 +138,7 @@ export function expandPointHitCluster(
       facilitySymbolShape,
       facilitySymbolSize,
       filterDefinitions,
+      assignmentSource,
     );
     if (!candidate || selected.has(candidate.key)) continue;
     seeds.push(candidate);
@@ -191,6 +192,7 @@ export function collectPointTooltipEntries(params: {
     activeViewPreset: ViewPresetId,
   ) => string | null;
   facilityFilters: FacilityFilterState;
+  assignmentSource?: VectorSource | null;
 }): PointTooltipEntry[] {
   const {
     features,
@@ -200,6 +202,7 @@ export function collectPointTooltipEntries(params: {
     getBoundaryNameAtCoordinate,
     getJmcNameAtCoordinate,
     facilityFilters,
+    assignmentSource = null,
   } = params;
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -207,7 +210,7 @@ export function collectPointTooltipEntries(params: {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
 
   for (const feature of features) {
-    const facility = getFacilityRecord(feature);
+    const facility = getEffectiveFacilityRecord(feature, assignmentSource);
     if (!matchesFacilityFilters(facility, filterDefinitions)) continue;
     const name = facility.displayName;
     if (!name) continue;
@@ -245,6 +248,7 @@ function collectVisiblePointCandidates(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): PointSelectionCandidate[] {
   const candidates: PointSelectionCandidate[] = [];
 
@@ -253,7 +257,14 @@ function collectVisiblePointCandidates(
     if (!source) continue;
 
     for (const feature of source.getFeatures()) {
-      if (!isPointFeatureSelectable(feature, regionsByName, facilityFilters)) {
+      if (
+        !isPointFeatureSelectable(
+          feature,
+          regionsByName,
+          facilityFilters,
+          assignmentSource,
+        )
+      ) {
         continue;
       }
       const candidate = getPointSelectionCandidate(
@@ -263,6 +274,7 @@ function collectVisiblePointCandidates(
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
+        assignmentSource,
       );
       if (candidate) {
         candidates.push(candidate);
@@ -280,11 +292,12 @@ function getPointSelectionCandidate(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): PointSelectionCandidate | null {
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return null;
   }
@@ -296,6 +309,7 @@ function getPointSelectionCandidate(
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    assignmentSource,
   );
 
   return {
@@ -310,8 +324,9 @@ function isPointFeatureSelectable(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): boolean {
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return false;
   }
@@ -333,14 +348,14 @@ function getPointSelectionRadius(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): number {
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return 0;
   }
 
-  const properties = getFacilityFeatureProperties(feature);
-  const regionName = properties.region;
+  const regionName = facility.region;
   const regionStyle = regionsByName.get(regionName);
   const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
   const borderVisible = regionStyle?.borderVisible ?? true;

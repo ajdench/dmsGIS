@@ -491,6 +491,7 @@ export function MapWorkspace() {
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
+        assignmentSource: scenarioWorkspaceAssignmentSourceRef.current,
         activeViewPreset,
         getJmcNameAtCoordinate: (coordinate, preset) =>
           findJmcNameAtCoordinate(
@@ -534,6 +535,7 @@ export function MapWorkspace() {
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    activeScenarioWorkspaceDraft,
     activeViewPreset,
     setSelection,
   ]);
@@ -548,13 +550,14 @@ export function MapWorkspace() {
       map,
       layers,
       layerRefs: layerRefs.current,
-      getLayerStyle: (layer) =>
+        getLayerStyle: (layer) =>
         getStyleForLayer(
           layer,
           regionByName,
           facilitySymbolShape,
           facilitySymbolSize,
           facilityFilterDefinitions,
+          scenarioWorkspaceAssignmentSourceRef.current,
         ),
     });
   }, [
@@ -563,6 +566,7 @@ export function MapWorkspace() {
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    activeScenarioWorkspaceDraft,
   ]);
 
   return (

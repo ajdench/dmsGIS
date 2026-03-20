@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
+import Polygon from 'ol/geom/Polygon';
+import VectorSource from 'ol/source/Vector';
+import CircleStyle from 'ol/style/Circle';
 import { Style } from 'ol/style';
 import { createFacilityFilterState, getFacilityFilterDefinitions } from '../src/lib/facilityFilters';
 import { getStyleForLayer } from '../src/features/map/facilityLayerStyles';
@@ -92,8 +95,52 @@ describe('facilityLayerStyles', () => {
     const style = styleFn(createFacilityFeature());
 
     expect(style).toBeInstanceOf(Style);
-    const image = style?.getImage();
+    const image = style?.getImage() as CircleStyle | undefined;
     expect(image?.getFill()?.getColor()).toBe('rgba(18, 52, 86, 0.25)');
     expect(image?.getStroke()?.getColor()).toBe('rgba(101, 67, 33, 0.75)');
+  });
+
+  it('uses the remapped scenario region when a draft-aware assignment source is present', () => {
+    const styleFn = getStyleForLayer(
+      pointLayer,
+      new Map<string, RegionStyle>([
+        [
+          'COA 3b London and East',
+          {
+            name: 'COA 3b London and East',
+            visible: true,
+            color: '#8767ac',
+            opacity: 0.5,
+            borderVisible: true,
+            borderColor: '#ffffff',
+            borderOpacity: 0.4,
+            symbolSize: 6,
+          },
+        ],
+      ]),
+      'circle',
+      3.5,
+      getFacilityFilterDefinitions(createFacilityFilterState()),
+      new VectorSource({
+        features: [
+          new Feature({
+            geometry: new Polygon([[
+              [0, 0],
+              [10, 0],
+              [10, 10],
+              [0, 10],
+              [0, 0],
+            ]]),
+            region_name: 'COA 3b London and East',
+          }),
+        ],
+      }),
+    ) as (feature: Feature) => Style | undefined;
+
+    const style = styleFn(createFacilityFeature());
+
+    expect(style).toBeInstanceOf(Style);
+    const image = style?.getImage() as CircleStyle | undefined;
+    expect(image?.getFill()?.getColor()).toBe('rgba(135, 103, 172, 0.5)');
   });
 });

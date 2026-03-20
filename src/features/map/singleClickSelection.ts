@@ -30,6 +30,7 @@ interface ResolveSingleClickSelectionParams {
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
   facilityFilters: FacilityFilterState;
+  assignmentSource?: VectorSource | null;
   activeViewPreset: ViewPresetId;
   getJmcNameAtCoordinate: (
     coordinate: [number, number],
@@ -57,6 +58,7 @@ export function resolveSingleClickSelection(
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    assignmentSource = null,
     activeViewPreset,
     getJmcNameAtCoordinate,
   } = params;
@@ -70,6 +72,7 @@ export function resolveSingleClickSelection(
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    assignmentSource,
   );
 
   if (hitFeatures.length > 0) {
@@ -82,6 +85,7 @@ export function resolveSingleClickSelection(
       facilitySymbolSize,
       pixel,
       facilityFilters,
+      assignmentSource,
     );
 
     return {
@@ -100,6 +104,7 @@ export function resolveSingleClickSelection(
         },
         getJmcNameAtCoordinate,
         facilityFilters,
+        assignmentSource,
       }),
       boundaryFeature: null,
     };

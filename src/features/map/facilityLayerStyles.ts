@@ -7,13 +7,14 @@ import type {
 } from '../../types';
 import {
   getFacilityFeatureProperties,
-  getFacilityRecord,
 } from '../../lib/facilities';
 import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
 import { createPointSymbol, withOpacity } from './mapStyleUtils';
+import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
+import type VectorSource from 'ol/source/Vector';
 
 export function getStyleForLayer(
   layer: LayerState,
@@ -21,11 +22,12 @@ export function getStyleForLayer(
   symbolShape: FacilitySymbolShape,
   symbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null = null,
 ) {
   if (layer.type === 'point') {
     const cache = new Map<string, Style>();
     return (feature: FeatureLike) => {
-      const facility = getFacilityRecord(feature);
+      const facility = getEffectiveFacilityRecord(feature, assignmentSource);
       if (!matchesFacilityFilters(facility, facilityFilters)) {
         return undefined;
       }
