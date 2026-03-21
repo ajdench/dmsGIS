@@ -251,6 +251,16 @@ export function SidebarPrototypeApp() {
     setKeysEnabled(REGION_ROWS, nextEnabled, setRegionEnabled);
   };
 
+  const togglePmcSection = () => {
+    const nextEnabled = !sectionEnabled.pmc;
+
+    setSectionEnabled((current) => ({
+      ...current,
+      pmc: nextEnabled,
+    }));
+    setKeysEnabled(REGION_ROWS, nextEnabled, setRegionEnabled);
+  };
+
   const toggleLabelsPane = () => {
     const nextEnabled = !paneEnabled.labels;
 
@@ -468,7 +478,7 @@ export function SidebarPrototypeApp() {
                   id="pmc"
                   title="PMC"
                   enabled={sectionEnabled.pmc}
-                  onEnabledToggle={() => toggleKey('pmc', setSectionEnabled)}
+                  onEnabledToggle={togglePmcSection}
                   badge={`${Math.round(facilityOpacity * 100)}%`}
                   badgeSwatch={facilityColor}
                   badgeSwatchShape={facilityShape}

@@ -66,6 +66,9 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - `Labels` broadcasts to all label rows
   - `Overlays` broadcasts to all overlay rows
   - child rows can still be toggled locally afterward until the parent pane is changed again
+- Internal parent rows with children should follow the same rule:
+  - `PMC` broadcasts to all PMC region rows
+  - region rows can still be toggled locally afterward until `PMC` is changed again
 - When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
   - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
   - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output
