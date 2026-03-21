@@ -435,7 +435,7 @@
 
 .prototype-toggle-button.is-mixed {
   background: color-mix(in srgb, #fff7ed 76%, white);
-  border-color: #fdba74;
+  border-color: #fed7aa;
   color: #c2410c;
 }
 
@@ -517,7 +517,7 @@
 .prototype-toggle-button.is-mixed:focus,
 .prototype-toggle-button.is-mixed:active {
   background: color-mix(in srgb, #fff7ed 76%, white);
-  border-color: #fdba74;
+  border-color: #fed7aa;
   color: #c2410c;
 }
 

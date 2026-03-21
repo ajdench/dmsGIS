@@ -346,19 +346,24 @@ export function SidebarPrototypeApp() {
   const basemapToggleState = getAggregateToggleState([
     ...BASEMAP_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
   ]);
+  const basemapEnabled = basemapToggleState === 'on';
   const facilitiesToggleState = getAggregateToggleState([
     sectionEnabled.pmc,
     ...REGION_ROWS.map((region) => regionEnabled[region]),
   ]);
+  const facilitiesEnabled = facilitiesToggleState === 'on';
   const pmcToggleState = getAggregateToggleState(
     REGION_ROWS.map((region) => regionEnabled[region]),
   );
+  const pmcEnabled = pmcToggleState === 'on';
   const labelsToggleState = getAggregateToggleState(
     LABEL_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
   );
+  const labelsEnabled = labelsToggleState === 'on';
   const overlaysToggleState = getAggregateToggleState(
     OVERLAY_ROWS.map((row) => overlayRowEnabled[row.key]),
   );
+  const overlaysEnabled = overlaysToggleState === 'on';
 
   return (
     <div
@@ -411,7 +416,7 @@ export function SidebarPrototypeApp() {
             <PrototypeSortablePanel
               id="basemap"
               title="Basemap"
-              enabled={paneEnabled.basemap}
+              enabled={basemapEnabled}
               toggleState={basemapToggleState}
               onEnabledToggle={toggleBasemapPane}
               sortOrder={paneOrder.indexOf('basemap')}
@@ -488,7 +493,7 @@ export function SidebarPrototypeApp() {
             <PrototypeSortablePanel
               id="facilities"
               title="Facilities"
-              enabled={paneEnabled.facilities}
+              enabled={facilitiesEnabled}
               toggleState={facilitiesToggleState}
               onEnabledToggle={toggleFacilitiesPane}
               sortOrder={paneOrder.indexOf('facilities')}
@@ -497,7 +502,7 @@ export function SidebarPrototypeApp() {
                 <PrototypeCollapsiblePopoverSection
                   id="pmc"
                   title="PMC"
-                  enabled={sectionEnabled.pmc}
+                  enabled={pmcEnabled}
                   toggleState={pmcToggleState}
                   onEnabledToggle={togglePmcSection}
                   badge={`${Math.round(facilityOpacity * 100)}%`}
@@ -583,7 +588,7 @@ export function SidebarPrototypeApp() {
             <PrototypeSortablePanel
               id="labels"
               title="Labels"
-              enabled={paneEnabled.labels}
+              enabled={labelsEnabled}
               toggleState={labelsToggleState}
               onEnabledToggle={toggleLabelsPane}
               sortOrder={paneOrder.indexOf('labels')}
@@ -655,7 +660,7 @@ export function SidebarPrototypeApp() {
             <PrototypeSortablePanel
               id="overlays"
               title="Overlays"
-              enabled={paneEnabled.overlays}
+              enabled={overlaysEnabled}
               toggleState={overlaysToggleState}
               onEnabledToggle={toggleOverlaysPane}
               sortOrder={paneOrder.indexOf('overlays')}
