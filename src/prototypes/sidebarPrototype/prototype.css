@@ -92,6 +92,12 @@
   --prototype-preset-button-height: var(--compact-control-height);
 }
 
+.prototype-app-shell--preset-buttons-midLow {
+  --prototype-preset-button-height: calc(
+    (var(--compact-control-height) + ((var(--compact-control-height) + var(--prototype-shared-header-outer-height)) / 2)) / 2
+  );
+}
+
 .prototype-app-shell--preset-buttons-mid {
   --prototype-preset-button-height: calc(
     (var(--compact-control-height) + var(--prototype-shared-header-outer-height)) / 2
