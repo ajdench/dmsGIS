@@ -22,6 +22,7 @@
       var(--prototype-drag-handle-width) +
       var(--prototype-meta-gap)
   );
+  --prototype-preset-button-height: var(--compact-control-height);
   --prototype-pane-title-font-size: var(--font-size-control-title);
   --prototype-pane-subtitle-font-size: var(--font-size-control-subtitle);
   --prototype-disclosure-font-size: var(--font-size-control-icon);
@@ -85,6 +86,20 @@
 .prototype-app-shell .topbar {
   position: relative;
   z-index: 12;
+}
+
+.prototype-app-shell--preset-buttons-current {
+  --prototype-preset-button-height: var(--compact-control-height);
+}
+
+.prototype-app-shell--preset-buttons-mid {
+  --prototype-preset-button-height: calc(
+    (var(--compact-control-height) + var(--prototype-shared-header-outer-height)) / 2
+  );
+}
+
+.prototype-app-shell--preset-buttons-row {
+  --prototype-preset-button-height: var(--prototype-shared-header-outer-height);
 }
 
 .prototype-app-shell .workspace-grid {
@@ -605,12 +620,19 @@
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: none;
+  min-height: var(--prototype-preset-button-height);
+  height: var(--prototype-preset-button-height);
   font-size: var(--font-size-header-button);
   font-weight: 400;
   transition:
     background-color 140ms ease,
     border-color 140ms ease,
     color 140ms ease;
+}
+
+.prototype-app-shell .topbar__actions .button {
+  min-height: var(--prototype-preset-button-height);
+  height: var(--prototype-preset-button-height);
 }
 
 .prototype-app-shell .sidebar-action-row__button:hover {
