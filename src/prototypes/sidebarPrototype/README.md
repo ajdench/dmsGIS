@@ -71,6 +71,13 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - shared token: `--prototype-shared-header-outer-height`
   - locked value: `3rem` (`48px` at the current root font size)
   - this applies in both collapsed and expanded top-level pane states
+- Top-bar action buttons (`Open`, `Save`, `Export`, `Reset`) and preset buttons (`Current` to `COA 3b`, plus the full-width Playground button) now use separate internal size-mode lanes:
+  - top bar lane: `PROTOTYPE_TOPBAR_BUTTON_SIZE_MODE`
+  - preset row lane: `PROTOTYPE_PRESET_BUTTON_SIZE_MODE`
+  - this keeps header-row sizing independent from preset-row sizing during calibration
+- Current locked button-size mode state is:
+  - top bar: `current`
+  - preset row: `midLow`
 - Current pill-value alignment work should be documented as ongoing visual calibration, not defect tracking
 - PMC row editors are grouped into `Points` and `Border` sections
 - Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline

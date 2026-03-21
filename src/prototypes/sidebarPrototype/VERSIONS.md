@@ -75,3 +75,7 @@ Current `v3` emphasis:
 - keep pane-header and bordered-section-header alignment on the shared tokenized rule, using pane-edge offsets for top-level headers and `--prototype-subpane-border-compensation` for bordered internal headers
 - keep top-level pane header rails locked to the same measured `48px` outer height as Land/Sea-style bordered rows via `--prototype-shared-header-outer-height`
 - keep top-level drag handles locked to the measured row-handle column, and keep top-level chevrons in the visually approved measured position rather than forcing strict pill-right-edge alignment where that reads worse
+- keep top-bar action-button sizing and preset-row button sizing on separate internal mode lanes so those two surfaces can be calibrated independently
+- current split button-size mode state is:
+  - top bar: `current`
+  - preset row: `midLow`

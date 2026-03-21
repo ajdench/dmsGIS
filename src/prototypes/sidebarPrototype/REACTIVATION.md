@@ -46,6 +46,8 @@ npm run build
 - preserve the shared row-shell and right-edge-slot layout contract
 - keep shape-button silhouettes and pill swatches as separately tuned renderers
 - keep the locked compact-control token values and swatch-pill geometry in `prototype.css` unless there is a deliberate recalibration pass
+- keep top-bar action-button sizing and preset-row button sizing on separate internal mode lanes unless there is a deliberate decision to reunify them
+- current split button-size mode state is top bar `current`, preset row `midLow`
 - keep popover section titles on the shared `--font-size-popover-title` token
 - keep documentation neutral about calibration areas rather than phrasing them as defects by default
 
