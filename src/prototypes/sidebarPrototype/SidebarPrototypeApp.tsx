@@ -30,16 +30,15 @@ import {
   REGION_ROWS,
 } from './data';
 import {
-  PrototypeColorField,
   PrototypeDragHandle,
   PrototypeInlineRowShell,
   PrototypePillPopover,
   PrototypeSectionCardShell,
   type PrototypeShape,
   type SwatchStop,
-  PrototypeSliderControl,
 } from './PrototypeControls';
 import {
+  buildBasemapControlSections,
   buildFacilityControlSections,
   buildLabelControlSections,
   buildOverlayControlSections,
@@ -308,22 +307,18 @@ export function SidebarPrototypeApp() {
                           }
                           scrollContainer={sidebarElement}
                           portalContainer={workspaceGridElement}
-                          popoverContent={
-                            <PrototypeColourOpacityFields
-                              colourId={section.colourId}
-                              colourValue={section.colourValue}
-                              colourOpacity={
-                                section.id === 'land' ? landOpacity : seaOpacity
-                              }
-                              opacityId={section.opacityId}
-                              opacityValue={
-                                section.id === 'land' ? landOpacity : seaOpacity
-                              }
-                              onOpacityChange={
-                                section.id === 'land' ? setLandOpacity : setSeaOpacity
-                              }
-                            />
-                          }
+                          popoverContent={renderPrototypeControlSections(
+                            buildBasemapControlSections({
+                              idPrefix: section.id,
+                              colourValue: section.colourValue,
+                              colourOpacity:
+                                section.id === 'land' ? landOpacity : seaOpacity,
+                              onOpacityChange:
+                                section.id === 'land'
+                                  ? setLandOpacity
+                                  : setSeaOpacity,
+                            }),
+                          )}
                         />
                       );
                     })}
@@ -585,16 +580,6 @@ interface PrototypeSectionProps {
   children?: React.ReactNode;
 }
 
-interface PrototypeColourOpacityFieldsProps {
-  colourId: string;
-  colourValue: string;
-  colourOpacity?: number;
-  colourMix?: SwatchStop[];
-  opacityId: string;
-  opacityValue: number;
-  onOpacityChange: (value: number) => void;
-}
-
 interface PrototypeSimpleSectionConfig {
   id: string;
   title: string;
@@ -730,34 +715,6 @@ function PrototypePanel({
     >
       <div className="prototype-panel__content">{children}</div>
     </PrototypeAccordionItem>
-  );
-}
-
-function PrototypeColourOpacityFields({
-  colourId,
-  colourValue,
-  colourOpacity,
-  colourMix,
-  opacityId,
-  opacityValue,
-  onOpacityChange,
-}: PrototypeColourOpacityFieldsProps) {
-  return (
-    <>
-      <PrototypeColorField
-        id={colourId}
-        label="Colour"
-        value={colourValue}
-        opacityPreview={colourOpacity}
-        mixedSwatches={colourMix}
-      />
-      <PrototypeSliderControl
-        id={opacityId}
-        label="Opacity"
-        value={opacityValue}
-        onChange={onOpacityChange}
-      />
-    </>
   );
 }
 

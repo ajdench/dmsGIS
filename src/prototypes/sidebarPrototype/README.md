@@ -2,6 +2,8 @@
 
 This prototype is intentionally separate from the production app runtime.
 
+It is also the approved target direction for the production sidebar’s visual language, interaction model, and architectural structure. The separation exists to control migration safely, not to imply that production should only borrow isolated pieces.
+
 ## Purpose
 
 Evaluate a revised right-sidebar interaction model in the production shell layout without loading the OpenLayers map pane.
@@ -19,7 +21,8 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Keep header control styling consistent across sub-pane rows
 - Use the same compact control sizing for pane headers and row controls
 - Keep the colour swatch and opacity/value inside a single pill
-- In PMC-style region lists, clicking the pill should open a floating style callout that remains visually attached to the source pill with a sliding edge pointer
+- Pill-driven popovers should use the same floating callout treatment across pane families, with a visually attached sliding edge pointer anchored back to the source pill
+- In PMC-style region lists, clicking the pill should open that floating style callout while preserving row drag, toggle, and chevron responsibilities
 - PMC global controls should seed region-row styles at reset and should override matching row properties again when a global PMC control changes
 - Region-row edits should then remain local until another matching global PMC control is changed
 - PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
@@ -32,7 +35,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Repeated simple sub-pane sections, such as Basemap and Labels colour/opacity blocks, should be defined from shared config data rather than duplicated JSX
 - Shared row presentation should live in `PrototypeControls.tsx` as reusable shells and control-rail helpers; pane files should supply state and pane-specific field content rather than rebuilding row structure
 - Repeated popover field groups should be declared through config/build helpers and rendered through a shared section renderer instead of duplicating field JSX per pane
-- Popover field definitions now live in `popoverFields.tsx`; `SidebarPrototypeApp.tsx` should stay focused on state wiring, pane layout, and composition
+- Pane popover field definitions should stay split by pane family, with a shared renderer/barrel, so `SidebarPrototypeApp.tsx` can stay focused on state wiring, pane layout, and composition
 - Shared style-state types, defaults, and update helpers now live in `prototypeStyleState.ts`; pane files should consume those helpers rather than redefining style records locally
 - Focused tests now cover row-shell interaction contracts, popover field builders, and prototype style-state helpers
 - Use red-tinted `Off` state styling and green-tinted `On` state styling, including hover treatment
@@ -47,13 +50,19 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 ## Current files
 
 - `data.ts`
+- `basemapPopoverFields.ts`
+- `facilityPopoverFields.ts`
+- `labelPopoverFields.ts`
 - `main.tsx`
 - `PrototypeControls.tsx`
 - `floatingCallout.ts`
-- `popoverFields.tsx`
+- `overlayPopoverFields.ts`
+- `popoverFieldRenderer.tsx`
+- `popoverFields.ts`
 - `PROMOTION.md`
 - `PROMOTION_BOUNDARY.md`
 - `PRODUCTION_PREPARATION.md`
+- `regionPopoverFields.ts`
 - `prototypeStyleState.ts`
 - `sortableList.ts`
 - `SidebarPrototypeApp.tsx`
