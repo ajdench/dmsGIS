@@ -422,16 +422,20 @@
   height: 100%;
 }
 
+.prototype-metric-pill__swatch-svg * {
+  vector-effect: non-scaling-stroke;
+}
+
 .prototype-metric-pill__swatch--square {
   transform: scale(0.92);
 }
 
 .prototype-metric-pill__swatch--diamond {
-  transform: scale(0.9);
+  transform: scale(0.86);
 }
 
 .prototype-metric-pill__swatch--triangle {
-  transform: scale(0.9);
+  transform: scale(0.86);
 }
 
 .prototype-shape-picker {
@@ -567,23 +571,23 @@
 }
 
 .prototype-shape-icon--circle {
-  width: 0.62rem;
-  height: 0.62rem;
+  width: 0.6rem;
+  height: 0.6rem;
 }
 
 .prototype-shape-icon--square {
-  width: 0.6rem;
-  height: 0.6rem;
+  width: 0.56rem;
+  height: 0.56rem;
 }
 
 .prototype-shape-icon--diamond {
-  width: 0.6rem;
-  height: 0.6rem;
+  width: 0.56rem;
+  height: 0.56rem;
 }
 
 .prototype-shape-icon--triangle {
-  width: 0.62rem;
-  height: 0.62rem;
+  width: 0.58rem;
+  height: 0.58rem;
 }
 
 .prototype-metric-pill--swatch > span:last-child {

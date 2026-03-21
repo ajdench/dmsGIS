@@ -259,11 +259,6 @@ function buildSwatchStyle({
   borderOpacity?: number;
   borderWidth?: string;
 }): CSSProperties {
-  const fillColor = color
-    ? applyOpacityToColor(color, opacity)
-    : mix && mix.length > 0
-      ? applyOpacityToColor(mix[0].color, mix[0].opacity ?? 1)
-      : undefined;
   const previewBackground =
     mix && mix.length > 0
       ? buildMixedSwatchBackground(mix)
@@ -277,73 +272,36 @@ function buildSwatchStyle({
       ? applyOpacityToColor(borderColor, borderOpacity)
       : undefined,
     borderWidth,
-    ['--prototype-swatch-fill' as string]: previewBackground,
-    ['--prototype-swatch-fill-color' as string]: fillColor,
-    ['--prototype-swatch-border-color' as string]: borderColor
-      ? applyOpacityToColor(borderColor, borderOpacity)
-      : undefined,
-    ['--prototype-swatch-border-width' as string]: borderWidth,
   };
 }
 
-function getShapeStrokeWidth(borderWidth: number) {
-  return Math.max(0, Math.min(18, borderWidth * 8));
+function getSwatchStrokeWidth(borderWidth: number) {
+  return Math.max(0, Math.min(14, borderWidth * 6));
 }
 
-function getShapeGeometry(shape: PrototypeShape, strokeWidth: number) {
-  const inset = 12 + strokeWidth / 2;
-  const max = 100 - inset;
-  const center = 50;
-  const radius = Math.max(0, 38 - strokeWidth / 2);
-
-  switch (shape) {
-    case 'circle':
-      return {
-        element: (
-          <circle
-            cx={center}
-            cy={center}
-            r={radius}
-            vectorEffect="non-scaling-stroke"
-          />
-        ),
-      };
-    case 'square':
-      return {
-        element: (
-          <rect
-            x={inset}
-            y={inset}
-            width={Math.max(0, max - inset)}
-            height={Math.max(0, max - inset)}
-            rx={6}
-            ry={6}
-            vectorEffect="non-scaling-stroke"
-          />
-        ),
-      };
-    case 'diamond':
-      return {
-        element: (
-          <path
-            d={`M ${center} ${inset} L ${max} ${center} L ${center} ${max} L ${inset} ${center} Z`}
-            vectorEffect="non-scaling-stroke"
-          />
-        ),
-      };
-    case 'triangle':
-      return {
-        element: (
-          <path
-            d={`M ${center} ${inset} L ${max} ${max} L ${inset} ${max} Z`}
-            vectorEffect="non-scaling-stroke"
-          />
-        ),
-      };
-  }
+interface PrototypeShapeIconProps {
+  shape: PrototypeShape;
+  className?: string;
 }
 
-interface PrototypeShapeSvgProps {
+function PrototypeShapeIcon({ shape, className }: PrototypeShapeIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      {shape === 'circle' ? <circle cx="12" cy="12" r="7.2" fill="currentColor" /> : null}
+      {shape === 'square' ? (
+        <rect x="5.2" y="5.2" width="13.6" height="13.6" rx="2.35" fill="currentColor" />
+      ) : null}
+      {shape === 'diamond' ? (
+        <path d="M12 4.7L19.3 12L12 19.3L4.7 12Z" fill="currentColor" />
+      ) : null}
+      {shape === 'triangle' ? (
+        <path d="M12 4.9L18.8 18.1H5.2Z" fill="currentColor" stroke="currentColor" strokeWidth="0.65" strokeLinejoin="round" />
+      ) : null}
+    </svg>
+  );
+}
+
+interface PrototypeShapeSwatchProps {
   shape: PrototypeShape;
   fill: string;
   stroke?: string;
@@ -351,29 +309,63 @@ interface PrototypeShapeSvgProps {
   className?: string;
 }
 
-function PrototypeShapeSvg({
+function PrototypeShapeSwatch({
   shape,
   fill,
   stroke = 'transparent',
   strokeWidth = 0,
   className,
-}: PrototypeShapeSvgProps) {
-  const geometry = getShapeGeometry(shape, strokeWidth);
-
+}: PrototypeShapeSwatchProps) {
+  const inset = 14 + strokeWidth / 2;
+  const max = 100 - inset;
+  const size = max - inset;
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className={className}
-      aria-hidden="true"
-    >
-      <g
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeLinejoin="round"
-      >
-        {geometry.element}
-      </g>
+    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
+      {shape === 'circle' ? (
+        <circle
+          cx="50"
+          cy="50"
+          r={Math.max(0, 33 - strokeWidth / 2)}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+      {shape === 'square' ? (
+        <rect
+          x={inset}
+          y={inset}
+          width={size}
+          height={size}
+          rx="8"
+          ry="8"
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+      {shape === 'diamond' ? (
+        <path
+          d={`M 50 ${inset} L ${max} 50 L 50 ${max} L ${inset} 50 Z`}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+      {shape === 'triangle' ? (
+        <path
+          d={`M 50 ${inset} L ${max} ${max} L ${inset} ${max} Z`}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
     </svg>
   );
 }
@@ -434,7 +426,7 @@ export const PrototypeMetricPill = forwardRef<
   const strokeColor = swatchBorderColor
     ? applyOpacityToColor(swatchBorderColor, swatchBorderOpacity)
     : 'transparent';
-  const shapeStrokeWidth = getShapeStrokeWidth(swatchBorderWidth);
+  const shapeStrokeWidth = getSwatchStrokeWidth(swatchBorderWidth);
   const content = (
     <>
       {swatch ? (
@@ -455,7 +447,7 @@ export const PrototypeMetricPill = forwardRef<
           <span
             className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}`}
           >
-            <PrototypeShapeSvg
+            <PrototypeShapeSwatch
               shape={swatchShape}
               fill={fillColor}
               stroke={strokeColor}
@@ -765,11 +757,8 @@ export function PrototypeShapePicker({
           aria-pressed={value === shape}
           aria-label={shape}
         >
-          <PrototypeShapeSvg
+          <PrototypeShapeIcon
             shape={shape}
-            fill="currentColor"
-            stroke="currentColor"
-            strokeWidth={4}
             className={`prototype-shape-icon prototype-shape-icon--${shape}`}
           />
         </button>
