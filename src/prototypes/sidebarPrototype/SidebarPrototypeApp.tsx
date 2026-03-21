@@ -77,6 +77,7 @@ const restrictToVerticalAxis: Modifier = ({ transform }) => ({
 
 type PrototypePresetButtonSizeMode = 'current' | 'midLow' | 'mid' | 'row';
 
+const PROTOTYPE_TOPBAR_BUTTON_SIZE_MODE: PrototypePresetButtonSizeMode = 'current';
 const PROTOTYPE_PRESET_BUTTON_SIZE_MODE: PrototypePresetButtonSizeMode = 'midLow';
 
 export function SidebarPrototypeApp() {
@@ -280,7 +281,7 @@ export function SidebarPrototypeApp() {
 
   return (
     <div
-      className={`app-shell prototype-app-shell prototype-app-shell--preset-buttons-${PROTOTYPE_PRESET_BUTTON_SIZE_MODE}`}
+      className={`app-shell prototype-app-shell prototype-app-shell--topbar-buttons-${PROTOTYPE_TOPBAR_BUTTON_SIZE_MODE} prototype-app-shell--preset-buttons-${PROTOTYPE_PRESET_BUTTON_SIZE_MODE}`}
     >
       <PrototypeTopBar onReset={resetPrototypeState} />
       <div ref={setWorkspaceGridElement} className="workspace-grid">

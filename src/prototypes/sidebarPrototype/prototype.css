@@ -22,6 +22,7 @@
       var(--prototype-drag-handle-width) +
       var(--prototype-meta-gap)
   );
+  --prototype-topbar-button-height: var(--compact-control-height);
   --prototype-preset-button-height: var(--compact-control-height);
   --prototype-pane-title-font-size: var(--font-size-control-title);
   --prototype-pane-subtitle-font-size: var(--font-size-control-subtitle);
@@ -86,6 +87,26 @@
 .prototype-app-shell .topbar {
   position: relative;
   z-index: 12;
+}
+
+.prototype-app-shell--topbar-buttons-current {
+  --prototype-topbar-button-height: var(--compact-control-height);
+}
+
+.prototype-app-shell--topbar-buttons-midLow {
+  --prototype-topbar-button-height: calc(
+    (var(--compact-control-height) + ((var(--compact-control-height) + var(--prototype-shared-header-outer-height)) / 2)) / 2
+  );
+}
+
+.prototype-app-shell--topbar-buttons-mid {
+  --prototype-topbar-button-height: calc(
+    (var(--compact-control-height) + var(--prototype-shared-header-outer-height)) / 2
+  );
+}
+
+.prototype-app-shell--topbar-buttons-row {
+  --prototype-topbar-button-height: var(--prototype-shared-header-outer-height);
 }
 
 .prototype-app-shell--preset-buttons-current {
@@ -637,8 +658,8 @@
 }
 
 .prototype-app-shell .topbar__actions .button {
-  min-height: var(--prototype-preset-button-height);
-  height: var(--prototype-preset-button-height);
+  min-height: var(--prototype-topbar-button-height);
+  height: var(--prototype-topbar-button-height);
 }
 
 .prototype-app-shell .sidebar-action-row__button:hover {
