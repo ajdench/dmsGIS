@@ -73,6 +73,10 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - label: `Ox`
   - colour treatment: orange, parallel to the green `On` and red `Off` patterns
   - intended for `PMC` now and for future parent rows/panes using the same child-visibility model
+- Parent visibility state should aggregate from immediate children only, not grandchildren:
+  - `Facilities` currently derives from `PMC`
+  - `PMC` derives from its region rows
+  - future pane families should follow that same one-level-at-a-time visibility model
 - When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
   - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
   - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output

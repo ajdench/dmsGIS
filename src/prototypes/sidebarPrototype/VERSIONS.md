@@ -84,3 +84,6 @@ Current `v3` emphasis:
 - keep mixed parent-child visibility on the shared tri-state toggle path:
   - mixed label: `Ox`
   - mixed colour treatment: orange
+- keep parent visibility aggregation one level at a time:
+  - higher parents derive from immediate child sections
+  - child sections derive from their own rows

@@ -347,10 +347,7 @@ export function SidebarPrototypeApp() {
     ...BASEMAP_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
   ]);
   const basemapEnabled = basemapToggleState === 'on';
-  const facilitiesToggleState = getAggregateToggleState([
-    sectionEnabled.pmc,
-    ...REGION_ROWS.map((region) => regionEnabled[region]),
-  ]);
+  const facilitiesToggleState = getAggregateToggleState([sectionEnabled.pmc]);
   const facilitiesEnabled = facilitiesToggleState === 'on';
   const pmcToggleState = getAggregateToggleState(
     REGION_ROWS.map((region) => regionEnabled[region]),
