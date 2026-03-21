@@ -1,45 +1,11 @@
 import { SliderField } from '../controls/SliderField';
-
-export interface SidebarColorFieldConfig {
-  kind: 'color';
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}
-
-export interface SidebarSliderFieldConfig {
-  kind: 'slider';
-  id: string;
-  label: string;
-  value: number;
-  min?: number;
-  max?: number;
-  step?: number;
-  mode?: 'raw' | 'percent';
-  onChange: (value: number) => void;
-}
-
-export interface SidebarToggleFieldConfig {
-  kind: 'toggle';
-  id: string;
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}
-
-export type SidebarControlFieldConfig =
-  | SidebarColorFieldConfig
-  | SidebarSliderFieldConfig
-  | SidebarToggleFieldConfig;
-
-export interface SidebarControlSectionConfig {
-  title: string;
-  fields: SidebarControlFieldConfig[];
-}
+import type {
+  SidebarControlFieldDefinition,
+  SidebarPopoverSectionDefinition,
+} from '../../lib/sidebar/contracts';
 
 interface SidebarControlSectionsProps {
-  sections: SidebarControlSectionConfig[];
+  sections: SidebarPopoverSectionDefinition[];
   ariaLabelPrefix: string;
 }
 
@@ -71,7 +37,7 @@ function SidebarControlField({
   field,
   ariaLabelPrefix,
 }: {
-  field: SidebarControlFieldConfig;
+  field: SidebarControlFieldDefinition;
   ariaLabelPrefix: string;
 }) {
   if (field.kind === 'color') {

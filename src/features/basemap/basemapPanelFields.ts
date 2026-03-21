@@ -1,16 +1,6 @@
-import type { SidebarControlSectionConfig } from '../../components/sidebar/SidebarControlSections';
+import type { SidebarRowDefinition } from '../../lib/sidebar/contracts';
+import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
 import type { BasemapSettings } from '../../types';
-
-export interface BasemapPanelRowConfig {
-  id: 'land' | 'sea';
-  label: string;
-  enabled: boolean;
-  swatchColor: string;
-  swatchOpacity: number;
-  valueLabel: string;
-  sections: SidebarControlSectionConfig[];
-  onEnabledChange: (enabled: boolean) => void;
-}
 
 interface BuildBasemapPanelRowsOptions {
   basemap: BasemapSettings;
@@ -51,16 +41,23 @@ export function buildBasemapPanelRows({
   setBasemapLayerVisibility,
   setBasemapElementColor,
   setBasemapElementOpacity,
-}: BuildBasemapPanelRowsOptions): BasemapPanelRowConfig[] {
+}: BuildBasemapPanelRowsOptions): SidebarRowDefinition<'land' | 'sea'>[] {
   return [
     {
       id: 'land',
       label: 'Land',
-      enabled: basemap.showLandFill,
-      swatchColor: basemap.landFillColor,
-      swatchOpacity: basemap.landFillOpacity,
-      valueLabel: formatPercent(basemap.landFillOpacity),
-      onEnabledChange: (enabled) => setBasemapLayerVisibility('showLandFill', enabled),
+      visibility: {
+        state: booleanToSidebarVisibilityState(basemap.showLandFill),
+        onChange: (enabled) => setBasemapLayerVisibility('showLandFill', enabled),
+      },
+      pill: {
+        valueLabel: formatPercent(basemap.landFillOpacity),
+        ariaLabel: 'Land controls',
+        swatch: {
+          color: basemap.landFillColor,
+          opacity: basemap.landFillOpacity,
+        },
+      },
       sections: [
         {
           title: 'Fill',
@@ -180,11 +177,18 @@ export function buildBasemapPanelRows({
     {
       id: 'sea',
       label: 'Sea',
-      enabled: basemap.showSeaFill,
-      swatchColor: basemap.seaFillColor,
-      swatchOpacity: basemap.seaFillOpacity,
-      valueLabel: formatPercent(basemap.seaFillOpacity),
-      onEnabledChange: (enabled) => setBasemapLayerVisibility('showSeaFill', enabled),
+      visibility: {
+        state: booleanToSidebarVisibilityState(basemap.showSeaFill),
+        onChange: (enabled) => setBasemapLayerVisibility('showSeaFill', enabled),
+      },
+      pill: {
+        valueLabel: formatPercent(basemap.seaFillOpacity),
+        ariaLabel: 'Sea controls',
+        swatch: {
+          color: basemap.seaFillColor,
+          opacity: basemap.seaFillOpacity,
+        },
+      },
       sections: [
         {
           title: 'Fill',
@@ -246,4 +250,10 @@ export function buildBasemapPanelRows({
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function booleanToSidebarVisibilityState(
+  visible: boolean,
+): SidebarVisibilityState {
+  return visible ? 'on' : 'off';
 }

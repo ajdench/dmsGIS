@@ -1,15 +1,6 @@
-import type { SidebarControlSectionConfig } from '../../components/sidebar/SidebarControlSections';
+import type { SidebarRowDefinition } from '../../lib/sidebar/contracts';
+import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
 import type { OverlayLayerStyle } from '../../types';
-
-export interface OverlayPanelRowConfig {
-  id: string;
-  label: string;
-  enabled: boolean;
-  valueLabel: string;
-  swatchColor: string;
-  swatchOpacity: number;
-  sections: SidebarControlSectionConfig[];
-}
 
 interface BuildOverlayPanelRowsOptions {
   layers: OverlayLayerStyle[];
@@ -27,14 +18,22 @@ export function buildOverlayPanelRows({
   setOverlayLayerBorderVisibility,
   setOverlayLayerBorderColor,
   setOverlayLayerBorderOpacity,
-}: BuildOverlayPanelRowsOptions): OverlayPanelRowConfig[] {
+}: BuildOverlayPanelRowsOptions): SidebarRowDefinition[] {
   return layers.map((layer) => ({
     id: layer.id,
     label: layer.name,
-    enabled: layer.visible,
-    valueLabel: `${Math.round(layer.opacity * 100)}%`,
-    swatchColor: layer.borderColor,
-    swatchOpacity: layer.opacity,
+    visibility: {
+      state: booleanToSidebarVisibilityState(layer.visible),
+      onChange: (checked) => setOverlayLayerVisibility(layer.id, checked),
+    },
+    pill: {
+      valueLabel: `${Math.round(layer.opacity * 100)}%`,
+      ariaLabel: `${layer.name} controls`,
+      swatch: {
+        color: layer.borderColor,
+        opacity: layer.opacity,
+      },
+    },
     sections: [
       {
         title: 'Layer',
@@ -84,4 +83,10 @@ export function buildOverlayPanelRows({
       },
     ],
   }));
+}
+
+function booleanToSidebarVisibilityState(
+  visible: boolean,
+): SidebarVisibilityState {
+  return visible ? 'on' : 'off';
 }

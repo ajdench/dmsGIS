@@ -1,16 +1,6 @@
 import type { BasemapSettings } from '../../types';
-import type { SidebarControlSectionConfig } from '../../components/sidebar/SidebarControlSections';
-
-export interface LabelPanelRowConfig {
-  id: 'country-labels' | 'major-cities' | 'sea-labels';
-  label: string;
-  enabled: boolean;
-  swatchColor: string;
-  swatchOpacity: number;
-  valueLabel: string;
-  sections: SidebarControlSectionConfig[];
-  onEnabledChange: (enabled: boolean) => void;
-}
+import type { SidebarRowDefinition } from '../../lib/sidebar/contracts';
+import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
 
 interface BuildLabelPanelRowsOptions {
   basemap: BasemapSettings;
@@ -56,17 +46,26 @@ export function buildLabelPanelRows({
   setBasemapElementColor,
   setBasemapElementOpacity,
   setBasemapNumericValue,
-}: BuildLabelPanelRowsOptions): LabelPanelRowConfig[] {
+}: BuildLabelPanelRowsOptions): SidebarRowDefinition<
+  'country-labels' | 'major-cities' | 'sea-labels'
+>[] {
   return [
     {
       id: 'country-labels',
       label: 'Countries',
-      enabled: basemap.showCountryLabels,
-      swatchColor: basemap.countryLabelColor,
-      swatchOpacity: basemap.countryLabelOpacity,
-      valueLabel: formatPercent(basemap.countryLabelOpacity),
-      onEnabledChange: (enabled) =>
-        setBasemapLayerVisibility('showCountryLabels', enabled),
+      visibility: {
+        state: booleanToSidebarVisibilityState(basemap.showCountryLabels),
+        onChange: (enabled) =>
+          setBasemapLayerVisibility('showCountryLabels', enabled),
+      },
+      pill: {
+        valueLabel: formatPercent(basemap.countryLabelOpacity),
+        ariaLabel: 'Countries controls',
+        swatch: {
+          color: basemap.countryLabelColor,
+          opacity: basemap.countryLabelOpacity,
+        },
+      },
       sections: [
         {
           title: 'Text',
@@ -138,12 +137,19 @@ export function buildLabelPanelRows({
     {
       id: 'major-cities',
       label: 'Cities',
-      enabled: basemap.showMajorCities,
-      swatchColor: basemap.majorCityColor,
-      swatchOpacity: basemap.majorCityOpacity,
-      valueLabel: formatPercent(basemap.majorCityOpacity),
-      onEnabledChange: (enabled) =>
-        setBasemapLayerVisibility('showMajorCities', enabled),
+      visibility: {
+        state: booleanToSidebarVisibilityState(basemap.showMajorCities),
+        onChange: (enabled) =>
+          setBasemapLayerVisibility('showMajorCities', enabled),
+      },
+      pill: {
+        valueLabel: formatPercent(basemap.majorCityOpacity),
+        ariaLabel: 'Cities controls',
+        swatch: {
+          color: basemap.majorCityColor,
+          opacity: basemap.majorCityOpacity,
+        },
+      },
       sections: [
         {
           title: 'Text',
@@ -214,12 +220,19 @@ export function buildLabelPanelRows({
     {
       id: 'sea-labels',
       label: 'Sea labels',
-      enabled: basemap.showSeaLabels,
-      swatchColor: basemap.seaLabelColor,
-      swatchOpacity: basemap.seaLabelOpacity,
-      valueLabel: formatPercent(basemap.seaLabelOpacity),
-      onEnabledChange: (enabled) =>
-        setBasemapLayerVisibility('showSeaLabels', enabled),
+      visibility: {
+        state: booleanToSidebarVisibilityState(basemap.showSeaLabels),
+        onChange: (enabled) =>
+          setBasemapLayerVisibility('showSeaLabels', enabled),
+      },
+      pill: {
+        valueLabel: formatPercent(basemap.seaLabelOpacity),
+        ariaLabel: 'Sea labels controls',
+        swatch: {
+          color: basemap.seaLabelColor,
+          opacity: basemap.seaLabelOpacity,
+        },
+      },
       sections: [
         {
           title: 'Text',
@@ -292,4 +305,10 @@ export function buildLabelPanelRows({
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function booleanToSidebarVisibilityState(
+  visible: boolean,
+): SidebarVisibilityState {
+  return visible ? 'on' : 'off';
 }

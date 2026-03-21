@@ -25,7 +25,7 @@ export function BasemapPanel() {
     setBasemapElementOpacity,
     setBasemapLayerVisibility,
   });
-  const paneEnabled = rows.some((row) => row.enabled);
+  const paneEnabled = rows.some((row) => row.visibility.state === 'on');
 
   return (
     <SidebarPanelShell
@@ -74,12 +74,12 @@ export function BasemapPanel() {
             <SidebarControlRow
               key={row.id}
               label={row.label}
-              enabled={row.enabled}
-              onEnabledChange={row.onEnabledChange}
-              pillLabel={row.valueLabel}
-              pillAriaLabel={`${row.label} controls`}
-              swatchColor={row.swatchColor}
-              swatchOpacity={row.swatchOpacity}
+              enabled={row.visibility.state === 'on'}
+              onEnabledChange={row.visibility.onChange}
+              pillLabel={row.pill.valueLabel}
+              pillAriaLabel={row.pill.ariaLabel}
+              swatchColor={row.pill.swatch?.color}
+              swatchOpacity={row.pill.swatch?.opacity}
               trailingControl={<SidebarDragHandle label={row.label} />}
             >
               <SidebarControlSections

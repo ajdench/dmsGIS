@@ -40,7 +40,7 @@ export function OverlayPanel() {
     setOverlayLayerBorderOpacity,
   });
   const emptyState = getOverlayPanelEmptyState(activeViewPreset, panelSections.length);
-  const paneEnabled = rows.some((row) => row.enabled);
+  const paneEnabled = rows.some((row) => row.visibility.state === 'on');
 
   return (
     <SidebarPanelShell
@@ -91,14 +91,12 @@ export function OverlayPanel() {
               <SidebarControlRow
                 key={row.id}
                 label={row.label}
-                enabled={row.enabled}
-                onEnabledChange={(enabled) =>
-                  setOverlayLayerVisibility(row.id, enabled)
-                }
-                pillLabel={row.valueLabel}
-                pillAriaLabel={`${row.label} controls`}
-                swatchColor={row.swatchColor}
-                swatchOpacity={row.swatchOpacity}
+                enabled={row.visibility.state === 'on'}
+                onEnabledChange={row.visibility.onChange}
+                pillLabel={row.pill.valueLabel}
+                pillAriaLabel={row.pill.ariaLabel}
+                swatchColor={row.pill.swatch?.color}
+                swatchOpacity={row.pill.swatch?.opacity}
                 trailingControl={<SidebarDragHandle label={row.label} />}
               >
                 <SidebarControlSections

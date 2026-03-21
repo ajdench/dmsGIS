@@ -42,13 +42,14 @@ describe('labelPanelFields', () => {
       'Cities',
       'Sea labels',
     ]);
-    expect(rows.map((row) => row.valueLabel)).toEqual(['40%', '65%', '50%']);
+    expect(rows.map((row) => row.pill.valueLabel)).toEqual(['40%', '65%', '50%']);
+    expect(rows.map((row) => row.visibility.state)).toEqual(['off', 'on', 'off']);
     expect(rows[0].sections.map((section) => section.title)).toEqual([
       'Text',
       'Border',
     ]);
 
-    rows[0].onEnabledChange(true);
+    rows[0].visibility.onChange(true);
     rows[1].sections[0].fields[0].onChange('#ffffff');
     rows[0].sections[0].fields[1].onChange(10);
     rows[2].sections[1].fields[1].onChange(2);
