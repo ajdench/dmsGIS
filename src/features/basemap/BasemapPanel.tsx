@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
+import { collectImmediateChildVisibility } from '../../lib/sidebar/visibilityTree';
 import { useAppStore } from '../../store/appStore';
 import { buildBasemapPanelRows } from './basemapPanelFields';
 
@@ -24,13 +25,16 @@ export function BasemapPanel() {
     setBasemapElementOpacity,
     setBasemapLayerVisibility,
   });
-  const paneEnabled = rows.some((row) => row.visibility.state === 'on');
+  const paneVisibilityState = collectImmediateChildVisibility(
+    rows,
+    (row) => row.visibility.state === 'on',
+  );
 
   return (
     <SidebarPanelShell
       title="Basemap"
       className="panel--basemap"
-      visibilityState={paneEnabled ? 'on' : 'off'}
+      visibilityState={paneVisibilityState}
       onVisibilityChange={(next) => {
         setBasemapLayerVisibility('showLandFill', next);
         setBasemapLayerVisibility('showSeaFill', next);
