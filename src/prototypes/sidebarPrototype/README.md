@@ -62,7 +62,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - this keeps top-level pane controls and bordered sub-pane/section controls on the same right-edge and chevron-slot basis across pane families
 - Top-level pane `On/Off` buttons now act as visibility-broadcast controls for the rows beneath them:
   - `Basemap` broadcasts to `Land` and `Sea`
-  - `Facilities` broadcasts to `PMC` and all PMC region rows
+  - `Facilities` broadcasts to its immediate child sections, currently `PMC`
   - `Labels` broadcasts to all label rows
   - `Overlays` broadcasts to all overlay rows
   - child rows can still be toggled locally afterward until the parent pane is changed again

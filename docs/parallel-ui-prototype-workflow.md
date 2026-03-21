@@ -46,6 +46,7 @@ Current sidebar-prototype interaction notes:
 - overlay rows are now modeled as a family surface that can later grow into grouped/collapsible sections instead of being treated as permanently flat
 - floating callout placement math is extracted into a dedicated helper so geometry can be tested separately from rendering
 - the floating PMC callout is prototype-only and is intentionally tuned for interaction review, not yet treated as a production component API
+- parent-row and pane visibility should aggregate from immediate children only, but stay tri-state aware so mixed child sections propagate `Ox` upward rather than collapsing back to plain `On`/`Off`
 - preset button state tuning should remain prototype-local and tokenized in `prototype.css` until there is an explicit decision to promote it into shared production styling
 - if top-bar action-button sizing and preset-row sizing need different calibration, split them into separate prototype-local internal mode lanes rather than forcing one shared button-height rule
 - common pane-body spacing adjustments should prefer the shared top-level pane-content rule over one-off pane variants when the intent applies across Basemap, Facilities, Labels, and Overlays
