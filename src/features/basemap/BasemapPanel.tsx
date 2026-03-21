@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { SidebarDragHandle } from '../../components/sidebar/SidebarDragHandle';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
+import { SidebarToggleButton } from '../../components/sidebar/SidebarToggleButton';
+import { SidebarTrailingSlot } from '../../components/sidebar/SidebarTrailingSlot';
 import { useAppStore } from '../../store/appStore';
 import { buildBasemapPanelRows } from './basemapPanelFields';
 
@@ -33,38 +34,22 @@ export function BasemapPanel() {
       className="panel--basemap"
       meta={
         <>
-          <button
-            type="button"
-            className={`sidebar-toggle-button${paneEnabled ? ' is-on' : ' is-off'}`}
-            aria-label="Basemap visible"
-            aria-pressed={paneEnabled}
-            onClick={() => {
-              const next = !paneEnabled;
+          <SidebarToggleButton
+            state={paneEnabled ? 'on' : 'off'}
+            ariaLabel="Basemap visible"
+            onChange={(next) => {
               setBasemapLayerVisibility('showLandFill', next);
               setBasemapLayerVisibility('showSeaFill', next);
             }}
-          >
-            <span className="sidebar-toggle-button__label sidebar-toggle-button__label--default">
-              {paneEnabled ? 'On' : 'Off'}
-            </span>
-            <span className="sidebar-toggle-button__label sidebar-toggle-button__label--hover">
-              {paneEnabled ? 'Off' : 'On'}
-            </span>
-          </button>
-          <button
-            type="button"
-            className="sidebar-disclosure-button"
-            onClick={() => setExpanded((current) => !current)}
-            aria-expanded={expanded}
-            aria-label={expanded ? 'Collapse Basemap' : 'Expand Basemap'}
-          >
-            <span
-              className={`sidebar-chevron${expanded ? ' is-open' : ''}`}
-              aria-hidden="true"
-            >
-              ▾
-            </span>
-          </button>
+          />
+          <SidebarTrailingSlot
+            slot={{
+              kind: 'disclosure',
+              ariaLabel: expanded ? 'Collapse Basemap' : 'Expand Basemap',
+              expanded,
+              onToggle: () => setExpanded((current) => !current),
+            }}
+          />
         </>
       }
     >
@@ -73,14 +58,13 @@ export function BasemapPanel() {
           {rows.map((row) => (
             <SidebarControlRow
               key={row.id}
-              label={row.label}
-              enabled={row.visibility.state === 'on'}
-              onEnabledChange={row.visibility.onChange}
-              pillLabel={row.pill.valueLabel}
-              pillAriaLabel={row.pill.ariaLabel}
-              swatchColor={row.pill.swatch?.color}
-              swatchOpacity={row.pill.swatch?.opacity}
-              trailingControl={<SidebarDragHandle label={row.label} />}
+              row={{
+                ...row,
+                trailingSlot: {
+                  kind: 'dragHandle',
+                  label: row.label,
+                },
+              }}
             >
               <SidebarControlSections
                 sections={row.sections}

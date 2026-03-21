@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { SidebarDragHandle } from '../../components/sidebar/SidebarDragHandle';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
+import { SidebarToggleButton } from '../../components/sidebar/SidebarToggleButton';
+import { SidebarTrailingSlot } from '../../components/sidebar/SidebarTrailingSlot';
 import { useAppStore } from '../../store/appStore';
 import { buildLabelPanelRows } from './labelPanelFields';
 
@@ -43,34 +44,19 @@ export function LabelPanel() {
       className="panel--labels"
       meta={
         <>
-          <button
-            type="button"
-            className={`sidebar-toggle-button${paneEnabled ? ' is-on' : ' is-off'}`}
-            aria-label="Labels visible"
-            aria-pressed={paneEnabled}
-            onClick={() => setAllLabelsVisible(!paneEnabled)}
-          >
-            <span className="sidebar-toggle-button__label sidebar-toggle-button__label--default">
-              {paneEnabled ? 'On' : 'Off'}
-            </span>
-            <span className="sidebar-toggle-button__label sidebar-toggle-button__label--hover">
-              {paneEnabled ? 'Off' : 'On'}
-            </span>
-          </button>
-          <button
-            type="button"
-            className="sidebar-disclosure-button"
-            onClick={() => setExpanded((current) => !current)}
-            aria-expanded={expanded}
-            aria-label={expanded ? 'Collapse Labels' : 'Expand Labels'}
-          >
-            <span
-              className={`sidebar-chevron${expanded ? ' is-open' : ''}`}
-              aria-hidden="true"
-            >
-              ▾
-            </span>
-          </button>
+          <SidebarToggleButton
+            state={paneEnabled ? 'on' : 'off'}
+            ariaLabel="Labels visible"
+            onChange={setAllLabelsVisible}
+          />
+          <SidebarTrailingSlot
+            slot={{
+              kind: 'disclosure',
+              ariaLabel: expanded ? 'Collapse Labels' : 'Expand Labels',
+              expanded,
+              onToggle: () => setExpanded((current) => !current),
+            }}
+          />
         </>
       }
     >
@@ -79,14 +65,13 @@ export function LabelPanel() {
           {rows.map((row) => (
             <SidebarControlRow
               key={row.id}
-              label={row.label}
-              enabled={row.visibility.state === 'on'}
-              onEnabledChange={row.visibility.onChange}
-              pillLabel={row.pill.valueLabel}
-              pillAriaLabel={row.pill.ariaLabel}
-              swatchColor={row.pill.swatch?.color}
-              swatchOpacity={row.pill.swatch?.opacity}
-              trailingControl={<SidebarDragHandle label={row.label} />}
+              row={{
+                ...row,
+                trailingSlot: {
+                  kind: 'dragHandle',
+                  label: row.label,
+                },
+              }}
             >
               <SidebarControlSections
                 sections={row.sections}
