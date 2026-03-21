@@ -60,6 +60,7 @@ Working stance:
 - if prototype parity is explicitly required and incremental promotion is producing drift, prefer a controlled production-side shell reset over more pane-local tweaking
 - before coding substantial UI, interaction, or architecture changes, summarize findings and the intended approach first unless the task is trivially local and low-risk
 - when the user flags a repeated collaboration preference, promote it into repo-level working guidance rather than treating it as turn-local advice
+- when a thread reaches a non-trivial architectural conclusion or reset point, record a restart/reactivation note so the next session can resume from the same assumptions instead of rediscovering them
 
 ## Version control workflow
 

@@ -72,6 +72,7 @@ Why this matters:
 - `docs/specification.md`
 - `docs/internal-architecture-principles.md`
 - `docs/sidebar-production-reset-plan.md`
+- `docs/sidebar-thread-reactivation.md`
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
 - `src/prototypes/sidebarPrototype/VERSIONS.md`
