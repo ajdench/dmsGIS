@@ -81,3 +81,6 @@ Current `v3` emphasis:
   - preset row: `midLow`
 - keep top-level pane `On/Off` controls as visibility-broadcast parents for the rows they own, while preserving local child toggles between parent changes
 - keep internal parent rows such as `PMC` on the same visibility-broadcast pattern for their child rows
+- keep mixed parent-child visibility on the shared tri-state toggle path:
+  - mixed label: `Ox`
+  - mixed colour treatment: orange

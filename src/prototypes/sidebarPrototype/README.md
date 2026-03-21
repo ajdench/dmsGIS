@@ -69,6 +69,10 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Internal parent rows with children should follow the same rule:
   - `PMC` broadcasts to all PMC region rows
   - region rows can still be toggled locally afterward until `PMC` is changed again
+- When a parent row or pane has a mixed child-visibility state, its `On/Off` control should show the shared mixed state instead of pretending to be binary:
+  - label: `Ox`
+  - colour treatment: orange, parallel to the green `On` and red `Off` patterns
+  - intended for `PMC` now and for future parent rows/panes using the same child-visibility model
 - When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
   - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
   - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output

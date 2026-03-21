@@ -4,6 +4,7 @@ import {
   PrototypeDragHandle,
   PrototypeMetricPill,
   PrototypeToggleButton,
+  type PrototypeToggleState,
   type SwatchStop,
 } from './PrototypeControls';
 
@@ -29,6 +30,7 @@ interface PrototypeAccordionItemProps {
   level?: 'pane' | 'subpane';
   panel?: boolean;
   enabled?: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle?: () => void;
   dragHandleProps?: ButtonHTMLAttributes<HTMLButtonElement>;
   dragHandleRef?: (element: HTMLButtonElement | null) => void;
@@ -88,6 +90,7 @@ export function PrototypeAccordionItem({
   level = 'pane',
   panel = false,
   enabled,
+  toggleState,
   onEnabledToggle,
   dragHandleProps,
   dragHandleRef,
@@ -115,6 +118,7 @@ export function PrototypeAccordionItem({
                 {typeof enabled === 'boolean' ? (
                   <PrototypeToggleButton
                     enabled={enabled}
+                    state={toggleState}
                     onClick={onEnabledToggle}
                   />
                 ) : badge ? (
@@ -144,6 +148,7 @@ export function PrototypeAccordionItem({
               {typeof enabled === 'boolean' ? (
                 <PrototypeToggleButton
                   enabled={enabled}
+                  state={toggleState}
                   onClick={onEnabledToggle}
                 />
               ) : null}

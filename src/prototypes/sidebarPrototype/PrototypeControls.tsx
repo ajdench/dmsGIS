@@ -14,6 +14,7 @@ import { computeFloatingCalloutPlacement } from './floatingCallout';
 
 interface PrototypeToggleButtonProps {
   enabled: boolean;
+  state?: PrototypeToggleState;
   onClick?: () => void;
 }
 
@@ -67,7 +68,8 @@ interface PrototypeStaticRowProps {
 }
 
 type PrototypeShape = 'circle' | 'square' | 'diamond' | 'triangle';
-export type { PrototypeShape, SwatchStop };
+type PrototypeToggleState = 'on' | 'off' | 'mixed';
+export type { PrototypeShape, PrototypeToggleState, SwatchStop };
 
 interface PrototypeShapePickerProps {
   value: PrototypeShape;
@@ -89,6 +91,7 @@ interface PrototypePopoverProps {
 interface PrototypeControlSectionProps {
   title: string;
   enabled?: boolean;
+  toggleState?: PrototypeToggleState;
   onToggle?: () => void;
   children: ReactNode;
 }
@@ -120,6 +123,7 @@ interface PrototypeDragHandleProps
 
 interface PrototypeMetaControlsProps {
   enabled?: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle?: () => void;
   pillPopover?: ReactNode;
   trailingControl?: ReactNode;
@@ -129,6 +133,7 @@ interface PrototypeMetaControlsProps {
 interface PrototypeSectionCardShellProps {
   title: string;
   enabled?: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle?: () => void;
   pillPopover?: ReactNode;
   trailingControl?: ReactNode;
@@ -141,6 +146,7 @@ interface PrototypeSectionCardShellProps {
 interface PrototypeInlineRowShellProps {
   label: string;
   enabled: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle: () => void;
   pillPopover: ReactNode;
   trailingControl?: ReactNode;
@@ -478,27 +484,34 @@ function resolveSwatchRender({
 
 export function PrototypeToggleButton({
   enabled,
+  state = enabled ? 'on' : 'off',
   onClick,
 }: PrototypeToggleButtonProps) {
   const [suppressHoverPreview, setSuppressHoverPreview] = useState(false);
+  const defaultLabel = state === 'mixed' ? 'Ox' : enabled ? 'On' : 'Off';
+  const hoverLabel = enabled ? 'Off' : 'On';
+  const ariaLabel =
+    state === 'mixed' ? 'Mixed state; toggle all' : enabled ? 'On' : 'Off';
 
   return (
     <button
       type="button"
-      className={`prototype-toggle-button${enabled ? ' is-on' : ' is-off'}`}
+      className={`prototype-toggle-button prototype-toggle-button--${state}${
+        state === 'on' ? ' is-on' : state === 'off' ? ' is-off' : ' is-mixed'
+      }`}
       data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
       onClick={() => {
         setSuppressHoverPreview(true);
         onClick?.();
       }}
       onMouseLeave={() => setSuppressHoverPreview(false)}
-      aria-label={enabled ? 'On' : 'Off'}
+      aria-label={ariaLabel}
     >
       <span className="prototype-toggle-button__label prototype-toggle-button__label--default">
-        {enabled ? 'On' : 'Off'}
+        {defaultLabel}
       </span>
       <span className="prototype-toggle-button__label prototype-toggle-button__label--hover">
-        {enabled ? 'Off' : 'On'}
+        {hoverLabel}
       </span>
     </button>
   );
@@ -640,6 +653,7 @@ export function PrototypeControlField({
 export function PrototypeControlSection({
   title,
   enabled = true,
+  toggleState,
   onToggle,
   children,
 }: PrototypeControlSectionProps) {
@@ -652,7 +666,11 @@ export function PrototypeControlSection({
       <div className="prototype-popover__section-title">{title}</div>
       {onToggle ? (
         <div className="prototype-control-section__toggle">
-          <PrototypeToggleButton enabled={enabled} onClick={onToggle} />
+          <PrototypeToggleButton
+            enabled={enabled}
+            state={toggleState}
+            onClick={onToggle}
+          />
         </div>
       ) : null}
       <div
@@ -736,6 +754,7 @@ export const PrototypeDragHandle = forwardRef<
 
 export function PrototypeMetaControls({
   enabled,
+  toggleState,
   onEnabledToggle,
   pillPopover,
   trailingControl,
@@ -744,7 +763,11 @@ export function PrototypeMetaControls({
   return (
     <span className="prototype-accordion-item__meta">
       {typeof enabled === 'boolean' ? (
-        <PrototypeToggleButton enabled={enabled} onClick={onEnabledToggle} />
+        <PrototypeToggleButton
+          enabled={enabled}
+          state={toggleState}
+          onClick={onEnabledToggle}
+        />
       ) : null}
       {pillPopover}
       {trailingControl}
@@ -761,6 +784,7 @@ export function PrototypeMetaControls({
 export function PrototypeSectionCardShell({
   title,
   enabled,
+  toggleState,
   onEnabledToggle,
   pillPopover,
   trailingControl,
@@ -780,6 +804,7 @@ export function PrototypeSectionCardShell({
         </span>
         <PrototypeMetaControls
           enabled={enabled}
+          toggleState={toggleState}
           onEnabledToggle={onEnabledToggle}
           pillPopover={pillPopover}
           trailingControl={trailingControl}
@@ -794,6 +819,7 @@ export function PrototypeSectionCardShell({
 export function PrototypeInlineRowShell({
   label,
   enabled,
+  toggleState,
   onEnabledToggle,
   pillPopover,
   trailingControl,
@@ -810,6 +836,7 @@ export function PrototypeInlineRowShell({
       </span>
       <PrototypeMetaControls
         enabled={enabled}
+        toggleState={toggleState}
         onEnabledToggle={onEnabledToggle}
         pillPopover={pillPopover}
         trailingControl={trailingControl}

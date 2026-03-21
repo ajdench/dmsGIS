@@ -39,6 +39,7 @@ import {
   PrototypePillPopover,
   PrototypeSectionCardShell,
   type PrototypeShape,
+  type PrototypeToggleState,
   type SwatchStop,
 } from './PrototypeControls';
 import {
@@ -342,6 +343,23 @@ export function SidebarPrototypeApp() {
       );
     };
 
+  const basemapToggleState = getAggregateToggleState([
+    ...BASEMAP_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
+  ]);
+  const facilitiesToggleState = getAggregateToggleState([
+    sectionEnabled.pmc,
+    ...REGION_ROWS.map((region) => regionEnabled[region]),
+  ]);
+  const pmcToggleState = getAggregateToggleState(
+    REGION_ROWS.map((region) => regionEnabled[region]),
+  );
+  const labelsToggleState = getAggregateToggleState(
+    LABEL_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
+  );
+  const overlaysToggleState = getAggregateToggleState(
+    OVERLAY_ROWS.map((row) => overlayRowEnabled[row.key]),
+  );
+
   return (
     <div
       className={`app-shell prototype-app-shell prototype-app-shell--topbar-buttons-${PROTOTYPE_TOPBAR_BUTTON_SIZE_MODE} prototype-app-shell--preset-buttons-${PROTOTYPE_PRESET_BUTTON_SIZE_MODE}`}
@@ -394,6 +412,7 @@ export function SidebarPrototypeApp() {
               id="basemap"
               title="Basemap"
               enabled={paneEnabled.basemap}
+              toggleState={basemapToggleState}
               onEnabledToggle={toggleBasemapPane}
               sortOrder={paneOrder.indexOf('basemap')}
             >
@@ -470,6 +489,7 @@ export function SidebarPrototypeApp() {
               id="facilities"
               title="Facilities"
               enabled={paneEnabled.facilities}
+              toggleState={facilitiesToggleState}
               onEnabledToggle={toggleFacilitiesPane}
               sortOrder={paneOrder.indexOf('facilities')}
             >
@@ -478,6 +498,7 @@ export function SidebarPrototypeApp() {
                   id="pmc"
                   title="PMC"
                   enabled={sectionEnabled.pmc}
+                  toggleState={pmcToggleState}
                   onEnabledToggle={togglePmcSection}
                   badge={`${Math.round(facilityOpacity * 100)}%`}
                   badgeSwatch={facilityColor}
@@ -563,6 +584,7 @@ export function SidebarPrototypeApp() {
               id="labels"
               title="Labels"
               enabled={paneEnabled.labels}
+              toggleState={labelsToggleState}
               onEnabledToggle={toggleLabelsPane}
               sortOrder={paneOrder.indexOf('labels')}
             >
@@ -634,6 +656,7 @@ export function SidebarPrototypeApp() {
               id="overlays"
               title="Overlays"
               enabled={paneEnabled.overlays}
+              toggleState={overlaysToggleState}
               onEnabledToggle={toggleOverlaysPane}
               sortOrder={paneOrder.indexOf('overlays')}
             >
@@ -717,6 +740,7 @@ interface PrototypePanelProps {
   id: string;
   title: string;
   enabled: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle: () => void;
   children: React.ReactNode;
   dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -728,6 +752,7 @@ interface PrototypeSectionProps {
   id?: string;
   title: string;
   enabled: boolean;
+  toggleState?: PrototypeToggleState;
   onEnabledToggle: () => void;
   badge?: string;
   badgeSwatch?: string;
@@ -778,6 +803,7 @@ interface PrototypePresetRowProps {
 interface PrototypeRegionRowProps {
   label: string;
   enabled: boolean;
+  toggleState?: PrototypeToggleState;
   onToggle: () => void;
   styleState: RegionStyleState;
   popoverOpen: boolean;
@@ -864,6 +890,7 @@ function PrototypePanel({
   id,
   title,
   enabled,
+  toggleState,
   onEnabledToggle,
   children,
   dragHandleProps,
@@ -878,6 +905,7 @@ function PrototypePanel({
         level="pane"
         panel
         enabled={enabled}
+        toggleState={toggleState}
         onEnabledToggle={onEnabledToggle}
         dragHandleProps={dragHandleProps}
         dragHandleRef={dragHandleRef}
@@ -931,6 +959,7 @@ function PrototypePopoverSection({
   badgeSwatchBorderOpacity,
   debugCircleOverlay,
   enabled,
+  toggleState,
   onEnabledToggle,
   children,
   popoverContent,
@@ -949,6 +978,7 @@ function PrototypePopoverSection({
     <PrototypeSectionCardShell
       title={title}
       enabled={enabled}
+      toggleState={toggleState}
       onEnabledToggle={onEnabledToggle}
       style={sortableStyle}
       isDragging={isDragging}
@@ -1035,6 +1065,7 @@ function PrototypeCollapsiblePopoverSection({
   badgeSwatchBorderOpacity,
   debugCircleOverlay,
   enabled,
+  toggleState,
   onEnabledToggle,
   children,
   popoverContent,
@@ -1049,6 +1080,7 @@ function PrototypeCollapsiblePopoverSection({
     <PrototypeSectionCardShell
       title={title}
       enabled={enabled}
+      toggleState={toggleState}
       onEnabledToggle={onEnabledToggle}
       pillPopover={
         badge ? (
@@ -1096,6 +1128,7 @@ function PrototypeCollapsiblePopoverSection({
 function PrototypeRegionRow({
   label,
   enabled,
+  toggleState,
   onToggle,
   styleState,
   popoverOpen,
@@ -1119,6 +1152,7 @@ function PrototypeRegionRow({
     <PrototypeInlineRowShell
       label={label}
       enabled={enabled}
+      toggleState={toggleState}
       onEnabledToggle={onToggle}
       style={sortableStyle}
       isDragging={isDragging}
@@ -1212,6 +1246,18 @@ function setKeysEnabled(
 
     return nextState;
   });
+}
+
+function getAggregateToggleState(values: boolean[]): PrototypeToggleState {
+  if (values.every(Boolean)) {
+    return 'on';
+  }
+
+  if (values.every((value) => !value)) {
+    return 'off';
+  }
+
+  return 'mixed';
 }
 interface PrototypeSortableRegionRowProps extends PrototypeRegionRowProps {
   id: string;
