@@ -307,6 +307,8 @@ export function SidebarPrototypeApp() {
                           }
                           scrollContainer={sidebarElement}
                           portalContainer={workspaceGridElement}
+                          triangleMinRatio={0.15}
+                          triangleMaxRatio={0.85}
                           popoverContent={renderPrototypeControlSections(
                             buildBasemapControlSections({
                               idPrefix: section.id,
@@ -592,6 +594,8 @@ interface PrototypePopoverSectionProps extends PrototypeSectionProps {
   popoverContent: React.ReactNode;
   scrollContainer: HTMLElement | null;
   portalContainer: HTMLDivElement | null;
+  triangleMinRatio?: number;
+  triangleMaxRatio?: number;
   dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
   dragHandleRef?: (element: HTMLButtonElement | null) => void;
   sortableStyle?: React.CSSProperties;
@@ -733,6 +737,8 @@ function PrototypePopoverSection({
   popoverContent,
   scrollContainer,
   portalContainer,
+  triangleMinRatio,
+  triangleMaxRatio,
   dragHandleProps,
   dragHandleRef,
   sortableStyle,
@@ -762,6 +768,8 @@ function PrototypePopoverSection({
             scrollContainer={scrollContainer}
             portalContainer={portalContainer}
             viewportContainer={scrollContainer}
+            triangleMinRatio={triangleMinRatio}
+            triangleMaxRatio={triangleMaxRatio}
           >
             {popoverContent}
           </PrototypePillPopover>

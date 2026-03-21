@@ -23,6 +23,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Keep the colour swatch and opacity/value inside a single pill
 - Pill-driven popovers should use the same floating callout treatment across pane families, with a visually attached sliding edge pointer anchored back to the source pill
 - The shared arrow clamp should be measured from the visible arrow edge, so small and large popovers stop at the same apparent top/bottom inset while scrolling
+- Basemap popovers currently use a deliberately tighter visible-arrow clamp than the larger Facilities-style popovers
 - In PMC-style region lists, clicking the pill should open that floating style callout while preserving row drag, toggle, and chevron responsibilities
 - PMC global controls should seed region-row styles at reset and should override matching row properties again when a global PMC control changes
 - Region-row edits should then remain local until another matching global PMC control is changed

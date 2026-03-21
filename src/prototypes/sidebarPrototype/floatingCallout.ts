@@ -11,6 +11,8 @@ export interface FloatingCalloutPlacementInput {
   contentRect: Pick<FloatingRect, 'width' | 'height'>;
   viewportRect: FloatingRect;
   portalRect?: Pick<FloatingRect, 'top' | 'left'> | null;
+  triangleMinRatio?: number;
+  triangleMaxRatio?: number;
 }
 
 export interface FloatingCalloutPlacement {
@@ -30,6 +32,8 @@ export function computeFloatingCalloutPlacement({
   contentRect,
   viewportRect,
   portalRect,
+  triangleMinRatio = FLOATING_CALLOUT_TRIANGLE_MIN_RATIO,
+  triangleMaxRatio = FLOATING_CALLOUT_TRIANGLE_MAX_RATIO,
 }: FloatingCalloutPlacementInput): FloatingCalloutPlacement {
   const triggerCenterY = triggerRect.top + triggerRect.height / 2;
   const desiredTop = triggerCenterY - contentRect.height / 2;
@@ -37,10 +41,10 @@ export function computeFloatingCalloutPlacement({
   const viewportMaxTop =
     viewportRect.bottom - contentRect.height - FLOATING_CALLOUT_VIEWPORT_PADDING;
   const minTriangleCenter =
-    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MIN_RATIO +
+    contentRect.height * triangleMinRatio +
     FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT;
   const maxTriangleCenter =
-    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MAX_RATIO -
+    contentRect.height * triangleMaxRatio -
     FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT;
 
   let viewportTop = desiredTop;

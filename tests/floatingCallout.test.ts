@@ -104,6 +104,23 @@ describe('floatingCallout placement', () => {
     );
   });
 
+  it('supports tighter per-popover clamp overrides for compact pane variants', () => {
+    const contentHeight = 120;
+    const placement = computeFloatingCalloutPlacement({
+      triggerRect: { top: 90, left: 360, width: 40, height: 24, bottom: 114 },
+      contentRect: { width: 200, height: contentHeight },
+      viewportRect: { top: 100, left: 0, width: 320, height: 500, bottom: 600 },
+      portalRect: { top: 100, left: 20 },
+      triangleMinRatio: 0.15,
+      triangleMaxRatio: 0.85,
+    });
+
+    const visibleArrowTop =
+      placement.triangleCenter - FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT;
+
+    expect(visibleArrowTop).toBeCloseTo(contentHeight * 0.15, 5);
+  });
+
   it('applies the horizontal offset relative to the portal container', () => {
     const placement = computeFloatingCalloutPlacement({
       triggerRect: { top: 200, left: 500, width: 40, height: 24, bottom: 224 },

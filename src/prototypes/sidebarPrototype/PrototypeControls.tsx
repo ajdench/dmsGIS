@@ -81,6 +81,8 @@ interface PrototypePopoverProps {
   scrollContainer?: HTMLElement | null;
   portalContainer?: HTMLElement | null;
   viewportContainer?: HTMLElement | null;
+  triangleMinRatio?: number;
+  triangleMaxRatio?: number;
 }
 
 interface PrototypeControlSectionProps {
@@ -102,6 +104,8 @@ interface PrototypePillPopoverProps {
   scrollContainer?: HTMLElement | null;
   portalContainer?: HTMLElement | null;
   viewportContainer?: HTMLElement | null;
+  triangleMinRatio?: number;
+  triangleMaxRatio?: number;
   children: ReactNode;
 }
 
@@ -411,6 +415,8 @@ export function PrototypePillPopover({
   scrollContainer,
   portalContainer,
   viewportContainer,
+  triangleMinRatio,
+  triangleMaxRatio,
   children,
 }: PrototypePillPopoverProps) {
   return (
@@ -420,6 +426,8 @@ export function PrototypePillPopover({
       scrollContainer={scrollContainer}
       portalContainer={portalContainer}
       viewportContainer={viewportContainer}
+      triangleMinRatio={triangleMinRatio}
+      triangleMaxRatio={triangleMaxRatio}
       trigger={
         <PrototypeMetricPill
           value={value}
@@ -655,6 +663,8 @@ export function PrototypePopover({
   scrollContainer,
   portalContainer,
   viewportContainer,
+  triangleMinRatio,
+  triangleMaxRatio,
 }: PrototypePopoverProps) {
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -690,6 +700,8 @@ export function PrototypePopover({
         contentRect,
         viewportRect,
         portalRect,
+        triangleMinRatio,
+        triangleMaxRatio,
       });
 
       setPositionStyle({
@@ -726,7 +738,14 @@ export function PrototypePopover({
       window.removeEventListener('scroll', scheduleUpdate, true);
       scrollContainer?.removeEventListener('scroll', scheduleUpdate);
     };
-  }, [open, portalContainer, scrollContainer, viewportContainer]);
+  }, [
+    open,
+    portalContainer,
+    scrollContainer,
+    triangleMaxRatio,
+    triangleMinRatio,
+    viewportContainer,
+  ]);
 
   useEffect(() => {
     if (!open) {
