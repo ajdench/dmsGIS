@@ -43,13 +43,15 @@ Apply these principles to future development in this repo:
 10. Validate against actual release risk.
    `npm run build` remains the release gate.
 11. Add tests at the seam where behavior is introduced or extracted.
-12. Prefer progressive promotion over broad rewrites.
+12. Prefer progressive promotion over broad rewrites, except when an approved prototype is the explicit replacement target and the old production shell is itself the source of drift.
+    In that case, reset the shared production UI architecture around the prototype contract instead of continuing incremental approximation.
 
 Working stance:
 
 - improve the shipped production app before expanding future-facing capability areas
 - keep future functionality areas documented, but do not let them displace current production improvement work unless explicitly prioritized
 - keep prototype exploration active but isolated until promotion is explicit
+- if prototype parity is explicitly required and incremental promotion is producing drift, prefer a controlled production-side shell reset over more pane-local tweaking
 
 ## Version control workflow
 

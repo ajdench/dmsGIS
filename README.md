@@ -63,6 +63,7 @@ Why this matters:
 
 - `docs/specification.md`
 - `docs/internal-architecture-principles.md`
+- `docs/sidebar-production-reset-plan.md`
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
 - `src/prototypes/sidebarPrototype/VERSIONS.md`
@@ -119,7 +120,7 @@ Why this matters:
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
 - Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding calculations in UI components.
 - That combined summary path now prefers stable `scenarioRegionId` wiring where the runtime assignment source provides it, with label-based fallback kept only as a transition path.
-- The first approved sidebar-prototype promotion slice is now live in production Labels: shared sidebar row/popover primitives in `src/components/sidebar/` now carry the promoted row-bar, toggle-pill, and metric-pill UI pattern, while pane-specific label control definitions stay feature-owned in `src/features/labels/labelPanelFields.ts` and now drive real production `Text` and `Border` sections with colour, size/thickness, and opacity through `src/store/appStore.ts`.
+- The current conclusion from the sidebar promotion attempt is that incremental approximation is not enough for prototype parity. The approved prototype should now be treated as the exact production sidebar target, and the shared production sidebar shell should be rebuilt around that target more directly. See `docs/sidebar-production-reset-plan.md`.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
@@ -161,11 +162,13 @@ The current production focus is improving the shipped production app before expa
 Near-term production priorities:
 
 1. Improve production workflows and usability in existing domain areas before taking on more breadth.
-2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Promote the NHS England region overlay through the same pattern as scenario overlays.
+2. Reset the sidebar implementation strategy around prototype parity.
+   Treat the approved prototype as the exact production sidebar target, rebuild the shared production sidebar shell around that structure, and stop relying on incremental “close enough” promotion of the older production sidebar.
+3. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
+4. Promote the NHS England region overlay through the same pattern as scenario overlays.
    Build a static 2026 board-assignment dataset keyed by `boundary_code`, and add an optional dissolved outline dataset only when the visible overlay is ready to ship.
-4. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
-5. Keep `npm run build` as the authoritative health check before describing the app as deployable.
+5. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
+6. Keep `npm run build` as the authoritative health check before describing the app as deployable.
 
 ## Future functionality areas
 
