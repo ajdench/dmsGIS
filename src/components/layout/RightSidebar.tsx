@@ -14,30 +14,34 @@ export function RightSidebar() {
   return (
     <aside className="sidebar sidebar--right">
       <SidebarStatus />
-      <BasemapPanel />
-      <div className="sidebar-action-row" aria-label="Map presets">
-        {VIEW_PRESET_BUTTONS.map((preset) => (
-          <PresetButton
-            key={preset.id}
-            id={preset.id}
-            label={preset.label}
-            activeViewPreset={activeViewPreset}
-            activateViewPreset={activateViewPreset}
-          />
-        ))}
+      <div className="prototype-sidebar-presets">
+        <div className="sidebar-action-row" aria-label="Map presets">
+          {VIEW_PRESET_BUTTONS.map((preset) => (
+            <PresetButton
+              key={preset.id}
+              id={preset.id}
+              label={preset.label}
+              activeViewPreset={activeViewPreset}
+              activateViewPreset={activateViewPreset}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          className="button sidebar-action-row__button sidebar-action-row__button--full"
+        >
+          <span className="sidebar-action-row__button-label">
+            <span>DPHC Estimate COA</span>
+            <em>Playground</em>
+          </span>
+        </button>
       </div>
-      <button
-        type="button"
-        className="button sidebar-action-row__button sidebar-action-row__button--full"
-      >
-        <span className="sidebar-action-row__button-label">
-          <span>DPHC Estimate COA</span>
-          <em>Playground</em>
-        </span>
-      </button>
-      <SelectionPanel />
-      <LabelPanel />
-      <OverlayPanel />
+      <div className="sidebar-pane-stack">
+        <BasemapPanel />
+        <SelectionPanel />
+        <LabelPanel />
+        <OverlayPanel />
+      </div>
     </aside>
   );
 }

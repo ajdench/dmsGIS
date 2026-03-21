@@ -39,6 +39,10 @@ export function BasemapPanel() {
       expanded={expanded}
       onExpandedChange={setExpanded}
       expandedAriaLabel={expanded ? 'Collapse Basemap' : 'Expand Basemap'}
+      trailingSlot={{
+        kind: 'dragHandle',
+        label: 'Basemap',
+      }}
     >
       <div className="stack-col sidebar-section-list">
         {rows.map((row) => (

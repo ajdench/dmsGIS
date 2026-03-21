@@ -46,6 +46,10 @@ export function LabelPanel() {
       expanded={expanded}
       onExpandedChange={setExpanded}
       expandedAriaLabel={expanded ? 'Collapse Labels' : 'Expand Labels'}
+      trailingSlot={{
+        kind: 'dragHandle',
+        label: 'Labels',
+      }}
     >
       <div className="stack-col sidebar-section-list">
         {rows.map((row) => (

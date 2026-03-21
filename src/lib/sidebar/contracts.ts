@@ -1,10 +1,18 @@
 import type { SidebarVisibilityState } from './visibilityTree';
+import type { FacilitySymbolShape } from '../../types';
+
+export interface SidebarSwatchStop {
+  color: string;
+  opacity?: number;
+}
 
 export interface SidebarColorFieldDefinition {
   kind: 'color';
   id: string;
   label: string;
   value: string;
+  opacityPreview?: number;
+  mixedSwatches?: SidebarSwatchStop[];
   onChange: (value: string) => void;
 }
 
@@ -28,13 +36,23 @@ export interface SidebarToggleFieldDefinition {
   onChange: (checked: boolean) => void;
 }
 
+export interface SidebarShapeFieldDefinition {
+  kind: 'shape';
+  label: string;
+  value: FacilitySymbolShape;
+  onChange: (value: FacilitySymbolShape) => void;
+}
+
 export type SidebarControlFieldDefinition =
   | SidebarColorFieldDefinition
   | SidebarSliderFieldDefinition
-  | SidebarToggleFieldDefinition;
+  | SidebarToggleFieldDefinition
+  | SidebarShapeFieldDefinition;
 
 export interface SidebarPopoverSectionDefinition {
   title: string;
+  enabledState?: SidebarVisibilityState;
+  onEnabledChange?: (enabled: boolean) => void;
   fields: SidebarControlFieldDefinition[];
 }
 
@@ -46,6 +64,8 @@ export interface SidebarVisibilityController {
 export interface SidebarPillSwatchSummary {
   color: string;
   opacity?: number;
+  mix?: SidebarSwatchStop[];
+  shape?: FacilitySymbolShape;
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;

@@ -153,6 +153,7 @@ interface AppState {
   setRegionSymbolSize: (name: string, size: number) => void;
   setRegionGlobalOpacity: (opacity: number) => void;
   setAllRegionVisibility: (visible: boolean) => void;
+  setAllRegionBorderVisibility: (visible: boolean) => void;
   setAllRegionBorderColor: (color: string) => void;
   setAllRegionBorderOpacity: (opacity: number) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
@@ -507,6 +508,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   setAllRegionVisibility: (visible) =>
     set((state) => ({
       regions: state.regions.map((region) => ({ ...region, visible })),
+    })),
+  setAllRegionBorderVisibility: (visible) =>
+    set((state) => ({
+      regions: state.regions.map((region) => ({ ...region, borderVisible: visible })),
     })),
   setAllRegionBorderColor: (color) =>
     set((state) => {

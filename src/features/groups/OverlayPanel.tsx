@@ -53,6 +53,10 @@ export function OverlayPanel() {
       expanded={expanded}
       onExpandedChange={setExpanded}
       expandedAriaLabel={expanded ? 'Collapse Overlays' : 'Expand Overlays'}
+      trailingSlot={{
+        kind: 'dragHandle',
+        label: 'Overlays',
+      }}
     >
       {emptyState ? (
         <p className="muted">{emptyState}</p>
