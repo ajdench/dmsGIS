@@ -61,3 +61,10 @@ Working rule:
 
 - treat the new `@` working copy created after the `v2` checkpoint as the start of `v3` development
 - only record another numbered version when the next coherent reviewable milestone is reached
+
+Current `v3` emphasis:
+
+- continue toward production-ready sidebar parity
+- document current visual tuning neutrally as calibration work
+- avoid treating active swatch/pill/shape polish work as blocker bugs unless it genuinely blocks build, validation, or promotion decisions
+- use `REACTIVATION.md` as the restart handoff note for this active calibration phase

@@ -29,6 +29,12 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Region-row edits should then remain local until another matching global PMC control is changed
 - PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
 - Shape-button silhouettes and pill swatches should use separate tuned renderers; when promoted to production map points, border thickness must project inward so symbol size stays fixed to the configured point size
+- Pill swatches currently use:
+  - a neutral hairline outline by default
+  - a configured border when the relevant popover exposes border controls
+  - fixed tokenized outer size, with internal shape/border projection only
+- Basemap pill swatches currently use live local colour state from their own popovers rather than static seed-display values
+- Current pill-value alignment work should be documented as ongoing visual calibration, not defect tracking
 - PMC row editors are grouped into `Points` and `Border` sections
 - Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline
 - PMC child rows now use a dedicated right-edge drag handle for reordering; dragging should not start from the toggle, pill, or row background
@@ -65,6 +71,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - `PROMOTION.md`
 - `PROMOTION_BOUNDARY.md`
 - `PRODUCTION_PREPARATION.md`
+- `REACTIVATION.md`
 - `regionPopoverFields.ts`
 - `prototypeStyleState.ts`
 - `sortableList.ts`
@@ -111,3 +118,23 @@ Likely promotion-ready primitives are:
 - drag-handle slot
 - config-driven field-section renderer
 - shared style-state domain helpers
+
+## Current calibration areas
+
+These are active design-tuning areas inside the prototype and should be treated as reviewable calibration work rather than as bug-tracker items:
+
+- pill swatch shape/outline balance
+- pill value alignment and typography balance against swatch centre lines
+- compact shape-button silhouette tuning
+- Basemap default colour brightness and preview presentation
+
+## Reactivation after restart
+
+Use [REACTIVATION.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/src/prototypes/sidebarPrototype/REACTIVATION.md) as the restart note for this prototype thread.
+
+Minimum restart path:
+
+1. Read this file.
+2. Read [REACTIVATION.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/src/prototypes/sidebarPrototype/REACTIVATION.md).
+3. Run `jj status` and `npm run typecheck`.
+4. Treat current swatch, pill, and shape work as calibration unless something genuinely blocks validation or promotion.

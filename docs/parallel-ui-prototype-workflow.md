@@ -27,6 +27,7 @@ Current example:
 - prototype production-preparation note: `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 - prototype promotion boundary note: `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
 - prototype promotion plan: `src/prototypes/sidebarPrototype/PROMOTION.md`
+- prototype restart note: `src/prototypes/sidebarPrototype/REACTIVATION.md`
 - prototype style-state domain: `src/prototypes/sidebarPrototype/prototypeStyleState.ts`
 - prototype sortable helper: `src/prototypes/sidebarPrototype/sortableList.ts`
 - prototype styles: `src/prototypes/sidebarPrototype/prototype.css`
@@ -85,6 +86,12 @@ Clarification rule:
 - ask only the questions needed to de-risk the change
 - if more than three questions are needed, ask them one at a time in dependency order rather than as a large bundle
 - prefer questions whose answers materially change the implementation path
+
+Restart rule:
+
+- each active prototype should keep a short restart/reactivation note in prototype space
+- for the current sidebar prototype, use `src/prototypes/sidebarPrototype/REACTIVATION.md`
+- the restart note should state read order, validation steps, current operating frame, and a suggested resume prompt
 
 ## Folder strategy
 
