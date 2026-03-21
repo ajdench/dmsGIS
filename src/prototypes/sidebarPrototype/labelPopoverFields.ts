@@ -23,6 +23,8 @@ export function buildLabelControlSections(
   return [
     {
       title: 'Text',
+      enabled: style.textEnabled,
+      onToggle: () => setLabelStyle(section.id, 'textEnabled', !style.textEnabled),
       fields: [
         {
           kind: 'color',
@@ -54,6 +56,8 @@ export function buildLabelControlSections(
     },
     {
       title: 'Border',
+      enabled: style.borderEnabled,
+      onToggle: () => setLabelStyle(section.id, 'borderEnabled', !style.borderEnabled),
       fields: [
         {
           kind: 'color',
@@ -70,8 +74,8 @@ export function buildLabelControlSections(
           label: 'Thickness',
           value: style.borderWidth,
           min: 0,
-          max: 6,
-          step: 0.5,
+          max: 10,
+          step: 0.25,
           mode: 'raw',
           onChange: (borderWidth) =>
             setLabelStyle(section.id, 'borderWidth', borderWidth),

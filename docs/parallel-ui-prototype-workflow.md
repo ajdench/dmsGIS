@@ -23,7 +23,7 @@ Current example:
 - prototype seed data: `src/prototypes/sidebarPrototype/data.ts`
 - prototype shared controls: `src/prototypes/sidebarPrototype/PrototypeControls.tsx`
 - prototype accordion wrapper: `src/prototypes/sidebarPrototype/PrototypeAccordion.tsx`
-- prototype popover field definitions: `src/prototypes/sidebarPrototype/popoverFields.tsx`
+- prototype popover field definitions: `src/prototypes/sidebarPrototype/popoverFields.ts`
 - prototype production-preparation note: `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 - prototype promotion boundary note: `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
 - prototype promotion plan: `src/prototypes/sidebarPrototype/PROMOTION.md`
@@ -48,6 +48,7 @@ Current sidebar-prototype interaction notes:
 - the floating PMC callout is prototype-only and is intentionally tuned for interaction review, not yet treated as a production component API
 - preset button state tuning should remain prototype-local and tokenized in `prototype.css` until there is an explicit decision to promote it into shared production styling
 - common pane-body spacing adjustments should prefer the shared top-level pane-content rule over one-off pane variants when the intent applies across Basemap, Facilities, Labels, and Overlays
+- compact prototype control sizing should prefer one prototype-local token family for `On/Off`, pill `%`, and swatch-circle geometry rather than separate per-control overrides
 
 The main app entry remains:
 
@@ -170,6 +171,13 @@ For this repo, likely candidates for promotion are:
 - shared prototype-to-production style-state domain helpers
 - PMC row style-editor trigger and floating callout behavior, if approved
 - fixed alignment/grid helpers for right-edge pane controls
+- a shared border-compensation rule for aligning bordered internal headers to top-level pane control rails without pane-specific nudges
+
+Measurement rule for alignment work:
+
+- when alignment/spacing depends on multiple nested rails, borders, absolute positioning, or shared tokens, stop relying on CSS inference alone
+- inspect the rendered geometry and measure actual boxes/centers/edges in the live prototype
+- lock the final rule from those measurements, then encode it as shared tokens/helpers instead of leaving it as an ad hoc visual tweak
 
 ## JJ and branch hygiene
 

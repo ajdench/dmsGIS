@@ -45,6 +45,8 @@ npm run build
 - preserve the pill-driven popover interaction model
 - preserve the shared row-shell and right-edge-slot layout contract
 - keep shape-button silhouettes and pill swatches as separately tuned renderers
+- keep the locked compact-control token values and swatch-pill geometry in `prototype.css` unless there is a deliberate recalibration pass
+- keep popover section titles on the shared `--font-size-popover-title` token
 - keep documentation neutral about calibration areas rather than phrasing them as defects by default
 
 ## Suggested restart prompt

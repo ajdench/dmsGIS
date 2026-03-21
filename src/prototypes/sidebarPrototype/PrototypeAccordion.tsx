@@ -1,6 +1,7 @@
 import * as Accordion from '@radix-ui/react-accordion';
-import type { ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import {
+  PrototypeDragHandle,
   PrototypeMetricPill,
   PrototypeToggleButton,
   type SwatchStop,
@@ -29,6 +30,8 @@ interface PrototypeAccordionItemProps {
   panel?: boolean;
   enabled?: boolean;
   onEnabledToggle?: () => void;
+  dragHandleProps?: ButtonHTMLAttributes<HTMLButtonElement>;
+  dragHandleRef?: (element: HTMLButtonElement | null) => void;
 }
 
 export function PrototypeAccordion({
@@ -49,6 +52,27 @@ export function PrototypeAccordion({
   );
 }
 
+export function PrototypeChevronDownIcon({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
 export function PrototypeAccordionItem({
   id,
   title,
@@ -65,6 +89,8 @@ export function PrototypeAccordionItem({
   panel = false,
   enabled,
   onEnabledToggle,
+  dragHandleProps,
+  dragHandleRef,
 }: PrototypeAccordionItemProps) {
   return (
     <Accordion.Item
@@ -83,27 +109,60 @@ export function PrototypeAccordionItem({
               </span>
             ) : null}
           </span>
-          <span className="prototype-accordion-item__meta">
-            {typeof enabled === 'boolean' ? (
-              <PrototypeToggleButton enabled={enabled} onClick={onEnabledToggle} />
-            ) : null}
-            {badge ? (
-              <PrototypeMetricPill
-                value={badge}
-                swatch={badgeSwatch}
-                swatchOpacity={badgeSwatchOpacity}
-                swatchMix={badgeSwatchMix}
-                swatchBorderColor={badgeSwatchBorderColor}
-                swatchBorderWidth={badgeSwatchBorderWidth}
-                swatchBorderOpacity={badgeSwatchBorderOpacity}
-              />
-            ) : null}
-            <Accordion.Trigger className="prototype-disclosure-button">
-              <span className="prototype-accordion-item__chevron" aria-hidden="true">
-                ▾
+          {level === 'pane' ? (
+            <>
+              <span className="prototype-accordion-item__pane-main-slot">
+                {typeof enabled === 'boolean' ? (
+                  <PrototypeToggleButton
+                    enabled={enabled}
+                    onClick={onEnabledToggle}
+                  />
+                ) : badge ? (
+                  <PrototypeMetricPill
+                    value={badge}
+                    swatch={badgeSwatch}
+                    swatchOpacity={badgeSwatchOpacity}
+                    swatchMix={badgeSwatchMix}
+                    swatchBorderColor={badgeSwatchBorderColor}
+                    swatchBorderWidth={badgeSwatchBorderWidth}
+                    swatchBorderOpacity={badgeSwatchBorderOpacity}
+                  />
+                ) : null}
               </span>
-            </Accordion.Trigger>
-          </span>
+              <Accordion.Trigger className="prototype-disclosure-button prototype-disclosure-button--pane">
+                <PrototypeChevronDownIcon className="prototype-accordion-item__chevron" />
+              </Accordion.Trigger>
+              <PrototypeDragHandle
+                ref={dragHandleRef}
+                className="prototype-drag-handle--pane"
+                label={title}
+                {...dragHandleProps}
+              />
+            </>
+          ) : (
+            <span className="prototype-accordion-item__meta">
+              {typeof enabled === 'boolean' ? (
+                <PrototypeToggleButton
+                  enabled={enabled}
+                  onClick={onEnabledToggle}
+                />
+              ) : null}
+              {badge ? (
+                <PrototypeMetricPill
+                  value={badge}
+                  swatch={badgeSwatch}
+                  swatchOpacity={badgeSwatchOpacity}
+                  swatchMix={badgeSwatchMix}
+                  swatchBorderColor={badgeSwatchBorderColor}
+                  swatchBorderWidth={badgeSwatchBorderWidth}
+                  swatchBorderOpacity={badgeSwatchBorderOpacity}
+                />
+              ) : null}
+              <Accordion.Trigger className="prototype-disclosure-button">
+                <PrototypeChevronDownIcon className="prototype-accordion-item__chevron" />
+              </Accordion.Trigger>
+            </span>
+          )}
         </div>
       </Accordion.Header>
       <Accordion.Content className="prototype-accordion-item__content">

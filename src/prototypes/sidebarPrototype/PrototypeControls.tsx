@@ -27,6 +27,7 @@ interface PrototypeMetricPillProps
   swatchBorderColor?: string;
   swatchBorderWidth?: number;
   swatchBorderOpacity?: number;
+  debugCircleOverlay?: boolean;
   asButton?: boolean;
   ariaExpanded?: boolean;
   ariaHaspopup?: 'dialog';
@@ -87,6 +88,8 @@ interface PrototypePopoverProps {
 
 interface PrototypeControlSectionProps {
   title: string;
+  enabled?: boolean;
+  onToggle?: () => void;
   children: ReactNode;
 }
 
@@ -101,6 +104,7 @@ interface PrototypePillPopoverProps {
   swatchBorderColor?: string;
   swatchBorderWidth?: number;
   swatchBorderOpacity?: number;
+  debugCircleOverlay?: boolean;
   scrollContainer?: HTMLElement | null;
   portalContainer?: HTMLElement | null;
   viewportContainer?: HTMLElement | null;
@@ -119,6 +123,7 @@ interface PrototypeMetaControlsProps {
   onEnabledToggle?: () => void;
   pillPopover?: ReactNode;
   trailingControl?: ReactNode;
+  reserveTrailingSlot?: boolean;
 }
 
 interface PrototypeSectionCardShellProps {
@@ -127,6 +132,7 @@ interface PrototypeSectionCardShellProps {
   onEnabledToggle?: () => void;
   pillPopover?: ReactNode;
   trailingControl?: ReactNode;
+  reserveTrailingSlot?: boolean;
   body?: ReactNode;
   style?: CSSProperties;
   isDragging?: boolean;
@@ -275,8 +281,39 @@ function buildSwatchStyle({
   };
 }
 
-function getSwatchStrokeWidth(borderWidth: number) {
-  return Math.max(0, Math.min(14, borderWidth * 6));
+function getSwatchInnerScale(shape: PrototypeShape, borderWidth: number) {
+  if (shape === 'square') {
+    const inset = Math.max(0, Math.min(24, borderWidth * 2.65));
+    return (100 - inset * 2) / 100;
+  }
+
+  if (shape === 'diamond') {
+    const inset = Math.max(0, Math.min(25, borderWidth * 2.75));
+    return (100 - inset * 2) / 100;
+  }
+
+  if (shape === 'triangle') {
+    const inset = Math.max(0, Math.min(33, borderWidth * 3.825));
+    return (100 - inset * 2) / 100;
+  }
+
+  const inset = Math.max(0, Math.min(22, borderWidth * 2.35));
+  return (100 - inset * 2) / 100;
+}
+
+function getSwatchInnerTransform(
+  shape: PrototypeShape,
+  innerScale: number,
+) {
+  if (innerScale >= 1) {
+    return undefined;
+  }
+
+  if (shape === 'triangle') {
+    return `translate(50 52.87) scale(${innerScale}) translate(-50 -52.87)`;
+  }
+
+  return `translate(50 50) scale(${innerScale}) translate(-50 -50)`;
 }
 
 interface PrototypeShapeIconProps {
@@ -284,18 +321,87 @@ interface PrototypeShapeIconProps {
   className?: string;
 }
 
+function renderPrototypeShapePath(shape: PrototypeShape, scale: 'icon' | 'swatch') {
+  if (scale === 'icon') {
+    if (shape === 'circle') {
+      return <circle cx="12" cy="12" r="7.35" />;
+    }
+
+    if (shape === 'square') {
+      return <rect x="5" y="5" width="14" height="14" rx="2.9" />;
+    }
+
+    if (shape === 'diamond') {
+      return (
+        <rect
+          x="5.35"
+          y="5.35"
+          width="13.3"
+          height="13.3"
+          rx="2.25"
+          transform="rotate(45 12 12)"
+        />
+      );
+    }
+
+    return (
+      <path d="M12 5.25
+         C13.15 5.25 14 5.76 14.56 6.8
+         L18.74 14.77
+         C19.47 16.15 18.48 17.7 16.94 17.7
+         H7.06
+         C5.52 17.7 4.53 16.15 5.26 14.77
+         L9.44 6.8
+         C10 5.76 10.85 5.25 12 5.25 Z" />
+    );
+  }
+
+  if (shape === 'circle') {
+    return <circle cx="50" cy="50" r="47" />;
+  }
+
+  if (shape === 'square') {
+    return <rect x="9.5" y="9.5" width="81" height="81" rx="13.5" ry="13.5" />;
+  }
+
+  if (shape === 'diamond') {
+    return (
+      <rect
+        x="12.25"
+        y="12.25"
+        width="75.5"
+        height="75.5"
+        rx="12.6"
+        transform="rotate(45 50 50)"
+      />
+    );
+  }
+
+  return (
+    <path d="M50 7
+       C53.25 7 55.65 8.4 57.22 11.35
+       L89.1 72.2
+       C91.06 75.94 88.39 80 84.22 80
+       H15.78
+       C11.61 80 8.94 75.94 10.9 72.2
+       L42.78 11.35
+       C44.35 8.4 46.75 7 50 7 Z" />
+  );
+}
+
 function PrototypeShapeIcon({ shape, className }: PrototypeShapeIconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      {shape === 'circle' ? <circle cx="12" cy="12" r="7.2" fill="currentColor" /> : null}
-      {shape === 'square' ? (
-        <rect x="5.2" y="5.2" width="13.6" height="13.6" rx="2.35" fill="currentColor" />
-      ) : null}
-      {shape === 'diamond' ? (
-        <path d="M12 4.7L19.3 12L12 19.3L4.7 12Z" fill="currentColor" />
-      ) : null}
-      {shape === 'triangle' ? (
-        <path d="M12 4.9L18.8 18.1H5.2Z" fill="currentColor" stroke="currentColor" strokeWidth="0.65" strokeLinejoin="round" />
+      {renderPrototypeShapePath(shape, 'icon') ? (
+        <g
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth={shape === 'circle' ? 0 : shape === 'square' ? 0.7 : shape === 'diamond' ? 1 : 0.94}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        >
+          {renderPrototypeShapePath(shape, 'icon')}
+        </g>
       ) : null}
     </svg>
   );
@@ -304,70 +410,70 @@ function PrototypeShapeIcon({ shape, className }: PrototypeShapeIconProps) {
 interface PrototypeShapeSwatchProps {
   shape: PrototypeShape;
   fill: string;
-  stroke?: string;
-  strokeWidth?: number;
+  borderFill?: string;
+  fillBackdrop?: string;
+  innerScale?: number;
   className?: string;
 }
 
 function PrototypeShapeSwatch({
   shape,
   fill,
-  stroke = 'transparent',
-  strokeWidth = 0,
+  borderFill,
+  fillBackdrop = 'transparent',
+  innerScale = 1,
   className,
 }: PrototypeShapeSwatchProps) {
-  const inset = 14 + strokeWidth / 2;
-  const max = 100 - inset;
-  const size = max - inset;
+  const innerTransform = getSwatchInnerTransform(shape, innerScale);
+
   return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
-      {shape === 'circle' ? (
-        <circle
-          cx="50"
-          cy="50"
-          r={Math.max(0, 33 - strokeWidth / 2)}
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-      {shape === 'square' ? (
-        <rect
-          x={inset}
-          y={inset}
-          width={size}
-          height={size}
-          rx="8"
-          ry="8"
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-      {shape === 'diamond' ? (
-        <path
-          d={`M 50 ${inset} L ${max} 50 L 50 ${max} L ${inset} 50 Z`}
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-      {shape === 'triangle' ? (
-        <path
-          d={`M 50 ${inset} L ${max} ${max} L ${inset} ${max} Z`}
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      aria-hidden="true"
+      style={{ overflow: 'visible' }}
+    >
+      {borderFill ? (
+        <>
+          <g fill={borderFill}>{renderPrototypeShapePath(shape, 'swatch')}</g>
+          <g fill={fillBackdrop} transform={innerTransform}>
+            {renderPrototypeShapePath(shape, 'swatch')}
+          </g>
+          <g fill={fill} transform={innerTransform}>
+            {renderPrototypeShapePath(shape, 'swatch')}
+          </g>
+        </>
+      ) : (
+        <g fill={fill}>{renderPrototypeShapePath(shape, 'swatch')}</g>
+      )}
     </svg>
   );
+}
+
+function resolveSwatchRender({
+  shape,
+  borderColor,
+  borderOpacity,
+  borderWidth,
+}: {
+  shape: PrototypeShape;
+  borderColor?: string;
+  borderOpacity: number;
+  borderWidth: number;
+}) {
+  if (borderWidth > 0 && borderOpacity > 0 && borderColor) {
+    return {
+      borderFill: applyOpacityToColor(borderColor, borderOpacity),
+      innerScale: getSwatchInnerScale(shape, borderWidth),
+      useDefaultOutline: false,
+    };
+  }
+
+  return {
+    borderFill: undefined,
+    innerScale: 1,
+    useDefaultOutline: true,
+  };
 }
 
 export function PrototypeToggleButton({
@@ -411,6 +517,7 @@ export const PrototypeMetricPill = forwardRef<
     swatchBorderColor = 'rgba(148, 163, 184, 0.6)',
     swatchBorderWidth = 1,
     swatchBorderOpacity = 1,
+    debugCircleOverlay = false,
     asButton = false,
     ariaExpanded,
     ariaHaspopup,
@@ -423,10 +530,12 @@ export const PrototypeMetricPill = forwardRef<
   const fillColor = swatch
     ? applyOpacityToColor(swatch, swatchOpacity)
     : 'transparent';
-  const strokeColor = swatchBorderColor
-    ? applyOpacityToColor(swatchBorderColor, swatchBorderOpacity)
-    : 'transparent';
-  const shapeStrokeWidth = getSwatchStrokeWidth(swatchBorderWidth);
+  const { borderFill, innerScale, useDefaultOutline } = resolveSwatchRender({
+      shape: swatchShape,
+      borderColor: swatchBorderColor,
+      borderOpacity: swatchBorderOpacity,
+      borderWidth: swatchBorderWidth,
+    });
   const content = (
     <>
       {swatch ? (
@@ -437,27 +546,54 @@ export const PrototypeMetricPill = forwardRef<
               color: swatch,
               opacity: swatchOpacity,
               mix: swatchMix,
-              borderColor: swatchBorderColor,
-              borderOpacity: swatchBorderOpacity,
-              borderWidth: `${swatchBorderWidth}px`,
+              borderColor:
+                swatchBorderWidth > 0 && swatchBorderOpacity > 0
+                  ? swatchBorderColor
+                  : 'var(--prototype-pill-swatch-outline-color)',
+              borderOpacity:
+                swatchBorderWidth > 0 && swatchBorderOpacity > 0
+                  ? swatchBorderOpacity
+                  : 1,
+              borderWidth: `${
+                swatchBorderWidth > 0 && swatchBorderOpacity > 0
+                  ? swatchBorderWidth
+                  : 1
+              }px`,
             })}
             aria-hidden="true"
           />
         ) : (
           <span
-            className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}`}
+            className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}${
+              useDefaultOutline
+                ? ' prototype-metric-pill__swatch--default-outline'
+                : ''
+            }`}
           >
+            {debugCircleOverlay ? (
+              <span
+                className="prototype-metric-pill__swatch-debug-circle"
+                aria-hidden="true"
+              />
+            ) : null}
             <PrototypeShapeSwatch
               shape={swatchShape}
               fill={fillColor}
-              stroke={strokeColor}
-              strokeWidth={shapeStrokeWidth}
+              borderFill={borderFill}
+              fillBackdrop="var(--prototype-pill-swatch-fill-backdrop)"
+              innerScale={innerScale}
               className={`prototype-metric-pill__swatch-svg prototype-metric-pill__swatch-svg--${swatchShape}`}
             />
           </span>
         )
       ) : null}
-      <span>{value}</span>
+      <span
+        className={`prototype-metric-pill__value${
+          swatch ? ' prototype-metric-pill__value--swatch' : ''
+        }`}
+      >
+        {value}
+      </span>
     </>
   );
 
@@ -503,12 +639,28 @@ export function PrototypeControlField({
 
 export function PrototypeControlSection({
   title,
+  enabled = true,
+  onToggle,
   children,
 }: PrototypeControlSectionProps) {
   return (
-    <section className="prototype-control-section">
+    <section
+      className={`prototype-control-section${
+        enabled ? '' : ' prototype-control-section--disabled'
+      }`}
+    >
       <div className="prototype-popover__section-title">{title}</div>
-      <div className="prototype-control-section__content">{children}</div>
+      {onToggle ? (
+        <div className="prototype-control-section__toggle">
+          <PrototypeToggleButton enabled={enabled} onClick={onToggle} />
+        </div>
+      ) : null}
+      <div
+        className="prototype-control-section__content"
+        aria-disabled={enabled ? undefined : 'true'}
+      >
+        {children}
+      </div>
     </section>
   );
 }
@@ -524,6 +676,7 @@ export function PrototypePillPopover({
   swatchBorderColor,
   swatchBorderWidth,
   swatchBorderOpacity,
+  debugCircleOverlay,
   scrollContainer,
   portalContainer,
   viewportContainer,
@@ -550,6 +703,7 @@ export function PrototypePillPopover({
           swatchBorderColor={swatchBorderColor}
           swatchBorderWidth={swatchBorderWidth}
           swatchBorderOpacity={swatchBorderOpacity}
+          debugCircleOverlay={debugCircleOverlay}
           asButton
           ariaExpanded={open}
           ariaHaspopup="dialog"
@@ -585,6 +739,7 @@ export function PrototypeMetaControls({
   onEnabledToggle,
   pillPopover,
   trailingControl,
+  reserveTrailingSlot = false,
 }: PrototypeMetaControlsProps) {
   return (
     <span className="prototype-accordion-item__meta">
@@ -593,6 +748,12 @@ export function PrototypeMetaControls({
       ) : null}
       {pillPopover}
       {trailingControl}
+      {reserveTrailingSlot ? (
+        <span
+          className="prototype-meta-spacer prototype-meta-spacer--drag"
+          aria-hidden="true"
+        />
+      ) : null}
     </span>
   );
 }
@@ -603,6 +764,7 @@ export function PrototypeSectionCardShell({
   onEnabledToggle,
   pillPopover,
   trailingControl,
+  reserveTrailingSlot = false,
   body,
   style,
   isDragging = false,
@@ -621,6 +783,7 @@ export function PrototypeSectionCardShell({
           onEnabledToggle={onEnabledToggle}
           pillPopover={pillPopover}
           trailingControl={trailingControl}
+          reserveTrailingSlot={reserveTrailingSlot}
         />
       </div>
       {body ? <div className="prototype-section-card__body">{body}</div> : null}

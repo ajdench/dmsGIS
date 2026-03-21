@@ -44,7 +44,7 @@ Characteristics captured in `v2`:
 - common top-level pane-body bottom spacing applied through the shared pane-content rule
 - shared row shells and pill-popover wiring extracted into `PrototypeControls.tsx` to reduce pane-specific markup duplication
 - repeated popover field groups now route through config/build helpers plus a shared section renderer instead of duplicated field JSX
-- popover field builders and rendering helpers are now separated into `popoverFields.tsx`, keeping the app shell focused on state and layout composition
+- popover field builders and rendering helpers are now separated into `popoverFields.ts`, keeping the app shell focused on state and layout composition
 - shared style-state types/defaults/update helpers are now separated into `prototypeStyleState.ts`, reducing pane-local state duplication
 - focused prototype tests now cover shared row-shell interactions plus extracted field/state helpers
 - pane-specific field builders are now split by pane instead of living in one catch-all module, and the prototype has an explicit promotion-boundary note
@@ -68,3 +68,10 @@ Current `v3` emphasis:
 - document current visual tuning neutrally as calibration work
 - avoid treating active swatch/pill/shape polish work as blocker bugs unless it genuinely blocks build, validation, or promotion decisions
 - use `REACTIVATION.md` as the restart handoff note for this active calibration phase
+- keep compact control typography and swatch-pill geometry locked through the prototype-local token path in `prototype.css`
+- keep popover section-title sizing on the shared global `--font-size-popover-title` token
+- keep the rounded SVG diamond/triangle shape-button geometry as the locked prototype reference for future production point-shape promotion
+- keep the pill-swatch debug-circle capability available in component code for future alignment checks, but disabled in normal prototype rendering
+- keep pane-header and bordered-section-header alignment on the shared tokenized rule, using pane-edge offsets for top-level headers and `--prototype-subpane-border-compensation` for bordered internal headers
+- keep top-level pane header rails locked to the same measured `48px` outer height as Land/Sea-style bordered rows via `--prototype-shared-header-outer-height`
+- keep top-level drag handles locked to the measured row-handle column, and keep top-level chevrons in the visually approved measured position rather than forcing strict pill-right-edge alignment where that reads worse

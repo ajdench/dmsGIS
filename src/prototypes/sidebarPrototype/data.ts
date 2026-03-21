@@ -71,14 +71,14 @@ export const BASEMAP_SIMPLE_SECTIONS = [
     id: 'land',
     title: 'Land',
     colourId: 'land-colour',
-    colourValue: '#ecf0e6',
+    colourValue: '#f4f7ef',
     opacityId: 'land-opacity',
   },
   {
     id: 'sea',
     title: 'Sea',
     colourId: 'sea-colour',
-    colourValue: '#d9e7f5',
+    colourValue: '#e7f0fd',
     opacityId: 'sea-opacity',
   },
 ] as const;

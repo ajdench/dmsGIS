@@ -29,11 +29,48 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Region-row edits should then remain local until another matching global PMC control is changed
 - PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
 - Shape-button silhouettes and pill swatches should use separate tuned renderers; when promoted to production map points, border thickness must project inward so symbol size stays fixed to the configured point size
+- Popover shape-button silhouettes now use rounded SVG geometry, including a rotated rounded-rect diamond and a subtly curved triangle, and these shapes are the intended reference for future production map-point symbols
+- When promoted to production map points, shape size and corner rounding should scale together from the configured point-size control rather than being held as fixed icon geometry
+- Triangle border rendering should not rely on generic scale-down math or ad hoc offsets. The approved direction is geometry-first: one symmetric outer/inner shape family, with inward border projection and mathematically derived centroid scaling so the same principle can later inform production map points
 - Pill swatches currently use:
   - a neutral hairline outline by default
   - a configured border when the relevant popover exposes border controls
   - fixed tokenized outer size, with internal shape/border projection only
+  - a reusable optional debug circle overlay remains available in the swatch component for future alignment checks, but it is not part of the live UI
+- Compact `On/Off`, pill `%`, and swatch-circle sizing is now locked through one prototype-local token family in `prototype.css`:
+  - `--prototype-compact-text-size`
+  - `--prototype-compact-text-offset-y`
+  - `--prototype-compact-swatch-size`
+- Current locked compact-control values in the prototype are:
+  - `--prototype-compact-text-size: 0.775rem`
+  - `--prototype-compact-text-offset-y: 1.5px`
+  - `--prototype-toggle-padding-x: 0.58rem`
+- Popover section titles such as `Layer`, `Text`, `Points`, and `Border` should all use the shared global `--font-size-popover-title` token so they can be tuned once across popover types
+- Current locked popover section-title value is:
+  - `--font-size-popover-title: 0.825rem`
+- Swatch-pill width and `%` placement are now controlled through explicit pill-geometry tokens rather than ad hoc text nudges:
+  - `--prototype-pill-left-padding`
+  - `--prototype-pill-value-width`
+  - `--prototype-pill-right-padding`
+- Current locked swatch-pill geometry is:
+  - `--prototype-pill-value-width: 4ch`
+  - `--prototype-pill-right-padding: calc(var(--prototype-pill-left-padding) - 1.5px)`
 - Basemap pill swatches currently use live local colour state from their own popovers rather than static seed-display values
+- Header alignment is now governed by a shared rule:
+  - top-level pane headers align from pane-edge math
+  - bordered internal section headers align from the same control geometry plus `--prototype-subpane-border-compensation`
+  - this keeps top-level pane controls and bordered sub-pane/section controls on the same right-edge and chevron-slot basis across pane families
+- When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
+  - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
+  - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output
+- Current measured right-edge alignment outcome:
+  - top-level pane drag handles are locked to the same rendered handle column as row handles below
+  - top-level pane toggles are locked to the same rendered toggle right-edge as the matching controls below
+  - top-level chevrons are kept in the visually approved position after measurement, even where that differs from a stricter pill-right-edge alignment rule
+- Top-level pane header rails are now locked to the same rendered outer height as Land/Sea-style bordered rows:
+  - shared token: `--prototype-shared-header-outer-height`
+  - locked value: `3rem` (`48px` at the current root font size)
+  - this applies in both collapsed and expanded top-level pane states
 - Current pill-value alignment work should be documented as ongoing visual calibration, not defect tracking
 - PMC row editors are grouped into `Points` and `Border` sections
 - Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline
@@ -49,6 +86,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - Focused tests now cover row-shell interaction contracts, popover field builders, and prototype style-state helpers
 - Use red-tinted `Off` state styling and green-tinted `On` state styling, including hover treatment
 - Preset buttons (`Current` to `COA 3b` and `DPHC Estimate COA Playground`) should use the same background tone for hover and selected states, with a softer selected border tone than the default hover-border accent
+- The full-width `DPHC Estimate COA Playground` button should inherit the same selected text-weight behavior as the `Current` to `COA` buttons while preserving its production text structure
 - Top-level pane bodies currently use a shared extra `1px` bottom white inset through the common pane-content rule rather than pane-specific overrides
 - Prevent large pane content, especially Facilities, from visually running beyond the available panel space
 - Do not duplicate `Visible` controls inside section bodies when `On/Off` already exists in the header
@@ -78,6 +116,8 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - `SidebarPrototypeApp.tsx`
 - `PrototypeAccordion.tsx`
 - `prototype.css`
+- `types.ts`
+- `mockData.tsx`
 - `VERSIONS.md`
 
 Production-aware migration notes:
@@ -124,7 +164,6 @@ Likely promotion-ready primitives are:
 These are active design-tuning areas inside the prototype and should be treated as reviewable calibration work rather than as bug-tracker items:
 
 - pill swatch shape/outline balance
-- pill value alignment and typography balance against swatch centre lines
 - compact shape-button silhouette tuning
 - Basemap default colour brightness and preview presentation
 

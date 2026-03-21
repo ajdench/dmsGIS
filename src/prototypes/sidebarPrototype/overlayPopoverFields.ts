@@ -17,6 +17,8 @@ export function buildOverlayControlSections(
   return [
     {
       title: 'Layer',
+      enabled: style.layerEnabled,
+      onToggle: () => setOverlayStyle(sectionId, 'layerEnabled', !style.layerEnabled),
       fields: [
         {
           kind: 'color',
@@ -37,6 +39,8 @@ export function buildOverlayControlSections(
     },
     {
       title: 'Border',
+      enabled: style.borderEnabled,
+      onToggle: () => setOverlayStyle(sectionId, 'borderEnabled', !style.borderEnabled),
       fields: [
         {
           kind: 'color',
@@ -53,8 +57,8 @@ export function buildOverlayControlSections(
           label: 'Thickness',
           value: style.borderWidth,
           min: 0,
-          max: 6,
-          step: 0.5,
+          max: 10,
+          step: 0.25,
           mode: 'raw',
           onChange: (borderWidth) =>
             setOverlayStyle(sectionId, 'borderWidth', borderWidth),

@@ -2,6 +2,14 @@
 
 This note stays in prototype space, but it is based on the current production codebase and is intended to reduce ambiguity when the sidebar pattern is promoted.
 
+This analysis assumes that the approved prototype is the intended target state for the production sidebar:
+
+- visually
+- interaction-wise
+- structurally
+
+The migration guidance below is therefore about how to achieve that target safely in the current production codebase, not about whether production should reproduce the prototype.
+
 ## Current production inspection
 
 The current production sidebar is assembled in:
@@ -50,9 +58,11 @@ Likely promoted pieces:
 - drag-handle slot
 - row-end meta layout
 - shared toggle/pill presentation
+- rounded SVG point-shape geometry definitions for future production map symbols, provided they are wired so size and rounding scale from the same production point-size value
+- geometry-first border rendering for non-circular symbols, especially triangles: use one symmetric outer/inner shape family with inward border projection and size-driven centroid-based scaling rather than centered strokes or ad hoc swatch offsets
 
 Prototype module:
-- `src/prototypes/sidebarPrototype/popoverFields.tsx`
+- `src/prototypes/sidebarPrototype/popoverFields.ts`
 
 Likely production destination:
 - pane-local config modules under the owning feature
@@ -109,6 +119,7 @@ Why:
 
 ## Promotion principles to preserve
 
+- Treat the approved prototype as the target experience, not as optional inspiration.
 - Keep shared interaction shells in shared component space.
 - Keep pane-specific field definitions outside shared component files.
 - Keep style-state helpers outside presentation components.

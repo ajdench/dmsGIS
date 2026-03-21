@@ -11,6 +11,12 @@ export function buildRegionControlSections(
   return [
     {
       title: 'Points',
+      enabled: styleState.pointsEnabled,
+      onToggle: () =>
+        onStyleChange({
+          ...styleState,
+          pointsEnabled: !styleState.pointsEnabled,
+        }),
       fields: [
         {
           kind: 'shape',
@@ -64,6 +70,12 @@ export function buildRegionControlSections(
     },
     {
       title: 'Border',
+      enabled: styleState.borderEnabled,
+      onToggle: () =>
+        onStyleChange({
+          ...styleState,
+          borderEnabled: !styleState.borderEnabled,
+        }),
       fields: [
         {
           kind: 'color',
@@ -83,8 +95,8 @@ export function buildRegionControlSections(
           label: 'Thickness',
           value: styleState.borderWidth,
           min: 0,
-          max: 6,
-          step: 0.5,
+          max: 10,
+          step: 0.25,
           mode: 'raw',
           onChange: (borderWidth) =>
             onStyleChange({

@@ -51,6 +51,8 @@ Apply these principles to future development in this repo:
     When a current implementation path is proving brittle or visually wrong, step back and replace it with a clearer pattern instead of stacking more tweaks onto it.
 15. Keep clarification questions minimal, ordered, and dependency-aware.
     Ask only the questions needed to de-risk the work. If more than three are needed, ask them one at a time in the order where each answer informs the next.
+16. Prefer measured rendered geometry over inferred CSS reasoning when alignment or spacing becomes non-trivial.
+    Once visual alignment depends on multiple nested rails, borders, absolute positioning, or token interactions, verify the live rendered boxes/positions and calculate from those measurements rather than continuing with approximate CSS inference.
 
 Working stance:
 

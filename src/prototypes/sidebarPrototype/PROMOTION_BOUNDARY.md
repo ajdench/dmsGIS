@@ -4,9 +4,14 @@ This note defines the current promotion boundary for the sidebar prototype.
 
 It is intentionally kept in prototype space so we can refine it without prematurely turning prototype assumptions into production contracts.
 
+Important intent:
+
+- the approved prototype is the target production design direction
+- the promotion boundary exists to control how parity is achieved, not to imply that production should only cherry-pick isolated ideas
+
 ## Promoteable candidates
 
-These are the prototype pieces that are currently strong candidates for later promotion into production code.
+These are the prototype pieces that are currently strong candidates for later promotion into production code so the production app can reproduce the prototype’s design language, behavior, and structure.
 
 ### Shared UI primitives
 
@@ -88,6 +93,7 @@ Expected production outcome:
 
 ## Promotion rules
 
+- Promote toward prototype parity, not toward a looser approximation.
 - Promote primitives before promoting pane compositions.
 - Promote contracts before promoting visual tuning.
 - Promote one production pane at a time.

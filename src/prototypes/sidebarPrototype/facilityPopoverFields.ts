@@ -6,6 +6,8 @@ import type {
 import type { PrototypeControlSectionConfig } from './popoverFieldRenderer';
 
 interface FacilityControlSectionArgs {
+  facilityPointsEnabled: RegionStyleState['pointsEnabled'];
+  facilityBorderEnabled: RegionStyleState['borderEnabled'];
   facilityShape: RegionStyleState['shape'];
   facilitySymbolSize: RegionStyleState['size'];
   facilityColor: RegionStyleState['color'];
@@ -27,6 +29,9 @@ export function buildFacilityControlSections(
   return [
     {
       title: 'Points',
+      enabled: args.facilityPointsEnabled,
+      onToggle: () =>
+        args.setFacilityStyle('pointsEnabled', !args.facilityPointsEnabled),
       fields: [
         {
           kind: 'shape',
@@ -65,6 +70,9 @@ export function buildFacilityControlSections(
     },
     {
       title: 'Border',
+      enabled: args.facilityBorderEnabled,
+      onToggle: () =>
+        args.setFacilityStyle('borderEnabled', !args.facilityBorderEnabled),
       fields: [
         {
           kind: 'color',
@@ -81,8 +89,8 @@ export function buildFacilityControlSections(
           label: 'Line thickness',
           value: args.facilityBorderWidth,
           min: 0,
-          max: 6,
-          step: 0.5,
+          max: 10,
+          step: 0.25,
           mode: 'raw',
           onChange: (borderWidth) => args.setFacilityStyle('borderWidth', borderWidth),
         },

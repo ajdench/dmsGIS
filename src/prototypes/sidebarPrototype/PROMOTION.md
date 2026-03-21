@@ -2,11 +2,21 @@
 
 This document communicates the current promotion requirements, recommended steps, and target production seams for moving the sidebar prototype into the main app.
 
+The key intent is:
+
+- the production sidebar should reproduce the approved prototype's visual design language
+- the production sidebar should reproduce the approved prototype's interaction model
+- the production sidebar should reproduce the approved prototype's structural/component architecture
+
+Promotion is therefore not meant to be a loose “borrow a few ideas” exercise.
+
+It is meant to be a controlled migration of the production app toward parity with this prototype, while replacing prototype-local state and scaffolding with real production state and feature wiring.
+
 It is intentionally kept in prototype space so the migration plan can stay close to the prototype contract until promotion begins.
 
 ## Current readiness
 
-The prototype is ready for controlled production promotion.
+The prototype is ready for controlled production promotion toward production parity with the approved prototype.
 
 Current evidence:
 
@@ -23,7 +33,7 @@ Current prototype state is saved as:
 - `jj` commit `877fef85`
 - commit message: `Snapshot sidebar prototype v2`
 
-This means the prototype is stable enough to promote in slices, but not yet something to drop wholesale into production paths.
+This means the prototype is stable enough to promote in slices, but the target state is still production parity with the prototype rather than a selective partial adoption.
 
 ## Promotion requirements
 
@@ -32,11 +42,12 @@ Promotion should only proceed if these requirements are kept intact:
 1. Promote one pane at a time.
 2. Preserve the current production sidebar order owned by `src/components/layout/RightSidebar.tsx`.
 3. Keep `SliderField.tsx` as the shared numeric/slider control base.
-4. Promote shared interaction shells before promoting pane-specific field definitions.
-5. Keep pane-specific field definitions in feature-owned production modules.
-6. Keep style-state/domain helpers outside presentation components.
-7. Do not move prototype-only CSS wholesale into production styles.
-8. Keep prototype-only layout shell code out of the production app.
+4. Treat the approved prototype as the target UX, visual language, and component structure.
+5. Promote shared interaction shells before promoting pane-specific field definitions.
+6. Keep pane-specific field definitions in feature-owned production modules.
+7. Keep style-state/domain helpers outside presentation components.
+8. Promote shared visual tokens and layout rules intentionally rather than ad hoc.
+9. Do not move prototype-only layout shell code out of the prototype.
 
 ## Current production seams
 
@@ -70,6 +81,8 @@ Strong promotion candidates:
 - config-driven field rendering from `popoverFieldRenderer.tsx`
 - style-state helper patterns from `prototypeStyleState.ts`
 - reorder helper from `sortableList.ts`
+
+These candidates are important because together they express the prototype’s intended production architecture, not just isolated utility pieces.
 
 Not ready to promote directly:
 
@@ -124,15 +137,17 @@ Recommended first slice: `Labels`
 Suggested steps:
 
 1. Create shared sidebar primitives in `src/components/sidebar/`.
-2. Create a small feature-owned label field-definition module in `src/features/labels/`.
-3. Replace the placeholder `LabelPanel.tsx` with the promoted row-shell + field-renderer path.
-4. Wire it to real store-backed state.
-5. Verify no regressions in `RightSidebar.tsx`.
+2. Promote the prototype’s row-shell, pill-popover, and right-edge control-slot model as the production target for that pane.
+3. Create a feature-owned label field-definition module in `src/features/labels/` that mirrors the prototype’s config-driven field structure.
+4. Replace the placeholder `LabelPanel.tsx` with the promoted row-shell + field-renderer path.
+5. Wire it to real store-backed state.
+6. Verify no regressions in `RightSidebar.tsx`.
 
 Success criteria for the first slice:
 
 - production Labels uses the promoted row shell
 - production Labels uses the shared pill-triggered popover pattern
+- production Labels matches the prototype’s visual hierarchy and row-end control model
 - production Labels reuses `SliderField.tsx`
 - production Labels does not import prototype files
 - production build/test signals stay green
@@ -141,7 +156,7 @@ Success criteria for the first slice:
 
 Before each production slice:
 
-- confirm prototype contract is still the desired one
+- confirm prototype parity is still the desired target state
 - identify the exact shared primitive to promote
 - identify the feature-owned field-definition module
 - verify store shape/state needs
@@ -161,17 +176,18 @@ Pause promotion if any of these becomes true:
 - the pane interaction model is still changing materially
 - the production store contract needs redesign before the pane can fit cleanly
 - the shared primitive starts accreting pane-specific behavior
-- CSS promotion would require copying large parts of `prototype.css` without clear token decisions
+- CSS/token promotion would require copying large parts of `prototype.css` without clear production token decisions
 
 ## Summary
 
 The prototype is ready for promotion in controlled slices.
 
-The correct next production move is not “merge the prototype.”
+The target is production parity with the approved prototype, achieved through staged promotion rather than a reckless wholesale copy.
 
-The correct next move is:
+The correct next production move is:
 
-- promote shared sidebar primitives
+- promote the prototype’s shared sidebar primitives
+- preserve the prototype’s visual and interaction contract as the target
 - start with Labels
 - keep pane-specific field definitions feature-owned
 - preserve the current production sidebar composition seam

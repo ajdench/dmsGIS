@@ -5,6 +5,8 @@ export type LabelSectionId = (typeof LABEL_SIMPLE_SECTIONS)[number]['id'];
 export type OverlaySectionId = (typeof OVERLAY_ROWS)[number]['key'];
 
 export interface RegionStyleState {
+  pointsEnabled: boolean;
+  borderEnabled: boolean;
   shape: PrototypeShape;
   size: number;
   opacity: number;
@@ -15,6 +17,8 @@ export interface RegionStyleState {
 }
 
 export interface LabelStyleState {
+  textEnabled: boolean;
+  borderEnabled: boolean;
   size: number;
   opacity: number;
   color: string;
@@ -24,6 +28,8 @@ export interface LabelStyleState {
 }
 
 export interface OverlayStyleState {
+  layerEnabled: boolean;
+  borderEnabled: boolean;
   opacity: number;
   color: string;
   borderColor: string;
@@ -40,78 +46,96 @@ export type OverlayStylesRecord = Record<OverlaySectionId, OverlayStyleState>;
 export type RegionStylesRecord = Record<string, RegionStyleState>;
 
 export const INITIAL_FACILITY_STYLE: RegionStyleState = {
+  pointsEnabled: true,
+  borderEnabled: false,
   shape: 'circle',
   size: 3.5,
   opacity: 0.75,
   color: '#ed5151',
   borderColor: '#cbd5e1',
-  borderWidth: 1,
-  borderOpacity: 0.2,
+  borderWidth: 0,
+  borderOpacity: 0,
 };
 
 export const INITIAL_LABEL_STYLES: LabelStylesRecord = {
   'country-labels': {
+    textEnabled: true,
+    borderEnabled: false,
     size: 8,
     opacity: 0.4,
     color: '#0f172a',
     borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.3,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
   'major-cities': {
+    textEnabled: true,
+    borderEnabled: false,
     size: 6,
     opacity: 0.65,
     color: '#1f2937',
     borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.35,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
   'region-labels': {
+    textEnabled: true,
+    borderEnabled: false,
     size: 7,
     opacity: 0.5,
     color: '#334155',
     borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.3,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
   'network-labels': {
+    textEnabled: true,
+    borderEnabled: false,
     size: 6,
     opacity: 0.55,
     color: '#475569',
     borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.32,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
   'facility-labels': {
+    textEnabled: true,
+    borderEnabled: false,
     size: 5.5,
     opacity: 0.7,
     color: '#111827',
     borderColor: '#f8fafc',
-    borderWidth: 0.5,
-    borderOpacity: 0.36,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
 };
 
 export const INITIAL_OVERLAY_STYLES: OverlayStylesRecord = {
   careBoards: {
+    layerEnabled: true,
+    borderEnabled: false,
     opacity: 1,
     color: '#f4b740',
     borderColor: '#8f8f8f',
-    borderWidth: 1,
-    borderOpacity: 0.35,
+    borderWidth: 0,
+    borderOpacity: 0,
   },
   pmcPopulated: {
+    layerEnabled: true,
+    borderEnabled: false,
     opacity: 0.75,
     color: '#ed5151',
     borderColor: '#ffffff',
-    borderWidth: 1,
+    borderWidth: 0,
     borderOpacity: 0,
   },
   pmcUnpopulated: {
+    layerEnabled: true,
+    borderEnabled: false,
     opacity: 0.35,
     color: '#94a3b8',
     borderColor: '#ffffff',
-    borderWidth: 1,
+    borderWidth: 0,
     borderOpacity: 0,
   },
 };

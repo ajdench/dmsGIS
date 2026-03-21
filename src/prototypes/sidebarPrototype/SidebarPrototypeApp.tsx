@@ -17,7 +17,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
-import { PrototypeAccordion, PrototypeAccordionItem } from './PrototypeAccordion';
+import {
+  PrototypeAccordion,
+  PrototypeAccordionItem,
+  PrototypeChevronDownIcon,
+} from './PrototypeAccordion';
 import {
   BASEMAP_SIMPLE_SECTIONS,
   buildInitialRegionEnabled,
@@ -86,8 +90,22 @@ export function SidebarPrototypeApp() {
   const [overlaySectionOrder, setOverlaySectionOrder] = useState<OverlaySectionId[]>(
     OVERLAY_ROWS.map((row) => row.key),
   );
+  const [paneOrder, setPaneOrder] = useState([
+    'basemap',
+    'facilities',
+    'labels',
+    'overlays',
+  ]);
+  const [landColor, setLandColor] = useState('#f4f7ef');
   const [landOpacity, setLandOpacity] = useState(0.84);
+  const [seaColor, setSeaColor] = useState('#e7f0fd');
   const [seaOpacity, setSeaOpacity] = useState(0.78);
+  const [facilityPointsEnabled, setFacilityPointsEnabled] = useState(
+    INITIAL_FACILITY_STYLE.pointsEnabled,
+  );
+  const [facilityBorderEnabled, setFacilityBorderEnabled] = useState(
+    INITIAL_FACILITY_STYLE.borderEnabled,
+  );
   const [facilityShape, setFacilityShape] = useState<PrototypeShape>(
     INITIAL_FACILITY_STYLE.shape,
   );
@@ -158,6 +176,12 @@ export function SidebarPrototypeApp() {
       case 'shape':
         setFacilityShape(value as PrototypeShape);
         break;
+      case 'pointsEnabled':
+        setFacilityPointsEnabled(value as boolean);
+        break;
+      case 'borderEnabled':
+        setFacilityBorderEnabled(value as boolean);
+        break;
       case 'size':
         setFacilitySymbolSize(value as number);
         break;
@@ -200,11 +224,16 @@ export function SidebarPrototypeApp() {
   const resetPrototypeState = () => {
     setOpenPanes(DEFAULT_OPEN_PANES);
     setActivePreset('current');
+    setPaneOrder(['basemap', 'facilities', 'labels', 'overlays']);
     setBasemapSectionOrder(BASEMAP_SIMPLE_SECTIONS.map((section) => section.id));
     setLabelSectionOrder(LABEL_SIMPLE_SECTIONS.map((section) => section.id));
     setOverlaySectionOrder(OVERLAY_ROWS.map((row) => row.key));
+    setLandColor('#f4f7ef');
     setLandOpacity(0.84);
+    setSeaColor('#e7f0fd');
     setSeaOpacity(0.78);
+    setFacilityPointsEnabled(INITIAL_FACILITY_STYLE.pointsEnabled);
+    setFacilityBorderEnabled(INITIAL_FACILITY_STYLE.borderEnabled);
     setFacilityShape(INITIAL_FACILITY_STYLE.shape);
     setFacilitySymbolSize(INITIAL_FACILITY_STYLE.size);
     setFacilityColor(INITIAL_FACILITY_STYLE.color);
@@ -256,16 +285,47 @@ export function SidebarPrototypeApp() {
           className="sidebar sidebar--right"
           aria-label="Right sidebar prototype"
         >
-          <PrototypeAccordion
-            value={openPanes}
-            onValueChange={setOpenPanes}
-            level="pane"
+          <div className="prototype-sidebar-presets">
+            <PrototypePresetRow
+              activePreset={activePreset}
+              onPresetChange={setActivePreset}
+            />
+
+            <button
+              type="button"
+              className={`button sidebar-action-row__button sidebar-action-row__button--full${
+                activePreset === 'dphc-playground'
+                  ? ' sidebar-action-row__button--active'
+                  : ''
+              }`}
+              onClick={() => setActivePreset('dphc-playground')}
+              aria-pressed={activePreset === 'dphc-playground'}
+            >
+              <span className="sidebar-action-row__button-label">
+                <span>DPHC Estimate COA</span>
+                <em>Playground</em>
+              </span>
+            </button>
+          </div>
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleSectionDragEnd(setPaneOrder)}
           >
-            <PrototypePanel
+            <SortableContext items={paneOrder} strategy={verticalListSortingStrategy}>
+              <PrototypeAccordion
+                value={openPanes}
+                onValueChange={setOpenPanes}
+                level="pane"
+              >
+            <PrototypeSortablePanel
               id="basemap"
               title="Basemap"
               enabled={paneEnabled.basemap}
               onEnabledToggle={() => toggleKey('basemap', setPaneEnabled)}
+              sortOrder={paneOrder.indexOf('basemap')}
             >
               <DndContext
                 sensors={sensors}
@@ -301,7 +361,8 @@ export function SidebarPrototypeApp() {
                               (section.id === 'land' ? landOpacity : seaOpacity) * 100,
                             )
                           }%`}
-                          badgeSwatch={section.colourValue}
+                          badgeSwatch={section.id === 'land' ? landColor : seaColor}
+                          badgeSwatchBorderWidth={0}
                           badgeSwatchOpacity={
                             section.id === 'land' ? landOpacity : seaOpacity
                           }
@@ -312,9 +373,15 @@ export function SidebarPrototypeApp() {
                           popoverContent={renderPrototypeControlSections(
                             buildBasemapControlSections({
                               idPrefix: section.id,
-                              colourValue: section.colourValue,
+                              enabled: sectionEnabled[section.id],
+                              onToggle: () =>
+                                toggleKey(section.id, setSectionEnabled),
+                              colourValue:
+                                section.id === 'land' ? landColor : seaColor,
                               colourOpacity:
                                 section.id === 'land' ? landOpacity : seaOpacity,
+                              onColorChange:
+                                section.id === 'land' ? setLandColor : setSeaColor,
                               onOpacityChange:
                                 section.id === 'land'
                                   ? setLandOpacity
@@ -327,34 +394,14 @@ export function SidebarPrototypeApp() {
                   </div>
                 </SortableContext>
               </DndContext>
-            </PrototypePanel>
+            </PrototypeSortablePanel>
 
-            <PrototypePresetRow
-              activePreset={activePreset}
-              onPresetChange={setActivePreset}
-            />
-
-            <button
-              type="button"
-              className={`button sidebar-action-row__button sidebar-action-row__button--full${
-                activePreset === 'dphc-playground'
-                  ? ' sidebar-action-row__button--active'
-                  : ''
-              }`}
-              onClick={() => setActivePreset('dphc-playground')}
-              aria-pressed={activePreset === 'dphc-playground'}
-            >
-              <span className="sidebar-action-row__button-label">
-                <span>DPHC Estimate COA</span>
-                <em>Playground</em>
-              </span>
-            </button>
-
-            <PrototypePanel
+            <PrototypeSortablePanel
               id="facilities"
               title="Facilities"
               enabled={paneEnabled.facilities}
               onEnabledToggle={() => toggleKey('facilities', setPaneEnabled)}
+              sortOrder={paneOrder.indexOf('facilities')}
             >
               <div className="prototype-section-list">
                 <PrototypeCollapsiblePopoverSection
@@ -365,15 +412,23 @@ export function SidebarPrototypeApp() {
                   badge={`${Math.round(facilityOpacity * 100)}%`}
                   badgeSwatch={facilityColor}
                   badgeSwatchShape={facilityShape}
-                  badgeSwatchOpacity={facilityOpacity}
-                  badgeSwatchMix={mixedFacilityColors}
+                  badgeSwatchOpacity={facilityPointsEnabled ? facilityOpacity : 0}
+                  badgeSwatchMix={
+                    facilityPointsEnabled ? mixedFacilityColors : undefined
+                  }
                   badgeSwatchBorderColor={facilityBorderColor}
-                  badgeSwatchBorderWidth={facilityBorderWidth}
-                  badgeSwatchBorderOpacity={facilityBorderOpacity}
+                  badgeSwatchBorderWidth={
+                    facilityBorderEnabled ? facilityBorderWidth : 0
+                  }
+                  badgeSwatchBorderOpacity={
+                    facilityBorderEnabled ? facilityBorderOpacity : 0
+                  }
                   scrollContainer={sidebarElement}
                   portalContainer={workspaceGridElement}
                   popoverContent={renderPrototypeControlSections(
                     buildFacilityControlSections({
+                      facilityPointsEnabled,
+                      facilityBorderEnabled,
                       facilityShape,
                       facilitySymbolSize,
                       facilityColor,
@@ -432,13 +487,14 @@ export function SidebarPrototypeApp() {
                 placeholder="Search facilities..."
                 aria-label="Search facilities"
               />
-            </PrototypePanel>
+            </PrototypeSortablePanel>
 
-            <PrototypePanel
+            <PrototypeSortablePanel
               id="labels"
               title="Labels"
               enabled={paneEnabled.labels}
               onEnabledToggle={() => toggleKey('labels', setPaneEnabled)}
+              sortOrder={paneOrder.indexOf('labels')}
             >
               <div className="prototype-section-list">
                 <DndContext
@@ -471,10 +527,22 @@ export function SidebarPrototypeApp() {
                           }
                           badge={`${Math.round(labelStyles[section.id].opacity * 100)}%`}
                           badgeSwatch={labelStyles[section.id].color}
-                          badgeSwatchOpacity={labelStyles[section.id].opacity}
+                          badgeSwatchOpacity={
+                            labelStyles[section.id].textEnabled
+                              ? labelStyles[section.id].opacity
+                              : 0
+                          }
                           badgeSwatchBorderColor={labelStyles[section.id].borderColor}
-                          badgeSwatchBorderWidth={labelStyles[section.id].borderWidth}
-                          badgeSwatchBorderOpacity={labelStyles[section.id].borderOpacity}
+                          badgeSwatchBorderWidth={
+                            labelStyles[section.id].borderEnabled
+                              ? labelStyles[section.id].borderWidth
+                              : 0
+                          }
+                          badgeSwatchBorderOpacity={
+                            labelStyles[section.id].borderEnabled
+                              ? labelStyles[section.id].borderOpacity
+                              : 0
+                          }
                           scrollContainer={sidebarElement}
                           portalContainer={workspaceGridElement}
                           popoverContent={renderPrototypeControlSections(
@@ -490,13 +558,14 @@ export function SidebarPrototypeApp() {
                   </SortableContext>
                 </DndContext>
               </div>
-            </PrototypePanel>
+            </PrototypeSortablePanel>
 
-            <PrototypePanel
+            <PrototypeSortablePanel
               id="overlays"
               title="Overlays"
               enabled={paneEnabled.overlays}
               onEnabledToggle={() => toggleKey('overlays', setPaneEnabled)}
+              sortOrder={paneOrder.indexOf('overlays')}
             >
               <div className="prototype-section-list">
                 <DndContext
@@ -529,10 +598,22 @@ export function SidebarPrototypeApp() {
                           }
                           badge={`${Math.round(overlayStyles[sectionId].opacity * 100)}%`}
                           badgeSwatch={overlayStyles[sectionId].color}
-                          badgeSwatchOpacity={overlayStyles[sectionId].opacity}
+                          badgeSwatchOpacity={
+                            overlayStyles[sectionId].layerEnabled
+                              ? overlayStyles[sectionId].opacity
+                              : 0
+                          }
                           badgeSwatchBorderColor={overlayStyles[sectionId].borderColor}
-                          badgeSwatchBorderWidth={overlayStyles[sectionId].borderWidth}
-                          badgeSwatchBorderOpacity={overlayStyles[sectionId].borderOpacity}
+                          badgeSwatchBorderWidth={
+                            overlayStyles[sectionId].borderEnabled
+                              ? overlayStyles[sectionId].borderWidth
+                              : 0
+                          }
+                          badgeSwatchBorderOpacity={
+                            overlayStyles[sectionId].borderEnabled
+                              ? overlayStyles[sectionId].borderOpacity
+                              : 0
+                          }
                           scrollContainer={sidebarElement}
                           portalContainer={workspaceGridElement}
                           popoverContent={renderPrototypeControlSections(
@@ -548,8 +629,10 @@ export function SidebarPrototypeApp() {
                   </SortableContext>
                 </DndContext>
               </div>
-            </PrototypePanel>
-          </PrototypeAccordion>
+            </PrototypeSortablePanel>
+              </PrototypeAccordion>
+            </SortableContext>
+          </DndContext>
         </aside>
       </div>
     </div>
@@ -566,6 +649,9 @@ interface PrototypePanelProps {
   enabled: boolean;
   onEnabledToggle: () => void;
   children: React.ReactNode;
+  dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  dragHandleRef?: (element: HTMLButtonElement | null) => void;
+  sortOrder?: number;
 }
 
 interface PrototypeSectionProps {
@@ -581,6 +667,7 @@ interface PrototypeSectionProps {
   badgeSwatchBorderColor?: string;
   badgeSwatchBorderWidth?: number;
   badgeSwatchBorderOpacity?: number;
+  debugCircleOverlay?: boolean;
   children?: React.ReactNode;
 }
 
@@ -709,18 +796,56 @@ function PrototypePanel({
   enabled,
   onEnabledToggle,
   children,
+  dragHandleProps,
+  dragHandleRef,
+  sortOrder,
 }: PrototypePanelProps) {
   return (
-    <PrototypeAccordionItem
-      id={id}
-      title={title}
-      level="pane"
-      panel
-      enabled={enabled}
-      onEnabledToggle={onEnabledToggle}
+    <div style={sortOrder !== undefined ? { order: sortOrder } : undefined}>
+      <PrototypeAccordionItem
+        id={id}
+        title={title}
+        level="pane"
+        panel
+        enabled={enabled}
+        onEnabledToggle={onEnabledToggle}
+        dragHandleProps={dragHandleProps}
+        dragHandleRef={dragHandleRef}
+      >
+        <div className="prototype-panel__content">{children}</div>
+      </PrototypeAccordionItem>
+    </div>
+  );
+}
+
+function PrototypeSortablePanel({ id, ...props }: PrototypePanelProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
     >
-      <div className="prototype-panel__content">{children}</div>
-    </PrototypeAccordionItem>
+      <PrototypePanel
+        id={id}
+        {...props}
+        dragHandleRef={setActivatorNodeRef}
+        dragHandleProps={{
+          ...attributes,
+          ...listeners,
+        }}
+      />
+    </div>
   );
 }
 
@@ -734,6 +859,7 @@ function PrototypePopoverSection({
   badgeSwatchBorderColor,
   badgeSwatchBorderWidth,
   badgeSwatchBorderOpacity,
+  debugCircleOverlay,
   enabled,
   onEnabledToggle,
   children,
@@ -769,6 +895,7 @@ function PrototypePopoverSection({
             swatchBorderColor={badgeSwatchBorderColor}
             swatchBorderWidth={badgeSwatchBorderWidth}
             swatchBorderOpacity={badgeSwatchBorderOpacity}
+            debugCircleOverlay={debugCircleOverlay}
             scrollContainer={scrollContainer}
             portalContainer={portalContainer}
             viewportContainer={scrollContainer}
@@ -836,6 +963,7 @@ function PrototypeCollapsiblePopoverSection({
   badgeSwatchBorderColor,
   badgeSwatchBorderWidth,
   badgeSwatchBorderOpacity,
+  debugCircleOverlay,
   enabled,
   onEnabledToggle,
   children,
@@ -865,6 +993,7 @@ function PrototypeCollapsiblePopoverSection({
             swatchBorderColor={badgeSwatchBorderColor}
             swatchBorderWidth={badgeSwatchBorderWidth}
             swatchBorderOpacity={badgeSwatchBorderOpacity}
+            debugCircleOverlay={debugCircleOverlay}
             scrollContainer={scrollContainer}
             portalContainer={portalContainer}
             viewportContainer={scrollContainer}
@@ -881,14 +1010,11 @@ function PrototypeCollapsiblePopoverSection({
           aria-expanded={expanded}
           aria-label={expanded ? `Collapse ${title}` : `Expand ${title}`}
         >
-          <span
+          <PrototypeChevronDownIcon
             className={`prototype-accordion-item__chevron${
               expanded ? ' is-open' : ''
             }`}
-            aria-hidden="true"
-          >
-            ▾
-          </span>
+          />
         </button>
       }
       body={expanded ? children : null}
@@ -935,11 +1061,13 @@ function PrototypeRegionRow({
           viewportContainer={scrollContainer}
           value={opacityValue}
           swatch={styleState.color}
-          swatchOpacity={styleState.opacity}
+          swatchOpacity={styleState.pointsEnabled ? styleState.opacity : 0}
           swatchShape={styleState.shape}
           swatchBorderColor={styleState.borderColor}
-          swatchBorderWidth={styleState.borderWidth}
-          swatchBorderOpacity={styleState.borderOpacity}
+          swatchBorderWidth={styleState.borderEnabled ? styleState.borderWidth : 0}
+          swatchBorderOpacity={
+            styleState.borderEnabled ? styleState.borderOpacity : 0
+          }
         >
           {renderPrototypeControlSections(controlSections)}
         </PrototypePillPopover>

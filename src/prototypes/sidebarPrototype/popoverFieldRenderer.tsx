@@ -39,6 +39,8 @@ export type PrototypeControlConfig =
 
 export interface PrototypeControlSectionConfig {
   title: string;
+  enabled?: boolean;
+  onToggle?: () => void;
   fields: PrototypeControlConfig[];
 }
 
@@ -85,7 +87,12 @@ export function renderPrototypeControlSections(
 ): ReactNode[] {
   return sections.flatMap((section, index) => {
     const renderedSection = (
-      <PrototypeControlSection key={section.title} title={section.title}>
+      <PrototypeControlSection
+        key={section.title}
+        title={section.title}
+        enabled={section.enabled}
+        onToggle={section.onToggle}
+      >
         {section.fields.map(renderPrototypeControlField)}
       </PrototypeControlSection>
     );

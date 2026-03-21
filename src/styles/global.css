@@ -16,9 +16,15 @@
     --font-size-header-button: var(--font-size-small);
     --font-size-control-title: var(--font-size-panel-title);
     --font-size-control-subtitle: var(--font-size-small);
+    --font-size-popover-title: 0.825rem;
     --font-size-control-compact: 0.8rem;
     --font-size-control-numeric: 0.8rem;
     --font-size-control-icon: 0.92rem;
+    --sidebar-control-toggle-font-size: 0.68rem;
+    --sidebar-control-pill-value-font-size: 0.68rem;
+    --sidebar-control-line-height: 1;
+    --sidebar-control-text-offset-y: 1px;
+    --sidebar-control-swatch-size: var(--sidebar-control-pill-value-font-size);
     --font-size-region-min: 0.68rem;
     --font-size-region-ideal: 0.22vw + 0.66rem;
     --font-size-region-max: 0.875rem;
@@ -173,16 +179,16 @@
     @apply grid h-full;
     --prototype-control-rail-height: calc(var(--control-height-sm) - 4px);
     --prototype-control-rail-font-size: var(--font-size-control-title);
-    --prototype-control-rail-compact-font-size: 0.76rem;
-    --prototype-control-rail-numeric-font-size: var(--font-size-control-numeric);
+    --prototype-control-rail-compact-font-size: var(--sidebar-control-toggle-font-size);
+    --prototype-control-rail-numeric-font-size: var(--sidebar-control-pill-value-font-size);
     --prototype-pane-title-font-size: var(--font-size-control-title);
     --prototype-pane-subtitle-font-size: var(--font-size-control-subtitle);
     --prototype-disclosure-font-size: var(--font-size-control-icon);
-    --prototype-control-rail-line-height: 1;
+    --prototype-control-rail-line-height: var(--sidebar-control-line-height);
     --prototype-control-rail-padding-x: 0.48rem;
     --prototype-control-rail-gap: 0.35rem;
-    --prototype-control-text-offset-y: 1px;
-    --prototype-control-swatch-size: var(--space-4);
+    --prototype-control-text-offset-y: var(--sidebar-control-text-offset-y);
+    --prototype-control-swatch-size: var(--sidebar-control-swatch-size);
     --prototype-control-swatch-radius: 999px;
     --prototype-preset-button-hover-bg: var(--surface-subtle);
     --prototype-preset-button-active-bg: var(--surface-subtle);
@@ -976,7 +982,7 @@
     justify-content: center;
     text-align: center;
     white-space: nowrap;
-    font-size: var(--font-size-control-numeric);
+    font-size: var(--prototype-control-rail-compact-font-size);
     line-height: var(--prototype-control-rail-line-height);
     transform: translate(-50%, -50%)
       translateY(var(--prototype-control-text-offset-y));
@@ -1155,7 +1161,7 @@
   }
 
   .sidebar-popover__section-title {
-    font-size: var(--prototype-pane-subtitle-font-size);
+    font-size: var(--font-size-popover-title);
     font-weight: 600;
     color: var(--text-subtle);
     letter-spacing: 0.01em;
