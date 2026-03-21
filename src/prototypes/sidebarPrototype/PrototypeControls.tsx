@@ -259,6 +259,11 @@ function buildSwatchStyle({
   borderOpacity?: number;
   borderWidth?: string;
 }): CSSProperties {
+  const fillColor = color
+    ? applyOpacityToColor(color, opacity)
+    : mix && mix.length > 0
+      ? applyOpacityToColor(mix[0].color, mix[0].opacity ?? 1)
+      : undefined;
   const previewBackground =
     mix && mix.length > 0
       ? buildMixedSwatchBackground(mix)
@@ -272,7 +277,105 @@ function buildSwatchStyle({
       ? applyOpacityToColor(borderColor, borderOpacity)
       : undefined,
     borderWidth,
+    ['--prototype-swatch-fill' as string]: previewBackground,
+    ['--prototype-swatch-fill-color' as string]: fillColor,
+    ['--prototype-swatch-border-color' as string]: borderColor
+      ? applyOpacityToColor(borderColor, borderOpacity)
+      : undefined,
+    ['--prototype-swatch-border-width' as string]: borderWidth,
   };
+}
+
+function getShapeStrokeWidth(borderWidth: number) {
+  return Math.max(0, Math.min(18, borderWidth * 8));
+}
+
+function getShapeGeometry(shape: PrototypeShape, strokeWidth: number) {
+  const inset = 12 + strokeWidth / 2;
+  const max = 100 - inset;
+  const center = 50;
+  const radius = Math.max(0, 38 - strokeWidth / 2);
+
+  switch (shape) {
+    case 'circle':
+      return {
+        element: (
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            vectorEffect="non-scaling-stroke"
+          />
+        ),
+      };
+    case 'square':
+      return {
+        element: (
+          <rect
+            x={inset}
+            y={inset}
+            width={Math.max(0, max - inset)}
+            height={Math.max(0, max - inset)}
+            rx={6}
+            ry={6}
+            vectorEffect="non-scaling-stroke"
+          />
+        ),
+      };
+    case 'diamond':
+      return {
+        element: (
+          <path
+            d={`M ${center} ${inset} L ${max} ${center} L ${center} ${max} L ${inset} ${center} Z`}
+            vectorEffect="non-scaling-stroke"
+          />
+        ),
+      };
+    case 'triangle':
+      return {
+        element: (
+          <path
+            d={`M ${center} ${inset} L ${max} ${max} L ${inset} ${max} Z`}
+            vectorEffect="non-scaling-stroke"
+          />
+        ),
+      };
+  }
+}
+
+interface PrototypeShapeSvgProps {
+  shape: PrototypeShape;
+  fill: string;
+  stroke?: string;
+  strokeWidth?: number;
+  className?: string;
+}
+
+function PrototypeShapeSvg({
+  shape,
+  fill,
+  stroke = 'transparent',
+  strokeWidth = 0,
+  className,
+}: PrototypeShapeSvgProps) {
+  const geometry = getShapeGeometry(shape, strokeWidth);
+
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      aria-hidden="true"
+    >
+      <g
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeLinejoin="round"
+      >
+        {geometry.element}
+      </g>
+    </svg>
+  );
 }
 
 export function PrototypeToggleButton({
@@ -325,25 +428,42 @@ export const PrototypeMetricPill = forwardRef<
   },
   ref,
 ) {
+  const fillColor = swatch
+    ? applyOpacityToColor(swatch, swatchOpacity)
+    : 'transparent';
+  const strokeColor = swatchBorderColor
+    ? applyOpacityToColor(swatchBorderColor, swatchBorderOpacity)
+    : 'transparent';
+  const shapeStrokeWidth = getShapeStrokeWidth(swatchBorderWidth);
   const content = (
     <>
       {swatch ? (
-        <span
-          className={`prototype-metric-pill__swatch ${
-            swatchMix && swatchMix.length > 1
-              ? 'prototype-metric-pill__swatch--mixed'
-              : `prototype-metric-pill__swatch--${swatchShape}`
-          }`}
-          style={buildSwatchStyle({
-            color: swatch,
-            opacity: swatchOpacity,
-            mix: swatchMix,
-            borderColor: swatchBorderColor,
-            borderOpacity: swatchBorderOpacity,
-            borderWidth: `${swatchBorderWidth}px`,
-          })}
-          aria-hidden="true"
-        />
+        swatchMix && swatchMix.length > 1 ? (
+          <span
+            className="prototype-metric-pill__swatch prototype-metric-pill__swatch--mixed"
+            style={buildSwatchStyle({
+              color: swatch,
+              opacity: swatchOpacity,
+              mix: swatchMix,
+              borderColor: swatchBorderColor,
+              borderOpacity: swatchBorderOpacity,
+              borderWidth: `${swatchBorderWidth}px`,
+            })}
+            aria-hidden="true"
+          />
+        ) : (
+          <span
+            className={`prototype-metric-pill__swatch prototype-metric-pill__swatch--${swatchShape}`}
+          >
+            <PrototypeShapeSvg
+              shape={swatchShape}
+              fill={fillColor}
+              stroke={strokeColor}
+              strokeWidth={shapeStrokeWidth}
+              className={`prototype-metric-pill__swatch-svg prototype-metric-pill__swatch-svg--${swatchShape}`}
+            />
+          </span>
+        )
       ) : null}
       <span>{value}</span>
     </>
@@ -645,9 +765,12 @@ export function PrototypeShapePicker({
           aria-pressed={value === shape}
           aria-label={shape}
         >
-          <span
+          <PrototypeShapeSvg
+            shape={shape}
+            fill="currentColor"
+            stroke="currentColor"
+            strokeWidth={4}
             className={`prototype-shape-icon prototype-shape-icon--${shape}`}
-            aria-hidden="true"
           />
         </button>
       ))}

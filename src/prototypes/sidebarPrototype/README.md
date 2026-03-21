@@ -28,6 +28,7 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
 - PMC global controls should seed region-row styles at reset and should override matching row properties again when a global PMC control changes
 - Region-row edits should then remain local until another matching global PMC control is changed
 - PMC row pills should preview the current row shape, fill colour, border styling, and opacity summary
+- Shape swatches and popover shape-button silhouettes should use the shared SVG shape renderer; when promoted to production map points, border thickness must project inward so symbol size stays fixed to the configured point size
 - PMC row editors are grouped into `Points` and `Border` sections
 - Floating callout positioning is owned by `floatingCallout.ts`; component rendering should not re-embed placement math inline
 - PMC child rows now use a dedicated right-edge drag handle for reordering; dragging should not start from the toggle, pill, or row background

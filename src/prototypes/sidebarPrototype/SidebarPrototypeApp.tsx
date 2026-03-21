@@ -364,6 +364,7 @@ export function SidebarPrototypeApp() {
                   onEnabledToggle={() => toggleKey('pmc', setSectionEnabled)}
                   badge={`${Math.round(facilityOpacity * 100)}%`}
                   badgeSwatch={facilityColor}
+                  badgeSwatchShape={facilityShape}
                   badgeSwatchOpacity={facilityOpacity}
                   badgeSwatchMix={mixedFacilityColors}
                   badgeSwatchBorderColor={facilityBorderColor}
@@ -574,6 +575,7 @@ interface PrototypeSectionProps {
   onEnabledToggle: () => void;
   badge?: string;
   badgeSwatch?: string;
+  badgeSwatchShape?: PrototypeShape;
   badgeSwatchOpacity?: number;
   badgeSwatchMix?: SwatchStop[];
   badgeSwatchBorderColor?: string;
@@ -726,6 +728,7 @@ function PrototypePopoverSection({
   title,
   badge,
   badgeSwatch,
+  badgeSwatchShape,
   badgeSwatchOpacity,
   badgeSwatchMix,
   badgeSwatchBorderColor,
@@ -760,6 +763,7 @@ function PrototypePopoverSection({
             onOpenChange={setOpen}
             value={badge}
             swatch={badgeSwatch}
+            swatchShape={badgeSwatchShape}
             swatchOpacity={badgeSwatchOpacity}
             swatchMix={badgeSwatchMix}
             swatchBorderColor={badgeSwatchBorderColor}
@@ -826,6 +830,7 @@ function PrototypeCollapsiblePopoverSection({
   title,
   badge,
   badgeSwatch,
+  badgeSwatchShape,
   badgeSwatchOpacity,
   badgeSwatchMix,
   badgeSwatchBorderColor,
@@ -854,6 +859,7 @@ function PrototypeCollapsiblePopoverSection({
             onOpenChange={setOpen}
             value={badge}
             swatch={badgeSwatch}
+            swatchShape={badgeSwatchShape}
             swatchOpacity={badgeSwatchOpacity}
             swatchMix={badgeSwatchMix}
             swatchBorderColor={badgeSwatchBorderColor}
