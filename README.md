@@ -55,6 +55,14 @@ Why this matters:
 - that specific gap is now fixed, but contributors should still treat `npm run build` as the release gate, not just `npm run test`
 - keeping this section explicit makes future regressions easier to spot during review
 
+## Working pattern
+
+- For non-trivial UI, interaction, or architectural changes, do a short findings-and-approach pass before implementation.
+- Confirm the observed problem, likely cause, and intended corrective pattern before coding.
+- Prefer replacing a weak pattern with a clearer one instead of layering local tweaks onto brittle code.
+- Keep clarification questions minimal.
+- If more than three questions are truly needed, ask them one at a time in dependency order so each answer informs the next.
+
 ## Deployment target
 
 - GitHub Pages: https://ajdench.github.io/dmsGIS/

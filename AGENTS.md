@@ -45,6 +45,12 @@ Apply these principles to future development in this repo:
 11. Add tests at the seam where behavior is introduced or extracted.
 12. Prefer progressive promotion over broad rewrites, except when an approved prototype is the explicit replacement target and the old production shell is itself the source of drift.
     In that case, reset the shared production UI architecture around the prototype contract instead of continuing incremental approximation.
+13. Do a short findings-and-approach pass before implementation when a change materially affects visuals, interaction behavior, architecture, or shared patterns.
+    Confirm what is actually wrong, what likely caused it, and the intended corrective approach before coding.
+14. Favor positive pattern replacement over local patching.
+    When a current implementation path is proving brittle or visually wrong, step back and replace it with a clearer pattern instead of stacking more tweaks onto it.
+15. Keep clarification questions minimal, ordered, and dependency-aware.
+    Ask only the questions needed to de-risk the work. If more than three are needed, ask them one at a time in the order where each answer informs the next.
 
 Working stance:
 
@@ -52,6 +58,8 @@ Working stance:
 - keep future functionality areas documented, but do not let them displace current production improvement work unless explicitly prioritized
 - keep prototype exploration active but isolated until promotion is explicit
 - if prototype parity is explicitly required and incremental promotion is producing drift, prefer a controlled production-side shell reset over more pane-local tweaking
+- before coding substantial UI, interaction, or architecture changes, summarize findings and the intended approach first unless the task is trivially local and low-risk
+- when the user flags a repeated collaboration preference, promote it into repo-level working guidance rather than treating it as turn-local advice
 
 ## Version control workflow
 

@@ -73,6 +73,19 @@ Strict development loop for this repo:
 4. add focused tests for any non-trivial pure logic before describing the area as stable
 5. update prototype-local docs and then checkpoint with `jj`
 
+Before implementation on non-trivial prototype changes:
+
+1. summarize the finding
+2. summarize the likely cause
+3. propose the corrective pattern
+4. only then start coding
+
+Clarification rule:
+
+- ask only the questions needed to de-risk the change
+- if more than three questions are needed, ask them one at a time in dependency order rather than as a large bundle
+- prefer questions whose answers materially change the implementation path
+
 ## Folder strategy
 
 Keep prototype work under:
