@@ -79,3 +79,4 @@ Current `v3` emphasis:
 - current split button-size mode state is:
   - top bar: `current`
   - preset row: `midLow`
+- keep top-level pane `On/Off` controls as visibility-broadcast parents for the rows they own, while preserving local child toggles between parent changes

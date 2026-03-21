@@ -60,6 +60,12 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - top-level pane headers align from pane-edge math
   - bordered internal section headers align from the same control geometry plus `--prototype-subpane-border-compensation`
   - this keeps top-level pane controls and bordered sub-pane/section controls on the same right-edge and chevron-slot basis across pane families
+- Top-level pane `On/Off` buttons now act as visibility-broadcast controls for the rows beneath them:
+  - `Basemap` broadcasts to `Land` and `Sea`
+  - `Facilities` broadcasts to `PMC` and all PMC region rows
+  - `Labels` broadcasts to all label rows
+  - `Overlays` broadcasts to all overlay rows
+  - child rows can still be toggled locally afterward until the parent pane is changed again
 - When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
   - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
   - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output

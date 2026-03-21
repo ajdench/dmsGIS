@@ -226,6 +226,59 @@ export function SidebarPrototypeApp() {
     setOverlayStyles((current) => updateStyleRecord(current, sectionId, key, value));
   };
 
+  const toggleBasemapPane = () => {
+    const nextEnabled = !paneEnabled.basemap;
+
+    setPaneEnabled((current) => ({
+      ...current,
+      basemap: nextEnabled,
+    }));
+    setKeysEnabled(
+      BASEMAP_SIMPLE_SECTIONS.map((section) => section.id),
+      nextEnabled,
+      setSectionEnabled,
+    );
+  };
+
+  const toggleFacilitiesPane = () => {
+    const nextEnabled = !paneEnabled.facilities;
+
+    setPaneEnabled((current) => ({
+      ...current,
+      facilities: nextEnabled,
+    }));
+    setKeysEnabled(['pmc'], nextEnabled, setSectionEnabled);
+    setKeysEnabled(REGION_ROWS, nextEnabled, setRegionEnabled);
+  };
+
+  const toggleLabelsPane = () => {
+    const nextEnabled = !paneEnabled.labels;
+
+    setPaneEnabled((current) => ({
+      ...current,
+      labels: nextEnabled,
+    }));
+    setKeysEnabled(
+      LABEL_SIMPLE_SECTIONS.map((section) => section.id),
+      nextEnabled,
+      setSectionEnabled,
+    );
+  };
+
+  const toggleOverlaysPane = () => {
+    const nextEnabled = !paneEnabled.overlays;
+
+    setPaneEnabled((current) => ({
+      ...current,
+      overlays: nextEnabled,
+    }));
+    setKeysEnabled(
+      OVERLAY_ROWS.map((row) => row.key),
+      nextEnabled,
+      setOverlayRowEnabled,
+    );
+  };
+
   const resetPrototypeState = () => {
     setOpenPanes(DEFAULT_OPEN_PANES);
     setActivePreset('current');
@@ -331,7 +384,7 @@ export function SidebarPrototypeApp() {
               id="basemap"
               title="Basemap"
               enabled={paneEnabled.basemap}
-              onEnabledToggle={() => toggleKey('basemap', setPaneEnabled)}
+              onEnabledToggle={toggleBasemapPane}
               sortOrder={paneOrder.indexOf('basemap')}
             >
               <DndContext
@@ -407,7 +460,7 @@ export function SidebarPrototypeApp() {
               id="facilities"
               title="Facilities"
               enabled={paneEnabled.facilities}
-              onEnabledToggle={() => toggleKey('facilities', setPaneEnabled)}
+              onEnabledToggle={toggleFacilitiesPane}
               sortOrder={paneOrder.indexOf('facilities')}
             >
               <div className="prototype-section-list">
@@ -500,7 +553,7 @@ export function SidebarPrototypeApp() {
               id="labels"
               title="Labels"
               enabled={paneEnabled.labels}
-              onEnabledToggle={() => toggleKey('labels', setPaneEnabled)}
+              onEnabledToggle={toggleLabelsPane}
               sortOrder={paneOrder.indexOf('labels')}
             >
               <div className="prototype-section-list">
@@ -571,7 +624,7 @@ export function SidebarPrototypeApp() {
               id="overlays"
               title="Overlays"
               enabled={paneEnabled.overlays}
-              onEnabledToggle={() => toggleKey('overlays', setPaneEnabled)}
+              onEnabledToggle={toggleOverlaysPane}
               sortOrder={paneOrder.indexOf('overlays')}
             >
               <div className="prototype-section-list">
@@ -1133,6 +1186,22 @@ function toggleKey(
     ...current,
     [key]: !current[key],
   }));
+}
+
+function setKeysEnabled(
+  keys: readonly string[],
+  nextValue: boolean,
+  setState: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
+) {
+  setState((current) => {
+    const nextState = { ...current };
+
+    for (const key of keys) {
+      nextState[key] = nextValue;
+    }
+
+    return nextState;
+  });
 }
 interface PrototypeSortableRegionRowProps extends PrototypeRegionRowProps {
   id: string;
