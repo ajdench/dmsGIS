@@ -13,6 +13,9 @@ export function SidebarPanelShell({
   meta,
   className,
 }: SidebarPanelShellProps) {
+  const hasContent =
+    children !== null && children !== undefined && children !== false;
+
   return (
     <section className={`panel sidebar-panel-shell ${className ?? ''}`.trim()}>
       <div className="sidebar-panel-shell__header">
@@ -21,7 +24,9 @@ export function SidebarPanelShell({
         </span>
         {meta ? <span className="sidebar-panel-shell__meta">{meta}</span> : null}
       </div>
-      <div className="sidebar-panel-shell__content">{children}</div>
+      {hasContent ? (
+        <div className="sidebar-panel-shell__content">{children}</div>
+      ) : null}
     </section>
   );
 }
