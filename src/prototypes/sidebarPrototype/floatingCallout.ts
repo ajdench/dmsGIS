@@ -23,6 +23,7 @@ export const FLOATING_CALLOUT_SIDE_OFFSET = 12;
 export const FLOATING_CALLOUT_VIEWPORT_PADDING = 8;
 export const FLOATING_CALLOUT_TRIANGLE_MIN_RATIO = 0.075;
 export const FLOATING_CALLOUT_TRIANGLE_MAX_RATIO = 0.925;
+export const FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT = 8;
 
 export function computeFloatingCalloutPlacement({
   triggerRect,
@@ -36,9 +37,11 @@ export function computeFloatingCalloutPlacement({
   const viewportMaxTop =
     viewportRect.bottom - contentRect.height - FLOATING_CALLOUT_VIEWPORT_PADDING;
   const minTriangleCenter =
-    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MIN_RATIO;
+    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MIN_RATIO +
+    FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT;
   const maxTriangleCenter =
-    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MAX_RATIO;
+    contentRect.height * FLOATING_CALLOUT_TRIANGLE_MAX_RATIO -
+    FLOATING_CALLOUT_TRIANGLE_HALF_EXTENT;
 
   let viewportTop = desiredTop;
 
