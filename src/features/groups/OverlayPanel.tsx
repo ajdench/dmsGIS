@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
-import { SidebarToggleButton } from '../../components/sidebar/SidebarToggleButton';
-import { SidebarTrailingSlot } from '../../components/sidebar/SidebarTrailingSlot';
 import { useAppStore } from '../../store/appStore';
 import {
   getOverlayPanelEmptyState,
@@ -47,51 +45,38 @@ export function OverlayPanel() {
     <SidebarPanelShell
       title="Overlays"
       className="panel--regions"
-      meta={
-        <>
-          <SidebarToggleButton
-            state={paneEnabled ? 'on' : 'off'}
-            ariaLabel="Overlays visible"
-            onChange={(next) => {
-              rows.forEach((row) => row.visibility.onChange(next));
-            }}
-          />
-          <SidebarTrailingSlot
-            slot={{
-              kind: 'disclosure',
-              ariaLabel: expanded ? 'Collapse Overlays' : 'Expand Overlays',
-              expanded,
-              onToggle: () => setExpanded((current) => !current),
-            }}
-          />
-        </>
-      }
+      visibilityState={paneEnabled ? 'on' : 'off'}
+      onVisibilityChange={(next) => {
+        rows.forEach((row) => row.visibility.onChange(next));
+      }}
+      visibilityAriaLabel="Overlays visible"
+      expanded={expanded}
+      onExpandedChange={setExpanded}
+      expandedAriaLabel={expanded ? 'Collapse Overlays' : 'Expand Overlays'}
     >
-      {expanded ? (
-        emptyState ? (
-          <p className="muted">{emptyState}</p>
-        ) : (
-          <div className="stack-col sidebar-section-list">
-            {rows.map((row) => (
-              <SidebarControlRow
-                key={row.id}
-                row={{
-                  ...row,
-                  trailingSlot: {
-                    kind: 'dragHandle',
-                    label: row.label,
-                  },
-                }}
-              >
-                <SidebarControlSections
-                  sections={row.sections}
-                  ariaLabelPrefix={row.label}
-                />
-              </SidebarControlRow>
-            ))}
-          </div>
-        )
-      ) : null}
+      {emptyState ? (
+        <p className="muted">{emptyState}</p>
+      ) : (
+        <div className="stack-col sidebar-section-list">
+          {rows.map((row) => (
+            <SidebarControlRow
+              key={row.id}
+              row={{
+                ...row,
+                trailingSlot: {
+                  kind: 'dragHandle',
+                  label: row.label,
+                },
+              }}
+            >
+              <SidebarControlSections
+                sections={row.sections}
+                ariaLabelPrefix={row.label}
+              />
+            </SidebarControlRow>
+          ))}
+        </div>
+      )}
     </SidebarPanelShell>
   );
 }

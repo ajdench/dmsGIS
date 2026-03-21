@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
-import { SidebarToggleButton } from '../../components/sidebar/SidebarToggleButton';
-import { SidebarTrailingSlot } from '../../components/sidebar/SidebarTrailingSlot';
 import { useAppStore } from '../../store/appStore';
 import { buildLabelPanelRows } from './labelPanelFields';
 
@@ -42,45 +40,32 @@ export function LabelPanel() {
     <SidebarPanelShell
       title="Labels"
       className="panel--labels"
-      meta={
-        <>
-          <SidebarToggleButton
-            state={paneEnabled ? 'on' : 'off'}
-            ariaLabel="Labels visible"
-            onChange={setAllLabelsVisible}
-          />
-          <SidebarTrailingSlot
-            slot={{
-              kind: 'disclosure',
-              ariaLabel: expanded ? 'Collapse Labels' : 'Expand Labels',
-              expanded,
-              onToggle: () => setExpanded((current) => !current),
-            }}
-          />
-        </>
-      }
+      visibilityState={paneEnabled ? 'on' : 'off'}
+      onVisibilityChange={setAllLabelsVisible}
+      visibilityAriaLabel="Labels visible"
+      expanded={expanded}
+      onExpandedChange={setExpanded}
+      expandedAriaLabel={expanded ? 'Collapse Labels' : 'Expand Labels'}
     >
-      {expanded ? (
-        <div className="stack-col sidebar-section-list">
-          {rows.map((row) => (
-            <SidebarControlRow
-              key={row.id}
-              row={{
-                ...row,
-                trailingSlot: {
-                  kind: 'dragHandle',
-                  label: row.label,
-                },
-              }}
-            >
-              <SidebarControlSections
-                sections={row.sections}
-                ariaLabelPrefix={row.label}
-              />
-            </SidebarControlRow>
-          ))}
-        </div>
-      ) : null}
+      <div className="stack-col sidebar-section-list">
+        {rows.map((row) => (
+          <SidebarControlRow
+            key={row.id}
+            row={{
+              ...row,
+              trailingSlot: {
+                kind: 'dragHandle',
+                label: row.label,
+              },
+            }}
+          >
+            <SidebarControlSections
+              sections={row.sections}
+              ariaLabelPrefix={row.label}
+            />
+          </SidebarControlRow>
+        ))}
+      </div>
     </SidebarPanelShell>
   );
 }
