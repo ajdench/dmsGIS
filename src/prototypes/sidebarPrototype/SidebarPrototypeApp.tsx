@@ -77,7 +77,7 @@ const restrictToVerticalAxis: Modifier = ({ transform }) => ({
 
 type PrototypePresetButtonSizeMode = 'current' | 'mid' | 'row';
 
-const PROTOTYPE_PRESET_BUTTON_SIZE_MODE: PrototypePresetButtonSizeMode = 'row';
+const PROTOTYPE_PRESET_BUTTON_SIZE_MODE: PrototypePresetButtonSizeMode = 'mid';
 
 export function SidebarPrototypeApp() {
   const [workspaceGridElement, setWorkspaceGridElement] =
