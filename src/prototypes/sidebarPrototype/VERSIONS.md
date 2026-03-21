@@ -87,3 +87,4 @@ Current `v3` emphasis:
 - keep parent visibility aggregation one level at a time:
   - higher parents derive from immediate child sections
   - child sections derive from their own rows
+- keep that immediate-child aggregation tri-state aware, so mixed child sections propagate `Ox` upward until every immediate child is fully `On` or fully `Off`

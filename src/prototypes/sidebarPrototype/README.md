@@ -77,6 +77,10 @@ Evaluate a revised right-sidebar interaction model in the production shell layou
   - `Facilities` currently derives from `PMC`
   - `PMC` derives from its region rows
   - future pane families should follow that same one-level-at-a-time visibility model
+- Immediate-child aggregation should be tri-state aware:
+  - a parent is `On` only when all immediate children are fully `On`
+  - a parent is `Off` only when all immediate children are fully `Off`
+  - if any immediate child is mixed, or immediate children disagree, the parent should read `Ox`
 - When header/control alignment becomes non-trivial, use measured rendered geometry to calibrate the live result.
   - Prefer DOM/browser measurements of actual right edges, center points, and rendered heights over continuing to infer layout from CSS alone
   - Use CSS inference to form the hypothesis, then confirm and lock the final rule from measured output

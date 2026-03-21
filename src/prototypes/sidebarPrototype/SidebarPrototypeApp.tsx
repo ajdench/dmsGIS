@@ -343,22 +343,26 @@ export function SidebarPrototypeApp() {
       );
     };
 
-  const basemapToggleState = getAggregateToggleState([
-    ...BASEMAP_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
-  ]);
-  const basemapEnabled = basemapToggleState === 'on';
-  const facilitiesToggleState = getAggregateToggleState([sectionEnabled.pmc]);
-  const facilitiesEnabled = facilitiesToggleState === 'on';
   const pmcToggleState = getAggregateToggleState(
-    REGION_ROWS.map((region) => regionEnabled[region]),
+    REGION_ROWS.map((region) => (regionEnabled[region] ? 'on' : 'off')),
   );
   const pmcEnabled = pmcToggleState === 'on';
+  const basemapToggleState = getAggregateToggleState(
+    BASEMAP_SIMPLE_SECTIONS.map((section) =>
+      sectionEnabled[section.id] ? 'on' : 'off',
+    ),
+  );
+  const basemapEnabled = basemapToggleState === 'on';
+  const facilitiesToggleState = getAggregateToggleState([pmcToggleState]);
+  const facilitiesEnabled = facilitiesToggleState === 'on';
   const labelsToggleState = getAggregateToggleState(
-    LABEL_SIMPLE_SECTIONS.map((section) => sectionEnabled[section.id]),
+    LABEL_SIMPLE_SECTIONS.map((section) =>
+      sectionEnabled[section.id] ? 'on' : 'off',
+    ),
   );
   const labelsEnabled = labelsToggleState === 'on';
   const overlaysToggleState = getAggregateToggleState(
-    OVERLAY_ROWS.map((row) => overlayRowEnabled[row.key]),
+    OVERLAY_ROWS.map((row) => (overlayRowEnabled[row.key] ? 'on' : 'off')),
   );
   const overlaysEnabled = overlaysToggleState === 'on';
 
@@ -1250,12 +1254,12 @@ function setKeysEnabled(
   });
 }
 
-function getAggregateToggleState(values: boolean[]): PrototypeToggleState {
-  if (values.every(Boolean)) {
+function getAggregateToggleState(values: PrototypeToggleState[]): PrototypeToggleState {
+  if (values.every((value) => value === 'on')) {
     return 'on';
   }
 
-  if (values.every((value) => !value)) {
+  if (values.every((value) => value === 'off')) {
     return 'off';
   }
 
