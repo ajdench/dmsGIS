@@ -17,12 +17,14 @@ export function SidebarTrailingSlot({
     return (
       <button
         type="button"
-        className={`sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--drag${
-          pane ? ' sidebar-replacement-trailing-slot--pane' : ''
+        className={`sidebar-replacement-drag-handle${
+          pane ? ' sidebar-replacement-drag-handle--pane' : ''
         }`}
         aria-label={`Reorder ${slot.label}`}
       >
-        <span aria-hidden="true">⋮⋮</span>
+        <span className="sidebar-replacement-drag-handle__dots" aria-hidden="true">
+          ⋮⋮
+        </span>
       </button>
     );
   }
@@ -30,8 +32,8 @@ export function SidebarTrailingSlot({
   return (
     <button
       type="button"
-      className={`sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--disclosure${
-        pane ? ' sidebar-replacement-trailing-slot--pane-disclosure' : ''
+      className={`sidebar-replacement-disclosure-button${
+        pane ? ' sidebar-replacement-disclosure-button--pane' : ''
       }`}
       aria-label={slot.ariaLabel}
       aria-expanded={slot.expanded}
@@ -46,7 +48,7 @@ export function SidebarTrailingSlot({
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
-        className="sidebar-replacement-chevron"
+        className="sidebar-replacement-accordion-item__chevron"
       >
         <path d="m6 9 6 6 6-6" />
       </svg>

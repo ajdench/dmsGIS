@@ -4,7 +4,6 @@ import {
 import {
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -25,30 +24,41 @@ export function SidebarPopover({
   trigger,
   children,
 }: SidebarPopoverProps) {
-  const anchorRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [positionStyle, setPositionStyle] = useState<CSSProperties | null>(null);
 
-  const sidebarElement = useMemo(
-    () => anchorRef.current?.closest('.sidebar--right') as HTMLElement | null,
-    [open],
-  );
-  const portalTarget =
-    sidebarElement ?? (typeof document === 'undefined' ? null : document.body);
-
   useLayoutEffect(() => {
-    if (!open || !anchorRef.current || !contentRef.current || !sidebarElement) {
+    if (!open) {
       return;
     }
 
     const updatePosition = () => {
-      const triggerRect = anchorRef.current?.getBoundingClientRect();
-      const contentRect = contentRef.current?.getBoundingClientRect();
-      const viewportRect = sidebarElement.getBoundingClientRect();
-      const portalRect = portalTarget?.getBoundingClientRect();
-      if (!triggerRect || !contentRect) {
+      const triggerElement = triggerRef.current;
+      const contentElement = contentRef.current;
+      const sidebarElement =
+        triggerElement?.closest('.sidebar--right') as HTMLElement | null;
+      const viewportElement = sidebarElement;
+      const portalElement =
+        (triggerElement?.closest('.workspace-grid') as HTMLElement | null) ??
+        document.body;
+
+      if (
+        !triggerElement ||
+        !contentElement ||
+        !sidebarElement ||
+        !viewportElement
+      ) {
         return;
       }
+
+      const triggerRect = triggerElement.getBoundingClientRect();
+      const contentRect = contentElement.getBoundingClientRect();
+      const viewportRect = viewportElement.getBoundingClientRect();
+      const portalRect =
+        portalElement === document.body
+          ? null
+          : portalElement.getBoundingClientRect();
 
       const placement = computeFloatingCalloutPlacement({
         triggerRect,
@@ -78,7 +88,9 @@ export function SidebarPopover({
 
     window.addEventListener('resize', scheduleUpdate);
     window.addEventListener('scroll', scheduleUpdate, true);
-    sidebarElement.addEventListener('scroll', scheduleUpdate);
+    const sidebarElement =
+      triggerRef.current?.closest('.sidebar--right') as HTMLElement | null;
+    sidebarElement?.addEventListener('scroll', scheduleUpdate);
 
     return () => {
       if (frameId !== null) {
@@ -86,9 +98,9 @@ export function SidebarPopover({
       }
       window.removeEventListener('resize', scheduleUpdate);
       window.removeEventListener('scroll', scheduleUpdate, true);
-      sidebarElement.removeEventListener('scroll', scheduleUpdate);
+      sidebarElement?.removeEventListener('scroll', scheduleUpdate);
     };
-  }, [open, portalTarget, sidebarElement]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -97,7 +109,7 @@ export function SidebarPopover({
       const target = event.target as Node | null;
       if (
         target &&
-        !anchorRef.current?.contains(target) &&
+        !triggerRef.current?.contains(target) &&
         !contentRef.current?.contains(target)
       ) {
         onOpenChange(false);
@@ -122,13 +134,13 @@ export function SidebarPopover({
   return (
     <div className="sidebar-popover-anchor">
       <div
-        ref={anchorRef}
+        ref={triggerRef}
         className="sidebar-popover-anchor__trigger"
         onClick={() => onOpenChange(!open)}
       >
         {trigger}
       </div>
-      {open && portalTarget
+      {open
         ? createPortal(
             <div
               ref={contentRef}
@@ -137,7 +149,8 @@ export function SidebarPopover({
             >
               <div className="sidebar-popover__content">{children}</div>
             </div>,
-            portalTarget,
+            ((triggerRef.current?.closest('.workspace-grid') as HTMLElement | null) ??
+              document.body),
           )
         : null}
     </div>

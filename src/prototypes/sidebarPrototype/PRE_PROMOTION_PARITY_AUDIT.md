@@ -1,10 +1,17 @@
 # Sidebar Pre-Promotion Parity Audit
 
-This note records the latest production-versus-prototype parity review.
+This note records the current production-versus-prototype parity review.
 
-It exists because the findings below do not belong in the main promotion plan itself. They are a pre-promotion audit gate.
+It is not the promotion plan itself. It is the parity gate that says whether production is aligned enough for the approved prototype to become the production sidebar without carrying obvious visual or interaction drift.
 
-Use this file when deciding whether the approved prototype is ready to be promoted wholesale into the production sidebar.
+Use this file together with:
+
+- `src/prototypes/sidebarPrototype/PROMOTION.md`
+
+Division of responsibility:
+
+- `PROMOTION.md` defines the replacement path
+- `PRE_PROMOTION_PARITY_AUDIT.md` records the current parity state and the remaining blockers
 
 ## Scope Reviewed
 
@@ -19,6 +26,9 @@ Production:
 - `src/components/sidebar/SidebarControlRow.tsx`
 - `src/components/sidebar/SidebarControlSections.tsx`
 - `src/components/sidebar/SidebarDragHandle.tsx`
+- `src/components/sidebar/SidebarMetricPill.tsx`
+- `src/components/sidebar/SidebarToggleButton.tsx`
+- `src/components/sidebar/SidebarTrailingSlot.tsx`
 - `src/components/sidebar/SidebarPopover.tsx`
 - `src/features/basemap/BasemapPanel.tsx`
 - `src/features/facilities/SelectionPanel.tsx`
@@ -34,142 +44,161 @@ Production:
 This audit used:
 
 - code review of current prototype and production sidebar seams
-- live DOM inspection against:
-  - `http://127.0.0.1:5174/dmsGIS/sidebar-prototype.html`
-  - `http://127.0.0.1:5174/dmsGIS/`
-- direct geometry measurement of pills, swatches, toggles, and popover placement
+- live DOM inspection of the prototype page and production app through the local Vite server
+- direct rendered-geometry checks for header rails, pills, toggles, chevrons, handles, and popover placement
 
 This follows the repo rule to prefer measured rendered geometry over continued CSS inference when alignment and interaction drift become non-trivial.
 
-## Findings
+## Completed Hardening Since The Earlier Audit
 
-### 1. Pill swatch geometry is still not at parity
+The following older blockers are no longer true and should not be treated as current production state:
 
-Measured `Land` pill geometry:
+1. Facilities / PMC is no longer on the old bespoke shell path.
+   Production now routes Facilities and PMC through the shared sidebar shell and row model rather than `details` / `summary` and pane-local popover markup.
 
-- prototype pill width: about `63.55px`
-- production pill width: about `68.19px`
-- prototype swatch size: about `12.39px`
-- production swatch size: about `12.39px`
+2. Production already completed a real shared-shell hardening pass.
+   The repo now has shared production-owned primitives for the pane shell, toggle, pill, trailing slot, and shared control sections. The question is no longer whether shared-shell hardening should begin. It has begun and is already in use.
+
+3. Production is no longer pre-hardening.
+   The current state is mid-replacement: some shared primitives and pane surfaces are now much closer to the prototype, but exact parity is still incomplete.
+
+## Current Findings
+
+### 1. Shared primitive parity is improved, but still not fully locked
+
+Production now has prototype-like shared primitives for:
+
+- pane header rail
+- toggle pill
+- metric pill
+- disclosure chevron
+- drag-handle lane
+
+But exact parity still remains incomplete in the smallest shared details:
+
+- final toggle text sizing and optical centering
+- exact pill width / swatch / value spacing
+- exact pane header lane alignment across all pane states
+- exact chevron / handle optical weight and spacing in every pane context
 
 Conclusion:
 
-- the swatch itself is effectively the same size
-- the drift is in pill geometry, value width, or padding
-- production and prototype are still not rendering the same pill contract
+- the shared primitive layer is no longer the old blocker it was
+- but it is still an active parity surface and must be treated as part of the replacement work, not as solved infrastructure
 
-### 2. Parent toggle state is already drifting between prototype and production
+### 2. Parent toggle behavior must be re-evaluated live, not inferred from the older audit snapshot
 
-Observed live state during review:
+An earlier audit captured a specific runtime mismatch such as:
 
 - prototype `Facilities`: `On`
 - prototype `PMC`: `On`
 - production `Facilities`: `Ox`
 - production `PMC`: `Ox`
 
-Conclusion:
+That historical observation should not be treated as the current truth without re-measurement.
 
-- production is not merely visually different
-- it is already expressing a different parent/child state model at runtime
-- promotion should not proceed while this mismatch still exists
-
-### 3. Popover attachment is still not trustworthy enough
-
-Prototype live measurement:
-
-- pill-to-popover gap: `12px`
-- floating callout triangle stays attached to the pill through the shared callout shell and placement math
-
-Production review:
-
-- production uses `src/lib/sidebar/floatingCallout.ts`
-- production popovers still sit inside a different shared shell and different pane/row composition path than the prototype
-- the current production shell is therefore not yet guaranteed to preserve the prototype’s attached-callout behavior, even when the helper exists
-
-Conclusion:
-
-- the helper has been promoted
-- the full attachment contract has not
-
-### 4. Facilities / PMC remains the main production drift source
-
-Current production Facilities path:
+Production now explicitly derives parent visibility from immediate children in the shared/sidebar-owned path, especially in:
 
 - `src/features/facilities/SelectionPanel.tsx`
 - `src/features/groups/PmcPanel.tsx`
 
-Current production pattern there still includes:
+Conclusion:
 
-- older embedded container structure
-- `details` / `summary`
-- bespoke popover panel markup
-- pane-local hierarchy behavior
+- parent-toggle behavior remains a parity gate
+- but the current judgment must come from fresh live comparison, not from the earlier captured state alone
+
+### 3. Popover attachment remains a live parity concern
+
+Production now has the promoted floating callout helper and shared popover shell.
+
+That is progress, but the parity question is still visual and behavioral:
+
+- is the popover visibly attached to the pill?
+- does the triangle stay aligned through scroll?
+- does the gap and offset match the prototype closely enough?
 
 Conclusion:
 
-- this is still the clearest remaining source of production drift
-- production is currently a hybrid of:
-  - partially promoted shared sidebar primitives
-  - older pane-local Facilities/PMC shell behavior
+- popover attachment is still a real gate
+- but the blocker is now “final attachment parity”, not “the shared popover path does not exist”
 
-### 5. Shared-shell parity is not fully locked yet
+### 4. Facilities / PMC is no longer structurally blocked, but still needs exact parity review
 
-Production already contains promoted pieces in:
+Facilities / PMC used to be the clearest structural production drift source.
 
-- `src/components/sidebar/`
+That is no longer the right description.
 
-But the current review shows they are still not the full prototype contract.
+Current reality:
 
-Remaining drift still exists in:
+- the old bespoke shell path has been replaced
+- Facilities and PMC now participate in the shared production sidebar model
+- they still need exact parity review for layout, hierarchy feel, and control geometry
 
-- top-level pane shell behavior
-- pill geometry
-- parent-child toggle logic
-- popover attachment behavior
-- Facilities/PMC hierarchy structure
+Conclusion:
+
+- Facilities / PMC remains a parity review surface
+- but it is no longer a pre-promotion architecture blocker in the old sense
+
+### 5. The remaining blocker is now exactness, not architecture enablement
+
+The repo is no longer in the phase of asking:
+
+- “should production start a shared-shell hardening pass?”
+
+It is now in the phase of asking:
+
+- “is production visually and interaction-wise identical enough to the prototype?”
+
+That means the remaining gaps are mostly:
+
+- primitive exactness
+- pane exactness
+- final whole-sidebar geometry alignment
 
 ## Current Promotion Decision
 
-Do not begin wholesale production replacement yet.
+Do not treat parity as complete yet.
 
-Reason:
+But also do not treat production as still being in the old pre-hardening blocked state.
 
-- the prototype is ready
-- the production app is not yet aligned enough at the shared-shell level
+Updated decision:
 
-The correct next step is a bounded production parity pass before the full promotion sequence begins.
+- the prototype remains the approved replacement target
+- production replacement work is already underway
+- wholesale parity is not yet complete enough to declare success
+- the remaining work is now exact replacement work, not preliminary shell enablement
 
-## Required Pre-Promotion Hardening Pass
+## Current Required Parity Pass
 
-Before wholesale promotion starts, production should first complete one explicit shared-shell parity pass.
+Before declaring the prototype effectively promoted, production still needs:
 
-That pass should lock:
+1. exact shared primitive parity
+   - toggle text sizing/placement
+   - pill geometry
+   - chevron / handle lane geometry
+   - header rail height and spacing
 
-1. production pill geometry to prototype pill geometry
-2. production popover shell and attachment behavior to the prototype callout contract
-3. production parent toggle logic and default hierarchy behavior to the prototype contract
-4. production Facilities/PMC shell behavior to the same sidebar shell model already intended for the other panes
+2. exact pane-surface parity
+   - Basemap
+   - Labels
+   - Overlays
+   - Facilities / PMC final audit
 
-This is a pre-promotion hardening pass, not the full promotion itself.
+3. final whole-sidebar parity sweep
+   - side-by-side live comparison
+   - final spacing/alignment corrections
+   - no remaining visible “production approximation” surfaces
+
+This is no longer a pre-promotion hardening pass in the old sense.
+It is the last parity pass before the replacement can honestly be called complete.
 
 ## Gate To Proceed
 
-Wholesale promotion should only begin after the following is true:
+Treat the sidebar as ready only when all of the following are true:
 
-1. pill swatches and pill geometry visually match between prototype and production
+1. production sidebar primitives visually match the prototype closely enough that no obvious drift remains in toggles, pills, chevrons, handles, or header rails
 2. popovers are visibly and structurally attached to the parent pills in production
-3. parent toggle state behavior matches between prototype and production
-4. Facilities/PMC no longer runs through an older bespoke shell path
+3. parent toggle behavior matches the prototype in live use, based on fresh comparison rather than historic snapshots
+4. Basemap, Labels, Overlays, and Facilities / PMC all read as the same UI system rather than a hybrid of prototype and older production patterns
 
-Until then, promotion should remain blocked by parity risk rather than by type/build failure.
-
-## Relationship To PROMOTION.md
-
-Use this file together with:
-
-- `src/prototypes/sidebarPrototype/PROMOTION.md`
-
-Division of responsibility:
-
-- `PROMOTION.md` defines the production replacement path
-- `PRE_PROMOTION_PARITY_AUDIT.md` defines whether production is aligned enough to start that replacement safely
+Until then, promotion should remain blocked by parity risk, not by build/type failure.

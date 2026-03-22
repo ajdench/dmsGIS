@@ -22,11 +22,13 @@ export function SidebarControlSections({
           <div className="sidebar-popover__section-header">
             <div className="sidebar-popover__section-title">{section.title}</div>
             {section.enabledState !== undefined && section.onEnabledChange ? (
-              <SidebarToggleButton
-                state={section.enabledState}
-                ariaLabel={`${ariaLabelPrefix} ${section.title} visible`}
-                onChange={section.onEnabledChange}
-              />
+              <div className="sidebar-control-section__toggle">
+                <SidebarToggleButton
+                  state={section.enabledState}
+                  ariaLabel={`${ariaLabelPrefix} ${section.title} visible`}
+                  onChange={section.onEnabledChange}
+                />
+              </div>
             ) : null}
           </div>
           <div className="sidebar-control-section__content">

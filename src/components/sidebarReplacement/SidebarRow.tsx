@@ -27,7 +27,9 @@ export function SidebarRow({
   return (
     <div className="sidebar-replacement-section-card">
       <div className="sidebar-replacement-section-card__bar">
-        <span className="sidebar-replacement-row__label">{label}</span>
+        <span className="sidebar-replacement-row__title-wrap">
+          <span className="sidebar-replacement-row__label">{label}</span>
+        </span>
         <SidebarMetaRail
           visibilityState={visibilityState}
           visibilityAriaLabel={visibilityAriaLabel}

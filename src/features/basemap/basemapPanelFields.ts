@@ -56,6 +56,7 @@ export function buildBasemapPanelRows({
         swatch: {
           color: basemap.landFillColor,
           opacity: basemap.landFillOpacity,
+          borderWidth: 0,
         },
       },
       sections: [
@@ -97,6 +98,7 @@ export function buildBasemapPanelRows({
         swatch: {
           color: basemap.seaFillColor,
           opacity: basemap.seaFillOpacity,
+          borderWidth: 0,
         },
       },
       sections: [

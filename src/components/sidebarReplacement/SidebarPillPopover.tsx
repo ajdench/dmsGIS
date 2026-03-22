@@ -135,17 +135,15 @@ export function SidebarPillPopover({
 
   return (
     <div className="sidebar-replacement-popover-anchor">
-      <button
+      <SidebarMetricPill
         ref={triggerRef}
-        type="button"
-        className="sidebar-replacement-pill-button-reset"
-        aria-label={summary.ariaLabel}
-        aria-expanded={open}
-        aria-haspopup="dialog"
+        summary={summary}
+        trigger
+        asButton
+        ariaExpanded={open}
+        ariaHaspopup="dialog"
         onClick={() => setOpen((current) => !current)}
-      >
-        <SidebarMetricPill summary={summary} trigger />
-      </button>
+      />
       {open && portalTarget
         ? createPortal(
             <div ref={contentRef}>

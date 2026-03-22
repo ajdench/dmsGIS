@@ -177,18 +177,22 @@
 @layer components {
   .app-shell {
     @apply grid h-full;
+    --prototype-compact-text-size: 0.775rem;
+    --prototype-compact-line-height: 1;
+    --prototype-compact-text-offset-y: 1.5px;
+    --prototype-compact-swatch-size: var(--prototype-compact-text-size);
     --prototype-control-rail-height: calc(var(--control-height-sm) - 4px);
     --prototype-control-rail-font-size: var(--font-size-control-title);
-    --prototype-control-rail-compact-font-size: var(--sidebar-control-toggle-font-size);
-    --prototype-control-rail-numeric-font-size: var(--sidebar-control-pill-value-font-size);
+    --prototype-control-rail-compact-font-size: var(--prototype-compact-text-size);
+    --prototype-control-rail-numeric-font-size: var(--prototype-compact-text-size);
     --prototype-pane-title-font-size: var(--font-size-control-title);
     --prototype-pane-subtitle-font-size: var(--font-size-control-subtitle);
     --prototype-disclosure-font-size: var(--font-size-control-icon);
-    --prototype-control-rail-line-height: var(--sidebar-control-line-height);
+    --prototype-control-rail-line-height: var(--prototype-compact-line-height);
     --prototype-control-rail-padding-x: 0.48rem;
     --prototype-control-rail-gap: 0.35rem;
-    --prototype-control-text-offset-y: var(--sidebar-control-text-offset-y);
-    --prototype-control-swatch-size: var(--sidebar-control-swatch-size);
+    --prototype-control-text-offset-y: var(--prototype-compact-text-offset-y);
+    --prototype-control-swatch-size: var(--prototype-compact-swatch-size);
     --prototype-meta-gap: 0.4rem;
     --prototype-drag-handle-width: 0.72rem;
     --prototype-subpane-border-compensation: 1px;
@@ -241,6 +245,7 @@
       var(--border) 86%,
       var(--text) 14%
     );
+    font-size: var(--font-size-control-title);
     min-width: var(--app-min-width);
     grid-template-rows: auto 1fr;
     gap: var(--workspace-gap);
@@ -1235,6 +1240,8 @@
   .sidebar-metric-pill--button {
     cursor: pointer;
     list-style: none;
+    appearance: none;
+    text-align: left;
   }
 
   .sidebar-metric-pill-button-reset {
@@ -1265,27 +1272,14 @@
     overflow: visible;
   }
 
-  .sidebar-metric-pill__swatch::before {
+  .sidebar-metric-pill__swatch--default-outline::before {
     content: '';
     position: absolute;
     inset: 0;
-    border: 1px solid rgba(148, 163, 184, 0.6);
+    border: 1px solid var(--prototype-pill-swatch-outline-color);
     border-radius: 999px;
     pointer-events: none;
     z-index: 1;
-  }
-
-  .sidebar-metric-pill__swatch.is-square {
-    border-radius: 0;
-  }
-
-  .sidebar-metric-pill__swatch.is-diamond {
-    transform: rotate(45deg) scale(0.9);
-  }
-
-  .sidebar-metric-pill__swatch.is-triangle {
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
-    border-radius: 0;
   }
 
   .sidebar-metric-pill__value {
@@ -1295,6 +1289,7 @@
     line-height: var(--prototype-control-rail-line-height);
   }
 
+  .sidebar-metric-pill__value--swatch,
   .sidebar-metric-pill--swatch .sidebar-metric-pill__value {
     justify-content: flex-end;
     width: var(--prototype-pill-value-width);
@@ -1302,6 +1297,29 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
     transform: translateY(var(--prototype-control-text-offset-y));
+  }
+
+  .sidebar-metric-pill__swatch--mixed {
+    border-style: solid;
+    border-color: var(--border);
+    border-width: 1px;
+    border-radius: 999px;
+    box-sizing: border-box;
+  }
+
+  .sidebar-metric-pill__swatch-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sidebar-metric-pill__swatch-svg * {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .sidebar-metric-pill__swatch--circle {
+    border-radius: 999px;
+    overflow: hidden;
   }
 
   .sidebar-popover-anchor {
@@ -1390,15 +1408,13 @@
   }
 
   .sidebar-control-section {
+    position: relative;
     display: grid;
     gap: 0.45rem;
   }
 
   .sidebar-popover__section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
+    display: block;
   }
 
   .sidebar-control-section__content {
@@ -1407,10 +1423,17 @@
   }
 
   .sidebar-popover__section-title {
+    padding-right: 4.5rem;
     font-size: var(--font-size-popover-title);
     font-weight: 600;
     color: var(--text-subtle);
     letter-spacing: 0.01em;
+  }
+
+  .sidebar-control-section__toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .sidebar-shape-field {
@@ -1708,6 +1731,7 @@
     font-weight: 400;
     color: var(--muted);
   }
+
 }
 
 @media (max-width: 1180px) {

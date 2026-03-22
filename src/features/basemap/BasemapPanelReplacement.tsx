@@ -45,7 +45,7 @@ export function BasemapPanelReplacement() {
         label: 'Basemap',
       }}
     >
-      <div className="stack-col sidebar-section-list">
+      <div className="sidebar-replacement-section-list">
         {rows.map((row) => (
           <SidebarRow
             key={row.id}
