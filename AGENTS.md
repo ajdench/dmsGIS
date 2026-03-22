@@ -53,6 +53,8 @@ Apply these principles to future development in this repo:
     Ask only the questions needed to de-risk the work. If more than three are needed, ask them one at a time in the order where each answer informs the next.
 16. Prefer measured rendered geometry over inferred CSS reasoning when alignment or spacing becomes non-trivial.
     Once visual alignment depends on multiple nested rails, borders, absolute positioning, or token interactions, verify the live rendered boxes/positions and calculate from those measurements rather than continuing with approximate CSS inference.
+17. For major approved UI replacements, prefer versioned side development and later cutover over trying to fold the replacement UI back into the active shell piecemeal.
+    Keep the current production version stable, develop the replacement in an isolated production-owned path, and replace via a controlled cutover once parity is verified.
 
 Working stance:
 
@@ -63,6 +65,30 @@ Working stance:
 - before coding substantial UI, interaction, or architecture changes, summarize findings and the intended approach first unless the task is trivially local and low-risk
 - when the user flags a repeated collaboration preference, promote it into repo-level working guidance rather than treating it as turn-local advice
 - when a thread reaches a non-trivial architectural conclusion or reset point, record a restart/reactivation note so the next session can resume from the same assumptions instead of rediscovering them
+
+Canonical handover bundle:
+
+- `docs/agent-handover.md`
+- `docs/sidebar-pane-status.md`
+- `docs/prototype-to-production-playbook.md`
+- `docs/agent-continuation-protocol.md`
+- `docs/sidebar-parity-bugs.md`
+
+New coding-agent read order:
+
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/agent-handover.md`
+4. `docs/sidebar-pane-status.md`
+5. `docs/prototype-to-production-playbook.md`
+6. `docs/agent-continuation-protocol.md`
+7. `docs/sidebar-parity-bugs.md`
+
+Handover rule:
+
+- keep stable principles, current truth, deferred bugs, and historical rationale in separate docs
+- update the canonical handover bundle whenever architecture, pane truth, or cross-agent workflow changes
+- do not rely on thread history alone for continuation between agents
 
 ## Version control workflow
 

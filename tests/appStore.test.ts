@@ -12,8 +12,10 @@ describe('appStore region controls', () => {
           visible: true,
           color: '#a7c636',
           opacity: 1,
+          shape: 'circle',
           borderVisible: true,
           borderColor: '#ffffff',
+          borderWidth: 1,
           borderOpacity: 0,
           symbolSize: 3.5,
         },
@@ -22,8 +24,10 @@ describe('appStore region controls', () => {
           visible: true,
           color: '#fc921f',
           opacity: 1,
+          shape: 'circle',
           borderVisible: true,
           borderColor: '#ffffff',
+          borderWidth: 1,
           borderOpacity: 0,
           symbolSize: 3.5,
         },
@@ -61,6 +65,27 @@ describe('appStore region controls', () => {
     expect(facilitySymbolSize).toBe(5);
     expect(regions.find((region) => region.name === 'North')?.symbolSize).toBe(5);
     expect(regions.find((region) => region.name === 'East')?.symbolSize).toBe(7.5);
+  });
+
+  it('applies global PMC shape changes to every region and still allows local overrides', () => {
+    useAppStore.getState().setFacilitySymbolShape('diamond');
+    useAppStore.getState().setRegionShape('East', 'triangle');
+
+    const { facilitySymbolShape, regions } = useAppStore.getState();
+    expect(facilitySymbolShape).toBe('diamond');
+    expect(regions.find((region) => region.name === 'North')?.shape).toBe('diamond');
+    expect(regions.find((region) => region.name === 'East')?.shape).toBe('triangle');
+  });
+
+  it('allows global and local PMC border thickness updates', () => {
+    useAppStore.getState().setAllRegionBorderWidth(2);
+    useAppStore.getState().setRegionBorderWidth('East', 3.25);
+
+    const { regions } = useAppStore.getState();
+    expect(regions.find((region) => region.name === 'North')?.borderWidth).toBe(2);
+    expect(regions.find((region) => region.name === 'East')?.borderWidth).toBe(
+      3.25,
+    );
   });
 
   it('clamps boundary layer opacity updates', () => {

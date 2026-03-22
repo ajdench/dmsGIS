@@ -25,7 +25,6 @@ interface SyncJmcOutlineHighlightParams {
 interface SyncSelectedPointHighlightParams {
   entry: PointTooltipEntry;
   selectedPointLayer: VectorLayer<VectorSource> | null;
-  facilitySymbolShape: FacilitySymbolShape;
   createSelectedPointStyle: (
     shape: FacilitySymbolShape,
     size: number,
@@ -102,7 +101,6 @@ export function syncSelectedPointHighlight(
   const {
     entry,
     selectedPointLayer,
-    facilitySymbolShape,
     createSelectedPointStyle,
   } = params;
   const selectedPointSource = selectedPointLayer?.getSource();
@@ -118,7 +116,7 @@ export function syncSelectedPointHighlight(
   if (selectedPointLayer) {
     selectedPointLayer.setStyle(
       createSelectedPointStyle(
-        facilitySymbolShape,
+        entry.symbolShape,
         entry.symbolSize,
         entry.hasVisibleBorder,
       ) as never,

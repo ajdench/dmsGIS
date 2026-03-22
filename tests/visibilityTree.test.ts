@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  aggregateVisibilityStates,
   collectImmediateChildVisibility,
   deriveSidebarVisibilityState,
   deriveSidebarVisibilityStateFromChildren,
@@ -50,6 +51,15 @@ describe('visibilityTree', () => {
     expect(collectImmediateChildVisibility(rows, (row) => row.enabled)).toBe(
       'mixed',
     );
+  });
+
+  it('aggregates child visibility states preserving mixed', () => {
+    expect(aggregateVisibilityStates([])).toBe('off');
+    expect(aggregateVisibilityStates(['on', 'on'])).toBe('on');
+    expect(aggregateVisibilityStates(['off', 'off'])).toBe('off');
+    expect(aggregateVisibilityStates(['on', 'off'])).toBe('mixed');
+    expect(aggregateVisibilityStates(['mixed'])).toBe('mixed');
+    expect(aggregateVisibilityStates(['on', 'mixed'])).toBe('mixed');
   });
 
   it('exposes a helper for mixed-state checks', () => {

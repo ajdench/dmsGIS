@@ -1,44 +1,213 @@
 import type { BasemapSettings } from '../../types';
 import type { SidebarRowDefinition } from '../../lib/sidebar/contracts';
 import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
+import { resolvePillSwatchOpacity } from '../../lib/sidebar/swatchVisibility';
+
+type LabelRowId =
+  | 'country-labels'
+  | 'major-cities'
+  | 'region-labels'
+  | 'network-labels'
+  | 'facility-labels';
+
+type BasemapLabelVisibilityKey =
+  | 'showCountryLabels'
+  | 'showMajorCities'
+  | 'showRegionLabels'
+  | 'showNetworkLabels'
+  | 'showFacilityLabels';
+
+type BasemapLabelColorKey =
+  | 'countryLabelColor'
+  | 'countryLabelBorderColor'
+  | 'majorCityColor'
+  | 'majorCityBorderColor'
+  | 'regionLabelColor'
+  | 'regionLabelBorderColor'
+  | 'networkLabelColor'
+  | 'networkLabelBorderColor'
+  | 'facilityLabelColor'
+  | 'facilityLabelBorderColor';
+
+type BasemapLabelOpacityKey =
+  | 'countryLabelOpacity'
+  | 'countryLabelBorderOpacity'
+  | 'majorCityOpacity'
+  | 'majorCityBorderOpacity'
+  | 'regionLabelOpacity'
+  | 'regionLabelBorderOpacity'
+  | 'networkLabelOpacity'
+  | 'networkLabelBorderOpacity'
+  | 'facilityLabelOpacity'
+  | 'facilityLabelBorderOpacity';
+
+type BasemapLabelNumericKey =
+  | 'countryLabelSize'
+  | 'countryLabelBorderWidth'
+  | 'majorCitySize'
+  | 'majorCityBorderWidth'
+  | 'regionLabelSize'
+  | 'regionLabelBorderWidth'
+  | 'networkLabelSize'
+  | 'networkLabelBorderWidth'
+  | 'facilityLabelSize'
+  | 'facilityLabelBorderWidth';
 
 interface BuildLabelPanelRowsOptions {
   basemap: BasemapSettings;
   setBasemapLayerVisibility: (
-    key: 'showCountryLabels' | 'showMajorCities' | 'showSeaLabels',
+    key: BasemapLabelVisibilityKey,
     visible: boolean,
   ) => void;
-  setBasemapElementColor: (
-    key:
-      | 'countryLabelColor'
-      | 'countryLabelBorderColor'
-      | 'majorCityColor'
-      | 'majorCityBorderColor'
-      | 'seaLabelColor'
-      | 'seaLabelBorderColor',
-    color: string,
-  ) => void;
+  setBasemapElementColor: (key: BasemapLabelColorKey, color: string) => void;
   setBasemapElementOpacity: (
-    key:
-      | 'countryLabelOpacity'
-      | 'countryLabelBorderOpacity'
-      | 'majorCityOpacity'
-      | 'majorCityBorderOpacity'
-      | 'seaLabelOpacity'
-      | 'seaLabelBorderOpacity',
+    key: BasemapLabelOpacityKey,
     opacity: number,
   ) => void;
-  setBasemapNumericValue: (
-    key:
-      | 'countryLabelSize'
-      | 'countryLabelBorderWidth'
-      | 'majorCitySize'
-      | 'majorCityBorderWidth'
-      | 'seaLabelSize'
-      | 'seaLabelBorderWidth',
-    value: number,
-  ) => void;
+  setBasemapNumericValue: (key: BasemapLabelNumericKey, value: number) => void;
 }
+
+interface LabelRowConfig {
+  id: LabelRowId;
+  label: string;
+  visibilityKey: BasemapLabelVisibilityKey;
+  colorKey: BasemapLabelColorKey;
+  borderColorKey: BasemapLabelColorKey;
+  opacityKey: BasemapLabelOpacityKey;
+  borderOpacityKey: BasemapLabelOpacityKey;
+  sizeKey: BasemapLabelNumericKey;
+  borderWidthKey: BasemapLabelNumericKey;
+  colorId: string;
+  sizeId: string;
+  opacityId: string;
+  borderColorId: string;
+  borderWidthId: string;
+  borderOpacityId: string;
+  defaultColor: string;
+  defaultOpacity: number;
+  defaultSize: number;
+  defaultBorderColor: string;
+  defaultBorderWidth: number;
+  defaultBorderOpacity: number;
+}
+
+const LABEL_ROW_CONFIGS: LabelRowConfig[] = [
+  {
+    id: 'country-labels',
+    label: 'Countries',
+    visibilityKey: 'showCountryLabels',
+    colorKey: 'countryLabelColor',
+    borderColorKey: 'countryLabelBorderColor',
+    opacityKey: 'countryLabelOpacity',
+    borderOpacityKey: 'countryLabelBorderOpacity',
+    sizeKey: 'countryLabelSize',
+    borderWidthKey: 'countryLabelBorderWidth',
+    colorId: 'country-label-colour',
+    sizeId: 'country-label-size',
+    opacityId: 'country-label-opacity',
+    borderColorId: 'country-label-border-colour',
+    borderWidthId: 'country-label-border-width',
+    borderOpacityId: 'country-label-border-opacity',
+    defaultColor: '#0f172a',
+    defaultOpacity: 0.4,
+    defaultSize: 8,
+    defaultBorderColor: '#f8fafc',
+    defaultBorderWidth: 0,
+    defaultBorderOpacity: 0,
+  },
+  {
+    id: 'major-cities',
+    label: 'Cities',
+    visibilityKey: 'showMajorCities',
+    colorKey: 'majorCityColor',
+    borderColorKey: 'majorCityBorderColor',
+    opacityKey: 'majorCityOpacity',
+    borderOpacityKey: 'majorCityBorderOpacity',
+    sizeKey: 'majorCitySize',
+    borderWidthKey: 'majorCityBorderWidth',
+    colorId: 'major-city-colour',
+    sizeId: 'major-city-size',
+    opacityId: 'major-city-opacity',
+    borderColorId: 'major-city-border-colour',
+    borderWidthId: 'major-city-border-width',
+    borderOpacityId: 'major-city-border-opacity',
+    defaultColor: '#1f2937',
+    defaultOpacity: 0.65,
+    defaultSize: 6,
+    defaultBorderColor: '#f8fafc',
+    defaultBorderWidth: 0,
+    defaultBorderOpacity: 0,
+  },
+  {
+    id: 'region-labels',
+    label: 'Regions',
+    visibilityKey: 'showRegionLabels',
+    colorKey: 'regionLabelColor',
+    borderColorKey: 'regionLabelBorderColor',
+    opacityKey: 'regionLabelOpacity',
+    borderOpacityKey: 'regionLabelBorderOpacity',
+    sizeKey: 'regionLabelSize',
+    borderWidthKey: 'regionLabelBorderWidth',
+    colorId: 'region-label-colour',
+    sizeId: 'region-label-size',
+    opacityId: 'region-label-opacity',
+    borderColorId: 'region-label-border-colour',
+    borderWidthId: 'region-label-border-width',
+    borderOpacityId: 'region-label-border-opacity',
+    defaultColor: '#334155',
+    defaultOpacity: 0.5,
+    defaultSize: 7,
+    defaultBorderColor: '#f8fafc',
+    defaultBorderWidth: 0,
+    defaultBorderOpacity: 0,
+  },
+  {
+    id: 'network-labels',
+    label: 'Networks',
+    visibilityKey: 'showNetworkLabels',
+    colorKey: 'networkLabelColor',
+    borderColorKey: 'networkLabelBorderColor',
+    opacityKey: 'networkLabelOpacity',
+    borderOpacityKey: 'networkLabelBorderOpacity',
+    sizeKey: 'networkLabelSize',
+    borderWidthKey: 'networkLabelBorderWidth',
+    colorId: 'network-label-colour',
+    sizeId: 'network-label-size',
+    opacityId: 'network-label-opacity',
+    borderColorId: 'network-label-border-colour',
+    borderWidthId: 'network-label-border-width',
+    borderOpacityId: 'network-label-border-opacity',
+    defaultColor: '#475569',
+    defaultOpacity: 0.55,
+    defaultSize: 6,
+    defaultBorderColor: '#f8fafc',
+    defaultBorderWidth: 0,
+    defaultBorderOpacity: 0,
+  },
+  {
+    id: 'facility-labels',
+    label: 'Facilities',
+    visibilityKey: 'showFacilityLabels',
+    colorKey: 'facilityLabelColor',
+    borderColorKey: 'facilityLabelBorderColor',
+    opacityKey: 'facilityLabelOpacity',
+    borderOpacityKey: 'facilityLabelBorderOpacity',
+    sizeKey: 'facilityLabelSize',
+    borderWidthKey: 'facilityLabelBorderWidth',
+    colorId: 'facility-label-colour',
+    sizeId: 'facility-label-size',
+    opacityId: 'facility-label-opacity',
+    borderColorId: 'facility-label-border-colour',
+    borderWidthId: 'facility-label-border-width',
+    borderOpacityId: 'facility-label-border-opacity',
+    defaultColor: '#111827',
+    defaultOpacity: 0.7,
+    defaultSize: 5.5,
+    defaultBorderColor: '#f8fafc',
+    defaultBorderWidth: 0,
+    defaultBorderOpacity: 0,
+  },
+];
 
 export function buildLabelPanelRows({
   basemap,
@@ -46,24 +215,36 @@ export function buildLabelPanelRows({
   setBasemapElementColor,
   setBasemapElementOpacity,
   setBasemapNumericValue,
-}: BuildLabelPanelRowsOptions): SidebarRowDefinition<
-  'country-labels' | 'major-cities' | 'sea-labels'
->[] {
-  return [
-    {
-      id: 'country-labels',
-      label: 'Countries',
+}: BuildLabelPanelRowsOptions): SidebarRowDefinition<LabelRowId>[] {
+  return LABEL_ROW_CONFIGS.map((config) => {
+    const visible = basemap[config.visibilityKey] ?? false;
+    const color = basemap[config.colorKey] ?? config.defaultColor;
+    const opacity = basemap[config.opacityKey] ?? config.defaultOpacity;
+    const size = basemap[config.sizeKey] ?? config.defaultSize;
+    const borderColor =
+      basemap[config.borderColorKey] ?? config.defaultBorderColor;
+    const borderWidth =
+      basemap[config.borderWidthKey] ?? config.defaultBorderWidth;
+    const borderOpacity =
+      basemap[config.borderOpacityKey] ?? config.defaultBorderOpacity;
+
+    return {
+      id: config.id,
+      label: config.label,
       visibility: {
-        state: booleanToSidebarVisibilityState(basemap.showCountryLabels),
+        state: booleanToSidebarVisibilityState(visible),
         onChange: (enabled) =>
-          setBasemapLayerVisibility('showCountryLabels', enabled),
+          setBasemapLayerVisibility(config.visibilityKey, enabled),
       },
       pill: {
-        valueLabel: formatPercent(basemap.countryLabelOpacity),
-        ariaLabel: 'Countries controls',
+        valueLabel: formatPercent(opacity),
+        ariaLabel: `${config.label} controls`,
         swatch: {
-          color: basemap.countryLabelColor,
-          opacity: basemap.countryLabelOpacity,
+          color,
+          opacity: resolvePillSwatchOpacity(opacity, visible),
+          borderColor,
+          borderOpacity,
+          borderWidth,
         },
       },
       sections: [
@@ -72,30 +253,31 @@ export function buildLabelPanelRows({
           fields: [
             {
               kind: 'color',
-              id: 'country-label-colour',
+              id: config.colorId,
               label: 'Colour',
-              value: basemap.countryLabelColor,
-              onChange: (color) =>
-                setBasemapElementColor('countryLabelColor', color),
+              value: color,
+              onChange: (nextColor) =>
+                setBasemapElementColor(config.colorKey, nextColor),
             },
             {
               kind: 'slider',
-              id: 'country-label-size',
+              id: config.sizeId,
               label: 'Size',
-              value: basemap.countryLabelSize ?? 8,
+              value: size,
               min: 1,
               max: 18,
               step: 0.5,
               mode: 'raw',
-              onChange: (size) => setBasemapNumericValue('countryLabelSize', size),
+              onChange: (nextSize) =>
+                setBasemapNumericValue(config.sizeKey, nextSize),
             },
             {
               kind: 'slider',
-              id: 'country-label-opacity',
+              id: config.opacityId,
               label: 'Opacity',
-              value: basemap.countryLabelOpacity,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('countryLabelOpacity', opacity),
+              value: opacity,
+              onChange: (nextOpacity) =>
+                setBasemapElementOpacity(config.opacityKey, nextOpacity),
             },
           ],
         },
@@ -104,203 +286,46 @@ export function buildLabelPanelRows({
           fields: [
             {
               kind: 'color',
-              id: 'country-label-border-colour',
+              id: config.borderColorId,
               label: 'Colour',
-              value: basemap.countryLabelBorderColor ?? '#f8fafc',
-              onChange: (color) =>
-                setBasemapElementColor('countryLabelBorderColor', color),
+              value: borderColor,
+              onChange: (nextBorderColor) =>
+                setBasemapElementColor(
+                  config.borderColorKey,
+                  nextBorderColor,
+                ),
             },
             {
               kind: 'slider',
-              id: 'country-label-border-width',
+              id: config.borderWidthId,
               label: 'Thickness',
-              value: basemap.countryLabelBorderWidth ?? 0.5,
+              value: borderWidth,
               min: 0,
-              max: 6,
-              step: 0.5,
+              max: 10,
+              step: 0.25,
               mode: 'raw',
-              onChange: (width) =>
-                setBasemapNumericValue('countryLabelBorderWidth', width),
+              onChange: (nextBorderWidth) =>
+                setBasemapNumericValue(
+                  config.borderWidthKey,
+                  nextBorderWidth,
+                ),
             },
             {
               kind: 'slider',
-              id: 'country-label-border-opacity',
+              id: config.borderOpacityId,
               label: 'Opacity',
-              value: basemap.countryLabelBorderOpacity ?? 0.3,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('countryLabelBorderOpacity', opacity),
+              value: borderOpacity,
+              onChange: (nextBorderOpacity) =>
+                setBasemapElementOpacity(
+                  config.borderOpacityKey,
+                  nextBorderOpacity,
+                ),
             },
           ],
         },
       ],
-    },
-    {
-      id: 'major-cities',
-      label: 'Cities',
-      visibility: {
-        state: booleanToSidebarVisibilityState(basemap.showMajorCities),
-        onChange: (enabled) =>
-          setBasemapLayerVisibility('showMajorCities', enabled),
-      },
-      pill: {
-        valueLabel: formatPercent(basemap.majorCityOpacity),
-        ariaLabel: 'Cities controls',
-        swatch: {
-          color: basemap.majorCityColor,
-          opacity: basemap.majorCityOpacity,
-        },
-      },
-      sections: [
-        {
-          title: 'Text',
-          fields: [
-            {
-              kind: 'color',
-              id: 'major-city-colour',
-              label: 'Colour',
-              value: basemap.majorCityColor,
-              onChange: (color) => setBasemapElementColor('majorCityColor', color),
-            },
-            {
-              kind: 'slider',
-              id: 'major-city-size',
-              label: 'Size',
-              value: basemap.majorCitySize ?? 6,
-              min: 1,
-              max: 18,
-              step: 0.5,
-              mode: 'raw',
-              onChange: (size) => setBasemapNumericValue('majorCitySize', size),
-            },
-            {
-              kind: 'slider',
-              id: 'major-city-opacity',
-              label: 'Opacity',
-              value: basemap.majorCityOpacity,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('majorCityOpacity', opacity),
-            },
-          ],
-        },
-        {
-          title: 'Border',
-          fields: [
-            {
-              kind: 'color',
-              id: 'major-city-border-colour',
-              label: 'Colour',
-              value: basemap.majorCityBorderColor ?? '#f8fafc',
-              onChange: (color) =>
-                setBasemapElementColor('majorCityBorderColor', color),
-            },
-            {
-              kind: 'slider',
-              id: 'major-city-border-width',
-              label: 'Thickness',
-              value: basemap.majorCityBorderWidth ?? 0.5,
-              min: 0,
-              max: 6,
-              step: 0.5,
-              mode: 'raw',
-              onChange: (width) =>
-                setBasemapNumericValue('majorCityBorderWidth', width),
-            },
-            {
-              kind: 'slider',
-              id: 'major-city-border-opacity',
-              label: 'Opacity',
-              value: basemap.majorCityBorderOpacity ?? 0.35,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('majorCityBorderOpacity', opacity),
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'sea-labels',
-      label: 'Sea labels',
-      visibility: {
-        state: booleanToSidebarVisibilityState(basemap.showSeaLabels),
-        onChange: (enabled) =>
-          setBasemapLayerVisibility('showSeaLabels', enabled),
-      },
-      pill: {
-        valueLabel: formatPercent(basemap.seaLabelOpacity),
-        ariaLabel: 'Sea labels controls',
-        swatch: {
-          color: basemap.seaLabelColor,
-          opacity: basemap.seaLabelOpacity,
-        },
-      },
-      sections: [
-        {
-          title: 'Text',
-          fields: [
-            {
-              kind: 'color',
-              id: 'sea-label-colour',
-              label: 'Colour',
-              value: basemap.seaLabelColor,
-              onChange: (color) => setBasemapElementColor('seaLabelColor', color),
-            },
-            {
-              kind: 'slider',
-              id: 'sea-label-size',
-              label: 'Size',
-              value: basemap.seaLabelSize ?? 7,
-              min: 1,
-              max: 18,
-              step: 0.5,
-              mode: 'raw',
-              onChange: (size) => setBasemapNumericValue('seaLabelSize', size),
-            },
-            {
-              kind: 'slider',
-              id: 'sea-label-opacity',
-              label: 'Opacity',
-              value: basemap.seaLabelOpacity,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('seaLabelOpacity', opacity),
-            },
-          ],
-        },
-        {
-          title: 'Border',
-          fields: [
-            {
-              kind: 'color',
-              id: 'sea-label-border-colour',
-              label: 'Colour',
-              value: basemap.seaLabelBorderColor ?? '#f8fafc',
-              onChange: (color) =>
-                setBasemapElementColor('seaLabelBorderColor', color),
-            },
-            {
-              kind: 'slider',
-              id: 'sea-label-border-width',
-              label: 'Thickness',
-              value: basemap.seaLabelBorderWidth ?? 0.5,
-              min: 0,
-              max: 6,
-              step: 0.5,
-              mode: 'raw',
-              onChange: (width) =>
-                setBasemapNumericValue('seaLabelBorderWidth', width),
-            },
-            {
-              kind: 'slider',
-              id: 'sea-label-border-opacity',
-              label: 'Opacity',
-              value: basemap.seaLabelBorderOpacity ?? 0.3,
-              onChange: (opacity) =>
-                setBasemapElementOpacity('seaLabelBorderOpacity', opacity),
-            },
-          ],
-        },
-      ],
-    },
-  ];
+    };
+  });
 }
 
 function formatPercent(value: number): string {

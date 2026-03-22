@@ -46,3 +46,10 @@ export function resolveItemOrder<
 
   return orderedItems;
 }
+
+export function synchronizeOrderedIds<
+  TItem extends { id: string },
+  TId extends TItem['id'] = TItem['id'],
+>(items: TItem[], orderedIds: readonly TId[]) {
+  return resolveItemOrder(items, orderedIds).map((item) => item.id as TId);
+}

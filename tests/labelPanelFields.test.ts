@@ -24,6 +24,15 @@ describe('labelPanelFields', () => {
         majorCityColor: '#1f2937',
         majorCityOpacity: 0.65,
         showMajorCities: true,
+        regionLabelColor: '#334155',
+        regionLabelOpacity: 0.5,
+        showRegionLabels: false,
+        networkLabelColor: '#475569',
+        networkLabelOpacity: 0.55,
+        showNetworkLabels: false,
+        facilityLabelColor: '#111827',
+        facilityLabelOpacity: 0.7,
+        showFacilityLabels: true,
         seaFillColor: '#d9e7f5',
         seaFillOpacity: 1,
         showSeaFill: true,
@@ -40,10 +49,24 @@ describe('labelPanelFields', () => {
     expect(rows.map((row) => row.label)).toEqual([
       'Countries',
       'Cities',
-      'Sea labels',
+      'Regions',
+      'Networks',
+      'Facilities',
     ]);
-    expect(rows.map((row) => row.pill.valueLabel)).toEqual(['40%', '65%', '50%']);
-    expect(rows.map((row) => row.visibility.state)).toEqual(['off', 'on', 'off']);
+    expect(rows.map((row) => row.pill.valueLabel)).toEqual([
+      '40%',
+      '65%',
+      '50%',
+      '55%',
+      '70%',
+    ]);
+    expect(rows.map((row) => row.visibility.state)).toEqual([
+      'off',
+      'on',
+      'off',
+      'off',
+      'on',
+    ]);
     expect(rows[0].sections.map((section) => section.title)).toEqual([
       'Text',
       'Border',
@@ -53,12 +76,12 @@ describe('labelPanelFields', () => {
     rows[1].sections[0].fields[0].onChange('#ffffff');
     rows[0].sections[0].fields[1].onChange(10);
     rows[2].sections[1].fields[1].onChange(2);
-    rows[2].sections[0].fields[2].onChange(0.75);
+    rows[4].sections[0].fields[2].onChange(0.75);
 
     expect(setBasemapLayerVisibility).toHaveBeenCalledWith('showCountryLabels', true);
     expect(setBasemapElementColor).toHaveBeenCalledWith('majorCityColor', '#ffffff');
     expect(setBasemapNumericValue).toHaveBeenCalledWith('countryLabelSize', 10);
-    expect(setBasemapNumericValue).toHaveBeenCalledWith('seaLabelBorderWidth', 2);
-    expect(setBasemapElementOpacity).toHaveBeenCalledWith('seaLabelOpacity', 0.75);
+    expect(setBasemapNumericValue).toHaveBeenCalledWith('regionLabelBorderWidth', 2);
+    expect(setBasemapElementOpacity).toHaveBeenCalledWith('facilityLabelOpacity', 0.75);
   });
 });

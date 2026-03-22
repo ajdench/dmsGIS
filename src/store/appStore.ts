@@ -106,6 +106,12 @@ interface AppState {
       | 'countryLabelBorderColor'
       | 'majorCityColor'
       | 'majorCityBorderColor'
+      | 'regionLabelColor'
+      | 'regionLabelBorderColor'
+      | 'networkLabelColor'
+      | 'networkLabelBorderColor'
+      | 'facilityLabelColor'
+      | 'facilityLabelBorderColor'
       | 'seaFillColor'
       | 'seaLabelColor'
       | 'seaLabelBorderColor',
@@ -119,6 +125,12 @@ interface AppState {
       | 'countryLabelBorderOpacity'
       | 'majorCityOpacity'
       | 'majorCityBorderOpacity'
+      | 'regionLabelOpacity'
+      | 'regionLabelBorderOpacity'
+      | 'networkLabelOpacity'
+      | 'networkLabelBorderOpacity'
+      | 'facilityLabelOpacity'
+      | 'facilityLabelBorderOpacity'
       | 'seaFillOpacity'
       | 'seaLabelOpacity'
       | 'seaLabelBorderOpacity',
@@ -130,6 +142,12 @@ interface AppState {
       | 'countryLabelBorderWidth'
       | 'majorCitySize'
       | 'majorCityBorderWidth'
+      | 'regionLabelSize'
+      | 'regionLabelBorderWidth'
+      | 'networkLabelSize'
+      | 'networkLabelBorderWidth'
+      | 'facilityLabelSize'
+      | 'facilityLabelBorderWidth'
       | 'seaLabelSize'
       | 'seaLabelBorderWidth',
     value: number,
@@ -140,6 +158,9 @@ interface AppState {
       | 'showCountryBorders'
       | 'showCountryLabels'
       | 'showMajorCities'
+      | 'showRegionLabels'
+      | 'showNetworkLabels'
+      | 'showFacilityLabels'
       | 'showSeaFill'
       | 'showSeaLabels',
     visible: boolean,
@@ -150,12 +171,17 @@ interface AppState {
   setRegionBorderVisibility: (name: string, visible: boolean) => void;
   setRegionBorderColor: (name: string, color: string) => void;
   setRegionBorderOpacity: (name: string, opacity: number) => void;
+  setRegionBorderWidth: (name: string, width: number) => void;
+  setRegionShape: (name: string, shape: FacilitySymbolShape) => void;
   setRegionSymbolSize: (name: string, size: number) => void;
   setRegionGlobalOpacity: (opacity: number) => void;
   setAllRegionVisibility: (visible: boolean) => void;
+  setAllRegionColor: (color: string) => void;
   setAllRegionBorderVisibility: (visible: boolean) => void;
   setAllRegionBorderColor: (color: string) => void;
   setAllRegionBorderOpacity: (opacity: number) => void;
+  setAllRegionBorderWidth: (width: number) => void;
+  setAllRegionShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
   setFacilitySearchQuery: (query: string) => void;
@@ -490,6 +516,20 @@ export const useAppStore = create<AppState>((set, get) => ({
         region.name === name ? { ...region, borderOpacity: opacity } : region,
       ),
     })),
+  setRegionBorderWidth: (name, width) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name
+          ? { ...region, borderWidth: Math.max(0, Math.min(10, width)) }
+          : region,
+      ),
+    })),
+  setRegionShape: (name, shape) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name ? { ...region, shape } : region,
+      ),
+    })),
   setRegionSymbolSize: (name, size) =>
     set((state) => ({
       regions: state.regions.map((region) =>
@@ -509,6 +549,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       regions: state.regions.map((region) => ({ ...region, visible })),
     })),
+  setAllRegionColor: (color) =>
+    set((state) => {
+      const normalized = normalizeSolidColor(color);
+      return {
+        regions: state.regions.map((region) => ({
+          ...region,
+          color: normalized.color,
+          opacity: normalized.forceOpaque ? 1 : region.opacity,
+        })),
+      };
+    }),
   setAllRegionBorderVisibility: (visible) =>
     set((state) => ({
       regions: state.regions.map((region) => ({ ...region, borderVisible: visible })),
@@ -528,7 +579,23 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       regions: state.regions.map((region) => ({ ...region, borderOpacity: opacity })),
     })),
-  setFacilitySymbolShape: (shape) => set({ facilitySymbolShape: shape }),
+  setAllRegionBorderWidth: (width) =>
+    set((state) => ({
+      regions: state.regions.map((region) => ({
+        ...region,
+        borderWidth: Math.max(0, Math.min(10, width)),
+      })),
+    })),
+  setAllRegionShape: (shape) =>
+    set((state) => ({
+      facilitySymbolShape: shape,
+      regions: state.regions.map((region) => ({ ...region, shape })),
+    })),
+  setFacilitySymbolShape: (shape) =>
+    set((state) => ({
+      facilitySymbolShape: shape,
+      regions: state.regions.map((region) => ({ ...region, shape })),
+    })),
   setFacilitySymbolSize: (size) =>
     set((state) => {
       const normalized = Math.max(1, Math.min(12, size));
@@ -662,7 +729,9 @@ async function loadRegionStyles(
         opacity: number;
         borderVisible: boolean;
         borderColor: string;
+        borderWidth: number;
         borderOpacity: number;
+        shape: FacilitySymbolShape;
         symbolSize: number;
       }
     >();
@@ -682,8 +751,10 @@ async function loadRegionStyles(
           visible,
           color,
           opacity,
+          shape: 'circle',
           borderVisible: true,
           borderColor: '#ffffff',
+          borderWidth: 1,
           borderOpacity: 0,
           symbolSize: Math.max(1, Math.min(12, defaultSymbolSize)),
         });
@@ -727,6 +798,12 @@ function getBasemapOpacityKeyForColor(
     | 'countryLabelBorderColor'
     | 'majorCityColor'
     | 'majorCityBorderColor'
+    | 'regionLabelColor'
+    | 'regionLabelBorderColor'
+    | 'networkLabelColor'
+    | 'networkLabelBorderColor'
+    | 'facilityLabelColor'
+    | 'facilityLabelBorderColor'
     | 'seaFillColor'
     | 'seaLabelColor'
     | 'seaLabelBorderColor',
@@ -737,6 +814,12 @@ function getBasemapOpacityKeyForColor(
   | 'countryLabelBorderOpacity'
   | 'majorCityOpacity'
   | 'majorCityBorderOpacity'
+  | 'regionLabelOpacity'
+  | 'regionLabelBorderOpacity'
+  | 'networkLabelOpacity'
+  | 'networkLabelBorderOpacity'
+  | 'facilityLabelOpacity'
+  | 'facilityLabelBorderOpacity'
   | 'seaFillOpacity'
   | 'seaLabelOpacity'
   | 'seaLabelBorderOpacity' {
@@ -746,6 +829,12 @@ function getBasemapOpacityKeyForColor(
   if (key === 'countryLabelBorderColor') return 'countryLabelBorderOpacity';
   if (key === 'majorCityColor') return 'majorCityOpacity';
   if (key === 'majorCityBorderColor') return 'majorCityBorderOpacity';
+  if (key === 'regionLabelColor') return 'regionLabelOpacity';
+  if (key === 'regionLabelBorderColor') return 'regionLabelBorderOpacity';
+  if (key === 'networkLabelColor') return 'networkLabelOpacity';
+  if (key === 'networkLabelBorderColor') return 'networkLabelBorderOpacity';
+  if (key === 'facilityLabelColor') return 'facilityLabelOpacity';
+  if (key === 'facilityLabelBorderColor') return 'facilityLabelBorderOpacity';
   if (key === 'seaFillColor') return 'seaFillOpacity';
   if (key === 'seaLabelColor') return 'seaLabelOpacity';
   return 'seaLabelBorderOpacity';
@@ -767,6 +856,15 @@ function createDefaultBasemapSettings(): BasemapSettings {
     majorCityColor: '#1f2937',
     majorCityOpacity: 1,
     showMajorCities: false,
+    regionLabelColor: '#334155',
+    regionLabelOpacity: 0.5,
+    showRegionLabels: false,
+    networkLabelColor: '#475569',
+    networkLabelOpacity: 0.55,
+    showNetworkLabels: false,
+    facilityLabelColor: '#111827',
+    facilityLabelOpacity: 0.7,
+    showFacilityLabels: true,
     seaFillColor: '#d9e7f5',
     seaFillOpacity: 1,
     showSeaFill: true,

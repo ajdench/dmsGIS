@@ -163,7 +163,13 @@ function buildSortableStyle(
   transition: string | undefined,
 ): CSSProperties {
   return {
-    transform: CSS.Transform.toString(transform),
+    transform: transform
+      ? CSS.Transform.toString({
+          ...transform,
+          scaleX: 1,
+          scaleY: 1,
+        })
+      : undefined,
     transition,
   };
 }

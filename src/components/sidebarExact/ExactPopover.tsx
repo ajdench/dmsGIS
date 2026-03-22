@@ -29,8 +29,12 @@ export function ExactPopover({
 
   useLayoutEffect(() => {
     if (!open) {
+      setPositionStyle(null);
       return;
     }
+
+    let frameId: number | null = null;
+    const timeoutIds: number[] = [];
 
     const updatePosition = () => {
       const triggerElement = triggerRef.current;
@@ -59,13 +63,10 @@ export function ExactPopover({
         position: 'absolute',
         top: placement.top,
         left: placement.left,
-        ['--sidebar-exact-popover-triangle-y' as string]: `${placement.triangleCenter}px`,
+        ['--prototype-popover-triangle-y' as string]: `${placement.triangleCenter}px`,
       });
     };
 
-    updatePosition();
-
-    let frameId: number | null = null;
     const scheduleUpdate = () => {
       if (frameId !== null) {
         return;
@@ -77,11 +78,37 @@ export function ExactPopover({
       });
     };
 
+    updatePosition();
+    scheduleUpdate();
+    timeoutIds.push(window.setTimeout(updatePosition, 0));
+    timeoutIds.push(window.setTimeout(updatePosition, 80));
+    timeoutIds.push(window.setTimeout(updatePosition, 180));
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            scheduleUpdate();
+          })
+        : null;
+
+    if (resizeObserver) {
+      if (triggerRef.current) {
+        resizeObserver.observe(triggerRef.current);
+      }
+
+      if (contentRef.current) {
+        resizeObserver.observe(contentRef.current);
+      }
+    }
+
     window.addEventListener('resize', scheduleUpdate);
     window.addEventListener('scroll', scheduleUpdate, true);
     scrollContainer?.addEventListener('scroll', scheduleUpdate);
 
     return () => {
+      resizeObserver?.disconnect();
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+
       if (frameId !== null) {
         window.cancelAnimationFrame(frameId);
       }

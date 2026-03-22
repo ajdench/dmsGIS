@@ -23,8 +23,20 @@ import {
 
 export function LabelPanelExact() {
   const [sectionOrder, setSectionOrder] = useState<
-    Array<'country-labels' | 'major-cities' | 'sea-labels'>
-  >(['country-labels', 'major-cities', 'sea-labels']);
+    Array<
+      | 'country-labels'
+      | 'major-cities'
+      | 'region-labels'
+      | 'network-labels'
+      | 'facility-labels'
+    >
+  >([
+    'country-labels',
+    'major-cities',
+    'region-labels',
+    'network-labels',
+    'facility-labels',
+  ]);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [sidebarElement, setSidebarElement] = useState<HTMLElement | null>(null);
   const [workspaceGridElement, setWorkspaceGridElement] =
@@ -75,8 +87,18 @@ export function LabelPanelExact() {
     setSectionOrder((current) =>
       reorderItems(
         current,
-        String(active.id) as 'country-labels' | 'major-cities' | 'sea-labels',
-        String(over.id) as 'country-labels' | 'major-cities' | 'sea-labels',
+        String(active.id) as
+          | 'country-labels'
+          | 'major-cities'
+          | 'region-labels'
+          | 'network-labels'
+          | 'facility-labels',
+        String(over.id) as
+          | 'country-labels'
+          | 'major-cities'
+          | 'region-labels'
+          | 'network-labels'
+          | 'facility-labels',
       ),
     );
   };
@@ -92,7 +114,9 @@ export function LabelPanelExact() {
           const next = paneVisibilityState !== 'on';
           setBasemapLayerVisibility('showCountryLabels', next);
           setBasemapLayerVisibility('showMajorCities', next);
-          setBasemapLayerVisibility('showSeaLabels', next);
+          setBasemapLayerVisibility('showRegionLabels', next);
+          setBasemapLayerVisibility('showNetworkLabels', next);
+          setBasemapLayerVisibility('showFacilityLabels', next);
         }}
       >
         <div className="prototype-panel__content">

@@ -37,7 +37,7 @@ export function ExactSwatch({
           borderColor:
             borderWidth > 0 && borderOpacity > 0
               ? borderColor
-              : 'var(--sidebar-exact-pill-swatch-outline-color)',
+              : 'var(--prototype-pill-swatch-outline-color)',
           borderOpacity:
             borderWidth > 0 && borderOpacity > 0 ? borderOpacity : 1,
           borderWidth: `${borderWidth > 0 && borderOpacity > 0 ? borderWidth : 1}px`,
@@ -62,12 +62,12 @@ export function ExactSwatch({
           aria-hidden="true"
         />
       ) : null}
-      <ExactShapeSwatch
-        shape={shape}
-        fill={fillColor}
-        borderFill={borderFill}
-        fillBackdrop="var(--sidebar-exact-pill-swatch-fill-backdrop)"
-        innerScale={innerScale}
+        <ExactShapeSwatch
+          shape={shape}
+          fill={fillColor}
+          borderFill={borderFill}
+          fillBackdrop="var(--prototype-pill-swatch-fill-backdrop)"
+          innerScale={innerScale}
         className={`sidebar-exact-pill__swatch-svg sidebar-exact-pill__swatch-svg--${shape} prototype-metric-pill__swatch-svg prototype-metric-pill__swatch-svg--${shape}`}
       />
     </span>

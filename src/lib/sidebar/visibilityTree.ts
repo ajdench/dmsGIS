@@ -50,6 +50,15 @@ export function collectImmediateChildVisibility<TChild>(
   return deriveSidebarVisibilityState(children.map(isVisible));
 }
 
+export function aggregateVisibilityStates(
+  states: readonly SidebarVisibilityState[],
+): SidebarVisibilityState {
+  if (states.length === 0) return 'off';
+  if (states.every((s) => s === 'on')) return 'on';
+  if (states.every((s) => s === 'off')) return 'off';
+  return 'mixed';
+}
+
 export function isMixedSidebarVisibility(
   state: SidebarVisibilityState,
 ): boolean {

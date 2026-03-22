@@ -21,11 +21,16 @@ export function PmcPanel() {
   const setRegionBorderOpacity = useAppStore(
     (state) => state.setRegionBorderOpacity,
   );
+  const setRegionBorderWidth = useAppStore(
+    (state) => state.setRegionBorderWidth,
+  );
+  const setRegionShape = useAppStore((state) => state.setRegionShape);
   const setRegionSymbolSize = useAppStore((state) => state.setRegionSymbolSize);
   const setRegionGlobalOpacity = useAppStore(
     (state) => state.setRegionGlobalOpacity,
   );
   const setAllRegionVisibility = useAppStore((state) => state.setAllRegionVisibility);
+  const setAllRegionColor = useAppStore((state) => state.setAllRegionColor);
   const setAllRegionBorderVisibility = useAppStore(
     (state) => state.setAllRegionBorderVisibility,
   );
@@ -35,6 +40,10 @@ export function PmcPanel() {
   const setAllRegionBorderOpacity = useAppStore(
     (state) => state.setAllRegionBorderOpacity,
   );
+  const setAllRegionBorderWidth = useAppStore(
+    (state) => state.setAllRegionBorderWidth,
+  );
+  const setAllRegionShape = useAppStore((state) => state.setAllRegionShape);
   const setFacilitySymbolShape = useAppStore(
     (state) => state.setFacilitySymbolShape,
   );
@@ -51,12 +60,17 @@ export function PmcPanel() {
     setRegionBorderVisibility,
     setRegionBorderColor,
     setRegionBorderOpacity,
+    setRegionBorderWidth,
+    setRegionShape,
     setRegionSymbolSize,
     setRegionGlobalOpacity,
     setAllRegionVisibility,
+    setAllRegionColor,
     setAllRegionBorderVisibility,
     setAllRegionBorderColor,
     setAllRegionBorderOpacity,
+    setAllRegionBorderWidth,
+    setAllRegionShape,
     setFacilitySymbolShape,
     setFacilitySymbolSize,
   });

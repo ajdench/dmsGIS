@@ -116,7 +116,6 @@ export function renderDockedTooltip(
   syncSelectedPointHighlight({
     entry: current,
     selectedPointLayer,
-    facilitySymbolShape,
     createSelectedPointStyle,
   });
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   reorderItems,
   resolveItemOrder,
+  synchronizeOrderedIds,
 } from '../src/lib/sidebar/reorderItems';
 
 describe('reorderItems', () => {
@@ -32,5 +33,18 @@ describe('resolveItemOrder', () => {
       { id: 'a', label: 'Alpha' },
       { id: 'b', label: 'Beta' },
     ]);
+  });
+});
+
+describe('synchronizeOrderedIds', () => {
+  it('seeds and preserves the current ordered id list from source items', () => {
+    const items = [
+      { id: 'b', label: 'Beta' },
+      { id: 'a', label: 'Alpha' },
+      { id: 'c', label: 'Gamma' },
+    ] as const;
+
+    expect(synchronizeOrderedIds(items, [])).toEqual(['b', 'a', 'c']);
+    expect(synchronizeOrderedIds(items, ['a', 'b'])).toEqual(['a', 'b', 'c']);
   });
 });

@@ -121,18 +121,10 @@ export function ExactFieldSections({
 }: ExactFieldSectionsProps) {
   return (
     <>
-      {sections.map((section, index) => (
-        <div
-          key={`${section.title}-${index}`}
-          className="sidebar-exact-popover__content prototype-popover__content"
-        >
-          {index > 0 ? (
-            <div
-              className="sidebar-exact-popover__divider prototype-popover__divider"
-              aria-hidden="true"
-            />
-          ) : null}
+      {sections.flatMap((section, index) => {
+        const renderedSection = (
           <ExactControlSection
+            key={section.title}
             title={section.title}
             enabled={section.enabledState !== 'off'}
             toggleState={section.enabledState}
@@ -150,8 +142,21 @@ export function ExactFieldSections({
               />
             ))}
           </ExactControlSection>
-        </div>
-      ))}
+        );
+
+        if (index === 0) {
+          return [renderedSection];
+        }
+
+        return [
+          <div
+            key={`${section.title}-divider`}
+            className="sidebar-exact-popover__divider prototype-popover__divider"
+            aria-hidden="true"
+          />,
+          renderedSection,
+        ];
+      })}
     </>
   );
 }

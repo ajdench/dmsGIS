@@ -69,15 +69,31 @@ Why this matters:
 
 ## Documents
 
+- Canonical handover bundle:
+  - `docs/agent-handover.md`
+  - `docs/sidebar-pane-status.md`
+  - `docs/prototype-to-production-playbook.md`
+  - `docs/agent-continuation-protocol.md`
 - `docs/specification.md`
 - `docs/internal-architecture-principles.md`
 - `docs/sidebar-production-reset-plan.md`
 - `docs/sidebar-thread-reactivation.md`
+- `docs/sidebar-parity-bugs.md`
 - `docs/parallel-ui-prototype-workflow.md`
 - `src/prototypes/sidebarPrototype/README.md`
 - `src/prototypes/sidebarPrototype/VERSIONS.md`
 - `AGENTS.md`
 - `docs/prompts/`
+
+Read order for a new coding-agent session:
+
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/agent-handover.md`
+4. `docs/sidebar-pane-status.md`
+5. `docs/prototype-to-production-playbook.md`
+6. `docs/agent-continuation-protocol.md`
+7. `docs/sidebar-parity-bugs.md`
 
 ## Notes
 
@@ -131,6 +147,13 @@ Why this matters:
 - That combined summary path now prefers stable `scenarioRegionId` wiring where the runtime assignment source provides it, with label-based fallback kept only as a transition path.
 - The current conclusion from the sidebar promotion attempt is that incremental approximation is not enough for prototype parity. The approved prototype should now be treated as the exact production sidebar target, and the shared production sidebar shell should be rebuilt around that target more directly. See `docs/sidebar-production-reset-plan.md`.
 - The current implementation recommendation is no longer “keep tightening the existing production sidebar”. The next sidebar step should be a controlled replacement: create a new production-owned sidebar kit in parallel, rebuild the shared primitives to exact prototype structure, then cut `src/components/layout/RightSidebar.tsx` over to that new kit. See `docs/sidebar-production-reset-plan.md`.
+- The canonical documentation path for sidebar replacement and agent handover is now:
+  - `docs/agent-handover.md`
+  - `docs/sidebar-pane-status.md`
+  - `docs/prototype-to-production-playbook.md`
+  - `docs/agent-continuation-protocol.md`
+- Small deferred sidebar parity issues should be recorded in `docs/sidebar-parity-bugs.md` rather than left only in thread history.
+- For major approved UI replacements, prefer versioned side development and later cutover over trying to fold the replacement UI back into the active shell piecemeal.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
 - Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.

@@ -43,6 +43,6 @@ describe('LabelPanel', () => {
       screen.getByLabelText('Countries Border Thickness numeric value'),
     ).not.toBeNull();
     expect(screen.getByText('Cities')).not.toBeNull();
-    expect(screen.getByText('Sea labels')).not.toBeNull();
+    expect(screen.getByText('Regions')).not.toBeNull();
   });
 });

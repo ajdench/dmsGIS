@@ -3,6 +3,7 @@ import type {
   SidebarRowDefinition,
   SidebarSwatchStop,
 } from '../../lib/sidebar/contracts';
+import { resolvePillSwatchOpacity } from '../../lib/sidebar/swatchVisibility';
 import { collectImmediateChildVisibility } from '../../lib/sidebar/visibilityTree';
 import type { FacilitySymbolShape, RegionStyle } from '../../types';
 
@@ -17,12 +18,17 @@ interface BuildPmcPanelRowsOptions {
   setRegionBorderVisibility: (name: string, visible: boolean) => void;
   setRegionBorderColor: (name: string, color: string) => void;
   setRegionBorderOpacity: (name: string, opacity: number) => void;
+  setRegionBorderWidth: (name: string, width: number) => void;
+  setRegionShape: (name: string, shape: FacilitySymbolShape) => void;
   setRegionSymbolSize: (name: string, size: number) => void;
   setRegionGlobalOpacity: (opacity: number) => void;
   setAllRegionVisibility: (visible: boolean) => void;
+  setAllRegionColor: (color: string) => void;
   setAllRegionBorderVisibility: (visible: boolean) => void;
   setAllRegionBorderColor: (color: string) => void;
   setAllRegionBorderOpacity: (opacity: number) => void;
+  setAllRegionBorderWidth: (width: number) => void;
+  setAllRegionShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
 }
@@ -67,12 +73,17 @@ export function buildPmcPanelDefinition({
   setRegionBorderVisibility,
   setRegionBorderColor,
   setRegionBorderOpacity,
+  setRegionBorderWidth,
+  setRegionShape,
   setRegionSymbolSize,
   setRegionGlobalOpacity,
   setAllRegionVisibility,
+  setAllRegionColor,
   setAllRegionBorderVisibility,
   setAllRegionBorderColor,
   setAllRegionBorderOpacity,
+  setAllRegionBorderWidth,
+  setAllRegionShape,
   setFacilitySymbolShape,
   setFacilitySymbolSize,
 }: BuildPmcPanelRowsOptions): PmcPanelDefinition {
@@ -112,18 +123,20 @@ export function buildPmcPanelDefinition({
         shape: facilitySymbolShape,
         borderColor: sortedRegions[0]?.borderColor ?? '#cbd5e1',
         borderOpacity: sortedRegions[0]?.borderOpacity ?? 0,
-        borderWidth: borderState === 'off' ? 0 : 1,
+        borderWidth: borderState === 'off' ? 0 : (sortedRegions[0]?.borderWidth ?? 1),
       },
     },
     sections: [
       {
         title: 'Points',
+        enabledState: visibilityState,
+        onEnabledChange: setAllRegionVisibility,
         fields: [
           {
             kind: 'shape',
             label: 'Shape',
             value: facilitySymbolShape,
-            onChange: setFacilitySymbolShape,
+            onChange: setAllRegionShape,
           },
           {
             kind: 'slider',
@@ -137,6 +150,15 @@ export function buildPmcPanelDefinition({
             onChange: setFacilitySymbolSize,
           },
           {
+            kind: 'color',
+            id: 'pmc-colour',
+            label: 'Colour',
+            value: sortedRegions[0]?.color ?? '#cbd5e1',
+            opacityPreview: regionGlobalOpacity,
+            mixedSwatches: mixedFacilityColors,
+            onChange: setAllRegionColor,
+          },
+          {
             kind: 'slider',
             id: 'pmc-opacity',
             label: 'Opacity',
@@ -145,11 +167,11 @@ export function buildPmcPanelDefinition({
           },
         ],
       },
-      {
-        title: 'Border',
-        enabledState: borderState,
-        onEnabledChange: setAllRegionBorderVisibility,
-        fields: [
+        {
+          title: 'Border',
+          enabledState: borderState,
+          onEnabledChange: setAllRegionBorderVisibility,
+          fields: [
           {
             kind: 'color',
             id: 'pmc-border-colour',
@@ -166,12 +188,23 @@ export function buildPmcPanelDefinition({
             value: sortedRegions[0]?.borderOpacity ?? 0,
             onChange: setAllRegionBorderOpacity,
           },
+          {
+            kind: 'slider',
+            id: 'pmc-border-width',
+            label: 'Thickness',
+            value: sortedRegions[0]?.borderWidth ?? 1,
+            min: 0,
+            max: 10,
+            step: 0.25,
+            mode: 'raw',
+            onChange: setAllRegionBorderWidth,
+          },
         ],
       },
     ],
     rows: sortedRegions.map((region) => ({
       id: region.name,
-      label: region.name,
+          label: region.name,
       visibility: {
         state: region.visible ? 'on' : 'off',
         onChange: (visible) => setRegionVisibility(region.name, visible),
@@ -181,17 +214,25 @@ export function buildPmcPanelDefinition({
         ariaLabel: `${region.name} controls`,
         swatch: {
           color: region.color,
-          opacity: region.visible ? region.opacity : 0,
-          shape: facilitySymbolShape,
+          opacity: resolvePillSwatchOpacity(region.opacity, region.visible),
+          shape: region.shape,
           borderColor: region.borderColor,
           borderOpacity: region.borderOpacity,
-          borderWidth: region.borderVisible ? 1 : 0,
+          borderWidth: region.borderVisible ? region.borderWidth : 0,
         },
       },
       sections: [
         {
           title: 'Points',
+          enabledState: region.visible ? 'on' : 'off',
+          onEnabledChange: (visible) => setRegionVisibility(region.name, visible),
           fields: [
+            {
+              kind: 'shape',
+              label: 'Shape',
+              value: region.shape,
+              onChange: (shape) => setRegionShape(region.name, shape),
+            },
             {
               kind: 'color',
               id: `${slugify(region.name)}-colour`,
@@ -241,6 +282,17 @@ export function buildPmcPanelDefinition({
               value: region.borderOpacity,
               onChange: (opacity) =>
                 setRegionBorderOpacity(region.name, opacity),
+            },
+            {
+              kind: 'slider',
+              id: `${slugify(region.name)}-border-width`,
+              label: 'Thickness',
+              value: region.borderWidth,
+              min: 0,
+              max: 10,
+              step: 0.25,
+              mode: 'raw',
+              onChange: (width) => setRegionBorderWidth(region.name, width),
             },
           ],
         },

@@ -34,6 +34,27 @@ export interface BasemapSettings {
   majorCityBorderWidth?: number;
   majorCityBorderOpacity?: number;
   showMajorCities: boolean;
+  regionLabelColor?: string;
+  regionLabelOpacity?: number;
+  regionLabelSize?: number;
+  regionLabelBorderColor?: string;
+  regionLabelBorderWidth?: number;
+  regionLabelBorderOpacity?: number;
+  showRegionLabels?: boolean;
+  networkLabelColor?: string;
+  networkLabelOpacity?: number;
+  networkLabelSize?: number;
+  networkLabelBorderColor?: string;
+  networkLabelBorderWidth?: number;
+  networkLabelBorderOpacity?: number;
+  showNetworkLabels?: boolean;
+  facilityLabelColor?: string;
+  facilityLabelOpacity?: number;
+  facilityLabelSize?: number;
+  facilityLabelBorderColor?: string;
+  facilityLabelBorderWidth?: number;
+  facilityLabelBorderOpacity?: number;
+  showFacilityLabels?: boolean;
   seaFillColor: string;
   seaFillOpacity: number;
   showSeaFill: boolean;
@@ -51,8 +72,10 @@ export interface RegionStyle {
   visible: boolean;
   color: string;
   opacity: number;
+  shape: FacilitySymbolShape;
   borderVisible: boolean;
   borderColor: string;
+  borderWidth: number;
   borderOpacity: number;
   symbolSize: number;
 }

@@ -3,9 +3,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { collectImmediateChildVisibility } from '../../lib/sidebar/visibilityTree';
-import { reorderItems, resolveItemOrder } from '../../lib/sidebar/reorderItems';
+import {
+  reorderItems,
+  resolveItemOrder,
+  synchronizeOrderedIds,
+} from '../../lib/sidebar/reorderItems';
 import { useAppStore } from '../../store/appStore';
 import {
   getOverlayPanelEmptyState,
@@ -75,6 +79,19 @@ export function OverlayPanelExact() {
   );
   const emptyState = getOverlayPanelEmptyState(activeViewPreset, panelSections.length);
   const orderedRows = resolveItemOrder(rows, sectionOrder);
+
+  useEffect(() => {
+    setSectionOrder((current) => {
+      const next = synchronizeOrderedIds(rows, current);
+      if (
+        current.length === next.length &&
+        current.every((id, index) => id === next[index])
+      ) {
+        return current;
+      }
+      return next;
+    });
+  }, [rows]);
 
   const handleSectionDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) {

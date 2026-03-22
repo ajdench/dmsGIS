@@ -44,8 +44,10 @@ export function getStyleForLayer(
       const borderVisible = regionStyle?.borderVisible ?? true;
       const borderColor = regionStyle?.borderColor ?? '#ffffff';
       const borderOpacity = regionStyle?.borderOpacity ?? 1;
+      const borderWidth = borderVisible ? (regionStyle?.borderWidth ?? 1) : 0;
+      const resolvedShape = regionStyle?.shape ?? symbolShape;
       const resolvedSize = regionStyle?.symbolSize ?? symbolSize;
-      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${symbolShape}:${resolvedSize}`;
+      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${borderWidth}:${resolvedShape}:${resolvedSize}`;
       const existing = cache.get(key);
       if (existing) {
         return existing;
@@ -53,11 +55,11 @@ export function getStyleForLayer(
 
       const style = new Style({
         image: createPointSymbol(
-          symbolShape,
+          resolvedShape,
           resolvedSize,
           withOpacity(hex, opacity),
           withOpacity(borderColor, borderOpacity),
-          borderVisible ? 1 : 0,
+          borderWidth,
         ),
       });
       cache.set(key, style);

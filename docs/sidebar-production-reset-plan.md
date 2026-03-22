@@ -1,6 +1,16 @@
 # Sidebar Production Reset Plan
 
-This note records the current conclusion after attempting incremental prototype promotion into the production sidebar.
+This note is historical reset rationale.
+
+The canonical current handover path is now:
+
+1. `docs/agent-handover.md`
+2. `docs/sidebar-pane-status.md`
+3. `docs/prototype-to-production-playbook.md`
+4. `docs/agent-continuation-protocol.md`
+5. `docs/sidebar-parity-bugs.md`
+
+Use this file when the reset reasoning itself is needed.
 
 ## Bottom line
 

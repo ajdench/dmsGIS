@@ -15,7 +15,7 @@ export function SidebarToggle({
   const [suppressHoverPreview, setSuppressHoverPreview] = useState(false);
   const enabled = state === 'on';
   const defaultLabel = state === 'mixed' ? 'Ox' : enabled ? 'On' : 'Off';
-  const hoverLabel = enabled ? 'Off' : 'On';
+  const hoverLabel = state === 'mixed' || !enabled ? 'On' : 'Off';
 
   return (
     <button
@@ -24,6 +24,7 @@ export function SidebarToggle({
         state === 'on' ? ' is-on' : state === 'off' ? ' is-off' : ' is-mixed'
       }`}
       data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
+      data-hover-action={state === 'mixed' || !enabled ? 'on' : 'off'}
       aria-label={ariaLabel}
       aria-pressed={enabled}
       data-state={state}

@@ -19,9 +19,15 @@ describe('LabelPanelExact', () => {
         majorCityColor: '#1f2937',
         majorCityOpacity: 0.65,
         showMajorCities: true,
-        seaLabelColor: '#334155',
-        seaLabelOpacity: 0.5,
-        showSeaLabels: false,
+        regionLabelColor: '#334155',
+        regionLabelOpacity: 0.5,
+        showRegionLabels: false,
+        networkLabelColor: '#475569',
+        networkLabelOpacity: 0.55,
+        showNetworkLabels: false,
+        facilityLabelColor: '#111827',
+        facilityLabelOpacity: 0.7,
+        showFacilityLabels: true,
       },
     }));
   });
@@ -31,7 +37,9 @@ describe('LabelPanelExact', () => {
 
     expect(screen.getByText('Countries')).not.toBeNull();
     expect(screen.getByText('Cities')).not.toBeNull();
-    expect(screen.getByText('Sea labels')).not.toBeNull();
+    expect(screen.getByText('Regions')).not.toBeNull();
+    expect(screen.getByText('Networks')).not.toBeNull();
+    expect(screen.getByText('Facilities')).not.toBeNull();
     expect(screen.getByLabelText('Mixed state; toggle all').textContent).toContain(
       'Ox',
     );

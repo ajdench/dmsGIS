@@ -21,6 +21,7 @@ export interface PointTooltipEntry {
   coordinate: [number, number];
   boundaryName: string | null;
   hasVisibleBorder: boolean;
+  symbolShape: FacilitySymbolShape;
   symbolSize: number;
   jmcName: string | null;
 }
@@ -223,6 +224,7 @@ export function collectPointTooltipEntries(params: {
     const hasVisibleBorder =
       (regionStyle?.borderVisible ?? true) &&
       (regionStyle?.borderOpacity ?? 1) > 0.01;
+    const symbolShape = regionStyle?.shape ?? 'circle';
     const symbolSize = regionStyle?.symbolSize ?? 3.5;
     const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
     if (seen.has(key)) continue;
@@ -233,6 +235,7 @@ export function collectPointTooltipEntries(params: {
       coordinate,
       boundaryName,
       hasVisibleBorder,
+      symbolShape,
       symbolSize,
       jmcName,
     });
@@ -358,11 +361,13 @@ function getPointSelectionRadius(
   const regionName = facility.region;
   const regionStyle = regionsByName.get(regionName);
   const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
+  const symbolShape = regionStyle?.shape ?? facilitySymbolShape;
   const borderVisible = regionStyle?.borderVisible ?? true;
   const borderOpacity = regionStyle?.borderOpacity ?? 1;
-  const borderWidth = borderVisible && borderOpacity > 0.01 ? 1 : 0;
+  const borderWidth =
+    borderVisible && borderOpacity > 0.01 ? (regionStyle?.borderWidth ?? 1) : 0;
 
-  return getRenderedPointPixelRadius(facilitySymbolShape, symbolSize, borderWidth);
+  return getRenderedPointPixelRadius(symbolShape, symbolSize, borderWidth);
 }
 
 function pointCandidatesOverlap(

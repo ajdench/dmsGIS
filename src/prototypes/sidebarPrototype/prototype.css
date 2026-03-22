@@ -11,7 +11,7 @@
   --prototype-drag-handle-width: 0.72rem;
   --prototype-subpane-border-compensation: 1px;
   --prototype-shared-header-outer-height: 3rem;
-  --prototype-pane-toggle-alignment-compensation: 3px;
+  --prototype-pane-toggle-alignment-compensation: 4px;
   --prototype-pane-handle-right-offset: calc(
     var(--space-4) +
       var(--prototype-subpane-border-compensation) +
@@ -268,9 +268,6 @@
   padding: var(--space-3);
 }
 
-.prototype-section-card__bar .prototype-accordion-item__meta {
-  margin-right: calc(-1 * var(--prototype-subpane-border-compensation));
-}
 
 .prototype-section-card__body {
   display: grid;
@@ -319,9 +316,6 @@
   padding: var(--space-3);
 }
 
-.prototype-accordion-item--subpane .prototype-accordion-item__meta {
-  margin-right: calc(-1 * var(--prototype-subpane-border-compensation));
-}
 
 .prototype-accordion-item__title-wrap {
   display: grid;
@@ -409,9 +403,8 @@
   cursor: pointer;
   font-weight: 400;
   font-size: var(--prototype-control-rail-compact-font-size);
-  display: inline-flex;
+  display: inline-grid;
   align-items: center;
-  justify-content: center;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -439,28 +432,21 @@
   color: #c2410c;
 }
 
-.prototype-toggle-button.is-on:hover[data-preview-disabled='false'] {
+.prototype-toggle-button:hover[data-preview-disabled='false'][data-hover-action='off'] {
   background: color-mix(in srgb, #fca5a5 22%, white);
   border-color: #f87171;
   color: #b91c1c;
 }
 
-.prototype-toggle-button.is-off:hover[data-preview-disabled='false'] {
-  background: color-mix(in srgb, #86efac 22%, white);
-  border-color: #4ade80;
-  color: #15803d;
-}
-
-.prototype-toggle-button.is-mixed:hover[data-preview-disabled='false'] {
+.prototype-toggle-button:hover[data-preview-disabled='false'][data-hover-action='on'] {
   background: color-mix(in srgb, #86efac 22%, white);
   border-color: #4ade80;
   color: #15803d;
 }
 
 .prototype-toggle-button__label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  grid-area: 1 / 1;
+  place-self: center;
   width: 2.5ch;
   display: inline-flex;
   align-items: center;
@@ -468,8 +454,7 @@
   font-size: var(--prototype-control-rail-compact-font-size);
   text-align: center;
   white-space: nowrap;
-  line-height: var(--prototype-control-rail-line-height);
-  transform: translate(-50%, -50%) translateY(var(--prototype-control-text-offset-y));
+  transform: translateY(var(--prototype-control-text-offset-y));
 }
 
 .prototype-toggle-button__label--default {
@@ -926,6 +911,26 @@
   overflow: visible;
 }
 
+/* Chevron in meta-rail slot: absolute-centre the full-size SVG on the slot's
+   horizontal centre line. The SVG (--prototype-disclosure-font-size) is wider
+   than the slot (--prototype-drag-handle-width), so justify-content centering
+   is unreliable. Absolute positioning avoids the sizing conflict. */
+.prototype-accordion-item__meta .prototype-disclosure-button {
+  position: relative;
+  overflow: visible;
+}
+
+.prototype-accordion-item__meta .prototype-disclosure-button .prototype-accordion-item__chevron {
+  position: absolute;
+  left: calc(50% + 1px);
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.prototype-accordion-item__meta .prototype-disclosure-button[data-state='open'] .prototype-accordion-item__chevron {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
 .prototype-accordion-item__chevron.is-open {
   transform: rotate(180deg);
 }
@@ -993,12 +998,12 @@
 }
 
 .prototype-drag-handle {
-  width: fit-content;
-  min-width: 0;
+  width: var(--prototype-drag-handle-width);
+  min-width: var(--prototype-drag-handle-width);
   min-height: var(--prototype-control-rail-height);
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 0;
   border: 0;
   background: transparent;

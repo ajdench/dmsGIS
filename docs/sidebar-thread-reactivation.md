@@ -1,6 +1,16 @@
 # Sidebar Thread Reactivation
 
-Use this note to restart the current sidebar work without re-deriving the context.
+This note is historical context.
+
+The canonical current handover path is now:
+
+1. `docs/agent-handover.md`
+2. `docs/sidebar-pane-status.md`
+3. `docs/prototype-to-production-playbook.md`
+4. `docs/agent-continuation-protocol.md`
+5. `docs/sidebar-parity-bugs.md`
+
+Use this file only when the historical reset reasoning is specifically useful.
 
 ## What this thread concluded
 
@@ -29,6 +39,7 @@ Do **not** move production map logic into the prototype and ship that.
 Read this first:
 
 - `docs/sidebar-production-reset-plan.md`
+- `docs/sidebar-parity-bugs.md`
 
 That document is the current source of truth for the recommended approach.
 
@@ -39,13 +50,14 @@ Read these in order:
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/sidebar-production-reset-plan.md`
-4. `src/prototypes/sidebarPrototype/PROMOTION.md`
-5. `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
-6. `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
+4. `docs/sidebar-parity-bugs.md`
+5. `src/prototypes/sidebarPrototype/PROMOTION.md`
+6. `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
+7. `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 
 Then confirm the concrete cutover plan in:
 
-7. `docs/sidebar-production-reset-plan.md` sections:
+8. `docs/sidebar-production-reset-plan.md` sections:
    - `Current conclusion after the failed parity passes`
    - `Concrete replacement plan`
    - `Acceptance gates for the replacement`
@@ -69,6 +81,7 @@ In particular:
 - partial spacing fixes may be misleading
 - pane-local tweaks may be misleading
 - intermediate sidebar shell changes may be discarded or replaced
+- deferred parity bugs should be taken from `docs/sidebar-parity-bugs.md`, not from memory
 
 Treat current unresolved sidebar WIP as exploratory unless it has been explicitly folded into the reset plan.
 

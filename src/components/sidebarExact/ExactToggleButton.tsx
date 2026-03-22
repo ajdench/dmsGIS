@@ -8,7 +8,7 @@ export function ExactToggleButton({
 }: ExactToggleButtonProps) {
   const [suppressHoverPreview, setSuppressHoverPreview] = useState(false);
   const defaultLabel = state === 'mixed' ? 'Ox' : enabled ? 'On' : 'Off';
-  const hoverLabel = enabled ? 'Off' : 'On';
+  const hoverLabel = state === 'mixed' || !enabled ? 'On' : 'Off';
   const ariaLabel =
     state === 'mixed' ? 'Mixed state; toggle all' : enabled ? 'On' : 'Off';
 
@@ -19,6 +19,7 @@ export function ExactToggleButton({
         state === 'on' ? ' is-on' : state === 'off' ? ' is-off' : ' is-mixed'
       }`}
       data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
+      data-hover-action={state === 'mixed' || !enabled ? 'on' : 'off'}
       onClick={() => {
         setSuppressHoverPreview(true);
         onClick?.();

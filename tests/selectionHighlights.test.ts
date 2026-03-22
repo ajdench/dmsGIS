@@ -43,6 +43,7 @@ describe('selectionHighlights', () => {
         coordinate: [10, 10],
         boundaryName: null,
         hasVisibleBorder: false,
+        symbolShape: 'circle',
         symbolSize: 3.5,
         jmcName: 'JMC North',
       },
@@ -93,6 +94,7 @@ describe('selectionHighlights', () => {
         coordinate: [10, 10],
         boundaryName: null,
         hasVisibleBorder: false,
+        symbolShape: 'circle',
         symbolSize: 3.5,
         jmcName: 'JMC North',
       },
@@ -128,11 +130,11 @@ describe('selectionHighlights', () => {
         coordinate: [4, 6],
         boundaryName: null,
         hasVisibleBorder: true,
+        symbolShape: 'square',
         symbolSize: 7,
         jmcName: 'JMC North',
       },
       selectedPointLayer,
-      facilitySymbolShape: 'square',
       createSelectedPointStyle,
     });
 

@@ -30,9 +30,6 @@
   padding: var(--space-3);
 }
 
-.prototype-section-card__bar .prototype-accordion-item__meta {
-  margin-right: calc(-1 * var(--prototype-subpane-border-compensation));
-}
 
 .prototype-section-card__body {
   display: grid;
@@ -138,9 +135,8 @@
   cursor: pointer;
   font-weight: 400;
   font-size: var(--prototype-control-rail-compact-font-size);
-  display: inline-flex;
+  display: inline-grid;
   align-items: center;
-  justify-content: center;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -168,23 +164,22 @@
   color: #c2410c;
 }
 
-.prototype-toggle-button.is-on:hover[data-preview-disabled='false'] {
+.prototype-toggle-button:hover[data-preview-disabled='false'][data-hover-action='off'] {
   background: color-mix(in srgb, #fca5a5 22%, white);
   border-color: #f87171;
   color: #b91c1c;
 }
 
-.prototype-toggle-button.is-off:hover[data-preview-disabled='false'],
-.prototype-toggle-button.is-mixed:hover[data-preview-disabled='false'] {
+.prototype-toggle-button:hover[data-preview-disabled='false'][data-hover-action='on'] {
   background: color-mix(in srgb, #86efac 22%, white);
   border-color: #4ade80;
   color: #15803d;
 }
 
 .prototype-toggle-button__label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  --prototype-toggle-label-x-adjust: 0px;
+  grid-area: 1 / 1;
+  place-self: center;
   width: 2.5ch;
   display: inline-flex;
   align-items: center;
@@ -192,8 +187,15 @@
   font-size: var(--prototype-control-rail-compact-font-size);
   text-align: center;
   white-space: nowrap;
-  line-height: var(--prototype-control-rail-line-height);
-  transform: translate(-50%, -50%) translateY(var(--prototype-control-text-offset-y));
+  transform: translate(var(--prototype-toggle-label-x-adjust), var(--prototype-control-text-offset-y));
+}
+
+.prototype-toggle-button__label--default {
+  display: inline-flex;
+}
+
+.prototype-toggle-button.is-mixed .prototype-toggle-button__label--default {
+  --prototype-toggle-label-x-adjust: -0.5px;
 }
 
 .prototype-toggle-button__label--hover {
@@ -206,6 +208,37 @@
 
 .prototype-toggle-button:hover[data-preview-disabled='false'] .prototype-toggle-button__label--hover {
   opacity: 1;
+}
+
+.prototype-toggle-button:focus .prototype-toggle-button__label--default,
+.prototype-toggle-button:active .prototype-toggle-button__label--default {
+  opacity: 1;
+}
+
+.prototype-toggle-button:focus .prototype-toggle-button__label--hover,
+.prototype-toggle-button:active .prototype-toggle-button__label--hover {
+  opacity: 0;
+}
+
+.prototype-toggle-button.is-on:focus,
+.prototype-toggle-button.is-on:active {
+  background: color-mix(in srgb, #ecfdf5 70%, white);
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.prototype-toggle-button.is-off:focus,
+.prototype-toggle-button.is-off:active {
+  background: color-mix(in srgb, #fef2f2 72%, white);
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.prototype-toggle-button.is-mixed:focus,
+.prototype-toggle-button.is-mixed:active {
+  background: color-mix(in srgb, #fff7ed 76%, white);
+  border-color: #fed7aa;
+  color: #c2410c;
 }
 
 .prototype-toggle-button:focus-visible,
@@ -280,6 +313,15 @@
   z-index: 1;
 }
 
+.prototype-metric-pill__swatch-debug-circle {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 235, 0, 0.5);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 2;
+}
+
 .prototype-metric-pill__swatch--mixed {
   border-style: solid;
   border-color: var(--border);
@@ -342,6 +384,30 @@
   transform-origin: 50% 50%;
   transition: transform 160ms ease;
   overflow: visible;
+}
+
+/* Inline disclosure buttons sit in the same trailing-control slot as drag handles
+   (--prototype-drag-handle-width wide). The chevron SVG is larger than the slot,
+   so centring via justify-content can be unreliable when the SVG contributes to
+   grid column sizing. Use absolute positioning to centre the full-size chevron on
+   the slot's centre line, independent of flex/grid free-space distribution. */
+.prototype-accordion-item__meta .prototype-disclosure-button {
+  position: relative;
+  overflow: visible;
+}
+
+.prototype-accordion-item__meta .prototype-disclosure-button .prototype-accordion-item__chevron {
+  position: absolute;
+  /* +1px: optical correction — the chevron SVG has a slight leftward visual
+     weight bias; shifting 1px right lands it on the perceptual centre of the
+     --prototype-drag-handle-width slot. */
+  left: calc(50% + 1px);
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.prototype-accordion-item__meta .prototype-disclosure-button[data-state='open'] .prototype-accordion-item__chevron {
+  transform: translate(-50%, -50%) rotate(180deg);
 }
 
 .prototype-disclosure-button[data-state='open'] .prototype-accordion-item__chevron {
@@ -442,6 +508,11 @@
   pointer-events: none;
 }
 
+.prototype-popover__divider {
+  height: 1px;
+  background: var(--border);
+}
+
 .prototype-popover__section-title {
   padding-right: 4.5rem;
   font-size: var(--font-size-popover-title);
@@ -490,13 +561,16 @@
 
 .prototype-shape-button {
   height: var(--control-height-sm);
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  justify-self: stretch;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
+  color: var(--text-secondary);
   cursor: pointer;
   transition:
     background-color 140ms ease,
@@ -513,24 +587,46 @@
   border-color: var(--border-control-hover);
 }
 
+.prototype-shape-button:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.2);
+  outline-offset: 1px;
+}
+
 .prototype-shape-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
+  display: inline-block;
+  color: currentColor;
+  fill: currentColor;
+  stroke: currentColor;
+  flex: 0 0 auto;
+}
+
+.prototype-shape-icon--circle {
   width: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
   height: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
-  font-size: 0.78rem;
-  line-height: 1;
+}
+
+.prototype-shape-icon--square {
+  width: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
+  height: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
+}
+
+.prototype-shape-icon--diamond {
+  width: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
+  height: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
+}
+
+.prototype-shape-icon--triangle {
+  width: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
+  height: calc(var(--prototype-control-swatch-size) * var(--prototype-shape-button-icon-scale));
 }
 
 .prototype-drag-handle {
-  width: fit-content;
-  min-width: 0;
+  width: var(--prototype-drag-handle-width);
+  min-width: var(--prototype-drag-handle-width);
   min-height: var(--prototype-control-rail-height);
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 0;
   border: 0;
   background: transparent;
@@ -549,8 +645,11 @@
   transform: translateY(0.5px);
 }
 
+.prototype-disclosure-button:hover .prototype-accordion-item__chevron {
+  color: var(--text-secondary);
+}
+
 .prototype-region-list {
-  display: grid;
   gap: calc(var(--space-y-optical) - 2px);
   overflow: visible;
   min-width: 0;
