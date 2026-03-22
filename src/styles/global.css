@@ -238,6 +238,35 @@
         var(--prototype-subpane-border-compensation)
     );
     --prototype-control-swatch-radius: 999px;
+    --prototype-pane-title-gap: 0.18rem;
+    --prototype-pane-body-bottom-padding-adjustment: 1px;
+    --prototype-section-list-gap: 0.75rem;
+    --prototype-pane-title-color: color-mix(in srgb, var(--text) 88%, white);
+    --prototype-subpane-title-color: color-mix(in srgb, var(--text) 92%, white);
+    --prototype-toggle-on-bg: color-mix(in srgb, #ecfdf5 70%, white);
+    --prototype-toggle-on-border: #bbf7d0;
+    --prototype-toggle-on-text: #15803d;
+    --prototype-toggle-off-bg: color-mix(in srgb, #fef2f2 72%, white);
+    --prototype-toggle-off-border: #fecaca;
+    --prototype-toggle-off-text: #dc2626;
+    --prototype-toggle-mixed-bg: color-mix(in srgb, #fff7ed 76%, white);
+    --prototype-toggle-mixed-border: #fed7aa;
+    --prototype-toggle-mixed-text: #c2410c;
+    --prototype-toggle-hover-off-bg: color-mix(in srgb, #fca5a5 22%, white);
+    --prototype-toggle-hover-off-border: #f87171;
+    --prototype-toggle-hover-off-text: #b91c1c;
+    --prototype-toggle-hover-on-bg: color-mix(in srgb, #86efac 22%, white);
+    --prototype-toggle-hover-on-border: #4ade80;
+    --prototype-toggle-hover-on-text: #15803d;
+    --prototype-pill-bg: color-mix(in srgb, var(--surface-subtle) 90%, white);
+    --prototype-pill-hover-bg: color-mix(in srgb, var(--surface-subtle) 72%, white);
+    --prototype-focus-outline: 2px solid rgba(15, 23, 42, 0.2);
+    --prototype-focus-outline-offset: 1px;
+    --prototype-drag-handle-text-offset-y: 0.5px;
+    --prototype-callout-bg: color-mix(in srgb, var(--surface) 96%, white);
+    --prototype-callout-arrow-size: 0.72rem;
+    --prototype-callout-arrow-stroke-offset: -0.39rem;
+    --prototype-callout-arrow-fill-offset: -0.33rem;
     --prototype-preset-button-hover-bg: var(--surface-subtle);
     --prototype-preset-button-active-bg: var(--surface-subtle);
     --prototype-preset-button-interaction-border: color-mix(
