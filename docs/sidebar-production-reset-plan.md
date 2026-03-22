@@ -24,6 +24,19 @@ Do **not** continue trying to morph the old production sidebar into the prototyp
 
 Do **not** move production map/runtime logic into `src/prototypes/` and turn the prototype into the shipped app.
 
+## Current conclusion after the failed parity passes
+
+The repo has now proved the failure mode clearly:
+
+- the incremental shared-shell work improved the sidebar
+- but it did not achieve exact parity
+- the remaining drift is still obvious in the smallest shared UI primitives
+- confidence has been lost in the “keep tightening the existing production sidebar” path
+
+So the next step should not be another parity pass.
+
+It should be a controlled production-side replacement of the sidebar UI layer.
+
 ## Why the current approach is failing
 
 ### 1. The prototype is a different UI architecture, not just a new skin
@@ -177,7 +190,7 @@ Production should aim for parity, not for “close enough”.
 
 ### 3. Replace the shared production sidebar architecture first
 
-Before more pane-specific polishing, the production app needs a stable shared sidebar kit.
+Before more pane-specific polishing, the production app needs a stable shared sidebar kit built as a direct production reimplementation of the prototype roles.
 
 Recommended shared production primitives:
 
@@ -194,7 +207,28 @@ Recommended shared production primitives:
 
 The exact file names can vary, but the responsibilities should map closely to the prototype roles.
 
-### 4. Centralize expansion/collapse behavior in the shared shell
+### 4. Treat the current production sidebar primitives as legacy candidates
+
+Do not keep iterating on the current mixed sidebar path as if it were the final structure.
+
+Treat these current production files as legacy candidates to be replaced or heavily rewritten:
+
+- `src/components/layout/RightSidebar.tsx`
+- `src/components/sidebar/SidebarPanelShell.tsx`
+- `src/components/sidebar/SidebarControlRow.tsx`
+- `src/components/sidebar/SidebarControlSections.tsx`
+- `src/components/sidebar/SidebarToggleButton.tsx`
+- `src/components/sidebar/SidebarMetricPill.tsx`
+- `src/components/sidebar/SidebarPillPopover.tsx`
+- `src/components/sidebar/SidebarPopover.tsx`
+- `src/components/sidebar/SidebarTrailingSlot.tsx`
+- the current sidebar-specific parts of `src/styles/global.css`
+
+This does not mean all code must be deleted first.
+
+It means the next implementation should assume these files are provisional and may be replaced rather than preserved.
+
+### 5. Centralize expansion/collapse behavior in the shared shell
 
 Pane open/closed behavior should not be reimplemented independently inside each pane.
 
@@ -204,7 +238,7 @@ The pane shell should own:
 - header/body spacing contract
 - disclosure behavior
 
-### 5. Keep feature panes thin
+### 6. Keep feature panes thin
 
 Feature panes should mainly answer:
 
@@ -214,7 +248,7 @@ Feature panes should mainly answer:
 
 They should not define their own layout system.
 
-### 6. Rebuild panes in a cleaner order
+### 7. Rebuild panes in a cleaner order
 
 Recommended implementation order for the reset:
 
@@ -230,6 +264,121 @@ Why this order:
 - Overlays then follows the same shell
 - Facilities / PMC is the highest-complexity pane and should come last
 
+## Concrete replacement plan
+
+This is the recommended production-side cutover sequence.
+
+### Phase 1. Create a new production sidebar kit in parallel
+
+Create a new production-owned sidebar layer instead of continuing to evolve the current one in place.
+
+Suggested destination:
+
+- `src/components/sidebar2/` or `src/components/sidebar/replacement/`
+
+Suggested files:
+
+- `SidebarPane.tsx`
+- `SidebarPaneHeader.tsx`
+- `SidebarPaneBody.tsx`
+- `SidebarRow.tsx`
+- `SidebarMetaRail.tsx`
+- `SidebarToggle.tsx`
+- `SidebarMetricPill.tsx`
+- `SidebarCallout.tsx`
+- `SidebarFieldRenderer.tsx`
+- `SidebarTrailingSlot.tsx`
+
+These should be implemented as production-owned equivalents of the prototype, not wrappers around the current production primitives.
+
+### Phase 2. Build exact production equivalents of the prototype primitives first
+
+Before wiring real pane content, get exact parity on the smallest shared pieces:
+
+- toggle placement and typography
+- pill width and swatch rendering
+- disclosure chevron geometry
+- trailing handle geometry
+- popover/callout attachment and pointer overlap
+- pane header rail height
+- row rail height and spacing
+
+Do this from the prototype outward:
+
+- structure first
+- token values second
+- interaction/attachment behavior third
+
+### Phase 3. Rebuild the production pane composition on the new shell
+
+Replace the top-level production composition in:
+
+- `src/components/layout/RightSidebar.tsx`
+
+The new `RightSidebar` should:
+
+- keep the current production pane order
+- keep the current production preset buttons
+- keep the current production store wiring
+- but render only through the new replacement sidebar kit
+
+No pane should continue using the older shell once cut over.
+
+### Phase 4. Rebuild each pane against the new shell
+
+Pane order:
+
+1. Basemap
+2. Labels
+3. Overlays
+4. Facilities / PMC
+
+For each pane:
+
+- copy the prototype structure exactly into production-owned files
+- wire the row/field definitions to production store state
+- keep pane-specific definitions feature-owned
+- do not preserve old pane-local markup just because it already exists
+
+### Phase 5. Remove the old sidebar path
+
+Once all panes are cut over and parity is verified:
+
+- delete or archive the old shared sidebar primitives
+- remove legacy sidebar CSS that only existed for the old shell
+- update docs to make the new sidebar the production baseline
+
+## What should stay from the current production app
+
+Do not rebuild these from the prototype.
+
+These are still the production source of truth:
+
+- `src/store/appStore.ts`
+- `src/features/map/MapWorkspace.tsx`
+- map helper modules under `src/features/map/`
+- typed schemas under `src/lib/schemas/`
+- production config under `src/lib/config/`
+- `src/components/controls/SliderField.tsx`
+- saved-view schemas/services
+- scenario-workspace and runtime domain logic
+
+In plain terms:
+
+- prototype supplies the UI contract
+- production supplies the real behavior
+
+## What should not be preserved just because it already exists
+
+Do not preserve these patterns during the replacement:
+
+- old pane-local wrapper structure
+- current approximate shared primitive geometry
+- current approximate popover attachment behavior
+- incremental spacing tweaks that only make the legacy shell slightly closer
+- feature-specific layout logic living inside pane components
+- mixed old/new sidebar CSS tokens without a direct prototype counterpart
+
 ## Concrete migration rules
 
 1. Do not import from `src/prototypes/` into production.
@@ -239,6 +388,19 @@ Why this order:
 5. Keep field definitions feature-owned.
 6. Keep store/runtime wiring in production state and feature modules.
 7. Treat visual parity as a requirement, not a nice-to-have.
+
+## Acceptance gates for the replacement
+
+The new production sidebar is acceptable only if all of these are true:
+
+1. The shared primitives match the prototype before pane wiring is judged complete.
+2. The production pane shell matches the prototype without relying on old wrapper geometry.
+3. Row rails line up exactly enough that no visible drift remains in toggle, pill, chevron, or handle position.
+4. Swatches and popovers look attached and proportioned like the prototype.
+5. Production state still flows through `src/store/appStore.ts`.
+6. `npm run typecheck` passes.
+7. `npm run build` passes.
+8. Shared non-trivial behavior has tests at the helper seam.
 
 ## Success criteria
 
@@ -258,6 +420,16 @@ Pause implementation if any of these occurs:
 - pane-specific hacks start accumulating again
 - shared sidebar components begin taking on feature-specific behavior
 - parity depends on preserving old production wrappers
+
+## Immediate next implementation step
+
+Do not continue from the current mixed sidebar shell.
+
+Next step:
+
+1. Create the new replacement sidebar kit in parallel.
+2. Rebuild the shared primitives there to exact prototype structure.
+3. Cut `RightSidebar.tsx` over to that new kit only after the shared primitive parity check passes.
 - the work drifts back toward “approximate prototype influence”
 
 ## Immediate next implementation move

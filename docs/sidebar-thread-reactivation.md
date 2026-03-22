@@ -20,6 +20,8 @@ The recommended direction is:
 
 Do **not** treat the current incremental sidebar changes as the final direction.
 
+Do **not** resume from the current mixed shared sidebar shell as if it only needs more spacing fixes.
+
 Do **not** move production map logic into the prototype and ship that.
 
 ## Core reset document
@@ -40,6 +42,13 @@ Read these in order:
 4. `src/prototypes/sidebarPrototype/PROMOTION.md`
 5. `src/prototypes/sidebarPrototype/PROMOTION_BOUNDARY.md`
 6. `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
+
+Then confirm the concrete cutover plan in:
+
+7. `docs/sidebar-production-reset-plan.md` sections:
+   - `Current conclusion after the failed parity passes`
+   - `Concrete replacement plan`
+   - `Acceptance gates for the replacement`
 
 ## Important working assumptions
 
@@ -89,10 +98,11 @@ On restart, do this:
 
 1. Confirm the problem by comparing the prototype structure against the current production shell.
 2. Do not start with spacing tweaks.
-3. Reset the shared production sidebar shell around prototype-equivalent roles.
-4. Centralize pane collapse/open behavior in the shared shell.
-5. Keep pane-specific row/field definitions in feature-owned production modules.
-6. Rebuild panes in this order:
+3. Treat the current shared production sidebar shell as legacy/provisional.
+4. Create a new replacement sidebar kit in parallel production paths.
+5. Centralize pane collapse/open behavior in the new shared shell.
+6. Keep pane-specific row/field definitions in feature-owned production modules.
+7. Rebuild panes in this order:
    1. Basemap
    2. Labels
    3. Overlays
