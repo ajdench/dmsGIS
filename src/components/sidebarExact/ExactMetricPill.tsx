@@ -39,9 +39,9 @@ export const ExactMetricPill = forwardRef<HTMLButtonElement, ExactMetricPillProp
           />
         ) : null}
         <span
-          className={`sidebar-exact-pill__value${
+          className={`sidebar-exact-pill__value prototype-metric-pill__value${
             resolvedSwatch ? ' sidebar-exact-pill__value--swatch' : ''
-          }`}
+          }${resolvedSwatch ? ' prototype-metric-pill__value--swatch' : ''}`}
         >
           {resolvedValue}
         </span>
@@ -53,8 +53,10 @@ export const ExactMetricPill = forwardRef<HTMLButtonElement, ExactMetricPillProp
         <button
           ref={ref}
           type={type ?? 'button'}
-          className={`sidebar-exact-pill sidebar-exact-pill--button${
-            resolvedSwatch ? ' sidebar-exact-pill--swatch' : ''
+          className={`sidebar-exact-pill prototype-metric-pill prototype-metric-pill--button sidebar-exact-pill--button${
+            resolvedSwatch
+              ? ' sidebar-exact-pill--swatch prototype-metric-pill--swatch'
+              : ''
           }${className ? ` ${className}` : ''}`}
           aria-label={summary?.ariaLabel}
           aria-expanded={ariaExpanded}
@@ -68,8 +70,10 @@ export const ExactMetricPill = forwardRef<HTMLButtonElement, ExactMetricPillProp
 
     return (
       <span
-        className={`sidebar-exact-pill${
-          resolvedSwatch ? ' sidebar-exact-pill--swatch' : ''
+        className={`sidebar-exact-pill prototype-metric-pill${
+          resolvedSwatch
+            ? ' sidebar-exact-pill--swatch prototype-metric-pill--swatch'
+            : ''
         }`}
         aria-label={summary?.ariaLabel}
       >

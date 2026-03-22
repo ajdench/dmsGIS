@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { createElement } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BasemapPanelExact } from '../src/features/basemap/BasemapPanelExact';
 import { useAppStore } from '../src/store/appStore';
+import { renderExactPane } from './support/renderExactPane';
 
 describe('BasemapPanelExact', () => {
   beforeEach(() => {
@@ -23,7 +24,7 @@ describe('BasemapPanelExact', () => {
   });
 
   it('renders Basemap on the exact shell and keeps parent visibility tri-state', () => {
-    render(createElement(BasemapPanelExact));
+    renderExactPane(createElement(BasemapPanelExact), 'basemap');
 
     expect(screen.getByText('Basemap')).not.toBeNull();
     expect(screen.getByText('Land')).not.toBeNull();

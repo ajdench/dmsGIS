@@ -10,7 +10,7 @@ export function ExactMetaControls({
   reserveTrailingSlot = false,
 }: ExactMetaControlsProps) {
   return (
-    <span className="sidebar-exact-accordion-item__meta">
+    <span className="sidebar-exact-accordion-item__meta prototype-accordion-item__meta">
       {typeof enabled === 'boolean' ? (
         <ExactToggleButton
           enabled={enabled}
@@ -21,7 +21,10 @@ export function ExactMetaControls({
       {pillPopover}
       {trailingControl}
       {reserveTrailingSlot ? (
-        <span className="sidebar-exact-meta-spacer sidebar-exact-meta-spacer--drag" aria-hidden="true" />
+        <span
+          className="sidebar-exact-meta-spacer sidebar-exact-meta-spacer--drag prototype-meta-spacer prototype-meta-spacer--drag"
+          aria-hidden="true"
+        />
       ) : null}
     </span>
   );

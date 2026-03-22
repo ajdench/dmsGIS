@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { createElement } from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SelectionPanelExact } from '../src/features/facilities/SelectionPanelExact';
 import { useAppStore } from '../src/store/appStore';
+import { renderExactPane } from './support/renderExactPane';
 
 describe('SelectionPanelExact', () => {
   beforeEach(() => {
@@ -43,12 +44,23 @@ describe('SelectionPanelExact', () => {
   });
 
   it('renders facilities and pmc on the exact shell', () => {
-    render(createElement(SelectionPanelExact));
+    renderExactPane(createElement(SelectionPanelExact), 'facilities');
 
     expect(screen.getByText('Facilities')).not.toBeNull();
     expect(screen.getByText('PMC')).not.toBeNull();
     expect(screen.getByText('North')).not.toBeNull();
     expect(screen.getByLabelText('Search facilities')).not.toBeNull();
+
+    expect(
+      screen.getByText('PMC').closest(
+        '.prototype-section-card, .sidebar-exact-section-card',
+      ),
+    ).not.toBeNull();
+    expect(
+      screen.getByText('North').closest(
+        '.prototype-region-row, .sidebar-exact-region-row',
+      ),
+    ).not.toBeNull();
 
     const facilitiesPane = screen
       .getByText('Facilities')
@@ -56,10 +68,10 @@ describe('SelectionPanelExact', () => {
     expect(facilitiesPane).not.toBeNull();
     fireEvent.click(
       within(facilitiesPane as HTMLElement).getAllByRole('button', {
-        name: 'Mixed state; toggle all',
+        name: 'On',
       })[0],
     );
-    expect(useAppStore.getState().regions.every((region) => region.visible)).toBe(
+    expect(useAppStore.getState().regions.every((region) => !region.visible)).toBe(
       true,
     );
   });

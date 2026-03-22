@@ -107,7 +107,7 @@ export function buildPmcPanelDefinition({
       ariaLabel: 'PMC controls',
       swatch: {
         color: sortedRegions[0]?.color ?? '#cbd5e1',
-        opacity: regionGlobalOpacity,
+        opacity: visibilityState === 'off' ? 0 : regionGlobalOpacity,
         mix: mixedFacilityColors,
         shape: facilitySymbolShape,
         borderColor: sortedRegions[0]?.borderColor ?? '#cbd5e1',
@@ -181,7 +181,8 @@ export function buildPmcPanelDefinition({
         ariaLabel: `${region.name} controls`,
         swatch: {
           color: region.color,
-          opacity: region.opacity,
+          opacity: region.visible ? region.opacity : 0,
+          shape: facilitySymbolShape,
           borderColor: region.borderColor,
           borderOpacity: region.borderOpacity,
           borderWidth: region.borderVisible ? 1 : 0,
@@ -255,12 +256,10 @@ function sortRegions(regions: RegionStyle[]): RegionStyle[] {
       right.name as (typeof REGION_ORDER)[number],
     );
 
-    if (leftIndex === -1 || rightIndex === -1) {
-      return left.name.localeCompare(right.name);
-    }
-
     return leftIndex - rightIndex;
-  });
+  }).filter((region) =>
+    REGION_ORDER.includes(region.name as (typeof REGION_ORDER)[number]),
+  );
 }
 
 function buildMixedSwatches(

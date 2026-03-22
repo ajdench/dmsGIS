@@ -15,12 +15,16 @@ export function ExactSectionCardShell({
 }: ExactSectionCardShellProps) {
   return (
     <section
-      className={`sidebar-exact-section-card${isDragging ? ' is-dragging' : ''}`}
+      className={`sidebar-exact-section-card prototype-section-card${
+        isDragging ? ' is-dragging' : ''
+      }`}
       style={style}
     >
-      <div className="sidebar-exact-section-card__bar">
-        <span className="sidebar-exact-accordion-item__title-wrap">
-          <span className="sidebar-exact-accordion-item__title">{title}</span>
+      <div className="sidebar-exact-section-card__bar prototype-section-card__bar">
+        <span className="sidebar-exact-accordion-item__title-wrap prototype-accordion-item__title-wrap">
+          <span className="sidebar-exact-accordion-item__title prototype-accordion-item__title">
+            {title}
+          </span>
         </span>
         <ExactMetaControls
           enabled={enabled}
@@ -31,7 +35,11 @@ export function ExactSectionCardShell({
           reserveTrailingSlot={reserveTrailingSlot}
         />
       </div>
-      {body ? <div className="sidebar-exact-section-card__body">{body}</div> : null}
+      {body ? (
+        <div className="sidebar-exact-section-card__body prototype-section-card__body">
+          {body}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -48,10 +56,14 @@ export function ExactInlineRowShell({
 }: ExactInlineRowShellProps) {
   return (
     <div
-      className={`sidebar-exact-region-row${isDragging ? ' is-dragging' : ''}`}
+      className={`sidebar-exact-region-row prototype-region-row${
+        isDragging ? ' is-dragging' : ''
+      }`}
       style={style}
     >
-      <span className="color-control__label color-control__label--region">{label}</span>
+      <span className="color-control__label color-control__label--region">
+        {label}
+      </span>
       <ExactMetaControls
         enabled={enabled}
         toggleState={toggleState}

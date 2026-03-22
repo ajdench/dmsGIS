@@ -130,11 +130,11 @@ export function ExactPopover({
   }, [open, onOpenChange]);
 
   return (
-    <div className="sidebar-exact-popover-anchor">
+    <div className="sidebar-exact-popover-anchor prototype-popover-anchor">
       <div
         ref={triggerRef}
         onClick={() => onOpenChange(!open)}
-        className="sidebar-exact-popover-anchor__trigger"
+        className="sidebar-exact-popover-anchor__trigger prototype-popover-anchor__trigger"
       >
         {trigger}
       </div>
@@ -142,7 +142,7 @@ export function ExactPopover({
         ? createPortal(
             <div
               ref={contentRef}
-              className="sidebar-exact-popover sidebar-exact-popover--floating"
+              className="sidebar-exact-popover sidebar-exact-popover--floating prototype-popover prototype-popover--floating"
               style={positionStyle ?? undefined}
             >
               {children}
@@ -189,7 +189,9 @@ export function ExactPillPopover({
         />
       }
     >
-      <div className="sidebar-exact-popover__content">{children}</div>
+      <div className="sidebar-exact-popover__content prototype-popover__content">
+        {children}
+      </div>
     </ExactPopover>
   );
 }

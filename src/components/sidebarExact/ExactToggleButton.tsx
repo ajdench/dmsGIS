@@ -15,7 +15,7 @@ export function ExactToggleButton({
   return (
     <button
       type="button"
-      className={`sidebar-exact-toggle sidebar-exact-toggle--${state}${
+      className={`sidebar-exact-toggle prototype-toggle-button sidebar-exact-toggle--${state} prototype-toggle-button--${state}${
         state === 'on' ? ' is-on' : state === 'off' ? ' is-off' : ' is-mixed'
       }`}
       data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
@@ -26,10 +26,10 @@ export function ExactToggleButton({
       onMouseLeave={() => setSuppressHoverPreview(false)}
       aria-label={ariaLabel}
     >
-      <span className="sidebar-exact-toggle__label sidebar-exact-toggle__label--default">
+      <span className="sidebar-exact-toggle__label sidebar-exact-toggle__label--default prototype-toggle-button__label prototype-toggle-button__label--default">
         {defaultLabel}
       </span>
-      <span className="sidebar-exact-toggle__label sidebar-exact-toggle__label--hover">
+      <span className="sidebar-exact-toggle__label sidebar-exact-toggle__label--hover prototype-toggle-button__label prototype-toggle-button__label--hover">
         {hoverLabel}
       </span>
     </button>

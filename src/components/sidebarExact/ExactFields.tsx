@@ -12,7 +12,7 @@ import type {
 
 export function ExactControlField({ label, children }: ExactControlFieldProps) {
   return (
-    <div className="sidebar-exact-control-field">
+    <div className="sidebar-exact-control-field prototype-control-field">
       <label className="field-label">{label}</label>
       {children}
     </div>
@@ -28,18 +28,20 @@ export function ExactControlSection({
 }: ExactControlSectionProps) {
   return (
     <section
-      className={`sidebar-exact-control-section${
-        enabled ? '' : ' sidebar-exact-control-section--disabled'
+      className={`sidebar-exact-control-section prototype-control-section${
+        enabled ? '' : ' sidebar-exact-control-section--disabled prototype-control-section--disabled'
       }`}
     >
-      <div className="sidebar-exact-popover__section-title">{title}</div>
+      <div className="sidebar-exact-popover__section-title prototype-popover__section-title">
+        {title}
+      </div>
       {onToggle ? (
-        <div className="sidebar-exact-control-section__toggle">
+        <div className="sidebar-exact-control-section__toggle prototype-control-section__toggle">
           <ExactToggleButton enabled={enabled} state={toggleState} onClick={onToggle} />
         </div>
       ) : null}
       <div
-        className="sidebar-exact-control-section__content"
+        className="sidebar-exact-control-section__content prototype-control-section__content"
         aria-disabled={enabled ? undefined : 'true'}
       >
         {children}
@@ -62,19 +64,19 @@ export function ExactColorField({
       : `linear-gradient(${applyOpacityToColor(value, opacityPreview)}, ${applyOpacityToColor(value, opacityPreview)})`;
 
   return (
-    <div className="sidebar-exact-control-field">
+    <div className="sidebar-exact-control-field prototype-control-field">
       <label className="field-label" htmlFor={id}>
         {label}
       </label>
-      <div className="sidebar-exact-color-field__control">
+      <div className="sidebar-exact-color-field__control prototype-color-field__control">
         <span
-          className="sidebar-exact-color-field__preview"
+          className="sidebar-exact-color-field__preview prototype-color-field__preview"
           style={{ background: previewBackground }}
           aria-hidden="true"
         />
         <input
           id={id}
-          className="color-input color-input--popover sidebar-exact-color-field__input"
+          className="color-input color-input--popover sidebar-exact-color-field__input prototype-color-field__input"
           type="color"
           value={value}
           onChange={(event) => onChange?.(event.target.value)}
@@ -95,7 +97,7 @@ export function ExactSliderControl({
   mode = 'percent',
 }: ExactSliderControlProps) {
   return (
-    <div className="sidebar-exact-control-field">
+    <div className="sidebar-exact-control-field prototype-control-field">
       <label className="field-label" htmlFor={id}>
         {label}
       </label>
@@ -120,9 +122,15 @@ export function ExactFieldSections({
   return (
     <>
       {sections.map((section, index) => (
-        <div key={`${section.title}-${index}`} className="sidebar-exact-popover__content">
+        <div
+          key={`${section.title}-${index}`}
+          className="sidebar-exact-popover__content prototype-popover__content"
+        >
           {index > 0 ? (
-            <div className="sidebar-exact-popover__divider" aria-hidden="true" />
+            <div
+              className="sidebar-exact-popover__divider prototype-popover__divider"
+              aria-hidden="true"
+            />
           ) : null}
           <ExactControlSection
             title={section.title}
@@ -197,7 +205,7 @@ function ExactField({
   return (
     <ExactControlField label={field.label}>
       <div
-        className="sidebar-exact-shape-picker"
+        className="sidebar-exact-shape-picker prototype-shape-picker"
         role="group"
         aria-label={`${ariaLabelPrefix} ${field.label}`}
       >
@@ -205,7 +213,7 @@ function ExactField({
           <button
             key={shape}
             type="button"
-            className={`sidebar-exact-shape-button${
+            className={`sidebar-exact-shape-button prototype-shape-button${
               field.value === shape ? ' is-selected' : ''
             }`}
             onClick={() => field.onChange(shape)}
@@ -214,7 +222,7 @@ function ExactField({
           >
             <ExactShapeIcon
               shape={shape}
-              className={`sidebar-exact-shape-icon sidebar-exact-shape-icon--${shape}`}
+              className={`sidebar-exact-shape-icon sidebar-exact-shape-icon--${shape} prototype-shape-icon prototype-shape-icon--${shape}`}
             />
           </button>
         ))}

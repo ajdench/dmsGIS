@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { createElement } from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LabelPanelExact } from '../src/features/labels/LabelPanelExact';
 import { useAppStore } from '../src/store/appStore';
+import { renderExactPane } from './support/renderExactPane';
 
 describe('LabelPanelExact', () => {
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe('LabelPanelExact', () => {
   });
 
   it('renders labels on the exact shell and updates store-backed state', () => {
-    render(createElement(LabelPanelExact));
+    renderExactPane(createElement(LabelPanelExact), 'labels');
 
     expect(screen.getByText('Countries')).not.toBeNull();
     expect(screen.getByText('Cities')).not.toBeNull();

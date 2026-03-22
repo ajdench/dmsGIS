@@ -29,7 +29,7 @@ export function ExactSwatch({
   if (swatch.mix && swatch.mix.length > 1) {
     return (
       <span
-        className="sidebar-exact-pill__swatch sidebar-exact-pill__swatch--mixed"
+        className="sidebar-exact-pill__swatch sidebar-exact-pill__swatch--mixed prototype-metric-pill__swatch prototype-metric-pill__swatch--mixed"
         style={buildSwatchStyle({
           color: swatch.color,
           opacity: swatch.opacity ?? 1,
@@ -49,13 +49,18 @@ export function ExactSwatch({
 
   return (
     <span
-      className={`sidebar-exact-pill__swatch sidebar-exact-pill__swatch--${shape}${
-        useDefaultOutline ? ' sidebar-exact-pill__swatch--default-outline' : ''
+      className={`sidebar-exact-pill__swatch sidebar-exact-pill__swatch--${shape} prototype-metric-pill__swatch prototype-metric-pill__swatch--${shape}${
+        useDefaultOutline
+          ? ' sidebar-exact-pill__swatch--default-outline prototype-metric-pill__swatch--default-outline'
+          : ''
       }`}
       aria-hidden="true"
     >
       {debugCircleOverlay ? (
-        <span className="sidebar-exact-pill__swatch-debug-circle" aria-hidden="true" />
+        <span
+          className="sidebar-exact-pill__swatch-debug-circle prototype-metric-pill__swatch-debug-circle"
+          aria-hidden="true"
+        />
       ) : null}
       <ExactShapeSwatch
         shape={shape}
@@ -63,7 +68,7 @@ export function ExactSwatch({
         borderFill={borderFill}
         fillBackdrop="var(--sidebar-exact-pill-swatch-fill-backdrop)"
         innerScale={innerScale}
-        className={`sidebar-exact-pill__swatch-svg sidebar-exact-pill__swatch-svg--${shape}`}
+        className={`sidebar-exact-pill__swatch-svg sidebar-exact-pill__swatch-svg--${shape} prototype-metric-pill__swatch-svg prototype-metric-pill__swatch-svg--${shape}`}
       />
     </span>
   );

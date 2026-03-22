@@ -1,28 +1,37 @@
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../store/appStore';
+import { reorderItems, resolveItemOrder } from '../../lib/sidebar/reorderItems';
 import { collectImmediateChildVisibility } from '../../lib/sidebar/visibilityTree';
 import { buildPmcPanelDefinition } from '../groups/pmcPanelFields';
 import {
-  ExactDragHandle,
   ExactFieldSections,
-  ExactInlineRowShell,
   ExactPillPopover,
   ExactSectionCardShell,
 } from '../../components/sidebarExact/SidebarControls';
+import { SidebarChevronDownIcon } from '../../components/sidebarExact/SidebarAccordion';
 import {
-  SidebarAccordion,
-  SidebarAccordionItem,
-  SidebarChevronDownIcon,
-} from '../../components/sidebarExact/SidebarAccordion';
+  SidebarSortableInlineRow,
+  SidebarSortablePane,
+} from '../../components/sidebarExact/SidebarSortable';
+import {
+  restrictToVerticalAxis,
+  useSidebarDndSensors,
+} from '../../components/sidebarExact/useSidebarDndSensors';
 
 export function SelectionPanelExact() {
-  const [openPanes, setOpenPanes] = useState(['facilities']);
   const [pmcExpanded, setPmcExpanded] = useState(true);
+  const [regionOrder, setRegionOrder] = useState<string[]>([]);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [sidebarElement, setSidebarElement] = useState<HTMLElement | null>(null);
   const [workspaceGridElement, setWorkspaceGridElement] =
     useState<HTMLElement | null>(null);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
+  const sensors = useSidebarDndSensors();
 
   const regions = useAppStore((state) => state.regions);
   const facilitySearchQuery = useAppStore(
@@ -71,10 +80,6 @@ export function SelectionPanelExact() {
     );
   }, []);
 
-  const facilitiesVisibilityState = collectImmediateChildVisibility(
-    regions,
-    (child) => child.visible,
-  );
   const pmc = buildPmcPanelDefinition({
     regions,
     facilitySymbolShape,
@@ -95,106 +100,136 @@ export function SelectionPanelExact() {
     setFacilitySymbolShape,
     setFacilitySymbolSize,
   });
+  const facilitiesVisibilityState = collectImmediateChildVisibility(
+    [pmc],
+    (section) => section.visibilityState === 'on',
+  );
+  const orderedRows = resolveItemOrder(pmc.rows, regionOrder);
+
+  const handleRegionDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    setRegionOrder((current) =>
+      reorderItems(current, String(active.id), String(over.id)),
+    );
+  };
 
   return (
     <div ref={rootRef}>
-      <SidebarAccordion value={openPanes} onValueChange={setOpenPanes} level="pane">
-        <SidebarAccordionItem
-          id="facilities"
-          title="Facilities"
-          level="pane"
-          panel
-          enabled={facilitiesVisibilityState !== 'off'}
-          toggleState={facilitiesVisibilityState}
-          onEnabledToggle={() =>
-            setAllRegionVisibility(facilitiesVisibilityState !== 'on')
-          }
-        >
-          <div className="prototype-panel__content">
-            <div className="prototype-section-list">
-              <ExactSectionCardShell
-                title="PMC"
-                enabled={pmc.visibilityState !== 'off'}
-                toggleState={pmc.visibilityState}
-                onEnabledToggle={() =>
-                  setAllRegionVisibility(pmc.visibilityState !== 'on')
-                }
-                pillPopover={
-                  <ExactPillPopover
-                    open={openPopoverId === 'pmc'}
-                    onOpenChange={(open) => setOpenPopoverId(open ? 'pmc' : null)}
-                    summary={pmc.pillSummary}
-                    scrollContainer={sidebarElement}
-                    portalContainer={workspaceGridElement}
-                    viewportContainer={sidebarElement}
-                  >
-                    <ExactFieldSections sections={pmc.sections} ariaLabelPrefix="PMC" />
-                  </ExactPillPopover>
-                }
-                trailingControl={
-                  <button
-                    type="button"
-                    className="prototype-disclosure-button"
-                    onClick={() => setPmcExpanded((current) => !current)}
-                    aria-expanded={pmcExpanded}
-                    aria-label={pmcExpanded ? 'Collapse PMC' : 'Expand PMC'}
-                    data-state={pmcExpanded ? 'open' : 'closed'}
-                  >
-                    <SidebarChevronDownIcon className="prototype-accordion-item__chevron" />
-                  </button>
-                }
-                body={
-                  pmcExpanded ? (
-                    pmc.rows.length === 0 ? (
-                      <p className="muted">No regions loaded.</p>
-                    ) : (
-                      <div className="prototype-region-list">
-                        {pmc.rows.map((row) => (
-                          <ExactInlineRowShell
-                            key={row.id}
-                            label={row.label}
-                            enabled={row.visibility.state !== 'off'}
-                            toggleState={row.visibility.state}
-                            onEnabledToggle={() =>
-                              row.visibility.onChange(row.visibility.state !== 'on')
-                            }
-                            pillPopover={
-                              <ExactPillPopover
-                                open={openPopoverId === row.id}
-                                onOpenChange={(open) =>
-                                  setOpenPopoverId(open ? row.id : null)
-                                }
-                                summary={row.pill}
-                                scrollContainer={sidebarElement}
-                                portalContainer={workspaceGridElement}
-                                viewportContainer={sidebarElement}
-                              >
-                                <ExactFieldSections
-                                  sections={row.sections}
-                                  ariaLabelPrefix={row.label}
-                                />
-                              </ExactPillPopover>
-                            }
-                            trailingControl={<ExactDragHandle label={row.label} />}
-                          />
-                        ))}
-                      </div>
-                    )
-                  ) : null
-                }
-              />
-            </div>
-            <input
-              className="input input--compact"
-              type="text"
-              placeholder="Search facilities..."
-              aria-label="Search facilities"
-              value={facilitySearchQuery}
-              onChange={(event) => setFacilitySearchQuery(event.target.value)}
+      <SidebarSortablePane
+        id="facilities"
+        title="Facilities"
+        enabled={facilitiesVisibilityState !== 'off'}
+        toggleState={facilitiesVisibilityState}
+        onEnabledToggle={() =>
+          setAllRegionVisibility(facilitiesVisibilityState !== 'on')
+        }
+      >
+        <div className="prototype-panel__content">
+          <div className="prototype-section-list">
+            <ExactSectionCardShell
+              title="PMC"
+              enabled={pmc.visibilityState !== 'off'}
+              toggleState={pmc.visibilityState}
+              onEnabledToggle={() =>
+                setAllRegionVisibility(pmc.visibilityState !== 'on')
+              }
+              pillPopover={
+                <ExactPillPopover
+                  open={openPopoverId === 'pmc'}
+                  onOpenChange={(open) => setOpenPopoverId(open ? 'pmc' : null)}
+                  summary={pmc.pillSummary}
+                  scrollContainer={sidebarElement}
+                  portalContainer={workspaceGridElement}
+                  viewportContainer={sidebarElement}
+                  triangleMinRatio={0.15}
+                  triangleMaxRatio={0.85}
+                >
+                  <ExactFieldSections
+                    sections={pmc.sections}
+                    ariaLabelPrefix="PMC"
+                  />
+                </ExactPillPopover>
+              }
+              trailingControl={
+                <button
+                  type="button"
+                  className="prototype-disclosure-button"
+                  onClick={() => setPmcExpanded((current) => !current)}
+                  aria-expanded={pmcExpanded}
+                  aria-label={pmcExpanded ? 'Collapse PMC' : 'Expand PMC'}
+                  data-state={pmcExpanded ? 'open' : 'closed'}
+                >
+                  <SidebarChevronDownIcon className="prototype-accordion-item__chevron" />
+                </button>
+              }
+              body={
+                pmcExpanded ? (
+                  pmc.rows.length === 0 ? (
+                    <p className="muted">No regions loaded.</p>
+                  ) : (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      modifiers={[restrictToVerticalAxis]}
+                      onDragEnd={handleRegionDragEnd}
+                    >
+                      <SortableContext
+                        items={orderedRows.map((row) => row.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="prototype-region-list">
+                          {orderedRows.map((row) => (
+                            <SidebarSortableInlineRow
+                              key={row.id}
+                              id={row.id}
+                              label={row.label}
+                              enabled={row.visibility.state !== 'off'}
+                              toggleState={row.visibility.state}
+                              onEnabledToggle={() =>
+                                row.visibility.onChange(row.visibility.state !== 'on')
+                              }
+                              pillPopover={
+                                <ExactPillPopover
+                                  open={openPopoverId === row.id}
+                                  onOpenChange={(open) =>
+                                    setOpenPopoverId(open ? row.id : null)
+                                  }
+                                  summary={row.pill}
+                                  scrollContainer={sidebarElement}
+                                  portalContainer={workspaceGridElement}
+                                  viewportContainer={sidebarElement}
+                                  triangleMinRatio={0.15}
+                                  triangleMaxRatio={0.85}
+                                >
+                                  <ExactFieldSections
+                                    sections={row.sections}
+                                    ariaLabelPrefix={row.label}
+                                  />
+                                </ExactPillPopover>
+                              }
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
+                  )
+                ) : null
+              }
             />
           </div>
-        </SidebarAccordionItem>
-      </SidebarAccordion>
+          <input
+            className="input input--compact"
+            type="text"
+            placeholder="Search facilities..."
+            aria-label="Search facilities"
+            value={facilitySearchQuery}
+            onChange={(event) => setFacilitySearchQuery(event.target.value)}
+          />
+        </div>
+      </SidebarSortablePane>
     </div>
   );
 }

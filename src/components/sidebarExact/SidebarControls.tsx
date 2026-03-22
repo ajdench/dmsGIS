@@ -81,6 +81,7 @@ interface ExactSectionCardShellProps {
   reserveTrailingSlot?: boolean;
   body?: ReactNode;
   style?: CSSProperties;
+  isDragging?: boolean;
 }
 
 interface ExactInlineRowShellProps {
@@ -91,6 +92,7 @@ interface ExactInlineRowShellProps {
   pillPopover: ReactNode;
   trailingControl?: ReactNode;
   style?: CSSProperties;
+  isDragging?: boolean;
 }
 
 interface ExactControlSectionProps {
@@ -297,9 +299,13 @@ export function ExactSectionCardShell({
   reserveTrailingSlot = false,
   body,
   style,
+  isDragging = false,
 }: ExactSectionCardShellProps) {
   return (
-    <section className="prototype-section-card" style={style}>
+    <section
+      className={`prototype-section-card${isDragging ? ' is-dragging' : ''}`}
+      style={style}
+    >
       <div className="prototype-section-card__bar">
         <span className="prototype-accordion-item__title-wrap">
           <span className="prototype-accordion-item__title">{title}</span>
@@ -326,9 +332,13 @@ export function ExactInlineRowShell({
   pillPopover,
   trailingControl,
   style,
+  isDragging = false,
 }: ExactInlineRowShellProps) {
   return (
-    <div className="prototype-region-row" style={style}>
+    <div
+      className={`prototype-region-row${isDragging ? ' is-dragging' : ''}`}
+      style={style}
+    >
       <span className="color-control__label color-control__label--region">
         {label}
       </span>

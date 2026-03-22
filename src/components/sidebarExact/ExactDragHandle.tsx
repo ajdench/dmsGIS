@@ -7,11 +7,16 @@ export const ExactDragHandle = forwardRef<HTMLButtonElement, ExactDragHandleProp
       <button
         ref={ref}
         type="button"
-        className={`sidebar-exact-drag-handle${className ? ` ${className}` : ''}`}
+        className={`sidebar-exact-drag-handle prototype-drag-handle${
+          className ? ` ${className}` : ''
+        }`}
         aria-label={`Reorder ${label}`}
         {...buttonProps}
       >
-        <span className="sidebar-exact-drag-handle__dots" aria-hidden="true">
+        <span
+          className="sidebar-exact-drag-handle__dots prototype-drag-handle__dots"
+          aria-hidden="true"
+        >
           ⋮⋮
         </span>
       </button>
