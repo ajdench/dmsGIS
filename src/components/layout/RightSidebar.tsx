@@ -1,4 +1,4 @@
-import { BasemapPanel } from '../../features/basemap/BasemapPanel';
+import { BasemapPanelReplacement } from '../../features/basemap/BasemapPanelReplacement';
 import { SelectionPanel } from '../../features/facilities/SelectionPanel';
 import { OverlayPanel } from '../../features/groups/OverlayPanel';
 import { LabelPanel } from '../../features/labels/LabelPanel';
@@ -37,7 +37,7 @@ export function RightSidebar() {
         </button>
       </div>
       <div className="sidebar-pane-stack">
-        <BasemapPanel />
+        <BasemapPanelReplacement />
         <SelectionPanel />
         <LabelPanel />
         <OverlayPanel />

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { SidebarPillSummary, SidebarTrailingSlotDefinition } from '../../lib/sidebar/contracts';
 import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
 import { SidebarMetricPill } from './SidebarMetricPill';
@@ -9,6 +10,7 @@ interface SidebarMetaRailProps {
   visibilityAriaLabel: string;
   onVisibilityChange: (visible: boolean) => void;
   pill?: SidebarPillSummary;
+  pillSlot?: ReactNode;
   trailingSlot?: SidebarTrailingSlotDefinition;
 }
 
@@ -17,6 +19,7 @@ export function SidebarMetaRail({
   visibilityAriaLabel,
   onVisibilityChange,
   pill,
+  pillSlot,
   trailingSlot,
 }: SidebarMetaRailProps) {
   return (
@@ -26,7 +29,7 @@ export function SidebarMetaRail({
         ariaLabel={visibilityAriaLabel}
         onChange={onVisibilityChange}
       />
-      {pill ? <SidebarMetricPill summary={pill} trigger /> : null}
+      {pillSlot ?? (pill ? <SidebarMetricPill summary={pill} trigger /> : null)}
       <SidebarTrailingSlot slot={trailingSlot} />
     </span>
   );

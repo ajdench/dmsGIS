@@ -5,6 +5,7 @@ export { SidebarMetricPill } from './SidebarMetricPill';
 export { SidebarPane } from './SidebarPane';
 export { SidebarPaneBody } from './SidebarPaneBody';
 export { SidebarPaneHeader } from './SidebarPaneHeader';
+export { SidebarPillPopover } from './SidebarPillPopover';
 export { SidebarRow } from './SidebarRow';
 export { SidebarToggle } from './SidebarToggle';
 export { SidebarTrailingSlot } from './SidebarTrailingSlot';

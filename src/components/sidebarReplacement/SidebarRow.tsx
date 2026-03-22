@@ -9,6 +9,7 @@ interface SidebarRowProps {
   visibilityAriaLabel: string;
   onVisibilityChange: (visible: boolean) => void;
   pill: SidebarPillSummary;
+  pillSlot?: ReactNode;
   trailingSlot?: SidebarTrailingSlotDefinition;
   children?: ReactNode;
 }
@@ -19,6 +20,7 @@ export function SidebarRow({
   visibilityAriaLabel,
   onVisibilityChange,
   pill,
+  pillSlot,
   trailingSlot,
   children,
 }: SidebarRowProps) {
@@ -31,6 +33,7 @@ export function SidebarRow({
           visibilityAriaLabel={visibilityAriaLabel}
           onVisibilityChange={onVisibilityChange}
           pill={pill}
+          pillSlot={pillSlot}
           trailingSlot={trailingSlot}
         />
       </div>

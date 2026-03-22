@@ -38,13 +38,27 @@
     min-width: 0;
   }
 
-  .sidebar-replacement-meta-rail {
+.sidebar-replacement-meta-rail {
     display: inline-grid;
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     align-items: center;
     gap: var(--prototype-meta-gap);
     flex-shrink: 0;
+  }
+
+  .sidebar-replacement-popover-anchor {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .sidebar-replacement-pill-button-reset {
+    display: inline-flex;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
   }
 
   .sidebar-replacement-toggle,
