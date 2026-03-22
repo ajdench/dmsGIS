@@ -2,6 +2,10 @@ import { forwardRef, type CSSProperties, type ReactNode } from 'react';
 import type { FacilitySymbolShape } from '../../types';
 import type { SidebarPillSummary } from '../../lib/sidebar/contracts';
 
+const DEFAULT_SWATCH_BORDER_COLOR = 'rgba(148, 163, 184, 0.6)';
+const DEFAULT_SWATCH_BORDER_WIDTH = 1;
+const DEFAULT_SWATCH_BORDER_OPACITY = 1;
+
 interface SidebarMetricPillProps {
   summary: SidebarPillSummary;
   trigger?: boolean;
@@ -75,11 +79,12 @@ export const SidebarMetricPill = forwardRef<
 function renderSwatch(swatch: NonNullable<SidebarPillSummary['swatch']>) {
   const shape = swatch.shape ?? 'circle';
   const fillColor = applyOpacity(swatch.color, swatch.opacity ?? 1);
-  const borderWidth = swatch.borderWidth ?? 1;
-  const borderOpacity = swatch.borderOpacity ?? 1;
+  const borderColor = swatch.borderColor ?? DEFAULT_SWATCH_BORDER_COLOR;
+  const borderWidth = swatch.borderWidth ?? DEFAULT_SWATCH_BORDER_WIDTH;
+  const borderOpacity = swatch.borderOpacity ?? DEFAULT_SWATCH_BORDER_OPACITY;
   const { borderFill, innerScale, useDefaultOutline } = resolveSwatchRender({
     shape,
-    borderColor: swatch.borderColor,
+    borderColor,
     borderOpacity,
     borderWidth,
   });
@@ -88,17 +93,17 @@ function renderSwatch(swatch: NonNullable<SidebarPillSummary['swatch']>) {
     return (
       <span
         className="sidebar-replacement-pill__swatch sidebar-replacement-pill__swatch--mixed"
-        style={buildSwatchStyle({
-          color: swatch.color,
-          opacity: swatch.opacity ?? 1,
-          mix: swatch.mix,
-          borderColor:
-            borderWidth > 0 && borderOpacity > 0
-              ? swatch.borderColor
-              : 'var(--prototype-pill-swatch-outline-color)',
-          borderOpacity:
-            borderWidth > 0 && borderOpacity > 0 ? borderOpacity : 1,
-          borderWidth: `${borderWidth > 0 && borderOpacity > 0 ? borderWidth : 1}px`,
+          style={buildSwatchStyle({
+            color: swatch.color,
+            opacity: swatch.opacity ?? 1,
+            mix: swatch.mix,
+            borderColor:
+              borderWidth > 0 && borderOpacity > 0
+                ? borderColor
+                : 'var(--prototype-pill-swatch-outline-color)',
+            borderOpacity:
+              borderWidth > 0 && borderOpacity > 0 ? borderOpacity : 1,
+            borderWidth: `${borderWidth > 0 && borderOpacity > 0 ? borderWidth : 1}px`,
         })}
         aria-hidden="true"
       />
