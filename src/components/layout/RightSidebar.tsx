@@ -1,7 +1,7 @@
-import { BasemapPanelReplacement } from '../../features/basemap/BasemapPanelReplacement';
-import { SelectionPanel } from '../../features/facilities/SelectionPanel';
-import { OverlayPanel } from '../../features/groups/OverlayPanel';
-import { LabelPanel } from '../../features/labels/LabelPanel';
+import { BasemapPanelExact } from '../../features/basemap/BasemapPanelExact';
+import { SelectionPanelExact } from '../../features/facilities/SelectionPanelExact';
+import { LabelPanelExact } from '../../features/labels/LabelPanelExact';
+import { OverlayPanelExact } from '../../features/groups/OverlayPanelExact';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { useAppStore } from '../../store/appStore';
 import type { ViewPresetId } from '../../types';
@@ -37,10 +37,10 @@ export function RightSidebar() {
         </button>
       </div>
       <div className="sidebar-pane-stack">
-        <BasemapPanelReplacement />
-        <SelectionPanel />
-        <LabelPanel />
-        <OverlayPanel />
+        <BasemapPanelExact />
+        <SelectionPanelExact />
+        <LabelPanelExact />
+        <OverlayPanelExact />
       </div>
     </aside>
   );
