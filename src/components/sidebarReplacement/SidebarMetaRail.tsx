@@ -20,7 +20,7 @@ export function SidebarMetaRail({
   trailingSlot,
 }: SidebarMetaRailProps) {
   return (
-    <div className="sidebar-replacement-meta-rail">
+    <span className="sidebar-replacement-meta-rail">
       <SidebarToggle
         state={visibilityState}
         ariaLabel={visibilityAriaLabel}
@@ -28,6 +28,6 @@ export function SidebarMetaRail({
       />
       {pill ? <SidebarMetricPill summary={pill} trigger /> : null}
       <SidebarTrailingSlot slot={trailingSlot} />
-    </div>
+    </span>
   );
 }

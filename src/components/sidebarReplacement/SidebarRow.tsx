@@ -23,9 +23,9 @@ export function SidebarRow({
   children,
 }: SidebarRowProps) {
   return (
-    <div className="sidebar-replacement-row">
-      <div className="sidebar-replacement-row__bar">
-        <div className="sidebar-replacement-row__label">{label}</div>
+    <div className="sidebar-replacement-section-card">
+      <div className="sidebar-replacement-section-card__bar">
+        <span className="sidebar-replacement-row__label">{label}</span>
         <SidebarMetaRail
           visibilityState={visibilityState}
           visibilityAriaLabel={visibilityAriaLabel}
@@ -34,7 +34,7 @@ export function SidebarRow({
           trailingSlot={trailingSlot}
         />
       </div>
-      {children ? <div className="sidebar-replacement-row__body">{children}</div> : null}
+      {children ? <div className="sidebar-replacement-section-card__body">{children}</div> : null}
     </div>
   );
 }

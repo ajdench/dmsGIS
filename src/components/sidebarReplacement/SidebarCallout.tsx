@@ -11,8 +11,10 @@ export function SidebarCallout({ open, children }: SidebarCalloutProps) {
   }
 
   return (
-    <div className="sidebar-replacement-callout" role="dialog">
+    <div className="sidebar-replacement-callout sidebar-replacement-callout--floating" role="dialog">
+      <div className="sidebar-replacement-callout__content">
       {children}
+      </div>
     </div>
   );
 }

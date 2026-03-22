@@ -20,7 +20,9 @@ export function SidebarToggle({
   return (
     <button
       type="button"
-      className={`sidebar-replacement-toggle sidebar-replacement-toggle--${state}`}
+      className={`sidebar-replacement-toggle sidebar-replacement-toggle--${state}${
+        state === 'on' ? ' is-on' : state === 'off' ? ' is-off' : ' is-mixed'
+      }`}
       data-preview-disabled={suppressHoverPreview ? 'true' : 'false'}
       aria-label={ariaLabel}
       aria-pressed={enabled}

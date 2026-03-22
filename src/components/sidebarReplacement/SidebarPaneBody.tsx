@@ -5,5 +5,5 @@ interface SidebarPaneBodyProps {
 }
 
 export function SidebarPaneBody({ children }: SidebarPaneBodyProps) {
-  return <div className="sidebar-replacement-pane__body">{children}</div>;
+  return <div className="sidebar-replacement-pane__content">{children}</div>;
 }
