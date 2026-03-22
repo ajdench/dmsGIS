@@ -2,9 +2,13 @@ import type { SidebarTrailingSlotDefinition } from '../../lib/sidebar/contracts'
 
 interface SidebarTrailingSlotProps {
   slot?: SidebarTrailingSlotDefinition;
+  pane?: boolean;
 }
 
-export function SidebarTrailingSlot({ slot }: SidebarTrailingSlotProps) {
+export function SidebarTrailingSlot({
+  slot,
+  pane = false,
+}: SidebarTrailingSlotProps) {
   if (!slot) {
     return <span className="sidebar-replacement-trailing-slot" aria-hidden="true" />;
   }
@@ -13,7 +17,9 @@ export function SidebarTrailingSlot({ slot }: SidebarTrailingSlotProps) {
     return (
       <button
         type="button"
-        className="sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--drag"
+        className={`sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--drag${
+          pane ? ' sidebar-replacement-trailing-slot--pane' : ''
+        }`}
         aria-label={`Reorder ${slot.label}`}
       >
         <span aria-hidden="true">⋮⋮</span>
@@ -24,7 +30,9 @@ export function SidebarTrailingSlot({ slot }: SidebarTrailingSlotProps) {
   return (
     <button
       type="button"
-      className="sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--disclosure"
+      className={`sidebar-replacement-trailing-slot sidebar-replacement-trailing-slot--disclosure${
+        pane ? ' sidebar-replacement-trailing-slot--pane-disclosure' : ''
+      }`}
       aria-label={slot.ariaLabel}
       aria-expanded={slot.expanded}
       data-state={slot.expanded ? 'open' : 'closed'}

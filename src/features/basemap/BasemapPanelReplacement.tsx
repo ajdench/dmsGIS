@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
-import {
-  SidebarMetaRail,
-  SidebarPane,
-  SidebarPillPopover,
-  SidebarRow,
-} from '../../components/sidebarReplacement';
+import { SidebarPane, SidebarPillPopover, SidebarRow } from '../../components/sidebarReplacement';
 import { collectImmediateChildVisibility } from '../../lib/sidebar/visibilityTree';
 import { useAppStore } from '../../store/appStore';
 import { buildBasemapPanelRows } from './basemapPanelFields';
@@ -37,23 +32,18 @@ export function BasemapPanelReplacement() {
   return (
     <SidebarPane
       title="Basemap"
+      visibilityState={paneVisibilityState}
+      visibilityAriaLabel="Basemap visible"
+      onVisibilityChange={(next) => {
+        setBasemapLayerVisibility('showLandFill', next);
+        setBasemapLayerVisibility('showSeaFill', next);
+      }}
       expanded={expanded}
-      metaRail={
-        <SidebarMetaRail
-          visibilityState={paneVisibilityState}
-          visibilityAriaLabel="Basemap visible"
-          onVisibilityChange={(next) => {
-            setBasemapLayerVisibility('showLandFill', next);
-            setBasemapLayerVisibility('showSeaFill', next);
-          }}
-          trailingSlot={{
-            kind: 'disclosure',
-            ariaLabel: expanded ? 'Collapse Basemap' : 'Expand Basemap',
-            expanded,
-            onToggle: () => setExpanded((current) => !current),
-          }}
-        />
-      }
+      onExpandedChange={setExpanded}
+      trailingSlot={{
+        kind: 'dragHandle',
+        label: 'Basemap',
+      }}
     >
       <div className="stack-col sidebar-section-list">
         {rows.map((row) => (

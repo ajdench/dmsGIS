@@ -3,7 +3,7 @@
 import { createElement } from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { SidebarMetaRail, SidebarPane } from '../src/components/sidebarReplacement';
+import { SidebarPane } from '../src/components/sidebarReplacement';
 
 describe('SidebarPane replacement scaffold', () => {
   it('unmounts the body when collapsed while preserving the header rail', () => {
@@ -12,20 +12,15 @@ describe('SidebarPane replacement scaffold', () => {
         SidebarPane,
         {
           title: 'Basemap',
+          visibilityState: 'on',
+          visibilityAriaLabel: 'Basemap visible',
+          onVisibilityChange: vi.fn(),
           expanded: false,
-          metaRail: createElement(SidebarMetaRail, {
-            visibilityState: 'on',
-            visibilityAriaLabel: 'Basemap visible',
-            onVisibilityChange: vi.fn(),
-            pill: {
-              valueLabel: '84%',
-              ariaLabel: 'Basemap controls',
-            },
-            trailingSlot: {
-              kind: 'dragHandle',
-              label: 'Basemap',
-            },
-          }),
+          onExpandedChange: vi.fn(),
+          trailingSlot: {
+            kind: 'dragHandle',
+            label: 'Basemap',
+          },
         },
         createElement('div', null, 'hidden body'),
       ),
