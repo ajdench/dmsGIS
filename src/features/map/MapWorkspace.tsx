@@ -368,6 +368,7 @@ export function MapWorkspace() {
     basemapLayers.landFill.setStyle(
       createFillStyle(
         withOpacity(basemap.landFillColor, basemap.landFillOpacity),
+        false,
       ),
     );
     basemapLayers.oceanFill.setVisible(basemap.showSeaFill);
@@ -798,16 +799,20 @@ function getBasemapUrls(): {
   };
 }
 
-function createFillStyle(color: string) {
+function createFillStyle(color: string, seamStroke = true) {
   return new Style({
     fill: new Fill({
       color,
     }),
     // A same-color stroke closes 1px anti-aliased seams at wrap joins.
-    stroke: new Stroke({
-      color,
-      width: 1,
-    }),
+    // Disabled for land fill — the seam stroke leaves a visible border when
+    // opacity is reduced to 0%.
+    stroke: seamStroke
+      ? new Stroke({
+          color,
+          width: 1,
+        })
+      : undefined,
   });
 }
 

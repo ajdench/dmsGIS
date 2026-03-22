@@ -25,6 +25,15 @@ User-derived task list for dmsGIS. Items reflect product decisions and feature i
 
 ---
 
+### 4. Land transparency dissolves into sea/background colour
+
+**Area:** Basemap — land fill rendering
+**What:** As land fill opacity is reduced, the background (generally the configured sea colour) should show through so that land masses visually dissolve into the sea/background. Currently land simply becomes transparent revealing whatever is behind it.
+**Why:** User expectation — reducing land opacity should blend land into the surrounding sea colour rather than exposing the raw canvas/tile background.
+**Files likely touched:** `src/features/map/MapWorkspace.tsx` (land fill style), possibly basemap store if new settings are needed.
+
+---
+
 ### 1. Wire Point controls to Cities popover
 
 **Area:** Labels pane — Cities row
