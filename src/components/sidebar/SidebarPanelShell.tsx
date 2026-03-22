@@ -41,6 +41,9 @@ export function SidebarPanelShell({
 }: SidebarPanelShellProps) {
   const hasContent =
     children !== null && children !== undefined && children !== false;
+  const hasPrimaryControl =
+    (visibilityState && onVisibilityChange && visibilityAriaLabel) ||
+    (pillSummary && pillContent);
 
   return (
     <section
@@ -50,19 +53,54 @@ export function SidebarPanelShell({
         <span className="sidebar-panel-shell__title-wrap">
           <h2 className="sidebar-panel-shell__title">{title}</h2>
         </span>
-        {visibilityState || pillSummary || onExpandedChange || trailingSlot ? (
-          <span className="sidebar-panel-shell__meta">
-            {visibilityState && onVisibilityChange && visibilityAriaLabel ? (
-              <SidebarToggleButton
-                state={visibilityState}
-                ariaLabel={visibilityAriaLabel}
-                onChange={onVisibilityChange}
+        {level === 'pane' ? (
+          <>
+            {hasPrimaryControl ? (
+              <span className="sidebar-panel-shell__main-slot sidebar-panel-shell__main-slot--pane">
+                {visibilityState && onVisibilityChange && visibilityAriaLabel ? (
+                  <SidebarToggleButton
+                    state={visibilityState}
+                    ariaLabel={visibilityAriaLabel}
+                    onChange={onVisibilityChange}
+                  />
+                ) : null}
+                {pillSummary && pillContent ? (
+                  <SidebarPillPopover summary={pillSummary}>
+                    {pillContent}
+                  </SidebarPillPopover>
+                ) : null}
+              </span>
+            ) : null}
+            {onExpandedChange && expandedAriaLabel ? (
+              <SidebarTrailingSlot
+                slot={{
+                  kind: 'disclosure',
+                  ariaLabel: expandedAriaLabel,
+                  expanded,
+                  onToggle: () => onExpandedChange(!expanded),
+                }}
+                pane
               />
             ) : null}
-            {pillSummary && pillContent ? (
-              <SidebarPillPopover summary={pillSummary}>
-                {pillContent}
-              </SidebarPillPopover>
+            {trailingSlot ? <SidebarTrailingSlot slot={trailingSlot} pane /> : null}
+          </>
+        ) : visibilityState || pillSummary || onExpandedChange || trailingSlot ? (
+          <span className="sidebar-panel-shell__meta sidebar-panel-shell__meta--subpane">
+            {hasPrimaryControl ? (
+              <span className="sidebar-panel-shell__main-slot sidebar-panel-shell__main-slot--subpane">
+                {visibilityState && onVisibilityChange && visibilityAriaLabel ? (
+                  <SidebarToggleButton
+                    state={visibilityState}
+                    ariaLabel={visibilityAriaLabel}
+                    onChange={onVisibilityChange}
+                  />
+                ) : null}
+                {pillSummary && pillContent ? (
+                  <SidebarPillPopover summary={pillSummary}>
+                    {pillContent}
+                  </SidebarPillPopover>
+                ) : null}
+              </span>
             ) : null}
             {onExpandedChange && expandedAriaLabel ? (
               <SidebarTrailingSlot

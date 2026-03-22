@@ -11,7 +11,9 @@ export function SidebarMetricPill({
   asButton = false,
   expanded,
 }: SidebarMetricPillProps) {
-  const className = `sidebar-metric-pill${asButton ? ' sidebar-metric-pill--button' : ''}`;
+  const className = `sidebar-metric-pill${
+    asButton ? ' sidebar-metric-pill--button' : ''
+  }${summary.swatch ? ' sidebar-metric-pill--swatch' : ''}`;
   const swatch = summary.swatch;
 
   return (

@@ -5,7 +5,7 @@ import { MapWorkspace } from '../features/map/MapWorkspace';
 
 export function App() {
   return (
-    <div className="app-shell">
+    <div className="app-shell app-shell--topbar-buttons-current app-shell--preset-buttons-midLow">
       <TopBar />
       <div className="workspace-grid">
         <MapWorkspace />
