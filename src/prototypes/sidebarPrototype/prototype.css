@@ -592,11 +592,7 @@
 }
 
 .prototype-metric-pill__swatch--mixed {
-  border-style: solid;
-  border-color: var(--border);
-  border-width: 1px;
   border-radius: 999px;
-  box-sizing: border-box;
 }
 
 .prototype-metric-pill__swatch-svg {

@@ -28,6 +28,8 @@ interface BuildPmcPanelRowsOptions {
   setAllRegionBorderColor: (color: string) => void;
   setAllRegionBorderOpacity: (opacity: number) => void;
   setAllRegionBorderWidth: (width: number) => void;
+  copyFillToBorder: () => void;
+  copyRegionFillToBorder: (name: string) => void;
   setAllRegionShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
@@ -60,6 +62,7 @@ const REGION_ORDER = [
   'South West',
   'Central & Wessex',
   'London & South',
+  'Overseas',
 ] as const;
 
 export function buildPmcPanelDefinition({
@@ -83,6 +86,8 @@ export function buildPmcPanelDefinition({
   setAllRegionBorderColor,
   setAllRegionBorderOpacity,
   setAllRegionBorderWidth,
+  copyFillToBorder,
+  copyRegionFillToBorder,
   setAllRegionShape,
   setFacilitySymbolShape,
   setFacilitySymbolSize,
@@ -180,6 +185,8 @@ export function buildPmcPanelDefinition({
             opacityPreview: sortedRegions[0]?.borderOpacity ?? 0,
             mixedSwatches: mixedBorderColors,
             onChange: setAllRegionBorderColor,
+            onCopy: copyFillToBorder,
+            copySwatches: mixedFacilityColors,
           },
           {
             kind: 'slider',
@@ -274,6 +281,8 @@ export function buildPmcPanelDefinition({
               value: region.borderColor,
               opacityPreview: region.borderOpacity,
               onChange: (color) => setRegionBorderColor(region.name, color),
+              onCopy: () => copyRegionFillToBorder(region.name),
+              copySwatches: [{ color: region.color, opacity: region.opacity }],
             },
             {
               kind: 'slider',

@@ -34,13 +34,6 @@ export function ExactSwatch({
           color: swatch.color,
           opacity: swatch.opacity ?? 1,
           mix: swatch.mix,
-          borderColor:
-            borderWidth > 0 && borderOpacity > 0
-              ? borderColor
-              : 'var(--prototype-pill-swatch-outline-color)',
-          borderOpacity:
-            borderWidth > 0 && borderOpacity > 0 ? borderOpacity : 1,
-          borderWidth: `${borderWidth > 0 && borderOpacity > 0 ? borderWidth : 1}px`,
         })}
         aria-hidden="true"
       />
@@ -163,7 +156,9 @@ function buildBlendedGradientStops(stops: ExactSwatchStop[], featherRatio: numbe
     const nextColor = normalizedStops[index + 1];
 
     if (!nextColor) {
-      gradientStops.push(`${color} 100%`);
+      // Blend the last colour back into the first so the seam at 0%/100% is smooth
+      gradientStops.push(`${color} ${Math.max(0, boundary - feather)}%`);
+      gradientStops.push(`${normalizedStops[0]} 100%`);
       return;
     }
 
@@ -227,7 +222,7 @@ function getSwatchInnerTransform(shape: ExactShape, innerScale: number) {
   }
 
   if (shape === 'triangle') {
-    return `translate(50 52.87) scale(${innerScale}) translate(-50 -52.87)`;
+    return `translate(50 56.8) scale(${innerScale}) translate(-50 -56.8)`;
   }
 
   return `translate(50 50) scale(${innerScale}) translate(-50 -50)`;
@@ -236,7 +231,7 @@ function getSwatchInnerTransform(shape: ExactShape, innerScale: number) {
 function renderShapePath(shape: ExactShape, scale: 'icon' | 'swatch') {
   if (scale === 'icon') {
     if (shape === 'circle') {
-      return <circle cx="12" cy="12" r="7.35" />;
+      return <circle cx="12" cy="12" r="7.85" />;
     }
 
     if (shape === 'square') {
@@ -257,7 +252,7 @@ function renderShapePath(shape: ExactShape, scale: 'icon' | 'swatch') {
     }
 
     return (
-      <path d="M12 5.25 C13.15 5.25 14 5.76 14.56 6.8 L18.74 14.77 C19.47 16.15 18.48 17.7 16.94 17.7 H7.06 C5.52 17.7 4.53 16.15 5.26 14.77 L9.44 6.8 C10 5.76 10.85 5.25 12 5.25 Z" />
+      <path d="M12 4.75 C13.0 4.75 13.6 5.1 13.68 5.77 L19.95 16.27 C20.25 17.0 18.97 18.2 18.76 18.2 H5.24 C5.03 18.2 3.75 17.0 4.05 16.27 L10.32 5.77 C10.4 5.1 11.0 4.75 12 4.75 Z" />
     );
   }
 
@@ -283,7 +278,7 @@ function renderShapePath(shape: ExactShape, scale: 'icon' | 'swatch') {
   }
 
   return (
-    <path d="M50 7 C53.25 7 55.65 8.4 57.22 11.35 L89.1 72.2 C91.06 75.94 88.39 80 84.22 80 H15.78 C11.61 80 8.94 75.94 10.9 72.2 L42.78 11.35 C44.35 8.4 46.75 7 50 7 Z" />
+    <path d="M50 3.7 C53.5 3.7 56.2 5.3 57.9 8.5 L92.6 74.8 C94.7 78.9 91.8 83.3 87.3 83.3 H12.7 C8.2 83.3 5.3 78.9 7.4 74.8 L42.1 8.5 C43.8 5.3 46.5 3.7 50 3.7 Z" />
   );
 }
 

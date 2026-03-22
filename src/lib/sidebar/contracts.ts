@@ -14,6 +14,8 @@ export interface SidebarColorFieldDefinition {
   opacityPreview?: number;
   mixedSwatches?: SidebarSwatchStop[];
   onChange: (value: string) => void;
+  onCopy?: () => void;
+  copySwatches?: SidebarSwatchStop[];
 }
 
 export interface SidebarSliderFieldDefinition {

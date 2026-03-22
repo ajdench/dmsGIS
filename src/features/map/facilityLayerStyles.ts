@@ -12,9 +12,14 @@ import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
-import { createPointSymbol, withOpacity } from './mapStyleUtils';
+import { blendWithWhite, createPointSymbol, withOpacity } from './mapStyleUtils';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
 import type VectorSource from 'ol/source/Vector';
+
+// Module-level style cache — persists across getStyleForLayer calls so that
+// OL Icon instances (SVG data-URL images) are reused rather than re-decoded,
+// which prevents the visible "blip" when adjusting size or other style props.
+const styleCache = new Map<string, Style>();
 
 export function getStyleForLayer(
   layer: LayerState,
@@ -25,7 +30,6 @@ export function getStyleForLayer(
   assignmentSource: VectorSource | null = null,
 ) {
   if (layer.type === 'point') {
-    const cache = new Map<string, Style>();
     return (feature: FeatureLike) => {
       const facility = getEffectiveFacilityRecord(feature, assignmentSource);
       if (!matchesFacilityFilters(facility, facilityFilters)) {
@@ -44,11 +48,11 @@ export function getStyleForLayer(
       const borderVisible = regionStyle?.borderVisible ?? true;
       const borderColor = regionStyle?.borderColor ?? '#ffffff';
       const borderOpacity = regionStyle?.borderOpacity ?? 1;
-      const borderWidth = borderVisible ? (regionStyle?.borderWidth ?? 1) : 0;
+      const borderWidth = (borderVisible && borderOpacity > 0) ? (regionStyle?.borderWidth ?? 1) : 0;
       const resolvedShape = regionStyle?.shape ?? symbolShape;
       const resolvedSize = regionStyle?.symbolSize ?? symbolSize;
       const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${borderWidth}:${resolvedShape}:${resolvedSize}`;
-      const existing = cache.get(key);
+      const existing = styleCache.get(key);
       if (existing) {
         return existing;
       }
@@ -58,11 +62,11 @@ export function getStyleForLayer(
           resolvedShape,
           resolvedSize,
           withOpacity(hex, opacity),
-          withOpacity(borderColor, borderOpacity),
+          blendWithWhite(borderColor, borderOpacity),
           borderWidth,
         ),
       });
-      cache.set(key, style);
+      styleCache.set(key, style);
       return style;
     };
   }

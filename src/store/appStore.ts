@@ -181,6 +181,8 @@ interface AppState {
   setAllRegionBorderColor: (color: string) => void;
   setAllRegionBorderOpacity: (opacity: number) => void;
   setAllRegionBorderWidth: (width: number) => void;
+  copyFillToBorder: () => void;
+  copyRegionFillToBorder: (name: string) => void;
   setAllRegionShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolShape: (shape: FacilitySymbolShape) => void;
   setFacilitySymbolSize: (size: number) => void;
@@ -585,6 +587,22 @@ export const useAppStore = create<AppState>((set, get) => ({
         ...region,
         borderWidth: Math.max(0, Math.min(10, width)),
       })),
+    })),
+  copyFillToBorder: () =>
+    set((state) => ({
+      regions: state.regions.map((region) => ({
+        ...region,
+        borderColor: region.color,
+        borderOpacity: region.opacity,
+      })),
+    })),
+  copyRegionFillToBorder: (name) =>
+    set((state) => ({
+      regions: state.regions.map((region) =>
+        region.name === name
+          ? { ...region, borderColor: region.color, borderOpacity: region.opacity }
+          : region,
+      ),
     })),
   setAllRegionShape: (shape) =>
     set((state) => ({

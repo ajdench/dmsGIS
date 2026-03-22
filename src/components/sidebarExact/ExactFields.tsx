@@ -57,32 +57,121 @@ export function ExactColorField({
   opacityPreview = 1,
   mixedSwatches,
   onChange,
+  onCopy,
+  copySwatches,
 }: ExactColorFieldProps) {
   const previewBackground =
     mixedSwatches && mixedSwatches.length > 0
       ? buildMixedRectSwatchBackground(mixedSwatches)
       : `linear-gradient(${applyOpacityToColor(value, opacityPreview)}, ${applyOpacityToColor(value, opacityPreview)})`;
 
+  const swatchEl = (
+    <div className="sidebar-exact-color-field__control prototype-color-field__control">
+      <span
+        className="sidebar-exact-color-field__preview prototype-color-field__preview"
+        style={{ background: previewBackground }}
+        aria-hidden="true"
+      />
+      <input
+        id={id}
+        className="color-input color-input--popover sidebar-exact-color-field__input prototype-color-field__input"
+        type="color"
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+      />
+    </div>
+  );
+
   return (
     <div className="sidebar-exact-control-field prototype-control-field">
       <label className="field-label" htmlFor={id}>
         {label}
       </label>
-      <div className="sidebar-exact-color-field__control prototype-color-field__control">
+      {onCopy ? (
+        <div className="prototype-color-field__with-copy">
+          {swatchEl}
+          <CopyFillToBorderButton onClick={onCopy} swatches={copySwatches} />
+        </div>
+      ) : (
+        swatchEl
+      )}
+    </div>
+  );
+}
+
+function CopyFillToBorderButton({
+  onClick,
+  swatches,
+}: {
+  onClick: () => void;
+  swatches?: ExactColorFieldProps['copySwatches'];
+}) {
+  const background =
+    swatches && swatches.length > 1
+      ? buildMixedRectSwatchBackground(swatches, 0.35)
+      : swatches && swatches.length === 1
+        ? applyOpacityToColor(swatches[0].color, swatches[0].opacity ?? 1)
+        : undefined;
+
+  // For hover: the button border becomes the copied colour(s).
+  // Single colour → solid border. Multiple → gradient via background-clip trick.
+  const hoverBorder =
+    swatches && swatches.length > 1
+      ? buildMixedRectSwatchBackground(swatches, 0.35)
+      : swatches && swatches.length === 1
+        ? applyOpacityToColor(swatches[0].color, swatches[0].opacity ?? 1)
+        : undefined;
+
+  const isGradientHover = swatches && swatches.length > 1;
+
+  // Icon colour: stays white while swatch opacity ≥ 50%, then rapidly
+  // transitions to dark grey below that threshold for maintained contrast.
+  const avgOpacity = swatches && swatches.length > 0
+    ? swatches.reduce((sum, s) => sum + (s.opacity ?? 1), 0) / swatches.length
+    : 0;
+  // Remap: opacity 1→0.5 stays at 255 (white), 0.5→0 blends 255→80 (dark grey)
+  const t = avgOpacity >= 0.5 ? 1 : avgOpacity / 0.5; // 0–1 within the lower half
+  const iconChannel = Math.round(255 * t + 80 * (1 - t));
+  const iconColor = `rgb(${iconChannel}, ${iconChannel}, ${iconChannel})`;
+
+  const cssVars: Record<string, string> = {};
+  if (hoverBorder) cssVars['--copy-hover-border'] = hoverBorder;
+
+  return (
+    <button
+      type="button"
+      className={`prototype-copy-fill-button${isGradientHover ? ' prototype-copy-fill-button--gradient-hover' : ''}`}
+      onClick={onClick}
+      aria-label="Copy fill colour to border"
+      title="Copy fill colour to border"
+      style={Object.keys(cssVars).length > 0 ? cssVars as React.CSSProperties : undefined}
+    >
+      {background ? (
         <span
-          className="sidebar-exact-color-field__preview prototype-color-field__preview"
-          style={{ background: previewBackground }}
+          className="prototype-copy-fill-button__swatch"
+          style={{ background }}
           aria-hidden="true"
         />
-        <input
-          id={id}
-          className="color-input color-input--popover sidebar-exact-color-field__input prototype-color-field__input"
-          type="color"
-          value={value}
-          onChange={(event) => onChange?.(event.target.value)}
+      ) : null}
+      <svg
+        className="prototype-copy-fill-button__icon"
+        width="15"
+        height="15"
+        viewBox="0 0 15 15"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M1 9.50006C1 10.3285 1.67157 11.0001 2.5 11.0001H4L4 10.0001H2.5C2.22386 10.0001 2 9.7762 2 9.50006L2 2.50006C2 2.22392 2.22386 2.00006 2.5 2.00006L9.5 2.00006C9.77614 2.00006 10 2.22392 10 2.50006V4.00002H5.5C4.67158 4.00002 4 4.67159 4 5.50002V12.5C4 13.3284 4.67158 14 5.5 14H12.5C13.3284 14 14 13.3284 14 12.5V5.50002C14 4.67159 13.3284 4.00002 12.5 4.00002H11V2.50006C11 1.67163 10.3284 1.00006 9.5 1.00006H2.5C1.67157 1.00006 1 1.67163 1 2.50006V9.50006ZM5 5.50002C5 5.22388 5.22386 5.00002 5.5 5.00002H12.5C12.7761 5.00002 13 5.22388 13 5.50002V12.5C13 12.7762 12.7761 13 12.5 13H5.5C5.22386 13 5 12.7762 5 12.5V5.50002Z"
+          fill={iconColor}
+          stroke={iconColor}
+          strokeWidth="var(--copy-icon-stroke-thicken, 0.4)"
+          fillRule="evenodd"
+          clipRule="evenodd"
         />
-      </div>
-    </div>
+      </svg>
+    </button>
   );
 }
 
@@ -122,11 +211,19 @@ export function ExactFieldSections({
   return (
     <>
       {sections.flatMap((section, index) => {
+        const isOff = section.enabledState === 'off';
+        const fields =
+          isOff && section.onEnabledChange
+            ? section.fields.map((field) =>
+                wrapFieldOnChange(field, () => section.onEnabledChange!(true)),
+              )
+            : section.fields;
+
         const renderedSection = (
           <ExactControlSection
             key={section.title}
             title={section.title}
-            enabled={section.enabledState !== 'off'}
+            enabled={!isOff}
             toggleState={section.enabledState}
             onToggle={
               section.onEnabledChange
@@ -134,7 +231,7 @@ export function ExactFieldSections({
                 : undefined
             }
           >
-            {section.fields.map((field) => (
+            {fields.map((field) => (
               <ExactField
                 key={field.kind === 'shape' ? field.label : field.id}
                 field={field}
@@ -177,6 +274,8 @@ function ExactField({
         opacityPreview={field.opacityPreview}
         mixedSwatches={field.mixedSwatches}
         onChange={field.onChange}
+        onCopy={field.onCopy}
+        copySwatches={field.copySwatches}
       />
     );
   }
@@ -238,6 +337,7 @@ function ExactField({
 
 function buildMixedRectSwatchBackground(
   stops: NonNullable<ExactColorFieldProps['mixedSwatches']>,
+  featherRatio = 0.2,
 ) {
   if (stops.length === 0) {
     return undefined;
@@ -249,7 +349,7 @@ function buildMixedRectSwatchBackground(
   }
 
   const normalizedStops = stops.slice(0, 4);
-  const gradientStops = buildBlendedGradientStops(normalizedStops, 0.2);
+  const gradientStops = buildBlendedGradientStops(normalizedStops, featherRatio);
   return `linear-gradient(90deg, ${gradientStops})`;
 }
 
@@ -283,6 +383,22 @@ function buildBlendedGradientStops(
   });
 
   return gradientStops.join(', ');
+}
+
+function wrapFieldOnChange(
+  field: SidebarControlFieldDefinition,
+  onEnable: () => void,
+): SidebarControlFieldDefinition {
+  if (field.kind === 'color') {
+    return { ...field, onChange: (value) => { onEnable(); field.onChange(value); } };
+  }
+  if (field.kind === 'slider') {
+    return { ...field, onChange: (value) => { onEnable(); field.onChange(value); } };
+  }
+  if (field.kind === 'toggle') {
+    return { ...field, onChange: (checked) => { onEnable(); field.onChange(checked); } };
+  }
+  return { ...field, onChange: (value) => { onEnable(); field.onChange(value); } };
 }
 
 function applyOpacityToColor(color: string, opacity = 1) {

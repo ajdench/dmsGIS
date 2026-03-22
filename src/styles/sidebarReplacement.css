@@ -244,11 +244,7 @@
   }
 
   .sidebar-replacement-pill__swatch--mixed {
-    border-style: solid;
-    border-color: var(--border);
-    border-width: 1px;
     border-radius: 999px;
-    box-sizing: border-box;
   }
 
   .sidebar-replacement-pill__swatch-svg {

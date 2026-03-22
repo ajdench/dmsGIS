@@ -6,6 +6,25 @@ User-derived task list for dmsGIS. Items reflect product decisions and feature i
 
 ## Open
 
+### 3. Zoom-relative map point scaling
+
+**Area:** Facilities — map rendering
+**What:** At high zoom levels map points look appropriately sized, but as the map zooms out the points remain the same screen size and become disproportionately large relative to the geography. Points (and their borders, if present) should scale down as the map zooms out, maintaining a consistent relationship to the geographic scale.
+**Why:** Raised during the SVG icon refactor — the Icon scale is currently fixed per `size` setting and does not vary with zoom. This should be factored into any further size/scale work on map symbols.
+**Notes:** The current `Icon.scale` is set once at style creation time. Zoom-aware scaling will require either a style function that recomputes scale on each render (keyed by zoom level) or use of OL resolution-based rendering. The per-region style cache in `facilityLayerStyles.ts` will also need to include zoom level as a cache key.
+**Files likely touched:** `src/features/map/mapStyleUtils.ts`, `src/features/map/facilityLayerStyles.ts`.
+
+---
+
+### 2. Shape border rendering audit across all shapes and swatches
+
+**Area:** Facilities — map rendering + sidebar swatch previews
+**What:** Border rendering needs a full audit across shapes (circle, square, diamond, triangle) in both map icons and sidebar swatches. The map side now uses SVG `Icon` with clip-path inward borders, but swatches still use a separate inner-scale approach. Both paths need to agree on what "border off" and "border at 0 thickness" mean visually, and swatch previews should accurately reflect the rendered map state.
+**Why:** The SVG icon refactor resolved map-side issues (inward borders, rounded corners, size normalisation). Remaining work is swatch alignment and verifying all border controls (visible, width, opacity) interact correctly end-to-end.
+**Files likely touched:** `src/components/sidebarExact/ExactSwatch.tsx`, `src/features/map/facilityLayerStyles.ts`.
+
+---
+
 ### 1. Wire Point controls to Cities popover
 
 **Area:** Labels pane — Cities row

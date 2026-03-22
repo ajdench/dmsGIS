@@ -139,6 +139,8 @@ export interface ExactColorFieldProps {
   opacityPreview?: number;
   mixedSwatches?: ExactSwatchStop[];
   onChange?: (value: string) => void;
+  onCopy?: () => void;
+  copySwatches?: ExactSwatchStop[];
 }
 
 export interface ExactSliderControlProps {

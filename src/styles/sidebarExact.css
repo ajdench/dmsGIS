@@ -323,11 +323,7 @@
 }
 
 .prototype-metric-pill__swatch--mixed {
-  border-style: solid;
-  border-color: var(--border);
-  border-width: 1px;
   border-radius: 999px;
-  box-sizing: border-box;
 }
 
 .prototype-metric-pill__swatch-svg {
@@ -505,7 +501,6 @@
 
 .prototype-control-section--disabled .prototype-control-section__content {
   opacity: 0.52;
-  pointer-events: none;
 }
 
 .prototype-popover__divider {
@@ -551,6 +546,76 @@
   min-width: 0;
   opacity: 0;
   cursor: pointer;
+}
+
+/* Copy fill-to-border button — sits beside the border colour swatch */
+.prototype-color-field__with-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.prototype-color-field__with-copy > .prototype-color-field__control {
+  flex: 1;
+  min-width: 0;
+}
+
+.prototype-copy-fill-button {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--prototype-toggle-width);
+  height: var(--control-height-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--text-muted);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+/* Solid colour hover: border becomes the fill colour */
+.prototype-copy-fill-button:hover {
+  border-color: var(--copy-hover-border, var(--border-control-hover));
+}
+
+/* Gradient hover: use background-clip trick for gradient border with rounded corners */
+.prototype-copy-fill-button--gradient-hover:hover {
+  border-color: transparent;
+  background-image:
+    linear-gradient(var(--surface), var(--surface)),
+    var(--copy-hover-border);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.prototype-copy-fill-button:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.2);
+  outline-offset: 1px;
+}
+
+.prototype-copy-fill-button__swatch {
+  position: absolute;
+  inset: 3px;
+  border-radius: calc(var(--radius-md) - 3px);
+  pointer-events: none;
+}
+
+.prototype-copy-fill-button__icon {
+  position: relative;
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  --copy-icon-stroke-thicken: 0.4;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.15));
 }
 
 .prototype-shape-picker {

@@ -76,6 +76,8 @@ export function SelectionPanelExact() {
     (state) => state.setAllRegionBorderWidth,
   );
   const setAllRegionShape = useAppStore((state) => state.setAllRegionShape);
+  const copyFillToBorder = useAppStore((state) => state.copyFillToBorder);
+  const copyRegionFillToBorder = useAppStore((state) => state.copyRegionFillToBorder);
   const setFacilitySymbolShape = useAppStore(
     (state) => state.setFacilitySymbolShape,
   );
@@ -110,6 +112,8 @@ export function SelectionPanelExact() {
     setAllRegionBorderColor,
     setAllRegionBorderOpacity,
     setAllRegionBorderWidth,
+    copyFillToBorder,
+    copyRegionFillToBorder,
     setAllRegionShape,
     setFacilitySymbolShape,
     setFacilitySymbolSize,

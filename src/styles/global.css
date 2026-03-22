@@ -372,7 +372,7 @@
     padding-top: 0;
     padding-bottom: 0;
     font-size: var(--font-size-header-button);
-    line-height: 1.25rem;
+    line-height: 1;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: var(--surface);
@@ -787,6 +787,7 @@
     min-height: var(--prototype-preset-button-height);
     height: var(--prototype-preset-button-height);
     font-size: var(--font-size-header-button);
+    line-height: 1;
     font-weight: 400;
     white-space: nowrap;
     transition:
@@ -1340,11 +1341,7 @@
   }
 
   .sidebar-metric-pill__swatch--mixed {
-    border-style: solid;
-    border-color: var(--border);
-    border-width: 1px;
     border-radius: 999px;
-    box-sizing: border-box;
   }
 
   .sidebar-metric-pill__swatch-svg {
