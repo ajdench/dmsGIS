@@ -732,7 +732,7 @@
   gap: var(--space-2);
   min-width: 0;
   width: 100%;
-  min-height: calc(var(--control-height-sm) - 2px);
+  height: calc(var(--control-height-sm) - 2px);
   overflow: visible;
 }
 
@@ -742,9 +742,16 @@
 
 .prototype-region-row .color-control__label {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+  position: relative;
+  margin-top: -1px;
+}
+
+.prototype-region-row .color-control__label--multiline {
+  margin-top: 2px;
+  z-index: 1;
 }
 
 @keyframes prototype-accordion-down {

@@ -211,7 +211,7 @@ export function buildPmcPanelDefinition({
     ],
     rows: sortedRegions.map((region) => ({
       id: region.name,
-          label: region.name,
+          label: wrapAfterAmpersand(region.name),
       visibility: {
         state: region.visible ? 'on' : 'off',
         onChange: (visible) => setRegionVisibility(region.name, visible),
@@ -344,4 +344,13 @@ function formatPercent(value: number): string {
 
 function slugify(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+/** Replace spaces in the portion after "&" with non-breaking spaces so
+ *  wrapped text breaks at "& " rather than mid-phrase
+ *  (e.g. "Wales &" / "West Midlands" instead of "Wales & West" / "Midlands"). */
+function wrapAfterAmpersand(name: string): string {
+  return name.replace(/& (.+)$/, (_, tail: string) =>
+    `& ${tail.replace(/ /g, '\u00A0')}`,
+  );
 }

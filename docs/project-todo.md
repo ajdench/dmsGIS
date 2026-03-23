@@ -55,4 +55,8 @@ User-derived task list for dmsGIS. Items reflect product decisions and feature i
 
 ## Done
 
-*(none yet)*
+### 6. Collapse all panes during drag reorder
+
+**Area:** Sidebar — pane reorder UX
+**What:** All major panes collapse when any pane is dragged for reorder, making targets compact and easy to place. Full open-pane state is restored on drop/cancel.
+**Files touched:** `src/components/layout/RightSidebar.tsx`.
