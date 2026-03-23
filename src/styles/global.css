@@ -464,6 +464,10 @@
     @apply h-full w-full;
   }
 
+  .map-canvas .ol-viewport {
+    background: #fff;
+  }
+
   .map-tooltip {
     pointer-events: none;
     padding: var(--map-tooltip-padding-y) var(--map-tooltip-padding-x);

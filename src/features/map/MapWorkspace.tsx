@@ -368,13 +368,14 @@ export function MapWorkspace() {
     basemapLayers.landFill.setStyle(
       createFillStyle(
         withOpacity(basemap.landFillColor, basemap.landFillOpacity),
-        false,
+        basemap.landFillOpacity > 0,
       ),
     );
     basemapLayers.oceanFill.setVisible(basemap.showSeaFill);
     basemapLayers.landFill.setVisible(basemap.showLandFill);
-    basemapLayers.countryBorders.setVisible(basemap.showCountryBorders);
-    basemapLayers.ukInternalBorders.setVisible(basemap.showCountryBorders);
+    const bordersVisible = basemap.showCountryBorders && basemap.showLandFill && basemap.landFillOpacity > 0;
+    basemapLayers.countryBorders.setVisible(bordersVisible);
+    basemapLayers.ukInternalBorders.setVisible(bordersVisible);
     basemapLayers.countryLabels.setVisible(basemap.showCountryLabels);
     basemapLayers.majorCities.setVisible(basemap.showMajorCities);
     basemapLayers.seaLabels.setVisible(basemap.showSeaLabels);
@@ -696,7 +697,7 @@ function createBasemapLayers(): BasemapLayerSet {
       zIndex: -10,
     }),
     landFill: new VectorLayer({
-      style: createFillStyle('#ecf0e6'),
+      style: createFillStyle('#ecf0e6', false),
       zIndex: -9,
     }),
     countryBorders: new VectorLayer({

@@ -16,6 +16,9 @@ export interface SidebarColorFieldDefinition {
   onChange: (value: string) => void;
   onCopy?: () => void;
   copySwatches?: SidebarSwatchStop[];
+  copyLabel?: string;
+  copyShowIcon?: boolean;
+  copyIcon?: 'copy' | 'reset';
 }
 
 export interface SidebarSliderFieldDefinition {

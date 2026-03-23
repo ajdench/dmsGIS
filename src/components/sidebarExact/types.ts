@@ -141,6 +141,9 @@ export interface ExactColorFieldProps {
   onChange?: (value: string) => void;
   onCopy?: () => void;
   copySwatches?: ExactSwatchStop[];
+  copyLabel?: string;
+  copyShowIcon?: boolean;
+  copyIcon?: 'copy' | 'reset';
 }
 
 export interface ExactSliderControlProps {

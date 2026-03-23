@@ -618,6 +618,11 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.15));
 }
 
+.prototype-copy-fill-button__icon--reset {
+  width: 11.5px;
+  height: 11.5px;
+}
+
 .prototype-shape-picker {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

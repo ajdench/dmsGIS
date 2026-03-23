@@ -30,6 +30,7 @@ User-derived task list for dmsGIS. Items reflect product decisions and feature i
 **Area:** Basemap — land fill rendering
 **What:** As land fill opacity is reduced, the background (generally the configured sea colour) should show through so that land masses visually dissolve into the sea/background. Currently land simply becomes transparent revealing whatever is behind it.
 **Why:** User expectation — reducing land opacity should blend land into the surrounding sea colour rather than exposing the raw canvas/tile background.
+**Notes:** The map viewport background is now set to white (`#fff`), so when both land and sea are at 0% the canvas is clean white (useful for future export). Country borders also auto-hide when land opacity reaches 0%.
 **Files likely touched:** `src/features/map/MapWorkspace.tsx` (land fill style), possibly basemap store if new settings are needed.
 
 ---
@@ -40,6 +41,15 @@ User-derived task list for dmsGIS. Items reflect product decisions and feature i
 **What:** The Cities label row shows accompanying point markers alongside city name text. The Cities popover currently exposes Text and Border controls only. Add a Point section to control the accompanying point (colour, size, opacity) independently of the label text.
 **Why:** Cities points are visible map elements; without controls they are unmanageable from the sidebar.
 **Files likely touched:** `src/features/labels/labelPanelFields.ts`, `src/store/appStore.ts` (if new basemap keys needed), map runtime layer config.
+
+---
+
+### 5. Basemap reset icon colour tuning
+
+**Area:** Basemap — sidebar popover styling
+**Priority:** Low
+**What:** The reset-to-default-colour button icon uses a luminance-based grey that scales proportionally with the swatch background brightness. Land and Sea currently have subtly different icon greys. This may need further fine-tuning as default colours or design preferences evolve.
+**Files likely touched:** `src/components/sidebarExact/ExactFields.tsx` (`computeSwatchIconColor` function).
 
 ---
 

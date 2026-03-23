@@ -2,6 +2,9 @@ import type { SidebarRowDefinition } from '../../lib/sidebar/contracts';
 import type { SidebarVisibilityState } from '../../lib/sidebar/visibilityTree';
 import type { BasemapSettings } from '../../types';
 
+const DEFAULT_LAND_FILL_COLOR = '#ecf0e6';
+const DEFAULT_SEA_FILL_COLOR = '#d9e7f5';
+
 interface BuildBasemapPanelRowsOptions {
   basemap: BasemapSettings;
   setBasemapLayerVisibility: (
@@ -72,6 +75,11 @@ export function buildBasemapPanelRows({
               label: 'Colour',
               value: basemap.landFillColor,
               onChange: (color) => setBasemapElementColor('landFillColor', color),
+              onCopy: () => setBasemapElementColor('landFillColor', DEFAULT_LAND_FILL_COLOR),
+              copySwatches: [{ color: DEFAULT_LAND_FILL_COLOR, opacity: 1 }],
+              copyLabel: 'Reset to default colour',
+              copyShowIcon: true,
+              copyIcon: 'reset' as const,
             },
             {
               kind: 'slider',
@@ -114,6 +122,11 @@ export function buildBasemapPanelRows({
               label: 'Colour',
               value: basemap.seaFillColor,
               onChange: (color) => setBasemapElementColor('seaFillColor', color),
+              onCopy: () => setBasemapElementColor('seaFillColor', DEFAULT_SEA_FILL_COLOR),
+              copySwatches: [{ color: DEFAULT_SEA_FILL_COLOR, opacity: 1 }],
+              copyLabel: 'Reset to default colour',
+              copyShowIcon: true,
+              copyIcon: 'reset' as const,
             },
             {
               kind: 'slider',
