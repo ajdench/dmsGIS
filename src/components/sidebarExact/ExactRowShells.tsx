@@ -61,7 +61,7 @@ export function ExactInlineRowShell({
       }`}
       style={style}
     >
-      <span className={`color-control__label color-control__label--region${label.includes('&') ? ' color-control__label--multiline' : ''}`}>
+      <span className={`color-control__label color-control__label--region${label.includes('\u00A0') ? ' color-control__label--multiline' : ''}`}>
         {label}
       </span>
       <ExactMetaControls
