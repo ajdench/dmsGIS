@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ExactMetricPill, ExactSwatch } from '../sidebarExact';
 import { useAppStore } from '../../store/appStore';
 import { buildWorkspaceBottomCardModel } from '../../lib/workspaceBottomCards';
@@ -11,11 +11,6 @@ export function WorkspaceBottomLeftPane() {
   const [isRoyalNavyRegionalized, setIsRoyalNavyRegionalized] = useState(false);
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const activeScenarioWorkspaceId = useAppStore((state) => state.activeScenarioWorkspaceId);
-  const activeScenarioWorkspaceDraft = useAppStore((state) =>
-    state.activeScenarioWorkspaceId
-      ? state.scenarioWorkspaceDrafts[state.activeScenarioWorkspaceId] ?? null
-      : null,
-  );
   const getDerivedScenarioWorkspace = useAppStore((state) => state.getDerivedScenarioWorkspace);
   const facilityParRecords = useAppStore((state) => state.facilityParRecords);
   const regions = useAppStore((state) => state.regions);
@@ -24,9 +19,7 @@ export function WorkspaceBottomLeftPane() {
   const pmcTotalParDisplay = useAppStore((state) => state.pmcTotalParDisplay);
   const presetRegionParByPreset = useAppStore((state) => state.presetRegionParByPreset);
   const activeScenarioWorkspace = activeScenarioWorkspaceId
-    ? activeScenarioWorkspaceDraft || activeScenarioWorkspaceId
-      ? getDerivedScenarioWorkspace(activeScenarioWorkspaceId)
-      : null
+    ? getDerivedScenarioWorkspace(activeScenarioWorkspaceId)
     : null;
   const activeScenarioRegionParByName =
     activeScenarioWorkspaceId && activeScenarioWorkspace && facilityParRecords.length > 0
@@ -37,7 +30,7 @@ export function WorkspaceBottomLeftPane() {
           preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
         }).regionParByName
       : presetRegionParByPreset[activeViewPreset] ?? {};
-  const activeRoyalNavyRegionalParByName = useMemo(() => {
+  const activeRoyalNavyRegionalParByName = (() => {
     if (facilityParRecords.length === 0) {
       return {};
     }
@@ -61,12 +54,7 @@ export function WorkspaceBottomLeftPane() {
       facilities: royalNavyFacilities,
       preset: activeViewPreset,
     }).regionParByName;
-  }, [
-    activeScenarioWorkspace,
-    activeScenarioWorkspaceId,
-    activeViewPreset,
-    facilityParRecords,
-  ]);
+  })();
   const { slots, totalCard } = buildWorkspaceBottomCardModel({
     activeViewPreset,
     regions,

@@ -39,6 +39,15 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Notes:** Start from `docs/shared-foundation-review-execution-log.md` and `docs/main-repo-review-2026-03-31.md`. Every called script in the review build flow should accept explicit staged dirs for all outputs it writes. “Inspection family” and “shared preprocess mutation” should not coexist.
 **Files likely touched:** `scripts/build-shared-foundation-review-family.mjs`, `scripts/create-ward-split.mjs`, `scripts/buildLegacyRegionOutlines.mjs`, any geometry preprocess scripts that still write to shared default output locations, plus related docs/tests.
 
+### 28. Clean up stale Git/GitHub publish branches after successful `main` promotion
+
+**Area:** Repo hygiene / publish workflow
+**Priority:** Medium
+**What:** Review and prune stale local and remote publish branches once their work is either merged or intentionally superseded.
+**Why:** The repo now has several older publish/staging branches from the review-family and recovery process. They are useful history, but keeping all of them indefinitely makes future GitHub promotion work harder to read and increases the chance of pushing from the wrong branch.
+**Notes:** Keep branches that still serve as meaningful recovery anchors. Safe review candidates after the latest `main` merge include older codex publish branches already superseded by merged `main` work. Treat this as a hygiene pass, not an emergency cleanup, and do not remove any branch until its value as a recovery anchor is understood.
+**Files likely touched:** none in app runtime; this is a Git/JJ/GitHub branch-management task plus any short handover note that records what was kept or deleted.
+
 ### 25. Revisit Exact sidebar helper-button low-opacity visual treatment
 
 **Area:** Sidebar / Exact popovers / helper controls

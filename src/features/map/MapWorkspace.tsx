@@ -1267,9 +1267,6 @@ export function MapWorkspace() {
           activeScenarioWorkspaceId,
         ) ?? null
       : null;
-    const hasPreloadedWorkspaceAssignmentSource =
-      !!preloadedWorkspaceAssignmentSource &&
-      preloadedWorkspaceAssignmentSource.getFeatures().length > 0;
     const liveAssignmentSource = getActiveAssignmentLookupSource(
       regionBoundaryRefs.current,
       jmcAssignmentLookupSourceRef.current,

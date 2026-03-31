@@ -90,10 +90,6 @@ function resolveCoaName(jmcName, boundaryName, groups, boundaryOverrides) {
   return group?.name ?? null;
 }
 
-function slug(value) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-}
-
 /**
  * Dissolve GeoJSON features by a named field and write the output.
  * Uses Mapshaper for topology-preserving dissolve.
