@@ -292,6 +292,30 @@ That would exactly produce:
 - intact facility-point colours
 - grey board fills
 
+## Current Diagnostics Snapshot
+
+The current runtime diagnostics exposed on:
+
+- `window.__dmsGISPlaygroundDiagnostics`
+- `window.__dmsGISPlaygroundDiagnosticsHistory`
+
+now include:
+
+- assignment-source role selection
+- assignment-source mapping counts
+- dedicated preloaded `2026` topology-edge source counts
+- derived outline geometry summary:
+  - total feature count
+  - line-feature count
+  - polygon-feature count
+  - whether line geometry is in use
+
+That means a future recurrence can now be classified much faster:
+
+- if topology-edge counts are present and derived outline uses lines, Playground is on the seam-first path
+- if derived outline uses polygons, Playground has fallen back to dissolve
+- if assignment mapping is missing while topology edges are present, the problem is assignment/runtime state rather than border-source selection
+
 ## Secondary Suspects
 
 If the main source-selection theory is not the whole answer, the next most likely suspects are:

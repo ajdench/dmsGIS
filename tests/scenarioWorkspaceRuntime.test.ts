@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import Feature from 'ol/Feature';
+import LineString from 'ol/geom/LineString';
 import Polygon from 'ol/geom/Polygon';
 import VectorSource from 'ol/source/Vector';
 import { createScenarioWorkspaceDraft } from '../src/lib/config/scenarioWorkspaces';
@@ -364,12 +365,40 @@ describe('scenarioWorkspaceRuntime', () => {
       runtimeAssignmentBaselineSource: preloadedAssignmentSource,
       runtimeAssignmentSource: preloadedAssignmentSource,
       derivedOutlineAssignmentSource: preloadedAssignmentSource,
+      topologyEdgeSource: new VectorSource({
+        features: [
+          new Feature({
+            left_code: 'E54000068',
+            right_code: '',
+            internal: false,
+            geometry: new LineString([
+              [0, 0],
+              [1, 1],
+            ]),
+          }),
+        ],
+      }),
+      derivedOutlineSource: new VectorSource({
+        features: [
+          new Feature({
+            scenario_region_id: 'coa3b_london_east',
+            geometry: new LineString([
+              [0, 0],
+              [1, 1],
+            ]),
+          }),
+        ],
+      }),
     });
 
     expect(diagnostics.sourceRoles.baseline).toBe('preloadedAssignmentSource');
     expect(diagnostics.sourceRoles.runtimeAssignment).toBe('preloadedAssignmentSource');
     expect(diagnostics.sources.preloadedAssignmentSource.featureCount).toBe(1);
     expect(diagnostics.sources.preloadedAssignmentSource.unmappedFeatureCount).toBe(0);
+    expect(diagnostics.topologyEdges.featureCount).toBe(1);
+    expect(diagnostics.topologyEdges.externalFeatureCount).toBe(1);
+    expect(diagnostics.derivedOutline.featureCount).toBe(1);
+    expect(diagnostics.derivedOutline.usesLineGeometry).toBe(true);
   });
 
   it('reports unmapped boards in the diagnostics snapshot', () => {
@@ -400,6 +429,8 @@ describe('scenarioWorkspaceRuntime', () => {
       runtimeAssignmentBaselineSource: liveAssignmentSource,
       runtimeAssignmentSource: liveAssignmentSource,
       derivedOutlineAssignmentSource: liveAssignmentSource,
+      topologyEdgeSource: null,
+      derivedOutlineSource: liveAssignmentSource,
     });
 
     expect(diagnostics.sources.liveAssignmentSource.unmappedFeatureCount).toBe(1);
@@ -407,5 +438,6 @@ describe('scenarioWorkspaceRuntime', () => {
     expect(diagnostics.sources.liveAssignmentSource.sampleUnmappedBoundaryNames).toEqual([
       'Mystery Board',
     ]);
+    expect(diagnostics.derivedOutline.polygonFeatureCount).toBe(1);
   });
 });

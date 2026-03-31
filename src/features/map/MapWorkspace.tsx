@@ -1343,6 +1343,8 @@ export function MapWorkspace() {
           runtimeAssignmentBaselineSource,
           runtimeAssignmentSource: runtimeState.assignmentSource,
           derivedOutlineAssignmentSource,
+          topologyEdgeSource: scenarioTopologyEdgeSource,
+          derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
         });
         window.__dmsGISPlaygroundDiagnostics = diagnosticsSnapshot;
         const history = window.__dmsGISPlaygroundDiagnosticsHistory ?? [];

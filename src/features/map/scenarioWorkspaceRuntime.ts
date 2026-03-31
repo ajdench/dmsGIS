@@ -1,5 +1,6 @@
 import VectorSource from 'ol/source/Vector';
 import type { FeatureLike } from 'ol/Feature';
+import type Geometry from 'ol/geom/Geometry';
 import type {
   ScenarioWorkspaceDraft,
 } from '../../lib/schemas/scenarioWorkspaces';
@@ -35,6 +36,17 @@ export interface PlaygroundRuntimeDiagnosticsSnapshot {
     derivedOutlineAssignment: string | null;
   };
   sources: Record<string, ScenarioWorkspaceAssignmentSourceSummary>;
+  topologyEdges: {
+    featureCount: number;
+    internalFeatureCount: number;
+    externalFeatureCount: number;
+  };
+  derivedOutline: {
+    featureCount: number;
+    lineFeatureCount: number;
+    polygonFeatureCount: number;
+    usesLineGeometry: boolean;
+  };
 }
 
 export function resolveScenarioWorkspaceBaselineAssignmentSource({
@@ -181,6 +193,8 @@ export function buildPlaygroundRuntimeDiagnosticsSnapshot({
   runtimeAssignmentBaselineSource,
   runtimeAssignmentSource,
   derivedOutlineAssignmentSource,
+  topologyEdgeSource,
+  derivedOutlineSource,
 }: {
   workspaceId: ScenarioWorkspaceId;
   baselineAssignmentKind: string | null;
@@ -191,6 +205,8 @@ export function buildPlaygroundRuntimeDiagnosticsSnapshot({
   runtimeAssignmentBaselineSource: VectorSource | null;
   runtimeAssignmentSource: VectorSource | null;
   derivedOutlineAssignmentSource: VectorSource | null;
+  topologyEdgeSource: VectorSource | null;
+  derivedOutlineSource: VectorSource | null;
 }): PlaygroundRuntimeDiagnosticsSnapshot {
   const namedSources = [
     ['preloadedAssignmentSource', preloadedAssignmentSource],
@@ -226,6 +242,8 @@ export function buildPlaygroundRuntimeDiagnosticsSnapshot({
         summarizeScenarioAssignmentSource(workspaceId, source),
       ]),
     ),
+    topologyEdges: summarizeTopologyEdgeSource(topologyEdgeSource),
+    derivedOutline: summarizeDerivedOutlineSource(derivedOutlineSource),
   };
 }
 
@@ -313,6 +331,74 @@ function summarizeScenarioAssignmentSource(
     invalidExplicitScenarioRegionIdCount,
     sampleUnmappedBoundaryNames,
   };
+}
+
+function summarizeTopologyEdgeSource(source: VectorSource | null): {
+  featureCount: number;
+  internalFeatureCount: number;
+  externalFeatureCount: number;
+} {
+  const features = source?.getFeatures() ?? [];
+  let internalFeatureCount = 0;
+  let externalFeatureCount = 0;
+
+  for (const feature of features) {
+    if (Boolean(feature.get('internal'))) {
+      internalFeatureCount += 1;
+    } else {
+      externalFeatureCount += 1;
+    }
+  }
+
+  return {
+    featureCount: features.length,
+    internalFeatureCount,
+    externalFeatureCount,
+  };
+}
+
+function summarizeDerivedOutlineSource(source: VectorSource | null): {
+  featureCount: number;
+  lineFeatureCount: number;
+  polygonFeatureCount: number;
+  usesLineGeometry: boolean;
+} {
+  const features = source?.getFeatures() ?? [];
+  let lineFeatureCount = 0;
+  let polygonFeatureCount = 0;
+
+  for (const feature of features) {
+    const geometryType = getGeometryType(feature.getGeometry());
+    if (
+      geometryType === 'LineString' ||
+      geometryType === 'MultiLineString'
+    ) {
+      lineFeatureCount += 1;
+      continue;
+    }
+
+    if (
+      geometryType === 'Polygon' ||
+      geometryType === 'MultiPolygon'
+    ) {
+      polygonFeatureCount += 1;
+    }
+  }
+
+  return {
+    featureCount: features.length,
+    lineFeatureCount,
+    polygonFeatureCount,
+    usesLineGeometry: lineFeatureCount > 0,
+  };
+}
+
+function getGeometryType(geometry: Geometry | null | undefined): string | null {
+  if (!geometry) {
+    return null;
+  }
+
+  return typeof geometry.getType === 'function' ? geometry.getType() : null;
 }
 
 function resolveNamedSourceRole(
