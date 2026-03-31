@@ -54,6 +54,14 @@ For investigations, implementation, preprocessing, tooling, testing, and debuggi
 
 This is especially relevant for the geospatial side of the app, where `GDAL`, `Turf`, and similar supporting tools are often the most sensible fit, but the rule is not limited to geometry work.
 
+Communication preference now promoted to repo guidance:
+
+- after each non-trivial implementation or debugging pass, provide a short plain-English summary of:
+  - the most recent development
+  - the practical meaning of that change
+  - the next sensible step
+- this is especially important during visual-check/debug loops so the user does not have to infer state from internal filenames, checkpoints, or code-level terminology alone
+
 Current validated repo-health note:
 
 - the confirmed `v3.8` main-repo baseline is currently clean through `npm run lint`, `npm run test -- --run`, `npm run build`, and `npm run test:e2e`

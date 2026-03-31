@@ -65,6 +65,11 @@ Working stance:
 - before coding substantial UI, interaction, or architecture changes, summarize findings and the intended approach first unless the task is trivially local and low-risk
 - when the user flags a repeated collaboration preference, promote it into repo-level working guidance rather than treating it as turn-local advice
 - when a thread reaches a non-trivial architectural conclusion or reset point, record a restart/reactivation note so the next session can resume from the same assumptions instead of rediscovering them
+- after each non-trivial development pass, provide a short plain-English summary of:
+  - what changed most recently
+  - what it means in practical terms
+  - what the next sensible step is
+- when visual inspection is part of the loop, that summary should be especially direct and avoid relying on internal filenames or repo jargon alone
 
 Canonical handover bundle:
 
