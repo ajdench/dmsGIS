@@ -55,22 +55,90 @@ Why this matters:
 - that specific gap is now fixed, but contributors should still treat `npm run build` as the release gate, not just `npm run test`
 - keeping this section explicit makes future regressions easier to spot during review
 
+## Working pattern
+
+- For non-trivial UI, interaction, or architectural changes, do a short findings-and-approach pass before implementation.
+- Confirm the observed problem, likely cause, and intended corrective pattern before coding.
+- Prefer replacing a weak pattern with a clearer one instead of layering local tweaks onto brittle code.
+- Keep clarification questions minimal.
+- If more than three questions are truly needed, ask them one at a time in dependency order so each answer informs the next.
+
 ## Deployment target
 
 - GitHub Pages: https://ajdench.github.io/dmsGIS/
 
-## Production versioning
-
-- `Version 1` is saved as Git tag `production-v1`
-- current production development should now be treated as `Version 2`
-
 ## Documents
 
+- Canonical handover bundle:
+  - `docs/agent-handover.md`
+  - `docs/sidebar-pane-status.md`
+  - `docs/prototype-to-production-playbook.md`
+  - `docs/agent-continuation-protocol.md`
+  - `docs/current-app-baseline-v3.8.md`
+  - `docs/current-app-baseline-v3.7.md`
+  - `docs/current-app-baseline-v3.6.md`
+  - `docs/current-app-baseline-v3.5.md`
+  - `docs/current-app-baseline-v3.4.md`
+  - `docs/v3.4-internal-gap-regression.md`
+  - `docs/v3.5-full-geometry-redress.md`
+  - `docs/v3.8-bsc-runtime-family-spec.md`
+  - `docs/v3.7-next-phase.md`
+  - `docs/canonical-board-rebuild-workflow.md`
 - `docs/specification.md`
 - `docs/internal-architecture-principles.md`
-- `docs/production-versions.md`
+- `docs/sidebar-production-reset-plan.md`
+- `docs/sidebar-thread-reactivation.md`
+- `docs/sidebar-parity-bugs.md`
+- `docs/parallel-ui-prototype-workflow.md`
+- `src/prototypes/sidebarPrototype/README.md`
+- `src/prototypes/sidebarPrototype/VERSIONS.md`
 - `AGENTS.md`
 - `docs/prompts/`
+
+Read order for a new coding-agent session:
+
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/agent-handover.md`
+4. `docs/sidebar-pane-status.md`
+5. `docs/prototype-to-production-playbook.md`
+6. `docs/agent-continuation-protocol.md`
+7. `docs/current-app-baseline-v3.8.md`
+8. `docs/current-app-baseline-v3.7.md`
+9. `docs/current-app-baseline-v3.6.md`
+10. `docs/current-app-baseline-v3.5.md`
+11. `docs/current-app-baseline-v3.4.md`
+12. `docs/v3.4-internal-gap-regression.md`
+13. `docs/v3.5-full-geometry-redress.md`
+14. `docs/v3.8-bsc-runtime-family-spec.md`
+15. `docs/v3.7-next-phase.md`
+16. `docs/canonical-board-rebuild-workflow.md`
+17. `docs/sidebar-parity-bugs.md`
+
+## Current baseline and next path
+
+- Active recoverable app baseline is documented as:
+  - `docs/current-app-baseline-v3.8.md`
+- Prior rollback baseline remains documented as:
+  - `docs/current-app-baseline-v3.7.md`
+- Earlier rebuild rollback baselines remain documented as:
+  - `docs/current-app-baseline-v3.6.md`
+  - `docs/current-app-baseline-v3.5.md`
+  - `docs/current-app-baseline-v3.4.md`
+- Current known geometry-regression note is documented as:
+  - `docs/v3.4-internal-gap-regression.md`
+- The rebuild-formalization version is completed and documented as:
+  - `docs/v3.6-rebuild-phase-replication-plan.md`
+- The active runtime-family source strategy is documented as:
+  - `docs/v3.8-bsc-runtime-family-spec.md`
+- The rejected prior next-phase boundary remains documented as historical context:
+  - `docs/v3.7-next-phase.md`
+- The prior rollback milestones remain documented as:
+  - `docs/current-app-baseline-v3.3.md`
+  - `docs/current-app-baseline-v3.2.md`
+  - `docs/current-app-baseline-v3.1.md`
+- The next major geometry-source / preprocessing path is documented as:
+  - `docs/canonical-board-rebuild-workflow.md`
 
 ## Notes
 
@@ -79,7 +147,8 @@ Why this matters:
 - Store coverage now includes PMC/global region styling behavior in `tests/appStore.test.ts`.
 - Visible preset labels are `Current`, `SJC JMC`, `COA 3a`, and `COA 3b`.
 - Right sidebar width is derived from the top-bar action-button span plus `0.75rem` side gutters so the internal white panes align cleanly inside the grey container.
-- The right sidebar pane is named `Overlays`; in `SJC JMC`, `COA 3a`, and `COA 3b` it is intentionally empty for now while PMC points remain active on the map.
+- The right sidebar pane is named `Overlays`; `Current`, `SJC JMC`, `COA 3a`, and `COA 3b` now all expose the shared overlay-family model there.
+- `SJC JMC` overlay behavior is now consistent across `Current` and scenario presets, with the overlay row using the rebuilt runtime JMC outline path in both cases.
 - The workspace keeps the right sidebar fixed-width and uses horizontal overflow at narrow widths instead of stacking the sidebar below the map.
 - Point tooltip paging is based on visible screen-space overlap at the current zoom and current symbol size/shape, with the nearest clicked facility shown first.
 - Current scenario architecture is moving toward distinct overlay families and data-driven scenario assignment:
@@ -105,11 +174,36 @@ Why this matters:
   - `UK_COA3B_Source_Board_Assignments_Codex_v01_geojson.geojson`
 - Shared preset/scenario configuration now lives in `src/lib/config/viewPresets.json` and `src/lib/config/viewPresets.ts`; runtime UI/store code and scenario preprocessing scripts read from that shared definition.
 - Shared scenario assignment resolution now also lives in `src/lib/config/scenarioAssignments.ts`, so scenario region names and codes no longer depend on hard-coded COA script conditionals.
+- Boundary-system catalog metadata now lives in `src/lib/config/boundarySystems.ts`, making the split explicit between the legacy Current boundary basis and the 2026 ICB/HB basis used by scenario work.
+- NHS England region prep for the 2026 boundary basis now lives in `src/lib/config/nhsEnglandRegions.ts`, with a typed seven-region catalogue and validated board-to-region assignments for all 36 English 2026 ICB features.
+- NHS England region research/design notes now live in `docs/nhs-england-region-overlay-2026.md`; the production overlay family exists in the model as `nhsRegions`, and the reference `NHS England Regions (2024 BSC)` overlay is now shipped as a default-off overlay product.
+- Scenario workspace baseline metadata now lives in `src/lib/config/scenarioWorkspaces.ts`, so the current scenario presets can be treated as baseline workspaces for future editable Playground behavior instead of only as hard-coded runtime presets.
+- Runtime map lookup sources now also distinguish between:
+  - authoritative boundary-system lookup sources
+  - scenario outline lookup sources
+  This keeps current behavior but reduces the direct preset-to-file coupling inside the map selection path.
+- Stable scenario boundary-assignment helpers now live in `src/lib/scenarioWorkspaceAssignments.ts`, so future reassignment work can target boundary-unit ids and scenario-region ids instead of depending only on display-name matching.
+- Derived editable-workspace summaries now live in `src/lib/scenarioWorkspaceDerived.ts`, so future region redraw and calculation work has a production-side source of truth to build from.
+- The production store now has explicit scenario-workspace draft/editor state in `src/store/appStore.ts`, including active workspace tracking, boundary reassignment drafts, and derived workspace access for future Playground behavior.
+- The production map runtime can now also build a draft-aware scenario assignment source in `src/features/map/scenarioWorkspaceRuntime.ts`, so boundary/point selection and selected-region highlighting can start respecting edited assignments before full region redraw is implemented.
+- Scenario layer reconciliation can now consume that draft-aware runtime source for the visible scenario map layers, so edited assignments can start affecting what is drawn on the map before true dissolved bespoke outlines are introduced.
+- Derived scenario outline generation now uses Turf dissolve in `src/features/map/derivedScenarioOutlineSource.ts`, so edited assignments can produce clean merged Region outlines instead of only grouped board geometries.
+- Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
+- Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding calculations in UI components.
+- That combined summary path now prefers stable `scenarioRegionId` wiring where the runtime assignment source provides it, with label-based fallback kept only as a transition path.
+- The current conclusion from the sidebar promotion attempt is that incremental approximation is not enough for prototype parity. The approved prototype should now be treated as the exact production sidebar target, and the shared production sidebar shell should be rebuilt around that target more directly. See `docs/sidebar-production-reset-plan.md`.
+- The current implementation recommendation is no longer “keep tightening the existing production sidebar”. The next sidebar step should be a controlled replacement: create a new production-owned sidebar kit in parallel, rebuild the shared primitives to exact prototype structure, then cut `src/components/layout/RightSidebar.tsx` over to that new kit. See `docs/sidebar-production-reset-plan.md`.
+- The canonical documentation path for sidebar replacement and agent handover is now:
+  - `docs/agent-handover.md`
+  - `docs/sidebar-pane-status.md`
+  - `docs/prototype-to-production-playbook.md`
+  - `docs/agent-continuation-protocol.md`
+- Small deferred sidebar parity issues should be recorded in `docs/sidebar-parity-bugs.md` rather than left only in thread history.
+- For major approved UI replacements, prefer versioned side development and later cutover over trying to fold the replacement UI back into the active shell piecemeal.
 - Facility property normalization and derived facility-record helpers now live in `src/lib/schemas/facilities.ts` and `src/lib/facilities.ts`, so current runtime consumers read typed facility metadata instead of raw feature properties directly.
 - The Facilities pane search is now wired into production state and filters both visible point rendering and point selection through `FacilityRecord.searchText`.
-- Facility filters now have an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, so future metadata facets and saved filters can grow from the same domain contract.
-- Facility filter state now includes typed region, facility-type, and default-visibility facets in addition to text search, and that state is carried through the production store plus saved-session snapshot/apply paths.
-- The production Facilities pane now surfaces `region`, `type`, and `default visibility` as promoted typed filter facets on top of the shared facility-filter contract.
+- Facility filters now use an explicit typed model in `src/lib/facilityFilters.ts`, backed by schema state in `src/lib/schemas/facilities.ts`, even though the active production filter path is currently search-only.
+- The production Facilities pane currently exposes search-only filtering; if metadata facets return later, they should reuse the same shared typed filter contract rather than a parallel UI-only path.
 - Saved-view and map-session behavior is covered in `tests/savedViews.test.ts`.
 - Local saved-view persistence and action helpers are covered in `tests/savedViewStore.test.ts` and `tests/savedViewActions.test.ts`.
 - Production panel responsibilities are split: `src/features/groups/PmcPanel.tsx` for PMC controls, `src/features/groups/OverlayPanel.tsx` for the right-sidebar overlay controls, and `src/features/groups/overlaySelectors.ts` for overlay-family metadata, filtering, and section building.
@@ -130,11 +224,15 @@ Why this matters:
 - Interaction coverage now also includes boundary-only tooltip hiding/reset behavior, scenario outline resolution, and filtered overlapping-point selection paths.
 - Overlay-family classification is covered in `tests/appStore.test.ts`, which now checks the distinction between `boardBoundaries` and `scenarioRegions`.
 - Overlay selector, section-builder, and family-metadata behavior is covered in `tests/overlaySelectors.test.ts`.
+- NHS England region assignment coverage is validated in `tests/nhsEnglandRegions.test.ts`, including a full check that every English `ICB` feature in the 2026 board GeoJSON resolves to exactly one NHS England region.
 - Scenario assignment resolution is covered in `tests/scenarioAssignments.test.ts`.
 - Facility schema normalization is covered in `tests/facilitySchema.test.ts`.
 - `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo, so both `git` and `jj` commands can be used in the same working directory.
 - The local JJ bookmark `main` is tracking `main@origin`.
-- Parallel prototype work may exist in this repo, but the production app remains the source of truth unless a prototype pattern is explicitly promoted.
+- Parallel UI prototype work may exist under `src/prototypes/` with dedicated HTML entries such as `sidebar-prototype.html`; treat that work as intentionally isolated from the production app unless explicitly promoted.
+- The current sidebar prototype is modularized under `src/prototypes/sidebarPrototype/` with shared seed data in `data.ts`, shared UI primitives in `PrototypeControls.tsx`, extracted floating-callout geometry in `floatingCallout.ts`, shared accordion wrappers in `PrototypeAccordion.tsx`, and local prototype rules in `src/prototypes/sidebarPrototype/README.md`.
+- The current sidebar prototype is isolated from production runtime state: it uses a prototype-local top bar shell, mock/local UI state, Radix accordion primitives for pane expansion, and a custom floating PMC row editor instead of the production store or map pane.
+- The floating callout geometry contract is covered directly in `tests/floatingCallout.test.ts` so top clamp, bottom clamp, and drift behavior can be tuned without re-deriving the math from component code.
 
 ## Current production focus
 
@@ -143,9 +241,13 @@ The current production focus is improving the shipped production app before expa
 Near-term production priorities:
 
 1. Improve production workflows and usability in existing domain areas before taking on more breadth.
-2. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
-3. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
-4. Keep `npm run build` as the authoritative health check before describing the app as deployable.
+2. Reset the sidebar implementation strategy around prototype parity.
+   Treat the approved prototype as the exact production sidebar target, rebuild the shared production sidebar shell around that structure, and stop relying on incremental “close enough” promotion of the older production sidebar.
+3. Keep future overlay families data-driven through shared overlay metadata/bootstrap paths rather than preset-specific runtime forks.
+4. Promote the NHS England region overlay through the same pattern as scenario overlays.
+   Build a static 2026 board-assignment dataset keyed by `boundary_code`, and add an optional dissolved outline dataset only when the visible overlay is ready to ship.
+5. Keep prototype exploration separate until a specific interaction pattern is approved for promotion.
+6. Keep `npm run build` as the authoritative health check before describing the app as deployable.
 
 ## Future functionality areas
 
@@ -154,6 +256,7 @@ Functional areas:
 - facility-filter usability and saved-filter behavior
 - richer saved-view management and future remote storage
 - future overlay families such as NHS/custom regions
+- promotion of the prepared NHS England region overlay from typed config/documentation into production runtime data and UI
 - export completion and polish
 - any explicit promotion of approved prototype interaction patterns
 
@@ -164,5 +267,13 @@ Non-functional areas:
 - map/runtime performance
 - deployment/container path
 - architecture consistency and clearer promotion rules from prototype to production
+
+Planned production-architecture direction for the future Playground:
+
+- treat `Current` as a baseline on the legacy ICB/HB boundary system
+- treat `SJC JMC`, `COA 3a`, and `COA 3b` as baseline scenario workspaces on the 2026 ICB/HB boundary system
+- move toward editable boundary-unit assignment plus derived scenario-region redraw, instead of relying on bespoke static outline files as the primary source of truth
+- keep editable workspace state in a dedicated production draft/editor layer rather than mutating preset config directly at runtime
+- move current workspace-to-facility summary joins from region labels toward stable scenario-region ids as runtime assignment data grows richer
 
 See [docs/internal-architecture-principles.md](/Users/andrew/Library/Mobile%20Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS/docs/internal-architecture-principles.md) for the working rules that should guide future development across both production and prototype paths.

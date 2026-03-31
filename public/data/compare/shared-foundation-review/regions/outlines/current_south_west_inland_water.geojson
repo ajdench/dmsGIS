@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"preset": "current", "group": "South West", "edge_class": "inlandWater"}, "geometry": {"type": "MultiLineString", "coordinates": [[[-3.256893, 51.187725], [-3.275837, 51.179779]]]}}]}

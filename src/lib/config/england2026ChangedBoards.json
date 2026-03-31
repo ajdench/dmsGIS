@@ -1,0 +1,44 @@
+[
+  {
+    "targetCode": "E54000065",
+    "targetName": "NHS Central East Integrated Care Board",
+    "changeKind": "merge_only",
+    "predecessorCurrentIcbCodes": ["E54000024", "E54000025", "E54000056"]
+  },
+  {
+    "targetCode": "E54000066",
+    "targetName": "NHS Essex Integrated Care Board",
+    "changeKind": "merge_only",
+    "predecessorCurrentIcbCodes": ["E54000023", "E54000025", "E54000026"]
+  },
+  {
+    "targetCode": "E54000067",
+    "targetName": "NHS Hampshire and Isle of Wight Integrated Care Board",
+    "changeKind": "frimley_redraw",
+    "predecessorCurrentIcbCodes": ["E54000042", "E54000034"]
+  },
+  {
+    "targetCode": "E54000068",
+    "targetName": "NHS Norfolk and Suffolk Integrated Care Board",
+    "changeKind": "merge_only",
+    "predecessorCurrentIcbCodes": ["E54000022", "E54000023"]
+  },
+  {
+    "targetCode": "E54000069",
+    "targetName": "NHS Surrey and Sussex Integrated Care Board",
+    "changeKind": "frimley_redraw",
+    "predecessorCurrentIcbCodes": ["E54000063", "E54000064", "E54000034"]
+  },
+  {
+    "targetCode": "E54000070",
+    "targetName": "NHS Thames Valley Integrated Care Board",
+    "changeKind": "frimley_redraw",
+    "predecessorCurrentIcbCodes": ["E54000044", "E54000034"]
+  },
+  {
+    "targetCode": "E54000071",
+    "targetName": "NHS West and North London Integrated Care Board",
+    "changeKind": "merge_only",
+    "predecessorCurrentIcbCodes": ["E54000027", "E54000028"]
+  }
+]

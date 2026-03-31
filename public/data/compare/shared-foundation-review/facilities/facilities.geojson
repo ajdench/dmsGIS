@@ -1,0 +1,4865 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.303811,
+          51.686282
+        ]
+      },
+      "properties": {
+        "id": "CMP1-2",
+        "name": "Abingdon Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 2,
+        "combined_practice": "Benson Combined Medical Practice",
+        "active_dmicp_id": "1083",
+        "legacy_dmicp_id": "5351",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "OX13 6JB",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.210306,
+          54.624579
+        ]
+      },
+      "properties": {
+        "id": "CMP19-1",
+        "name": "Aldergrove Medical Practice",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 0,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 3,
+        "combined_practice": "Northern Ireland Combined Medical Practice",
+        "active_dmicp_id": "2341",
+        "legacy_dmicp_id": "2341",
+        "status": "Closed",
+        "parent": "Parent",
+        "postcode": "BT29 4BP",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "NHSCT",
+        "icb_hb_code_2026": "NHSCT",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.765651,
+          51.254346
+        ]
+      },
+      "properties": {
+        "id": "CMP2-1",
+        "name": "Aldershot Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 4,
+        "combined_practice": "Aldershot Combined Medical Practice",
+        "active_dmicp_id": "2979",
+        "legacy_dmicp_id": "2979",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "GU11 1AY",
+        "par": "4548",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000034",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          33.773333,
+          35.0175
+        ]
+      },
+      "properties": {
+        "id": "CMP3-2",
+        "name": "Ayios Nikolaos Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 5,
+        "combined_practice": "ESBA Combined Medical Practice",
+        "active_dmicp_id": "24405",
+        "legacy_dmicp_id": null,
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "BF1 2AU",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.225905,
+          54.113788
+        ]
+      },
+      "properties": {
+        "id": "CMP4-2",
+        "name": "Barrow-In-Furness Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 6,
+        "combined_practice": "Catterick Combined Medical Practice",
+        "active_dmicp_id": "1107",
+        "legacy_dmicp_id": "16639",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "LA14 1AF",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000048",
+        "icb_hb_code_2026": "E54000048",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.043603,
+          52.093218
+        ]
+      },
+      "properties": {
+        "id": "CMP5-1",
+        "name": "Bassingbourn Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 7,
+        "combined_practice": "Bassingbourn Combined Medical Practice",
+        "active_dmicp_id": "2933",
+        "legacy_dmicp_id": "2933",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SG8 5LX",
+        "par": "3000",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000056",
+        "icb_hb_code_2026": "E54000065",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.087966,
+          51.612999
+        ]
+      },
+      "properties": {
+        "id": "CMP1-1",
+        "name": "Benson Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 8,
+        "combined_practice": "Benson Combined Medical Practice",
+        "active_dmicp_id": "1083",
+        "legacy_dmicp_id": "1083",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "OX10 6AA",
+        "par": "3124",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.107154,
+          51.844854
+        ]
+      },
+      "properties": {
+        "id": "CMP6-2",
+        "name": "Bicester Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 9,
+        "combined_practice": "Brize Norton Combined Medical Practice",
+        "active_dmicp_id": "823",
+        "legacy_dmicp_id": "5405",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "OX25 1PP",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.080036,
+          50.439417
+        ]
+      },
+      "properties": {
+        "id": "CMP7-1",
+        "name": "Bickleigh Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 10,
+        "combined_practice": "Stonehouse Combined Medical Practice",
+        "active_dmicp_id": "60000",
+        "legacy_dmicp_id": "60000",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PL6 7AJ",
+        "par": "1425",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.942145,
+          52.449823
+        ]
+      },
+      "properties": {
+        "id": "CMP8-2",
+        "name": "Birmingham BMF Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 11,
+        "combined_practice": "Lichfield Combined Medical Practice",
+        "active_dmicp_id": "2939",
+        "legacy_dmicp_id": "24682",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "B15 2WB",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000055",
+        "icb_hb_code_2026": "E54000055",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.125101,
+          50.868295
+        ]
+      },
+      "properties": {
+        "id": "CMP9-2",
+        "name": "Blandford Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 12,
+        "combined_practice": "Bovington Combined Medical Practice",
+        "active_dmicp_id": "6677",
+        "legacy_dmicp_id": "2942",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "DT11 8RH",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000041",
+        "icb_hb_code_2026": "E54000041",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.24077,
+          50.70167
+        ]
+      },
+      "properties": {
+        "id": "CMP9-1",
+        "name": "Bovington Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 13,
+        "combined_practice": "Bovington Combined Medical Practice",
+        "active_dmicp_id": "6677",
+        "legacy_dmicp_id": "6677",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BH20 6JA",
+        "par": "1877",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000041",
+        "icb_hb_code_2026": "E54000041",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.581669,
+          51.762307
+        ]
+      },
+      "properties": {
+        "id": "CMP6-1",
+        "name": "Brize Norton Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 14,
+        "combined_practice": "Brize Norton Combined Medical Practice",
+        "active_dmicp_id": "823",
+        "legacy_dmicp_id": "823",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "OX18 3LX",
+        "par": "4910",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.746596,
+          54.372922
+        ]
+      },
+      "properties": {
+        "id": "CMP4-1",
+        "name": "Catterick Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 15,
+        "combined_practice": "Catterick Combined Medical Practice",
+        "active_dmicp_id": "1107",
+        "legacy_dmicp_id": "1107",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "DL9 3PZ",
+        "par": "8348",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.97747,
+          50.501272
+        ]
+      },
+      "properties": {
+        "id": "CMP18-2",
+        "name": "Central European Practice Med Cent",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 16,
+        "combined_practice": "Defence Global [Combined] Practice Europe",
+        "active_dmicp_id": "34062",
+        "legacy_dmicp_id": "30034",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "BF1 2AG",
+        "par": "2",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.533372,
+          51.392443
+        ]
+      },
+      "properties": {
+        "id": "CMP10-1",
+        "name": "Chatham Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 17,
+        "combined_practice": "Kent Combined Medical Practice",
+        "active_dmicp_id": "6959",
+        "legacy_dmicp_id": "6959",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "ME4 4UG",
+        "par": "1801",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000032",
+        "icb_hb_code_2026": "E54000032",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.363148,
+          52.044822
+        ]
+      },
+      "properties": {
+        "id": "CMP5-2",
+        "name": "Chicksands Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 18,
+        "combined_practice": "Bassingbourn Combined Medical Practice",
+        "active_dmicp_id": "2933",
+        "legacy_dmicp_id": "3528",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SG17 5PR",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000024",
+        "icb_hb_code_2026": "E54000065",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.895208,
+          51.874162
+        ]
+      },
+      "properties": {
+        "id": "CMP11-1",
+        "name": "Colchester Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 19,
+        "combined_practice": "Colchester Combined Medical Practice",
+        "active_dmicp_id": "3304",
+        "legacy_dmicp_id": "3304",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "CO2 7UT",
+        "par": "5449",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000023",
+        "icb_hb_code_2026": "E54000066",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.188356,
+          50.834302
+        ]
+      },
+      "properties": {
+        "id": "CMP12-2",
+        "name": "Collingwood Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 20,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "3831",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PO14 1AS",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.633846,
+          56.585495
+        ]
+      },
+      "properties": {
+        "id": "CMP25-2",
+        "name": "Condor Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 21,
+        "combined_practice": "East of Scotland Combined Medical Practice",
+        "active_dmicp_id": "3927",
+        "legacy_dmicp_id": "3927",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "DD11 3SJ",
+        "par": "415",
+        "coordinate_source": "csv",
+        "icb_hb_code": "03",
+        "icb_hb_code_2026": "03",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.177841,
+          53.098303
+        ]
+      },
+      "properties": {
+        "id": "CMP14-2",
+        "name": "Coningsby Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 22,
+        "combined_practice": "Lincolnshire Combined Medical Practice",
+        "active_dmicp_id": "2669",
+        "legacy_dmicp_id": "2339",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "LN4 4SY",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000013",
+        "icb_hb_code_2026": "E54000013",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.298643,
+          52.646185
+        ]
+      },
+      "properties": {
+        "id": "CMP15-1",
+        "name": "Cosford Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 23,
+        "combined_practice": "Shropshire Combined Medical Practice",
+        "active_dmicp_id": "2403",
+        "legacy_dmicp_id": "2403",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "WV7 3EX",
+        "par": "4264",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000011",
+        "icb_hb_code_2026": "E54000011",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.650205,
+          52.72611
+        ]
+      },
+      "properties": {
+        "id": "CMP16-1",
+        "name": "Cottesmore Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 24,
+        "combined_practice": "Cottesmore Combined Medical Practice",
+        "active_dmicp_id": "1501",
+        "legacy_dmicp_id": "1501",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "LE15 7BL",
+        "par": "3327",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000015",
+        "icb_hb_code_2026": "E54000015",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.506423,
+          53.033918
+        ]
+      },
+      "properties": {
+        "id": "CMP14-3",
+        "name": "Cranwell Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 25,
+        "combined_practice": "Lincolnshire Combined Medical Practice",
+        "active_dmicp_id": "2669",
+        "legacy_dmicp_id": "2804",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "NG34 8HB",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000013",
+        "icb_hb_code_2026": "E54000013",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.257836,
+          50.081765
+        ]
+      },
+      "properties": {
+        "id": "CMP17-1",
+        "name": "Culdrose Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 26,
+        "combined_practice": "Culdrose Combined Medical Practice",
+        "active_dmicp_id": "815",
+        "legacy_dmicp_id": "815",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "TR12 7RH",
+        "par": "1512",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000036",
+        "icb_hb_code_2026": "E54000036",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.775152,
+          52.661245
+        ]
+      },
+      "properties": {
+        "id": "CMP18-3",
+        "name": "Defence Global Practice Europe",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 27,
+        "combined_practice": "Defence Global [Combined] Practice Europe",
+        "active_dmicp_id": "34062",
+        "legacy_dmicp_id": "34062",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "WS14 9PY",
+        "par": "3589",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000010",
+        "icb_hb_code_2026": "E54000010",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.775152,
+          52.661245
+        ]
+      },
+      "properties": {
+        "id": "CMP18-1",
+        "name": "Defence Global Practice Med Cent",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 28,
+        "combined_practice": "Defence Global [Combined] Practice Europe",
+        "active_dmicp_id": "34062",
+        "legacy_dmicp_id": "34062",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "WS14 9PY",
+        "par": "3589",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000010",
+        "icb_hb_code_2026": "E54000010",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          33.773333,
+          35.0175
+        ]
+      },
+      "properties": {
+        "id": "CMP3-1",
+        "name": "Dhekelia Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 29,
+        "combined_practice": "ESBA Combined Medical Practice",
+        "active_dmicp_id": "24405",
+        "legacy_dmicp_id": "24405",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 2AU",
+        "par": "1717",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.090023,
+          50.815717
+        ]
+      },
+      "properties": {
+        "id": "CMP12-3",
+        "name": "Excellent Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 30,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "3929",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PO2 8EW",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.208202,
+          52.732459
+        ]
+      },
+      "properties": {
+        "id": "CMP16-3",
+        "name": "Garats Hay Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 31,
+        "combined_practice": "Cottesmore Combined Medical Practice",
+        "active_dmicp_id": "1501",
+        "legacy_dmicp_id": "-",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "LE12 8WD",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000015",
+        "icb_hb_code_2026": "E54000015",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.842606,
+          54.623893
+        ]
+      },
+      "properties": {
+        "id": "CMP19-2",
+        "name": "Holywood Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 32,
+        "combined_practice": "Northern Ireland Combined Medical Practice",
+        "active_dmicp_id": "2341",
+        "legacy_dmicp_id": "6991",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "BT18 9FD",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "SEHSCT",
+        "icb_hb_code_2026": "SEHSCT",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.776312,
+          52.335282
+        ]
+      },
+      "properties": {
+        "id": "CMP20-2",
+        "name": "Honington Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 33,
+        "combined_practice": "Marham Combined Medical Practice",
+        "active_dmicp_id": "669",
+        "legacy_dmicp_id": "954",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "IP31 1EE",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000023",
+        "icb_hb_code_2026": "E54000068",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.163264,
+          51.502268
+        ]
+      },
+      "properties": {
+        "id": "CMP21-2",
+        "name": "Hyde Park Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 34,
+        "combined_practice": "London Combined Medical Practice",
+        "active_dmicp_id": "34064",
+        "legacy_dmicp_id": "2930",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SW7 1SE",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000027",
+        "icb_hb_code_2026": "E54000071",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.716502,
+          54.364056
+        ]
+      },
+      "properties": {
+        "id": "CMP4-3",
+        "name": "ITC Catterick Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 35,
+        "combined_practice": "Catterick Combined Medical Practice",
+        "active_dmicp_id": "1107",
+        "legacy_dmicp_id": "3111",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "DL9 3PS",
+        "par": "1",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.320533,
+          27.67022
+        ]
+      },
+      "properties": {
+        "id": "CMP22-1",
+        "name": "Kathmandu Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 36,
+        "combined_practice": "Nepal Combined Medical Practice",
+        "active_dmicp_id": "23587",
+        "legacy_dmicp_id": "23587",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 3AD",
+        "par": "176",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.266062,
+          55.858611
+        ]
+      },
+      "properties": {
+        "id": "CMP29-2",
+        "name": "Kentigern House Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 37,
+        "combined_practice": "West of Scotland Combined Medical Practice",
+        "active_dmicp_id": "60003",
+        "legacy_dmicp_id": "60003",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "G2 8EX",
+        "par": "315",
+        "coordinate_source": "csv",
+        "icb_hb_code": "16",
+        "icb_hb_code_2026": "16",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.557308,
+          57.639587
+        ]
+      },
+      "properties": {
+        "id": "CMP24-2",
+        "name": "Kinloss Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 38,
+        "combined_practice": "North of Scotland Combined Medical Practice",
+        "active_dmicp_id": "2410",
+        "legacy_dmicp_id": "2409",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "IV36 3UH",
+        "par": "1",
+        "coordinate_source": "csv",
+        "icb_hb_code": "02",
+        "icb_hb_code_2026": "02",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.882212,
+          56.379092
+        ]
+      },
+      "properties": {
+        "id": "CMP25-1",
+        "name": "Leuchars Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 39,
+        "combined_practice": "East of Scotland Combined Medical Practice",
+        "active_dmicp_id": "2412",
+        "legacy_dmicp_id": "2412",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "KY16 0JX",
+        "par": "963",
+        "coordinate_source": "csv",
+        "icb_hb_code": "04",
+        "icb_hb_code_2026": "04",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.775152,
+          52.661245
+        ]
+      },
+      "properties": {
+        "id": "CMP8-1",
+        "name": "Lichfield Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 40,
+        "combined_practice": "Lichfield Combined Medical Practice",
+        "active_dmicp_id": "2939",
+        "legacy_dmicp_id": "2939",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "WS14 9PY",
+        "par": "1447",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000010",
+        "icb_hb_code_2026": "E54000010",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.051303,
+          54.526605
+        ]
+      },
+      "properties": {
+        "id": "CMP19-3",
+        "name": "Lisburn Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 41,
+        "combined_practice": "Northern Ireland Combined Medical Practice",
+        "active_dmicp_id": "2341",
+        "legacy_dmicp_id": "8365",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "BT28 3FQ",
+        "par": "1247",
+        "coordinate_source": "csv",
+        "icb_hb_code": "SEHSCT",
+        "icb_hb_code_2026": "SEHSCT",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.136824,
+          51.499117
+        ]
+      },
+      "properties": {
+        "id": "CMP21-1",
+        "name": "London Central Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 42,
+        "combined_practice": "London Combined Medical Practice",
+        "active_dmicp_id": "34064",
+        "legacy_dmicp_id": "34064",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SW1H 9EU",
+        "par": "3227",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000027",
+        "icb_hb_code_2026": "E54000071",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.30791,
+          57.710353
+        ]
+      },
+      "properties": {
+        "id": "CMP24-1",
+        "name": "Lossiemouth Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 43,
+        "combined_practice": "North of Scotland Combined Medical Practice",
+        "active_dmicp_id": "2410",
+        "legacy_dmicp_id": "2410",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "IV31 6SD",
+        "par": "3232",
+        "coordinate_source": "csv",
+        "icb_hb_code": "02",
+        "icb_hb_code_2026": "02",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.969219,
+          51.505698
+        ]
+      },
+      "properties": {
+        "id": "CMP26-1",
+        "name": "Lyneham Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 44,
+        "combined_practice": "Barbary Combined Medical Practice",
+        "active_dmicp_id": "835",
+        "legacy_dmicp_id": "835",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SN15 4XX",
+        "par": "4323",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.519278,
+          51.288403
+        ]
+      },
+      "properties": {
+        "id": "CMP10-2",
+        "name": "Maidstone Invicta Park Medical Cent",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 45,
+        "combined_practice": "Kent Combined Medical Practice",
+        "active_dmicp_id": "6959",
+        "legacy_dmicp_id": "6958",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "ME14 2NA",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000032",
+        "icb_hb_code_2026": "E54000032",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.440258,
+          50.892497
+        ]
+      },
+      "properties": {
+        "id": "CMP27-2",
+        "name": "Marchwood Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 46,
+        "combined_practice": "Winchester Combined Medical Practice",
+        "active_dmicp_id": "34065",
+        "legacy_dmicp_id": "8693",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SO40 4ZG",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.546972,
+          52.656987
+        ]
+      },
+      "properties": {
+        "id": "CMP20-1",
+        "name": "Marham Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 47,
+        "combined_practice": "Marham Combined Medical Practice",
+        "active_dmicp_id": "669",
+        "legacy_dmicp_id": "669",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PE33 9NP",
+        "par": "2963",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000022",
+        "icb_hb_code_2026": "E54000068",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.893457,
+          51.858655
+        ]
+      },
+      "properties": {
+        "id": "CMP11-2",
+        "name": "MCTC Colchester Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 48,
+        "combined_practice": "Colchester Combined Medical Practice",
+        "active_dmicp_id": "3304",
+        "legacy_dmicp_id": "7149",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "CO2 9NU",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000023",
+        "icb_hb_code_2026": "E54000066",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.572082,
+          51.150359
+        ]
+      },
+      "properties": {
+        "id": "CMP28-2",
+        "name": "Middle Wallop Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 49,
+        "combined_practice": "Tidworth Combined Medical Practice",
+        "active_dmicp_id": "1106",
+        "legacy_dmicp_id": "3273",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SO20 8DY",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.819563,
+          51.318009
+        ]
+      },
+      "properties": {
+        "id": "CMP2-2",
+        "name": "Minley Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 50,
+        "combined_practice": "Aldershot Combined Medical Practice",
+        "active_dmicp_id": "2979",
+        "legacy_dmicp_id": "5406",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "GU17 9LP",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000034",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.095282,
+          50.800686
+        ]
+      },
+      "properties": {
+        "id": "CMP12-1",
+        "name": "Nelson Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 51,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "3643",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PO1 3HH",
+        "par": "10428",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.815982190162782,
+          56.05441500076834
+        ]
+      },
+      "properties": {
+        "id": "CMP29-1",
+        "name": "Neptune Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 52,
+        "combined_practice": "West of Scotland Combined Medical Practice",
+        "active_dmicp_id": "3453",
+        "legacy_dmicp_id": "3453",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "G84 8HL",
+        "par": "1821",
+        "coordinate_source": "csv",
+        "icb_hb_code": "17",
+        "icb_hb_code_2026": "17",
+        "lon_original": -4.817246,
+        "lat_original": 56.053009,
+        "snapped_to_land": true,
+        "snap_distance_m": 175.1263640577822,
+        "snap_basis": "assigned_2026_boundary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.409419,
+          51.558046
+        ]
+      },
+      "properties": {
+        "id": "CMP30-2",
+        "name": "Northolt Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 53,
+        "combined_practice": "Middlesex Combined Medical Practice",
+        "active_dmicp_id": "2631",
+        "legacy_dmicp_id": "2819",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "HA4 6NG",
+        "par": "2",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000027",
+        "icb_hb_code_2026": "E54000071",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.409541,
+          51.619446
+        ]
+      },
+      "properties": {
+        "id": "CMP30-1",
+        "name": "Northwood Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 54,
+        "combined_practice": "Middlesex Combined Medical Practice",
+        "active_dmicp_id": "2631",
+        "legacy_dmicp_id": "2631",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HA6 3HP",
+        "par": "2384",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000025",
+        "icb_hb_code_2026": "E54000065",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.663479,
+          51.303707
+        ]
+      },
+      "properties": {
+        "id": "CMP31-1",
+        "name": "Pirbright Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 55,
+        "combined_practice": "Pirbright Combined Medical Practice",
+        "active_dmicp_id": "2402",
+        "legacy_dmicp_id": "2402",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "GU24 0QQ",
+        "par": "3441",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000063",
+        "icb_hb_code_2026": "E54000069",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          85.320533,
+          27.67022
+        ]
+      },
+      "properties": {
+        "id": "CMP22-2",
+        "name": "Pokhara Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 56,
+        "combined_practice": "Nepal Combined Medical Practice",
+        "active_dmicp_id": "23587",
+        "legacy_dmicp_id": null,
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "BFPO 4",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.662981,
+          52.797208
+        ]
+      },
+      "properties": {
+        "id": "CMP15-2",
+        "name": "Shawbury Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 57,
+        "combined_practice": "Shropshire Combined Medical Practice",
+        "active_dmicp_id": "2403",
+        "legacy_dmicp_id": "2411",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SY4 4DZ",
+        "par": "19",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000011",
+        "icb_hb_code_2026": "E54000011",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.136795,
+          51.079109
+        ]
+      },
+      "properties": {
+        "id": "CMP10-3",
+        "name": "Shorncliffe Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 58,
+        "combined_practice": "Kent Combined Medical Practice",
+        "active_dmicp_id": "6959",
+        "legacy_dmicp_id": "6966",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "CT20 3HF",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000032",
+        "icb_hb_code_2026": "E54000032",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.638748,
+          51.603504
+        ]
+      },
+      "properties": {
+        "id": "CMP26-2",
+        "name": "Shrivenham Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 59,
+        "combined_practice": "Barbary Combined Medical Practice",
+        "active_dmicp_id": "835",
+        "legacy_dmicp_id": "5343",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SN6 8LA",
+        "par": "8",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.101913,
+          50.875206
+        ]
+      },
+      "properties": {
+        "id": "CMP12-4",
+        "name": "Southwick Park Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 60,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "7285",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PO17 6EJ",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.004909,
+          50.437741
+        ]
+      },
+      "properties": {
+        "id": "CMP17-2",
+        "name": "St Mawgan Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 61,
+        "combined_practice": "Culdrose Combined Medical Practice",
+        "active_dmicp_id": "815",
+        "legacy_dmicp_id": "2772",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "TR8 4HP",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000036",
+        "icb_hb_code_2026": "E54000036",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.161626,
+          50.366208
+        ]
+      },
+      "properties": {
+        "id": "CMP7-2",
+        "name": "Stonehouse Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 62,
+        "combined_practice": "Stonehouse Combined Medical Practice",
+        "active_dmicp_id": "60000",
+        "legacy_dmicp_id": "3627",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PL1 3QS",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.160691,
+          50.80273
+        ]
+      },
+      "properties": {
+        "id": "CMP12-5",
+        "name": "Sultan Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 63,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "3287",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PO12 3BY",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.538599,
+          52.87931
+        ]
+      },
+      "properties": {
+        "id": "CMP15-3",
+        "name": "Tern Hill Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 64,
+        "combined_practice": "Shropshire Combined Medical Practice",
+        "active_dmicp_id": "2403",
+        "legacy_dmicp_id": "2872",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "TF9 3QE",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000011",
+        "icb_hb_code_2026": "E54000011",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.137937,
+          50.365387
+        ]
+      },
+      "properties": {
+        "id": "CMP7-3c",
+        "name": "The Royal Citadel Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 0,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 65,
+        "combined_practice": "Stonehouse Combined Medical Practice",
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": "6978",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "PL1 2PD",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.928152,
+          50.820916
+        ]
+      },
+      "properties": {
+        "id": "CMP12-6",
+        "name": "Thorney Island Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 66,
+        "combined_practice": "Portsmouth Combined Medical Practice",
+        "active_dmicp_id": "3643",
+        "legacy_dmicp_id": "7284",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PO10 8DH",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000064",
+        "icb_hb_code_2026": "E54000069",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.670165,
+          51.23396
+        ]
+      },
+      "properties": {
+        "id": "CMP28-1",
+        "name": "Tidworth Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 67,
+        "combined_practice": "Tidworth Combined Medical Practice",
+        "active_dmicp_id": "1106",
+        "legacy_dmicp_id": "1106",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SP9 7EA",
+        "par": "10385",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.530547,
+          53.172599
+        ]
+      },
+      "properties": {
+        "id": "CMP14-1",
+        "name": "Waddington Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 68,
+        "combined_practice": "Lincolnshire Combined Medical Practice",
+        "active_dmicp_id": "2669",
+        "legacy_dmicp_id": "2669",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "LN5 9NB",
+        "par": "6691",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000013",
+        "icb_hb_code_2026": "E54000013",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.967761,
+          52.122798
+        ]
+      },
+      "properties": {
+        "id": "CMP11-3",
+        "name": "Wattisham Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 69,
+        "combined_practice": "Colchester Combined Medical Practice",
+        "active_dmicp_id": "3304",
+        "legacy_dmicp_id": "5267",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "IP7 7RA",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000023",
+        "icb_hb_code_2026": "E54000068",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.284164,
+          51.987568
+        ]
+      },
+      "properties": {
+        "id": "CMP5-3",
+        "name": "Wimbish Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 70,
+        "combined_practice": "Bassingbourn Combined Medical Practice",
+        "active_dmicp_id": "2933",
+        "legacy_dmicp_id": "8924",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "CB10 2YA",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000025",
+        "icb_hb_code_2026": "E54000066",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.338352,
+          51.090291
+        ]
+      },
+      "properties": {
+        "id": "CMP27-1",
+        "name": "Winchester Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 71,
+        "combined_practice": "Winchester Combined Medical Practice",
+        "active_dmicp_id": "34065",
+        "legacy_dmicp_id": "34065",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SO22 6NQ",
+        "par": "2102",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.616312,
+          51.472834
+        ]
+      },
+      "properties": {
+        "id": "CMP31-2",
+        "name": "Windsor Combermere Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 72,
+        "combined_practice": "Pirbright Combined Medical Practice",
+        "active_dmicp_id": "2402",
+        "legacy_dmicp_id": "2934",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SL4 3DN",
+        "par": "1",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000034",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.606653,
+          51.478915
+        ]
+      },
+      "properties": {
+        "id": "CMP31-3c",
+        "name": "Windsor Victoria Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 0,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 73,
+        "combined_practice": "Pirbright Combined Medical Practice",
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": "3451",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "SL4 1HF",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000034",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.44689,
+          52.615573
+        ]
+      },
+      "properties": {
+        "id": "CMP16-2",
+        "name": "Wittering Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 74,
+        "combined_practice": "Cottesmore Combined Medical Practice",
+        "active_dmicp_id": "1501",
+        "legacy_dmicp_id": "614",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PE8 6HB",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000056",
+        "icb_hb_code_2026": "E54000065",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.394165,
+          52.082341
+        ]
+      },
+      "properties": {
+        "id": "CMP11-4",
+        "name": "Woodbridge Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 75,
+        "combined_practice": "Colchester Combined Medical Practice",
+        "active_dmicp_id": "3304",
+        "legacy_dmicp_id": "14073",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "IP12 3TW",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000023",
+        "icb_hb_code_2026": "E54000068",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.054348,
+          51.484908
+        ]
+      },
+      "properties": {
+        "id": "CMP21-3",
+        "name": "Woolwich Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 76,
+        "combined_practice": "London Combined Medical Practice",
+        "active_dmicp_id": "34064",
+        "legacy_dmicp_id": "3405",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SE18 4BW",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000030",
+        "icb_hb_code_2026": "E54000030",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.323386,
+          51.112956
+        ]
+      },
+      "properties": {
+        "id": "CMP27-3",
+        "name": "Worthy Down Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 77,
+        "combined_practice": "Winchester Combined Medical Practice",
+        "active_dmicp_id": "34065",
+        "legacy_dmicp_id": "5164",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "SO21 2RG",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.116087,
+          52.347421
+        ]
+      },
+      "properties": {
+        "id": "CMP5-4",
+        "name": "Wyton Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 1,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 78,
+        "combined_practice": "Bassingbourn Combined Medical Practice",
+        "active_dmicp_id": "2933",
+        "legacy_dmicp_id": "2413",
+        "status": "Open",
+        "parent": "Child",
+        "postcode": "PE28 2EA",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000056",
+        "icb_hb_code_2026": "E54000065",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.5590621,
+          51.502831
+        ]
+      },
+      "properties": {
+        "id": "SSMP1",
+        "name": "Abbey Wood Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 79,
+        "combined_practice": "Abbey Wood Medical Centre",
+        "active_dmicp_id": "7025",
+        "legacy_dmicp_id": "7025",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BS34 8JH",
+        "par": "1357",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000039",
+        "icb_hb_code_2026": "E54000039",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.987778,
+          34.590278
+        ]
+      },
+      "properties": {
+        "id": "SSMP2",
+        "name": "Akrotiri Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 80,
+        "combined_practice": "Akrotiri Medical Centre",
+        "active_dmicp_id": "24406",
+        "legacy_dmicp_id": "24406",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 2AT",
+        "par": "2087",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.8717615,
+          55.017343
+        ]
+      },
+      "properties": {
+        "id": "SSMP3",
+        "name": "Albemarle Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 81,
+        "combined_practice": "Albemarle Medical Centre",
+        "active_dmicp_id": "4399",
+        "legacy_dmicp_id": "4399",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "NE15 0RF",
+        "par": "514",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000050",
+        "icb_hb_code_2026": "E54000050",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -14.39369965,
+          -7.969600201
+        ]
+      },
+      "properties": {
+        "id": "SSMP4",
+        "name": "Ascension Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 82,
+        "combined_practice": "Ascension Medical Centre",
+        "active_dmicp_id": "20012",
+        "legacy_dmicp_id": "20012",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 6EX",
+        "par": "38",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.6008912,
+          55.423054
+        ]
+      },
+      "properties": {
+        "id": "SSMP5",
+        "name": "Boulmer Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 83,
+        "combined_practice": "Boulmer Medical Centre",
+        "active_dmicp_id": "2919",
+        "legacy_dmicp_id": "2919",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "NE66 3JF",
+        "par": "528",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000050",
+        "icb_hb_code_2026": "E54000050",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.3991764,
+          52.49329
+        ]
+      },
+      "properties": {
+        "id": "SSMP6",
+        "name": "Bramcote Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 84,
+        "combined_practice": "Bramcote Medical Centre",
+        "active_dmicp_id": "4151",
+        "legacy_dmicp_id": "4151",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "CV11 6QN",
+        "par": "792",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000018",
+        "icb_hb_code_2026": "E54000018",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.129105,
+          51.878705
+        ]
+      },
+      "properties": {
+        "id": "SSMP7",
+        "name": "Brawdy Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 85,
+        "combined_practice": "Brawdy Medical Centre",
+        "active_dmicp_id": "4153",
+        "legacy_dmicp_id": "4153",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SA62 6NN",
+        "par": "444",
+        "coordinate_source": "csv",
+        "icb_hb_code": "W11000025",
+        "icb_hb_code_2026": "W11000025",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.3650808,
+          51.942207
+        ]
+      },
+      "properties": {
+        "id": "SSMP8",
+        "name": "Brecon Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 86,
+        "combined_practice": "Brecon Medical Centre",
+        "active_dmicp_id": "4372",
+        "legacy_dmicp_id": "4372",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "LD3 7RA",
+        "par": "445",
+        "coordinate_source": "csv",
+        "icb_hb_code": "W11000024",
+        "icb_hb_code_2026": "W11000024",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.583057,
+          50.357502
+        ]
+      },
+      "properties": {
+        "id": "SSMP9",
+        "name": "Britannia Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 87,
+        "combined_practice": "Britannia Medical Centre",
+        "active_dmicp_id": "3593",
+        "legacy_dmicp_id": "3593",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "TQ6 0HJ",
+        "par": "654",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.7349585,
+          51.19456
+        ]
+      },
+      "properties": {
+        "id": "SSMP10",
+        "name": "Bulford Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 88,
+        "combined_practice": "Bulford Medical Centre",
+        "active_dmicp_id": "2401",
+        "legacy_dmicp_id": "2401",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SP4 9AD",
+        "par": "4302",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.488782901767632,
+          51.699749616820085
+        ]
+      },
+      "properties": {
+        "id": "SSMP11",
+        "name": "Chepstow Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 89,
+        "combined_practice": "Chepstow Medical Centre",
+        "active_dmicp_id": "2932",
+        "legacy_dmicp_id": "2932",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "NP16 7YG",
+        "par": "561",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000043",
+        "icb_hb_code_2026": "E54000043",
+        "lon_original": -2.6514022,
+        "lat_original": 51.620197,
+        "snapped_to_land": true,
+        "snap_distance_m": 14301.401558873215,
+        "snap_basis": "assigned_2026_boundary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.8950533,
+          53.225272
+        ]
+      },
+      "properties": {
+        "id": "SSMP12",
+        "name": "Chester Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 90,
+        "combined_practice": "Chester Medical Centre",
+        "active_dmicp_id": "4036",
+        "legacy_dmicp_id": "4036",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "CH2 4BD",
+        "par": "470",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000008",
+        "icb_hb_code_2026": "E54000008",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.2435295,
+          52.912411
+        ]
+      },
+      "properties": {
+        "id": "SSMP13",
+        "name": "Chilwell Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 0,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 91,
+        "combined_practice": "Chilwell Medical Centre",
+        "active_dmicp_id": "2938",
+        "legacy_dmicp_id": "2938",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "NG9 5HA",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000060",
+        "icb_hb_code_2026": "E54000060",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.1413426,
+          51.093047
+        ]
+      },
+      "properties": {
+        "id": "SSMP14",
+        "name": "Chivenor Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 92,
+        "combined_practice": "Chivenor Medical Centre",
+        "active_dmicp_id": "3832",
+        "legacy_dmicp_id": "3832",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "EX31 4AZ",
+        "par": "863",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.1854955,
+          51.434396
+        ]
+      },
+      "properties": {
+        "id": "SSMP15",
+        "name": "Corsham Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 93,
+        "combined_practice": "Corsham Medical Centre",
+        "active_dmicp_id": "2922",
+        "legacy_dmicp_id": "2922",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SN13 9NR",
+        "par": "473",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.4095393,
+          54.13471
+        ]
+      },
+      "properties": {
+        "id": "SSMP16",
+        "name": "Dishforth Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 94,
+        "combined_practice": "Dishforth Medical Centre",
+        "active_dmicp_id": "5344",
+        "legacy_dmicp_id": "5344",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "YO7 3EZ",
+        "par": "1637",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.181235,
+          50.39027
+        ]
+      },
+      "properties": {
+        "id": "SSMP17",
+        "name": "Drake Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 95,
+        "combined_practice": "Drake Medical Centre",
+        "active_dmicp_id": "4011",
+        "legacy_dmicp_id": "4011",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PL2 2BG",
+        "par": "3041",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          32.8375,
+          34.676
+        ]
+      },
+      "properties": {
+        "id": "SSMP18",
+        "name": "Episkopi Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 96,
+        "combined_practice": "Episkopi Medical Centre",
+        "active_dmicp_id": "24404",
+        "legacy_dmicp_id": "24404",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 2AS",
+        "par": "1680",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.45,
+          -51.8167
+        ]
+      },
+      "properties": {
+        "id": "SSMP19",
+        "name": "Falkland Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 97,
+        "combined_practice": "Falkland Medical Centre",
+        "active_dmicp_id": "24371",
+        "legacy_dmicp_id": "24371",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 6DU",
+        "par": "1117",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.213725534234627,
+          57.493244854010534
+        ]
+      },
+      "properties": {
+        "id": "SSMP20",
+        "name": "Fort George Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 0,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 98,
+        "combined_practice": "Fort George Medical Centre",
+        "active_dmicp_id": "4398",
+        "legacy_dmicp_id": "4398",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "IV2 7TE",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "17",
+        "icb_hb_code_2026": "17",
+        "lon_original": -4.0695398,
+        "lat_original": 57.58293,
+        "snapped_to_land": true,
+        "snap_distance_m": 13186.910332058624,
+        "snap_basis": "assigned_current_boundary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.67001053,
+          54.359123
+        ]
+      },
+      "properties": {
+        "id": "SSMP21",
+        "name": "Fylingdales Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 0,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 99,
+        "combined_practice": "Fylingdales Medical Centre",
+        "active_dmicp_id": "7842",
+        "legacy_dmicp_id": "7842",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "YO18 7NT",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.346807746,
+          36.13881338
+        ]
+      },
+      "properties": {
+        "id": "SSMP22",
+        "name": "Gibraltar Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 100,
+        "combined_practice": "Gibraltar Medical Centre",
+        "active_dmicp_id": "3288",
+        "legacy_dmicp_id": "3288",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 2AR",
+        "par": "648",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.72789176,
+          51.774854
+        ]
+      },
+      "properties": {
+        "id": "SSMP23",
+        "name": "Halton Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 101,
+        "combined_practice": "Halton Medical Centre",
+        "active_dmicp_id": "504",
+        "legacy_dmicp_id": "504",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HP22 5PG",
+        "par": "1877",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.0255312,
+          50.720369
+        ]
+      },
+      "properties": {
+        "id": "SSMP24",
+        "name": "Hamworthy Napier Road Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 102,
+        "combined_practice": "Hamworthy Napier Road Medical Centre",
+        "active_dmicp_id": "3834",
+        "legacy_dmicp_id": "3834",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BH15 4NQ",
+        "par": "1193",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000041",
+        "icb_hb_code_2026": "E54000041",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.5979765,
+          53.994965
+        ]
+      },
+      "properties": {
+        "id": "SSMP25",
+        "name": "Harrogate Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 103,
+        "combined_practice": "Harrogate Medical Centre",
+        "active_dmicp_id": "4685",
+        "legacy_dmicp_id": "4685",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HG3 2SE",
+        "par": "2404",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.790556,
+          52.086287
+        ]
+      },
+      "properties": {
+        "id": "SSMP26",
+        "name": "Hereford Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 104,
+        "combined_practice": "Hereford Medical Centre",
+        "active_dmicp_id": "3091",
+        "legacy_dmicp_id": "3091",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HR4 7DD",
+        "par": "1878",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000019",
+        "icb_hb_code_2026": "E54000019",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.79109109,
+          51.674806
+        ]
+      },
+      "properties": {
+        "id": "SSMP27",
+        "name": "High Wycombe Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 105,
+        "combined_practice": "High Wycombe Medical Centre",
+        "active_dmicp_id": "2927",
+        "legacy_dmicp_id": "2927",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HP14 4UF",
+        "par": "1837",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000044",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.3894816,
+          51.467339
+        ]
+      },
+      "properties": {
+        "id": "SSMP28",
+        "name": "Hounslow Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 0,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 106,
+        "combined_practice": "Hounslow Medical Centre",
+        "active_dmicp_id": "3334",
+        "legacy_dmicp_id": "3334",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "TW4 6HD",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000027",
+        "icb_hb_code_2026": "E54000071",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.0736816,
+          53.943884
+        ]
+      },
+      "properties": {
+        "id": "SSMP29",
+        "name": "Imphal Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 107,
+        "combined_practice": "Imphal Medical Centre",
+        "active_dmicp_id": "5265",
+        "legacy_dmicp_id": "5265",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "YO10 4HD",
+        "par": "939",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.198252,
+          51.890168
+        ]
+      },
+      "properties": {
+        "id": "SSMP30",
+        "name": "Innsworth Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 108,
+        "combined_practice": "Innsworth Medical Centre",
+        "active_dmicp_id": "19444",
+        "legacy_dmicp_id": "19444",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "GL3 1HW",
+        "par": "1373",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000043",
+        "icb_hb_code_2026": "E54000043",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.4465049,
+          52.163523
+        ]
+      },
+      "properties": {
+        "id": "SSMP31",
+        "name": "Kineton Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 0,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 109,
+        "combined_practice": "Kineton Medical Centre",
+        "active_dmicp_id": "8694",
+        "legacy_dmicp_id": "8694",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "CV47 2UL",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000018",
+        "icb_hb_code_2026": "E54000018",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.8211972,
+          51.197673
+        ]
+      },
+      "properties": {
+        "id": "SSMP32",
+        "name": "Larkhill Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 110,
+        "combined_practice": "Larkhill Medical Centre",
+        "active_dmicp_id": "2877",
+        "legacy_dmicp_id": "2877",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "SP4 8QY",
+        "par": "4244",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.44896083,
+          53.878323
+        ]
+      },
+      "properties": {
+        "id": "SSMP33",
+        "name": "Leconfield Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 111,
+        "combined_practice": "Leconfield Medical Centre",
+        "active_dmicp_id": "6977",
+        "legacy_dmicp_id": "6977",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "HU17 7LX",
+        "par": "622",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.5233494,
+          54.291658
+        ]
+      },
+      "properties": {
+        "id": "SSMP34",
+        "name": "Leeming Medical Centre",
+        "type": "pmc-facility",
+        "region": "North",
+        "default_visible": 1,
+        "point_color_hex": "#a7c636",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 112,
+        "combined_practice": "Leeming Medical Centre",
+        "active_dmicp_id": "809",
+        "legacy_dmicp_id": "809",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "DL7 9NJ",
+        "par": "1940",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000051",
+        "icb_hb_code_2026": "E54000051",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.4349285,
+          50.664197
+        ]
+      },
+      "properties": {
+        "id": "SSMP35",
+        "name": "Lympstone Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 113,
+        "combined_practice": "Lympstone Medical Centre",
+        "active_dmicp_id": "3647",
+        "legacy_dmicp_id": "3647",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "EX8 5AR",
+        "par": "1927",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.977470094,
+          50.50127229
+        ]
+      },
+      "properties": {
+        "id": "SSMP36",
+        "name": "Mons Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 114,
+        "combined_practice": "Mons Medical Centre",
+        "active_dmicp_id": "11498",
+        "legacy_dmicp_id": "11498",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 2AG",
+        "par": "872",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36.821946,
+          -1.292066
+        ]
+      },
+      "properties": {
+        "id": "SSMP37",
+        "name": "Nairobi Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 0,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 115,
+        "combined_practice": "Nairobi Medical Centre",
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": null,
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "BF1 3AF",
+        "par": null,
+        "coordinate_source": "override",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.05033529,
+          40.93181612
+        ]
+      },
+      "properties": {
+        "id": "SSMP38",
+        "name": "Naples Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 116,
+        "combined_practice": "Naples Medical Centre",
+        "active_dmicp_id": "23144",
+        "legacy_dmicp_id": "23144",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BFPO 8",
+        "par": "306",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.1538333,
+          51.038949
+        ]
+      },
+      "properties": {
+        "id": "SSMP39",
+        "name": "Norton Manor Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 117,
+        "combined_practice": "Norton Manor Medical Centre",
+        "active_dmicp_id": "3848",
+        "legacy_dmicp_id": "3848",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "TA2 6PF",
+        "par": "501",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000038",
+        "icb_hb_code_2026": "E54000038",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.02704004,
+          0.030100489
+        ]
+      },
+      "properties": {
+        "id": "SSMP40",
+        "name": "Nyati Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 118,
+        "combined_practice": "Nyati Medical Centre",
+        "active_dmicp_id": "24368",
+        "legacy_dmicp_id": "24368",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 6FA",
+        "par": "340",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.94520661,
+          51.240455
+        ]
+      },
+      "properties": {
+        "id": "SSMP41",
+        "name": "Odiham Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 119,
+        "combined_practice": "Odiham Medical Centre",
+        "active_dmicp_id": "2597",
+        "legacy_dmicp_id": "2597",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "RG29 1QT",
+        "par": "1888",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.223217,
+          50.374023
+        ]
+      },
+      "properties": {
+        "id": "SSMP42",
+        "name": "Raleigh Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 120,
+        "combined_practice": "Raleigh Medical Centre",
+        "active_dmicp_id": "593",
+        "legacy_dmicp_id": "593",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PL11 2PD",
+        "par": "1512",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000036",
+        "icb_hb_code_2026": "E54000036",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.241954,
+          55.912738
+        ]
+      },
+      "properties": {
+        "id": "SSMP43",
+        "name": "Redford Medical Centre",
+        "type": "pmc-facility",
+        "region": "Scotland & Northern Ireland",
+        "default_visible": 1,
+        "point_color_hex": "#4862b8",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 121,
+        "combined_practice": "Redford Medical Centre",
+        "active_dmicp_id": "2935",
+        "legacy_dmicp_id": "2935",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "EH13 0PP",
+        "par": "1342",
+        "coordinate_source": "csv",
+        "icb_hb_code": "05",
+        "icb_hb_code_2026": "05",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.7616643,
+          51.34402
+        ]
+      },
+      "properties": {
+        "id": "SSMP44",
+        "name": "Sandhurst Medical Centre",
+        "type": "pmc-facility",
+        "region": "London & South",
+        "default_visible": 1,
+        "point_color_hex": "#419632",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 122,
+        "combined_practice": "Sandhurst Medical Centre",
+        "active_dmicp_id": "6676",
+        "legacy_dmicp_id": "6676",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "GU15 4PQ",
+        "par": "2164",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000034",
+        "icb_hb_code_2026": "E54000070",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.54194542,
+          53.300544
+        ]
+      },
+      "properties": {
+        "id": "SSMP45",
+        "name": "Scampton Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 0,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 123,
+        "combined_practice": "Scampton Medical Centre",
+        "active_dmicp_id": "13320",
+        "legacy_dmicp_id": "13320",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "LN1 2ST",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000013",
+        "icb_hb_code_2026": "E54000013",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.716493697,
+          51.77073132
+        ]
+      },
+      "properties": {
+        "id": "SSMP46",
+        "name": "Sennelager Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 124,
+        "combined_practice": "Sennelager Medical Centre",
+        "active_dmicp_id": "11507",
+        "legacy_dmicp_id": "11507",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 0AB",
+        "par": "790",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.3262606,
+          4.608773111
+        ]
+      },
+      "properties": {
+        "id": "SSMP47",
+        "name": "Seria Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 125,
+        "combined_practice": "Seria Medical Centre",
+        "active_dmicp_id": "24370",
+        "legacy_dmicp_id": "24370",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 3AG",
+        "par": "1528",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.4517178,
+          51.40548
+        ]
+      },
+      "properties": {
+        "id": "SSMP48",
+        "name": "St Athan Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 126,
+        "combined_practice": "St Athan Medical Centre",
+        "active_dmicp_id": "966",
+        "legacy_dmicp_id": "966",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "CF62 4NX",
+        "par": "918",
+        "coordinate_source": "csv",
+        "icb_hb_code": "W11000029",
+        "icb_hb_code_2026": "W11000029",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.0915043,
+          52.815845
+        ]
+      },
+      "properties": {
+        "id": "SSMP49",
+        "name": "Stafford Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 127,
+        "combined_practice": "Stafford Medical Centre",
+        "active_dmicp_id": "14573",
+        "legacy_dmicp_id": "14573",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "ST18 0AQ",
+        "par": "1150",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000010",
+        "icb_hb_code_2026": "E54000010",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.1602256,
+          50.27297706
+        ]
+      },
+      "properties": {
+        "id": "SSMP50",
+        "name": "Suffield Medical Centre",
+        "type": "pmc-facility",
+        "region": "Overseas",
+        "default_visible": 1,
+        "point_color_hex": "#808080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 128,
+        "combined_practice": "Suffield Medical Centre",
+        "active_dmicp_id": "24199",
+        "legacy_dmicp_id": "24199",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BF1 3AJ",
+        "par": "87",
+        "coordinate_source": "csv",
+        "icb_hb_code": null,
+        "icb_hb_code_2026": null,
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.97470724,
+          52.725847
+        ]
+      },
+      "properties": {
+        "id": "SSMP51",
+        "name": "Swanton Morley Medical Centre",
+        "type": "pmc-facility",
+        "region": "East",
+        "default_visible": 0,
+        "point_color_hex": "#fc921f",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 129,
+        "combined_practice": "Swanton Morley Medical Centre",
+        "active_dmicp_id": "5340",
+        "legacy_dmicp_id": "5340",
+        "status": "Closed",
+        "parent": "Closed",
+        "postcode": "NR20 4TX",
+        "par": null,
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000022",
+        "icb_hb_code_2026": "E54000068",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.5339549,
+          53.254255
+        ]
+      },
+      "properties": {
+        "id": "SSMP52",
+        "name": "Valley Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 130,
+        "combined_practice": "Valley Medical Centre",
+        "active_dmicp_id": "2682",
+        "legacy_dmicp_id": "2682",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "LL65 3NY",
+        "par": "604",
+        "coordinate_source": "csv",
+        "icb_hb_code": "W11000023",
+        "icb_hb_code_2026": "W11000023",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.1591035,
+          51.204067
+        ]
+      },
+      "properties": {
+        "id": "SSMP53",
+        "name": "Warminster Medical Centre",
+        "type": "pmc-facility",
+        "region": "Central & Wessex",
+        "default_visible": 1,
+        "point_color_hex": "#e8c723",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 131,
+        "combined_practice": "Warminster Medical Centre",
+        "active_dmicp_id": "2718",
+        "legacy_dmicp_id": "2718",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BA12 0DJ",
+        "par": "1737",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000040",
+        "icb_hb_code_2026": "E54000040",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.9376576,
+          53.820878
+        ]
+      },
+      "properties": {
+        "id": "SSMP54",
+        "name": "Weeton Medical Centre",
+        "type": "pmc-facility",
+        "region": "Wales & West Midlands",
+        "default_visible": 1,
+        "point_color_hex": "#ed5151",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 132,
+        "combined_practice": "Weeton Medical Centre",
+        "active_dmicp_id": "4034",
+        "legacy_dmicp_id": "4034",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PR4 3JQ",
+        "par": "733",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000048",
+        "icb_hb_code_2026": "E54000048",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.646716,
+          51.011788
+        ]
+      },
+      "properties": {
+        "id": "SSMP55",
+        "name": "Yeovilton Medical Centre",
+        "type": "pmc-facility",
+        "region": "South West",
+        "default_visible": 1,
+        "point_color_hex": "#149ece",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 133,
+        "combined_practice": "Yeovilton Medical Centre",
+        "active_dmicp_id": "3833",
+        "legacy_dmicp_id": "3833",
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "BA22 8HT",
+        "par": "2423",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000038",
+        "icb_hb_code_2026": "E54000038",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.815982190162782,
+          56.05441500076834
+        ]
+      },
+      "properties": {
+        "id": "BP3",
+        "name": "Clyde Medical Centre",
+        "type": "pmc-facility",
+        "region": "Royal Navy",
+        "default_visible": 1,
+        "point_color_hex": "#000080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 134,
+        "combined_practice": null,
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": null,
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "G84 8HL",
+        "par": "2191",
+        "coordinate_source": "csv",
+        "icb_hb_code": "17",
+        "icb_hb_code_2026": "17",
+        "lon_original": -4.817246,
+        "lat_original": 56.053009,
+        "snapped_to_land": true,
+        "snap_distance_m": 175.1263640577822,
+        "snap_basis": "assigned_2026_boundary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.181235,
+          50.39027
+        ]
+      },
+      "properties": {
+        "id": "BP2",
+        "name": "Devonport Medical Centre",
+        "type": "pmc-facility",
+        "region": "Royal Navy",
+        "default_visible": 1,
+        "point_color_hex": "#000080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 135,
+        "combined_practice": null,
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": null,
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PL2 2BG",
+        "par": "1153",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000037",
+        "icb_hb_code_2026": "E54000037",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.095282,
+          50.800686
+        ]
+      },
+      "properties": {
+        "id": "BP1",
+        "name": "Portsmouth Medical Centre",
+        "type": "pmc-facility",
+        "region": "Royal Navy",
+        "default_visible": 1,
+        "point_color_hex": "#000080",
+        "point_alpha": 1,
+        "source_file": "Export_30_Mar_26.csv",
+        "source_row": 136,
+        "combined_practice": null,
+        "active_dmicp_id": null,
+        "legacy_dmicp_id": null,
+        "status": "Open",
+        "parent": "Parent",
+        "postcode": "PO1 3HH",
+        "par": "3451",
+        "coordinate_source": "csv",
+        "icb_hb_code": "E54000042",
+        "icb_hb_code_2026": "E54000067",
+        "lon_original": null,
+        "lat_original": null,
+        "snapped_to_land": null,
+        "snap_distance_m": null,
+        "snap_basis": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"preset": "coa3b", "group": "COA 3a Midlands", "edge_class": "inlandWater"}, "geometry": {"type": "MultiLineString", "coordinates": [[[-3.095557, 53.262197], [-3.095123, 53.261869]], [[-3.094634, 53.261588], [-3.081063, 53.255183]]]}}]}

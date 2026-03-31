@@ -4,7 +4,10 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style } from 'ol/style';
 import type { OverlayLayerStyle } from '../src/types';
-import { reconcileOverlayBoundaryLayers } from '../src/features/map/overlayBoundaryReconciliation';
+import {
+  reconcileOverlayBoundaryLayers,
+  resolveOverlayBoundarySourceUrl,
+} from '../src/features/map/overlayBoundaryReconciliation';
 
 function createOverlayLayer(
   overrides: Partial<OverlayLayerStyle> = {},
@@ -145,5 +148,140 @@ describe('overlayBoundaryReconciliation', () => {
     expect(regionBoundaryPathRefs.get('careBoardBoundaries')).toBe(
       'https://example.test/data/regions/board-next.geojson',
     );
+  });
+
+  it('prefers a runtime override source when one is provided', () => {
+    const map = {
+      addLayer: vi.fn(),
+      removeLayer: vi.fn(),
+    };
+    const activeLayer = new VectorLayer({
+      source: new VectorSource({
+        url: 'https://example.test/data/regions/board.geojson',
+        format: new GeoJSON(),
+      }),
+    });
+    const runtimeSource = new VectorSource();
+    const regionBoundaryRefs = new Map<string, VectorLayer<VectorSource>>([
+      ['careBoardBoundaries', activeLayer],
+    ]);
+    const regionBoundaryPathRefs = new Map<string, string>([
+      ['careBoardBoundaries', 'https://example.test/data/regions/board.geojson'],
+    ]);
+
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers: [createOverlayLayer()],
+      activeViewPreset: 'coa3c',
+      regionBoundaryRefs,
+      regionBoundaryPathRefs,
+      runtimeSourceOverrides: new Map([
+        ['careBoardBoundaries', runtimeSource] as const,
+      ]),
+      createBoundaryLayer: vi.fn(),
+      getBoundaryLayerStyle: vi.fn(() => new Style()),
+      resolveSourceUrl: (path) => `https://example.test/${path}`,
+    });
+
+    expect(activeLayer.getSource()).toBe(runtimeSource);
+    expect(regionBoundaryPathRefs.get('careBoardBoundaries')).toBe(
+      'runtime:careBoardBoundaries',
+    );
+  });
+
+  it('can append a cache-busting source version to overlay URLs', () => {
+    const previousWindow = globalThis.window;
+    // @ts-expect-error test window stub
+    globalThis.window = { location: { origin: 'https://example.test' } };
+
+    expect(
+      resolveOverlayBoundarySourceUrl('data/regions/board.geojson', 'dev-123'),
+    ).toBe('https://example.test/data/regions/board.geojson?v=dev-123');
+    expect(
+      resolveOverlayBoundarySourceUrl('data/regions/board.geojson', null),
+    ).toBe('https://example.test/data/regions/board.geojson');
+
+    globalThis.window = previousWindow;
+  });
+
+  it('keeps line-only overlay families visible when Border is on and Fill is off', () => {
+    const map = {
+      addLayer: vi.fn(),
+      removeLayer: vi.fn(),
+    };
+    const regionBoundaryRefs = new Map<string, VectorLayer<VectorSource>>();
+    const regionBoundaryPathRefs = new Map<string, string>();
+    const createdLayer = new VectorLayer({ source: new VectorSource() });
+
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers: [
+        createOverlayLayer({
+          id: 'englandIcb',
+          family: 'englandIcb',
+          visible: false,
+          borderVisible: true,
+        }),
+      ],
+      activeViewPreset: 'current',
+      regionBoundaryRefs,
+      regionBoundaryPathRefs,
+      createBoundaryLayer: vi.fn(() => createdLayer),
+      getBoundaryLayerStyle: vi.fn(() => new Style()),
+      resolveSourceUrl: (path) => `https://example.test/${path}`,
+      createSource: (url) =>
+        new VectorSource({
+          url,
+          format: new GeoJSON(),
+        }),
+    });
+
+    expect(createdLayer.getVisible()).toBe(true);
+  });
+
+  it('keeps nhs/custom overlay families visible when Border is on and Fill is off', () => {
+    const map = {
+      addLayer: vi.fn(),
+      removeLayer: vi.fn(),
+    };
+    const regionBoundaryRefs = new Map<string, VectorLayer<VectorSource>>();
+    const regionBoundaryPathRefs = new Map<string, string>();
+    const createdNhsLayer = new VectorLayer({ source: new VectorSource() });
+    const createdJmcLayer = new VectorLayer({ source: new VectorSource() });
+
+    reconcileOverlayBoundaryLayers({
+      map,
+      overlayLayers: [
+        createOverlayLayer({
+          id: 'nhsEnglandRegionsBsc',
+          family: 'nhsRegions',
+          visible: false,
+          borderVisible: true,
+        }),
+        createOverlayLayer({
+          id: 'sjcJmcOutline',
+          family: 'customRegions',
+          visible: false,
+          borderVisible: true,
+        }),
+      ],
+      activeViewPreset: 'current',
+      regionBoundaryRefs,
+      regionBoundaryPathRefs,
+      createBoundaryLayer: vi
+        .fn()
+        .mockReturnValueOnce(createdNhsLayer)
+        .mockReturnValueOnce(createdJmcLayer),
+      getBoundaryLayerStyle: vi.fn(() => new Style()),
+      resolveSourceUrl: (path) => `https://example.test/${path}`,
+      createSource: (url) =>
+        new VectorSource({
+          url,
+          format: new GeoJSON(),
+        }),
+    });
+
+    expect(createdNhsLayer.getVisible()).toBe(true);
+    expect(createdJmcLayer.getVisible()).toBe(true);
   });
 });

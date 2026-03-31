@@ -22,15 +22,48 @@ export interface BasemapSettings {
   showCountryBorders: boolean;
   countryLabelColor: string;
   countryLabelOpacity: number;
+  countryLabelSize?: number;
+  countryLabelBorderColor?: string;
+  countryLabelBorderWidth?: number;
+  countryLabelBorderOpacity?: number;
   showCountryLabels: boolean;
   majorCityColor: string;
   majorCityOpacity: number;
+  majorCitySize?: number;
+  majorCityBorderColor?: string;
+  majorCityBorderWidth?: number;
+  majorCityBorderOpacity?: number;
   showMajorCities: boolean;
+  regionLabelColor?: string;
+  regionLabelOpacity?: number;
+  regionLabelSize?: number;
+  regionLabelBorderColor?: string;
+  regionLabelBorderWidth?: number;
+  regionLabelBorderOpacity?: number;
+  showRegionLabels?: boolean;
+  networkLabelColor?: string;
+  networkLabelOpacity?: number;
+  networkLabelSize?: number;
+  networkLabelBorderColor?: string;
+  networkLabelBorderWidth?: number;
+  networkLabelBorderOpacity?: number;
+  showNetworkLabels?: boolean;
+  facilityLabelColor?: string;
+  facilityLabelOpacity?: number;
+  facilityLabelSize?: number;
+  facilityLabelBorderColor?: string;
+  facilityLabelBorderWidth?: number;
+  facilityLabelBorderOpacity?: number;
+  showFacilityLabels?: boolean;
   seaFillColor: string;
   seaFillOpacity: number;
   showSeaFill: boolean;
   seaLabelColor: string;
   seaLabelOpacity: number;
+  seaLabelSize?: number;
+  seaLabelBorderColor?: string;
+  seaLabelBorderWidth?: number;
+  seaLabelBorderOpacity?: number;
   showSeaLabels: boolean;
 }
 
@@ -39,10 +72,27 @@ export interface RegionStyle {
   visible: boolean;
   color: string;
   opacity: number;
+  shape: FacilitySymbolShape;
   borderVisible: boolean;
   borderColor: string;
+  borderWidth: number;
   borderOpacity: number;
   symbolSize: number;
+}
+
+export interface CombinedPracticeStyle {
+  name: string;
+  displayName: string;
+  visible: boolean;
+  borderColor: string;
+  borderWidth: number;
+  borderOpacity: number;
+}
+
+export interface CombinedPracticeCatalogEntry {
+  name: string;
+  displayName: string;
+  regions: string[];
 }
 
 export interface OverlayLayerStyle {
@@ -54,6 +104,7 @@ export interface OverlayLayerStyle {
   opacity: number;
   borderVisible: boolean;
   borderColor: string;
+  borderWidth?: number;
   borderOpacity: number;
   swatchColor: string;
 }
@@ -61,11 +112,23 @@ export interface OverlayLayerStyle {
 export type RegionBoundaryLayerStyle = OverlayLayerStyle;
 
 export type ViewPresetId = 'current' | 'coa3a' | 'coa3b' | 'coa3c';
+export type BoundarySystemId = 'legacyIcbHb' | 'icbHb2026';
+export type ScenarioWorkspaceId =
+  | Exclude<ViewPresetId, 'current'>
+  | 'dphcEstimateCoa3aPlayground'
+  | 'dphcEstimateCoaPlayground';
 export type OverlayFamily =
   | 'boardBoundaries'
   | 'scenarioRegions'
+  | 'wardSplitFill'
   | 'nhsRegions'
-  | 'customRegions';
+  | 'customRegions'
+  /** Class-coloured ICB/HB fill tiles, zero border by default (Regions pane). */
+  | 'regionFill'
+  /** England ICBs border-only overlay (Overlays pane). */
+  | 'englandIcb'
+  /** Scotland / Wales / NI health board overlay (Overlays pane). */
+  | 'devolvedHb';
 
 export interface Facility {
   id: string;
@@ -79,4 +142,24 @@ export interface SelectionState {
   facilityIds: string[];
   boundaryName: string | null;
   jmcName: string | null;
+  scenarioRegionId: string | null;
+}
+
+/** Per-group style overrides for the Regions pane (overrides preset config defaults). */
+export interface RegionGroupStyleOverride {
+  visible: boolean;
+  /** Whether the populated fill renders at all (independent of row-level visible). */
+  populatedFillVisible: boolean;
+  /** Whether the unpopulated fill renders at all (independent of row-level visible). */
+  unpopulatedFillVisible: boolean;
+  /** Override fill colour for populated features; null = use group's config default. */
+  populatedFillColor: string | null;
+  /** Override fill colour for unpopulated features; null = use group's config default. */
+  unpopulatedFillColor: string | null;
+  populatedOpacity: number;
+  unpopulatedOpacity: number;
+  borderVisible: boolean;
+  borderColor: string;
+  borderOpacity: number;
+  borderWidth: number;
 }

@@ -6,7 +6,11 @@ export function getActiveAssignmentLookupSource(
   regionBoundaryLayers: Map<string, VectorLayer<VectorSource>>,
   fallbackAssignmentSource: VectorSource | null,
 ): VectorSource | null {
-  return regionBoundaryLayers.get('careBoardBoundaries')?.getSource() ?? fallbackAssignmentSource;
+  return (
+    regionBoundaryLayers.get('regionFill')?.getSource() ??
+    regionBoundaryLayers.get('careBoardBoundaries')?.getSource() ??
+    fallbackAssignmentSource
+  );
 }
 
 export function getActiveScenarioOutlineLookupSource(

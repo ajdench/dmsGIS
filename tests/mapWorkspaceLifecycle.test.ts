@@ -1,9 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import Polygon from 'ol/geom/Polygon';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import {
   cleanupMapWorkspaceRefs,
+  fitMapToUkExtentOnLoad,
+  getMapViewportDiagnostics,
+  getMapZoomPercentage,
+  getInitialUkFitPaddingPx,
+  getUnitedKingdomExtentFromCountrySource,
   initializeMapWorkspaceShell,
+  resetTransientMapSelectionState,
 } from '../src/features/map/mapWorkspaceLifecycle';
 
 describe('mapWorkspaceLifecycle', () => {
@@ -15,6 +24,8 @@ describe('mapWorkspaceLifecycle', () => {
         oceanFill: new VectorLayer(),
         landFill: new VectorLayer(),
         countryBorders: new VectorLayer(),
+        ukAlignmentMask: new VectorLayer(),
+        ukAlignedLandFill: new VectorLayer(),
         ukInternalBorders: new VectorLayer(),
         countryLabels: new VectorLayer(),
         majorCities: new VectorLayer(),
@@ -39,12 +50,34 @@ describe('mapWorkspaceLifecycle', () => {
         }) as never,
     });
 
-    expect(layers).toHaveLength(10);
+    expect(layers).toHaveLength(12);
     expect(shell.initialViewport).toEqual({
       center: [10, 20],
       zoom: 5.6,
       rotation: 0,
     });
+  });
+
+  it('derives viewport diagnostics from projected extents', () => {
+    const diagnostics = getMapViewportDiagnostics(
+      [-100, -50, 100, 50],
+      [-200, -100, 200, 100],
+      800,
+      400,
+      12,
+      10,
+    );
+
+    expect(diagnostics.horizontalCoveragePercentage).toBe(50);
+    expect(diagnostics.verticalCoveragePercentage).toBe(50);
+    expect(diagnostics.geographicWidthDegrees).toBeGreaterThan(0);
+    expect(diagnostics.geographicHeightDegrees).toBeGreaterThan(0);
+    expect(diagnostics.geographicCenterLongitudeDegrees).toBe(0);
+    expect(diagnostics.geographicCenterLatitudeDegrees).toBe(0);
+    expect(diagnostics.viewportWidthPx).toBe(800);
+    expect(diagnostics.viewportHeightPx).toBe(400);
+    expect(diagnostics.currentResolution3857).toBe(12);
+    expect(diagnostics.floorResolution3857).toBe(10);
   });
 
   it('cleans up map refs and transient selection state', () => {
@@ -59,12 +92,24 @@ describe('mapWorkspaceLifecycle', () => {
     const selectedBoundaryRef = { current: new VectorLayer() };
     const selectedJmcBoundaryRef = { current: new VectorLayer() };
     const selectedPointRef = { current: new VectorLayer() };
+    const boundarySystemLookupSourcesRef = {
+      current: new Map([['legacyIcbHb', new VectorSource()] as const]),
+    };
     const jmcBoundaryLookupSourceRef = { current: new VectorSource() };
     const scenarioBoundaryLookupSourcesRef = {
       current: new Map([['coa3a', new VectorSource()] as const]),
     };
     const jmcAssignmentLookupSourceRef = { current: new VectorSource() };
+    const scenarioWorkspaceAssignmentSourceRef = { current: new VectorSource() };
+    const scenarioWorkspaceBaselineAssignmentSourceRef = {
+      current: new VectorSource(),
+    };
+    const scenarioWorkspaceDerivedOutlineSourceRef = { current: new VectorSource() };
+    const presetGroupOutlineSourceRef = { current: new VectorSource() };
     const jmcAssignmentByBoundaryNameRef = { current: new Map([['A', 'B']]) };
+    const scenarioWorkspaceAssignmentByBoundaryNameRef = {
+      current: new Map([['Boundary A', 'COA 3b North']]),
+    };
     const pointTooltipRootRef = { current: {} };
     const pointTooltipHeaderRef = { current: {} };
     const pointTooltipNameRef = { current: {} };
@@ -88,10 +133,16 @@ describe('mapWorkspaceLifecycle', () => {
       selectedBoundaryRef,
       selectedJmcBoundaryRef,
       selectedPointRef,
+      boundarySystemLookupSourcesRef,
       jmcBoundaryLookupSourceRef,
       scenarioBoundaryLookupSourcesRef,
       jmcAssignmentLookupSourceRef,
+      scenarioWorkspaceAssignmentSourceRef,
+      scenarioWorkspaceBaselineAssignmentSourceRef,
+      scenarioWorkspaceDerivedOutlineSourceRef,
+      presetGroupOutlineSourceRef,
       jmcAssignmentByBoundaryNameRef,
+      scenarioWorkspaceAssignmentByBoundaryNameRef,
       pointTooltipRootRef: pointTooltipRootRef as never,
       pointTooltipHeaderRef: pointTooltipHeaderRef as never,
       pointTooltipNameRef: pointTooltipNameRef as never,
@@ -115,14 +166,194 @@ describe('mapWorkspaceLifecycle', () => {
     expect(selectedBoundaryRef.current).toBeNull();
     expect(selectedJmcBoundaryRef.current).toBeNull();
     expect(selectedPointRef.current).toBeNull();
+    expect(boundarySystemLookupSourcesRef.current.size).toBe(0);
     expect(jmcBoundaryLookupSourceRef.current).toBeNull();
     expect(scenarioBoundaryLookupSourcesRef.current.size).toBe(0);
     expect(jmcAssignmentLookupSourceRef.current).toBeNull();
+    expect(scenarioWorkspaceAssignmentSourceRef.current).toBeNull();
+    expect(scenarioWorkspaceBaselineAssignmentSourceRef.current).toBeNull();
+    expect(scenarioWorkspaceDerivedOutlineSourceRef.current).toBeNull();
+    expect(presetGroupOutlineSourceRef.current).toBeNull();
     expect(jmcAssignmentByBoundaryNameRef.current.size).toBe(0);
+    expect(scenarioWorkspaceAssignmentByBoundaryNameRef.current.size).toBe(0);
     expect(pointTooltipEntriesRef.current).toEqual([]);
     expect(pointTooltipIndexRef.current).toBe(0);
     expect(selectedBoundaryNameRef.current).toBeNull();
     expect(selectedJmcNameRef.current).toBeNull();
     expect(layerRefs.current.size).toBe(0);
+  });
+
+  it('clears live highlight layers and hides the docked tooltip', () => {
+    const selectedBoundaryRef = { current: new VectorLayer({ source: new VectorSource() }) };
+    const selectedJmcBoundaryRef = { current: new VectorLayer({ source: new VectorSource() }) };
+    const selectedPointRef = { current: new VectorLayer({ source: new VectorSource() }) };
+    selectedBoundaryRef.current
+      .getSource()
+      ?.addFeature(new Feature({ geometry: new Point([0, 0]) }));
+    selectedJmcBoundaryRef.current
+      .getSource()
+      ?.addFeature(new Feature({ geometry: new Point([0, 0]) }));
+    selectedPointRef.current
+      .getSource()
+      ?.addFeature(new Feature({ geometry: new Point([0, 0]) }));
+
+    const hiddenClasses = new Set<string>();
+    const subnameClasses = new Set<string>();
+    const contextClasses = new Set<string>();
+    const footerClasses = new Set<string>();
+    const pointTooltipRootRef = {
+      current: {
+        classList: {
+          add(className: string) {
+            hiddenClasses.add(className);
+          },
+          remove(className: string) {
+            hiddenClasses.delete(className);
+          },
+        },
+      },
+    };
+    const pointTooltipNameRef = { current: { textContent: 'Facility A' } };
+    const pointTooltipSubnameRef = {
+      current: {
+        textContent: 'Region A',
+        classList: {
+          add(className: string) {
+            subnameClasses.add(className);
+          },
+        },
+      },
+    };
+    const pointTooltipContextRef = {
+      current: {
+        textContent: 'Boundary A',
+        classList: {
+          add(className: string) {
+            contextClasses.add(className);
+          },
+        },
+      },
+    };
+    const pointTooltipFooterRef = {
+      current: {
+        classList: {
+          add(className: string) {
+            footerClasses.add(className);
+          },
+        },
+      },
+    };
+    const pointTooltipPageRef = { current: { textContent: 'Page 1 of 2' } };
+    const pointTooltipPrevRef = { current: { disabled: false } };
+    const pointTooltipNextRef = { current: { disabled: false } };
+    const pointTooltipEntriesRef = { current: [{ facilityId: 'FAC-1' }] as never[] };
+    const pointTooltipIndexRef = { current: 1 };
+    const selectedBoundaryNameRef = { current: 'Boundary A' };
+    const selectedJmcNameRef = { current: 'Region A' };
+
+    resetTransientMapSelectionState({
+      selectedBoundaryRef,
+      selectedJmcBoundaryRef,
+      selectedPointRef,
+      pointTooltipRootRef: pointTooltipRootRef as never,
+      pointTooltipNameRef: pointTooltipNameRef as never,
+      pointTooltipSubnameRef: pointTooltipSubnameRef as never,
+      pointTooltipContextRef: pointTooltipContextRef as never,
+      pointTooltipFooterRef: pointTooltipFooterRef as never,
+      pointTooltipPageRef: pointTooltipPageRef as never,
+      pointTooltipPrevRef: pointTooltipPrevRef as never,
+      pointTooltipNextRef: pointTooltipNextRef as never,
+      pointTooltipEntriesRef,
+      pointTooltipIndexRef,
+      selectedBoundaryNameRef,
+      selectedJmcNameRef,
+    });
+
+    expect(selectedBoundaryRef.current.getSource()?.getFeatures()).toHaveLength(0);
+    expect(selectedJmcBoundaryRef.current.getSource()?.getFeatures()).toHaveLength(0);
+    expect(selectedPointRef.current.getSource()?.getFeatures()).toHaveLength(0);
+    expect(pointTooltipEntriesRef.current).toEqual([]);
+    expect(pointTooltipIndexRef.current).toBe(0);
+    expect(selectedBoundaryNameRef.current).toBeNull();
+    expect(selectedJmcNameRef.current).toBeNull();
+    expect(pointTooltipNameRef.current.textContent).toBe('');
+    expect(pointTooltipSubnameRef.current.textContent).toBe('');
+    expect(pointTooltipContextRef.current.textContent).toBe('');
+    expect(pointTooltipPageRef.current.textContent).toBe('');
+    expect(pointTooltipPrevRef.current.disabled).toBe(true);
+    expect(pointTooltipNextRef.current.disabled).toBe(true);
+    expect(hiddenClasses.has('map-tooltip-card--hidden')).toBe(true);
+    expect(subnameClasses.has('map-tooltip-card__subname--hidden')).toBe(true);
+    expect(contextClasses.has('map-tooltip-card__context--hidden')).toBe(true);
+    expect(footerClasses.has('map-tooltip-card__footer--hidden')).toBe(true);
+  });
+
+  it('uses doubled default top and bottom padding for the initial UK fit', () => {
+    expect(getInitialUkFitPaddingPx()).toEqual([24, 12, 24, 12]);
+  });
+
+  it('fits the map to the loaded UK extent and updates viewport state', () => {
+    const source = new VectorSource();
+    source.addFeature(
+      new Feature({
+        ADMIN: 'United Kingdom',
+        geometry: new Polygon([[
+          [100, 200],
+          [300, 200],
+          [300, 500],
+          [100, 500],
+          [100, 200],
+        ]]),
+      }),
+    );
+
+    const fitCalls: unknown[] = [];
+    const viewportUpdates: unknown[] = [];
+    const view = {
+      fit: (extent: unknown, options: unknown) => {
+        fitCalls.push({ extent, options });
+      },
+      getCenter: () => [10, 20],
+      getZoom: () => 5.5,
+      getRotation: () => 0,
+    };
+    const map = {
+      getView: () => view,
+      getSize: () => [900, 600],
+    } as never;
+
+    fitMapToUkExtentOnLoad({
+      map,
+      source,
+      target: undefined as never,
+      getExtent: getUnitedKingdomExtentFromCountrySource,
+      onViewportChange: (viewport) => {
+        viewportUpdates.push(viewport);
+      },
+    });
+
+    expect(fitCalls).toHaveLength(1);
+    expect(fitCalls[0]).toMatchObject({
+      extent: [100, 200, 300, 500],
+      options: {
+        padding: [24, 12, 24, 12],
+        duration: 0,
+        nearest: true,
+        size: [900, 600],
+      },
+    });
+    expect(viewportUpdates).toEqual([
+      {
+        center: [10, 20],
+        zoom: 5.5,
+        rotation: 0,
+      },
+    ]);
+  });
+
+  it('maps whole-world minimum zoom to 0 percent', () => {
+    expect(getMapZoomPercentage(3, 3, 10)).toBe(0);
+    expect(getMapZoomPercentage(10, 3, 10)).toBe(100);
+    expect(getMapZoomPercentage(6.5, 3, 10)).toBe(50);
   });
 });

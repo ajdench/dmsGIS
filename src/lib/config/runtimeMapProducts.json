@@ -1,0 +1,22 @@
+{
+  "version": "v3.7-runtime-map-products-1",
+  "activeProductId": "sharedFoundationReview",
+  "products": {
+    "baseline": {
+      "label": "Stable baseline runtime family",
+      "dataRoot": "data"
+    },
+    "bfe": {
+      "label": "BFE compare runtime family",
+      "dataRoot": "data/compare/bfe"
+    },
+    "currentEastBsc": {
+      "label": "Current East-only BSC review family",
+      "dataRoot": "data/compare/current-east-bsc"
+    },
+    "sharedFoundationReview": {
+      "label": "Shared foundation review family",
+      "dataRoot": "data/compare/shared-foundation-review"
+    }
+  }
+}

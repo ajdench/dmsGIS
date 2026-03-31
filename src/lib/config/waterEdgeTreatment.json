@@ -1,0 +1,94 @@
+{
+  "version": "v3.7-review-1",
+  "status": "draft-not-active",
+  "classes": [
+    "sea",
+    "estuary",
+    "inlandWater",
+    "internal",
+    "harbourDock",
+    "canalCut",
+    "lakeReservoir",
+    "intertidal",
+    "islandFragment"
+  ],
+  "preprocessing": {
+    "activeProfileId": "standard",
+    "profiles": {
+      "coarse": {
+        "minTrueCoastOpeningWidthM": 1800,
+        "maxInlandWaterProjectionWidthM": 550,
+        "maxInlandProjectionDepthM": 6000,
+        "minIslandAreaM2": 350000,
+        "landfillClasses": ["inlandWater"],
+        "coastalFacilityInsetM": 35,
+        "devolvedInternalArcSuppressionWidthM": 450
+      },
+      "standard": {
+        "minTrueCoastOpeningWidthM": 1200,
+        "maxInlandWaterProjectionWidthM": 350,
+        "maxInlandProjectionDepthM": 3500,
+        "minIslandAreaM2": 150000,
+        "landfillClasses": ["inlandWater"],
+        "coastalFacilityInsetM": 25,
+        "devolvedInternalArcSuppressionWidthM": 300
+      },
+      "fine": {
+        "minTrueCoastOpeningWidthM": 700,
+        "maxInlandWaterProjectionWidthM": 175,
+        "maxInlandProjectionDepthM": 1800,
+        "minIslandAreaM2": 50000,
+        "landfillClasses": ["inlandWater"],
+        "coastalFacilityInsetM": 15,
+        "devolvedInternalArcSuppressionWidthM": 180
+      }
+    }
+  },
+  "runtime": {
+    "activeVisualProfileId": "standard",
+    "visualProfiles": {
+      "coarse": {
+        "inlandArcColorMode": "regionBorder",
+        "inlandWaterArcOpacity": 0.5,
+        "estuaryArcOpacity": 0.42,
+        "inlandArcSelectedOpacity": 0.5,
+        "inlandArcDash": [
+          6,
+          6
+        ],
+        "zoomRange": {
+          "min": 0,
+          "max": 6.99
+        }
+      },
+      "standard": {
+        "inlandArcColorMode": "regionBorder",
+        "inlandWaterArcOpacity": 0.5,
+        "estuaryArcOpacity": 0.32,
+        "inlandArcSelectedOpacity": 0.5,
+        "inlandArcDash": [
+          5,
+          5
+        ],
+        "zoomRange": {
+          "min": 7,
+          "max": 9.99
+        }
+      },
+      "fine": {
+        "inlandArcColorMode": "regionBorder",
+        "inlandWaterArcOpacity": 0.5,
+        "estuaryArcOpacity": 0.2,
+        "inlandArcSelectedOpacity": 0.5,
+        "inlandArcDash": [
+          4,
+          4
+        ],
+        "zoomRange": {
+          "min": 10,
+          "max": 24
+        }
+      }
+    }
+  }
+}

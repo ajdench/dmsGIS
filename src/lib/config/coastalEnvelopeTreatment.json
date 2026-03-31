@@ -1,0 +1,25 @@
+{
+  "version": "v3.7-envelope-2",
+  "status": "active-review",
+  "activeProductId": "bsc",
+  "products": {
+    "legacy": {
+      "label": "Legacy OSM noholes / hydro profile coast",
+      "landmaskPath": "geopackages/outputs/uk_landmask/UK_Landmask_OSM_simplified_v01_dissolved_noholes.geojson"
+    },
+    "bfe": {
+      "label": "Official BFE external envelope compare",
+      "landmaskPath": "geopackages/outputs/uk_landmask/UK_Landmask_v37_bfe_coastal_envelope.geojson",
+      "currentExactGeoJsonPath": "geopackages/outputs/full_uk_current_boards/UK_ICB_LHB_Boundaries_Canonical_Current_v37_bfe_exact.geojson",
+      "currentExactGpkgPath": "geopackages/outputs/full_uk_current_boards/UK_ICB_LHB_Boundaries_Canonical_Current_v37_bfe_exact.gpkg",
+      "y2026ExactGeoJsonPath": "geopackages/ICB 2026/outputs/full_uk_2026_boards/UK_Health_Board_Boundaries_Codex_2026_v37_bfe_exact_geojson.geojson"
+    },
+    "bsc": {
+      "label": "Official BSC external envelope compare",
+      "landmaskPath": "geopackages/outputs/uk_landmask/UK_Landmask_v37_bsc_coastal_envelope.geojson",
+      "currentExactGeoJsonPath": "geopackages/outputs/full_uk_current_boards/UK_ICB_LHB_Boundaries_Canonical_Current_v37_bsc_exact.geojson",
+      "currentExactGpkgPath": "geopackages/outputs/full_uk_current_boards/UK_ICB_LHB_Boundaries_Canonical_Current_v37_bsc_exact.gpkg",
+      "y2026ExactGeoJsonPath": "geopackages/ICB 2026/outputs/full_uk_2026_boards/UK_Health_Board_Boundaries_Codex_2026_v37_bsc_exact_geojson.geojson"
+    }
+  }
+}

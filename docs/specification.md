@@ -142,7 +142,28 @@ Current priority areas:
 - improve existing production workflows and usability before taking on more future-facing scope
 - keep `MapWorkspace` focused on orchestration, and only extract further if a remaining block is still a clear bounded responsibility
 - keep overlay lookup/bootstrap behavior generic so future overlay families are added as data/config, not by deepening JMC-specific runtime branches
-- keep treating facility filters as a shared typed domain contract; future work should refine usability, not rebuild parallel state
+- keep treating facility filters as a shared typed domain contract; the active production surface is search-only, and any future metadata facets should reuse the same contract rather than rebuild parallel state
+- treat current scenario presets as baseline workspaces for future editing rather than the final editable architecture
+- make the boundary-system split explicit:
+  - `Current` uses the legacy ICB/HB basis
+  - scenario work should use the 2026 ICB/HB basis
+- keep runtime lookup sources split by responsibility:
+  - authoritative boundary-system lookup
+  - scenario outline lookup
+  - future editable assignment lookup
+- keep editable scenario work grounded in stable ids:
+  - boundary-unit ids should be the authoritative reassignment target
+  - scenario-region ids should be the authoritative grouping target
+  - display labels should stay presentation-level, not become the only linkage
+- keep a dedicated production draft/editor state for future Playground work instead of mutating preset config objects in place
+- future Playground work should reassign authoritative boundary units, then derive scenario outlines and downstream metrics from those assignments
+- let runtime selection/highlight paths consume draft-aware assignment sources before attempting full region redraw, so the editing architecture can be validated incrementally
+- let visible scenario layers consume the same draft-aware runtime sources before attempting true dissolved outline generation, so edited assignments affect on-map rendering incrementally
+- use a real dissolve/union step for derived scenario outlines once draft-aware rendering is proven, so bespoke Regions become clean merged shapes rather than grouped board polygons
+- let facility styling, facility selection, and future scenario calculations consume the same draft-aware assignment source, so edited boundary reassignment changes both geometry and facility-derived metrics
+- derived scenario facility summaries should stay additive and explainable: start with counts by region and facility type before introducing more complex DPHC estimate logic
+- keep a reusable combined scenario-summary contract between runtime logic and future Playground UI, so editing panels read prepared summary objects instead of recreating assignment/facility math in components
+- the current workspace-to-facility join should prefer stable scenario-region ids whenever runtime assignment features supply them, keeping label-based joins only as a temporary fallback
 - prefer broader production workflow and interaction coverage before adding remote persistence or export polish
 - keep prototype-sidebar work isolated until it is explicitly promoted
 
@@ -158,6 +179,8 @@ These are future user-facing capability areas. They should stay documented and v
   extend beyond local browser storage into repository-backed or service-backed implementations behind the same contract
 - future overlay families such as NHS/custom regions
   add new overlay products through the same metadata/bootstrap path rather than separate runtime forks
+- editable scenario workspace / Playground behavior
+  support boundary reassignment, derived region redraw, and future facility-metadata-driven calculations on top of authoritative boundary-unit systems
 - export completion and polish
   finish the exposed export workflow and make it reliable enough for operational use
 - authenticated/shareable saved-view behavior
