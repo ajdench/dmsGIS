@@ -646,6 +646,18 @@ Editable scenario foundations are in place:
 
 Interactive Playground workspaces now also seed their draft-aware assignment and derived-outline runtime before the first reassignment is made. The latest follow-up fixed a stale-startup seam: editable workspaces now preload their source-preset board dataset as the canonical baseline assignment source, instead of capturing whichever `regionFill` source happened to be live during the first render pass. That removes the first-load grey fallback seen in parts of South East / London and East when entering Playground from another mode.
 
+Important current qualification:
+
+- that earlier Playground grey-fallback fix should not be treated as full closure
+- a newer intermittent Playground bug is still open, where some boards can later fall back to neutral grey after reassignment and later reload / re-entry even though polygons still render and facility points can still keep Region colours
+- the current bug note for that unresolved runtime path is:
+  - `docs/playground-grey-runtime-bug.md`
+- current best reading:
+  - this is a draft-aware runtime source-selection / refresh bug in the Playground assignment path
+  - not a canonical geometry-source failure
+  - not a GitHub Pages-only issue
+  - not a facilities-data issue
+
 Preset/workspace switching now also clears the actual OpenLayers selection/highlight layers and docked tooltip before paint. Store selection reset alone was not sufficient once later Playground/runtime work reintroduced stale visual state on mode switches.
 
 ### Sidebar exact kit

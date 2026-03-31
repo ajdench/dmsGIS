@@ -1262,12 +1262,18 @@ export function MapWorkspace() {
           scenarioWorkspaceBaselineAssignmentSourceRef.current,
       });
 
+    const resolvedScenarioWorkspaceBaselineAssignmentSource =
+      scenarioWorkspaceBaselineAssignmentSourceRef.current;
+    const runtimeAssignmentBaselineSource =
+      activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
+        ? resolvedScenarioWorkspaceBaselineAssignmentSource
+        : resolvedScenarioWorkspaceBaselineAssignmentSource ?? liveAssignmentSource;
+
     const runtimeState =
       scenarioWorkspaceRuntimeActive && activeScenarioWorkspaceId
         ? buildScenarioWorkspaceRuntimeState(
             activeScenarioWorkspaceId,
-            scenarioWorkspaceBaselineAssignmentSourceRef.current ??
-              liveAssignmentSource,
+            runtimeAssignmentBaselineSource,
             activeScenarioWorkspaceDraft,
             {
               includeBaselineWhenUnedited:
@@ -1281,8 +1287,7 @@ export function MapWorkspace() {
     const derivedOutlineAssignmentSource =
       runtimeState.assignmentSource ??
       (scenarioWorkspaceRuntimeActive
-        ? scenarioWorkspaceBaselineAssignmentSourceRef.current ??
-          liveAssignmentSource
+        ? runtimeAssignmentBaselineSource
         : null);
     scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
