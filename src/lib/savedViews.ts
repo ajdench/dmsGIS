@@ -1,9 +1,11 @@
 import type {
   BasemapSettings,
+  CombinedPracticeStyle,
   FacilitySymbolShape,
   LayerState,
   OverlayLayerStyle,
   RegionStyle,
+  ScenarioWorkspaceId,
   ViewPresetId,
 } from '../types';
 import { createFacilityFilterState } from './facilityFilters';
@@ -26,11 +28,13 @@ import {
 
 export interface MapSessionSnapshotInput {
   activeViewPreset: ViewPresetId;
+  activeScenarioWorkspaceId?: ScenarioWorkspaceId | null;
   viewport?: Partial<MapViewportState>;
   basemap: BasemapSettings;
   layers: LayerState[];
   overlayLayers: OverlayLayerStyle[];
   regions: RegionStyle[];
+  combinedPractices?: CombinedPracticeStyle[];
   regionGlobalOpacity: number;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
@@ -57,6 +61,7 @@ export function createMapSessionState(
   return parseMapSessionState({
     schemaVersion: 1,
     activeViewPreset: input.activeViewPreset,
+    activeScenarioWorkspaceId: input.activeScenarioWorkspaceId ?? null,
     viewport: {
       center: input.viewport?.center ?? [0, 0],
       zoom: input.viewport?.zoom ?? 0,
@@ -66,6 +71,9 @@ export function createMapSessionState(
     layers: input.layers.map((layer) => ({ ...layer })),
     overlayLayers: input.overlayLayers.map((layer) => ({ ...layer })),
     regions: input.regions.map((region) => ({ ...region })),
+    combinedPractices: (input.combinedPractices ?? []).map((practice) => ({
+      ...practice,
+    })),
     regionGlobalOpacity: input.regionGlobalOpacity,
     facilities: {
       symbolShape: input.facilitySymbolShape,
@@ -76,6 +84,7 @@ export function createMapSessionState(
       facilityIds: input.selection?.facilityIds ?? [],
       boundaryName: input.selection?.boundaryName ?? null,
       jmcName: input.selection?.jmcName ?? null,
+      scenarioRegionId: input.selection?.scenarioRegionId ?? null,
     },
   });
 }

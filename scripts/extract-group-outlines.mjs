@@ -1,0 +1,292 @@
+/**
+ * extract-group-outlines.mjs
+ *
+ * Reads the two canonical simplified boundary GeoJSONs (v10 and 2026),
+ * converts each to a TopoJSON archive (.topo.json), then for every preset
+ * that references that boundary file extracts a per-group exterior arc
+ * GeoJSON using the preset's codeGroupings.
+ *
+ * For the Current preset the three ward-split ICBs (E54000042, E54000025,
+ * E54000048) are excluded from codeGroupings.  Their sub-polygon features
+ * from UK_WardSplit_simplified.geojson carry a `region_ref` property that
+ * maps them into DPHC groups; those features are merged in when building
+ * each group's topology so the exterior arc covers the full region.
+ *
+ * Outputs
+ *   public/data/regions/*.topo.json          TopoJSON archives
+ *   public/data/regions/outlines/<preset>_<group>.geojson
+ *
+ * Usage
+ *   node scripts/extract-group-outlines.mjs
+ */
+
+import { topology } from 'topojson-server';
+import { mesh } from 'topojson-client';
+import fs from 'fs';
+import path from 'path';
+import dissolve from '@turf/dissolve';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const REGIONS = process.env.REGIONS_DIR
+  ? path.resolve(ROOT, process.env.REGIONS_DIR)
+  : path.join(ROOT, 'public', 'data', 'regions');
+const OUTLINES = path.join(REGIONS, 'outlines');
+const CONFIG = path.join(ROOT, 'src', 'lib', 'config', 'viewPresets.json');
+const PRESET_COLLECTION_OUTPUTS = {
+  coa3a: 'UK_JMC_Outline_arcs.geojson',
+  coa3b: 'UK_COA3A_Outline_arcs.geojson',
+  coa3c: 'UK_COA3B_Outline_arcs.geojson',
+};
+
+fs.mkdirSync(OUTLINES, { recursive: true });
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Convert a group name to a filesystem-safe slug. */
+function slug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/, '');
+}
+
+/** Load and parse a GeoJSON file relative to public/. */
+function loadGeoJSON(relPath) {
+  const normalized = relPath.replace(/\\/g, '/');
+  const abs = normalized.startsWith('data/regions/')
+    ? path.join(REGIONS, normalized.slice('data/regions/'.length))
+    : path.join(ROOT, 'public', normalized);
+  if (!fs.existsSync(abs)) {
+    console.warn(`  [skip] file not found: ${abs}`);
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(abs, 'utf8'));
+}
+
+/**
+ * Build the TopoJSON for a subset of features and return the exterior arc
+ * GeoJSON (MultiLineString) for that group.
+ */
+function groupExteriorArc(groupFeatures) {
+  if (!groupFeatures.length) return null;
+
+  const topo = topology({
+    layer: { type: 'FeatureCollection', features: groupFeatures },
+  });
+
+  // mesh with (a === b) keeps only arcs on the outer boundary of the set
+  // (arcs shared by exactly one polygon, i.e. not interior shared edges).
+  const line = mesh(topo, topo.objects.layer, (a, b) => a === b);
+
+  if (!line || !line.coordinates || line.coordinates.length === 0) return null;
+
+  return {
+    type: 'Feature',
+    geometry: line,
+    properties: {},
+  };
+}
+
+function groupExteriorArcFromDissolve(groupFeatures, groupName) {
+  if (!groupFeatures.length) return null;
+
+  const polygonFeatures = [];
+  for (const feature of groupFeatures) {
+    const geometry = feature?.geometry;
+    if (!geometry) continue;
+
+    if (geometry.type === 'Polygon') {
+      polygonFeatures.push({
+        type: 'Feature',
+        properties: { group: groupName },
+        geometry,
+      });
+      continue;
+    }
+
+    if (geometry.type === 'MultiPolygon') {
+      for (const coordinates of geometry.coordinates) {
+        polygonFeatures.push({
+          type: 'Feature',
+          properties: { group: groupName },
+          geometry: {
+            type: 'Polygon',
+            coordinates,
+          },
+        });
+      }
+    }
+  }
+
+  if (!polygonFeatures.length) {
+    return null;
+  }
+
+  const dissolved = dissolve(
+    {
+      type: 'FeatureCollection',
+      features: polygonFeatures,
+    },
+    { propertyName: 'group' },
+  );
+
+  const exteriorLines = [];
+  for (const feature of dissolved.features ?? []) {
+    const geometry = feature.geometry;
+    if (!geometry) continue;
+
+    if (geometry.type === 'Polygon') {
+      if (geometry.coordinates[0]) {
+        exteriorLines.push(geometry.coordinates[0]);
+      }
+      continue;
+    }
+
+    if (geometry.type === 'MultiPolygon') {
+      for (const polygon of geometry.coordinates) {
+        if (polygon[0]) {
+          exteriorLines.push(polygon[0]);
+        }
+      }
+    }
+  }
+
+  if (!exteriorLines.length) {
+    return null;
+  }
+
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'MultiLineString',
+      coordinates: exteriorLines,
+    },
+    properties: {},
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+const config = JSON.parse(fs.readFileSync(CONFIG, 'utf8'));
+const presets = config.presets;
+
+// For each unique boardLayer path collect the presets that use it.
+const pathToPresets = new Map();
+for (const [presetId, preset] of Object.entries(presets)) {
+  const boardPath = preset.boardLayer?.path;
+  if (!boardPath) continue;
+  if (!pathToPresets.has(boardPath)) pathToPresets.set(boardPath, []);
+  pathToPresets.get(boardPath).push(presetId);
+}
+
+for (const [boardRelPath, presetIds] of pathToPresets) {
+  console.log(`\n=== ${boardRelPath} (${presetIds.join(', ')}) ===`);
+
+  const geojson = loadGeoJSON(boardRelPath);
+  if (!geojson) continue;
+
+  // Build a feature lookup keyed by boundary_code for fast group filtering.
+  const byCode = new Map();
+  for (const f of geojson.features) {
+    const code = String(f.properties?.boundary_code ?? '').trim();
+    if (code) byCode.set(code, f);
+  }
+  console.log(`  Loaded ${geojson.features.length} features`);
+
+  // Archive as TopoJSON.
+  const basename = path.basename(boardRelPath, '.geojson');
+  const topoPath = path.join(REGIONS, `${basename}.topo.json`);
+  const fullTopo = topology({ regions: geojson });
+  fs.writeFileSync(topoPath, JSON.stringify(fullTopo));
+  console.log(`  Saved ${path.basename(topoPath)} (${(fs.statSync(topoPath).size / 1024).toFixed(0)} KB)`);
+
+  for (const presetId of presetIds) {
+    const preset = presets[presetId];
+    const codeGroupings = preset.codeGroupings ?? {};
+    const regionGroups = preset.regionGroups ?? [];
+    const mergedOutlineFeatures = [];
+
+    // For the Current preset, load ward-split sub-polygons for augmentation.
+    let wardSplitByRegionRef = new Map();
+    if (preset.wardSplitPath) {
+      const wardGeoJSON = loadGeoJSON(preset.wardSplitPath);
+      if (wardGeoJSON) {
+        for (const f of wardGeoJSON.features) {
+          const ref = String(f.properties?.region_ref ?? '').trim();
+          if (!ref) continue;
+          if (!wardSplitByRegionRef.has(ref)) wardSplitByRegionRef.set(ref, []);
+          wardSplitByRegionRef.get(ref).push(f);
+        }
+        console.log(`  Ward-split: ${wardGeoJSON.features.length} sub-polygons across ${wardSplitByRegionRef.size} groups`);
+      }
+    }
+
+    // Group name → set of boundary_codes.
+    const groupCodes = new Map();
+    for (const [code, groupName] of Object.entries(codeGroupings)) {
+      if (!groupCodes.has(groupName)) groupCodes.set(groupName, []);
+      groupCodes.get(groupName).push(code);
+    }
+
+    for (const group of regionGroups) {
+      const codes = groupCodes.get(group.name) ?? [];
+      const mainFeatures = codes.map((c) => byCode.get(c)).filter(Boolean);
+      const wardFeatures = wardSplitByRegionRef.get(group.name) ?? [];
+      const allFeatures = [...mainFeatures, ...wardFeatures];
+
+      if (!allFeatures.length) {
+        console.warn(`  [skip] ${presetId} / "${group.name}": no features`);
+        continue;
+      }
+
+      const arcFeature =
+        groupExteriorArcFromDissolve(allFeatures, group.name)
+        ?? groupExteriorArc(allFeatures);
+      if (!arcFeature) {
+        console.warn(`  [empty arc] ${presetId} / "${group.name}"`);
+        continue;
+      }
+
+      const outlineGeoJSON = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            ...arcFeature,
+            properties: {
+              preset: presetId,
+              group: group.name,
+              region_name: group.name,
+              jmc_name: group.name,
+              boundary_name: group.name,
+            },
+          },
+        ],
+      };
+
+      mergedOutlineFeatures.push(outlineGeoJSON.features[0]);
+
+      const outlineName = `${presetId}_${slug(group.name)}.geojson`;
+      const outlinePath = path.join(OUTLINES, outlineName);
+      fs.writeFileSync(outlinePath, JSON.stringify(outlineGeoJSON));
+      console.log(`  ${outlineName} — ${mainFeatures.length} ICBs + ${wardFeatures.length} ward-split`);
+    }
+
+    const collectionOutputName = PRESET_COLLECTION_OUTPUTS[presetId];
+    if (collectionOutputName && mergedOutlineFeatures.length > 0) {
+      const collectionPath = path.join(REGIONS, collectionOutputName);
+      fs.writeFileSync(
+        collectionPath,
+        JSON.stringify({
+          type: 'FeatureCollection',
+          features: mergedOutlineFeatures,
+        }),
+      );
+      console.log(`  ${collectionOutputName} — merged dissolve-derived outline arcs (${mergedOutlineFeatures.length} groups)`);
+    }
+  }
+}
+
+console.log('\nDone.');

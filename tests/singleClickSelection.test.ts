@@ -61,9 +61,6 @@ describe('singleClickSelection', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',
@@ -77,8 +74,10 @@ describe('singleClickSelection', () => {
         coordinate: [10, 20],
         boundaryName: null,
         hasVisibleBorder: false,
+        symbolShape: 'circle',
         symbolSize: 3.5,
         jmcName: 'JMC North',
+        scenarioRegionId: null,
       },
     ]);
   });
@@ -112,27 +111,24 @@ describe('singleClickSelection', () => {
       regions: [],
       overlayLayers: [
         {
-          id: 'careBoardBoundaries',
-          name: 'Care board boundaries',
+          id: 'regionFill',
+          name: 'Region fill',
           path: 'data/regions/boards.geojson',
-          family: 'boardBoundaries',
+          family: 'regionFill',
           visible: true,
-          opacity: 0,
-          borderVisible: true,
+          opacity: 0.7,
+          borderVisible: false,
           borderColor: '#8f8f8f',
-          borderOpacity: 0.14,
+          borderOpacity: 0,
           swatchColor: '#8f8f8f',
         },
       ],
       layerRefs: new Map(),
-      regionBoundaryRefs: new Map([['careBoardBoundaries', boundaryLayer]]),
+      regionBoundaryRefs: new Map([['regionFill', boundaryLayer]]),
       facilitySymbolShape: 'circle',
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: '',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => null,
@@ -140,6 +136,94 @@ describe('singleClickSelection', () => {
 
     expect(result.pointEntries).toEqual([]);
     expect(result.boundaryFeature).toBe(boundaryFeature);
+  });
+
+  it('returns the full parent board when a Current split-ward polygon is clicked', () => {
+    const parentBoardFeature = new Feature({
+      boundary_code: 'E54000042',
+      boundary_name: 'NHS Hampshire and Isle of Wight Integrated Care Board',
+      geometry: new Polygon([[
+        [0, 0],
+        [20, 0],
+        [20, 20],
+        [0, 20],
+        [0, 0],
+      ]]),
+    });
+    const splitWardFeature = new Feature({
+      parent_code: 'E54000042',
+      boundary_code: 'E54000042',
+      boundary_name: 'NHS Hampshire and Isle of Wight Integrated Care Board',
+      region_ref: 'Central & Wessex',
+      geometry: new Polygon([[
+        [0, 0],
+        [20, 0],
+        [20, 20],
+        [0, 20],
+        [0, 0],
+      ]]),
+    });
+    const map = {
+      getFeaturesAtPixel: () => [],
+      getPixelFromCoordinate: (coordinate: [number, number]) => coordinate,
+    };
+
+    const result = resolveSingleClickSelection({
+      map: map as never,
+      pixel: [10, 10],
+      coordinate: [10, 10],
+      layers: [],
+      regions: [],
+      overlayLayers: [
+        {
+          id: 'regionFill',
+          name: 'Region fill',
+          path: 'data/regions/boards.geojson',
+          family: 'regionFill',
+          visible: true,
+          opacity: 0.7,
+          borderVisible: false,
+          borderColor: '#8f8f8f',
+          borderOpacity: 0,
+          swatchColor: '#8f8f8f',
+        },
+        {
+          id: 'wardSplitFill',
+          name: 'Ward split fill',
+          path: 'data/regions/ward-split.geojson',
+          family: 'wardSplitFill',
+          visible: true,
+          opacity: 0.7,
+          borderVisible: false,
+          borderColor: '#8f8f8f',
+          borderOpacity: 0,
+          swatchColor: '#8f8f8f',
+        },
+      ],
+      layerRefs: new Map(),
+      regionBoundaryRefs: new Map([
+        ['regionFill', new VectorLayer({ source: new VectorSource({ features: [parentBoardFeature] }) })],
+        ['wardSplitFill', new VectorLayer({ source: new VectorSource({ features: [splitWardFeature] }) })],
+      ]),
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      facilityFilters: {
+        searchQuery: '',
+      },
+      activeViewPreset: 'current',
+      getJmcNameAtCoordinate: () => 'Central & Wessex',
+    });
+
+    expect(result.pointEntries).toEqual([]);
+    expect(result.boundaryFeature).not.toBeNull();
+    expect(result.boundaryFeature).not.toBe(parentBoardFeature);
+    expect(result.boundaryFeature?.get('boundary_code')).toBe('E54000042');
+    expect(result.boundaryFeature?.get('boundary_name')).toBe(
+      'NHS Hampshire and Isle of Wight Integrated Care Board',
+    );
+    expect(result.boundaryFeature?.get('selection_region_ref')).toBe(
+      'Central & Wessex',
+    );
   });
 
   it('filters overlapping point hits down to the searched facility for paging', () => {
@@ -206,9 +290,6 @@ describe('singleClickSelection', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: 'alpha',
-        regions: [],
-        types: [],
-        defaultVisibility: 'all',
       },
       activeViewPreset: 'current',
       getJmcNameAtCoordinate: () => 'JMC North',
@@ -222,8 +303,10 @@ describe('singleClickSelection', () => {
         coordinate: [10, 20],
         boundaryName: null,
         hasVisibleBorder: false,
+        symbolShape: 'circle',
         symbolSize: 3.5,
         jmcName: 'JMC North',
+        scenarioRegionId: null,
       },
     ]);
   });

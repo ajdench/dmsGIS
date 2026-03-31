@@ -29,6 +29,7 @@ function createSession(): MapSessionState {
   return {
     schemaVersion: 1,
     activeViewPreset: 'coa3a',
+    activeScenarioWorkspaceId: null,
     viewport: {
       center: [100, 200],
       zoom: 4,
@@ -59,27 +60,26 @@ function createSession(): MapSessionState {
     layers: [],
     overlayLayers: [],
     regions: [],
+    combinedPractices: [],
     regionGlobalOpacity: 1,
     facilities: {
       symbolShape: 'circle',
       symbolSize: 3.5,
       filters: {
         searchQuery: 'north',
-        regions: ['North'],
-        types: ['pmc-facility'],
-        defaultVisibility: 'default-visible',
       },
     },
     selection: {
       facilityIds: ['ABC'],
       boundaryName: 'Boundary A',
       jmcName: 'JMC North',
+      scenarioRegionId: null,
     },
   };
 }
 
 function createState(session = createSession()) {
-  const notices: Array<string | null> = [];
+  const notices: Array<unknown> = [];
   const applyMapSessionState = vi.fn();
   const state: SavedViewActionState = {
     createMapSessionSnapshot: () => session,
@@ -95,6 +95,19 @@ function createState(session = createSession()) {
 }
 
 describe('savedViewActions', () => {
+  it('uses a warning notice when save validation fails', async () => {
+    const store = createLocalSavedViewStore(new MemoryStorage());
+    const { state, notices } = createState();
+
+    const saved = await saveCurrentViewAs(state, '   ', store);
+
+    expect(saved).toBeNull();
+    expect(notices.at(-1)).toEqual({
+      message: 'Saved view name is required',
+      tone: 'warning',
+    });
+  });
+
   it('saves the current view through the storage boundary', async () => {
     const store = createLocalSavedViewStore(new MemoryStorage());
     const { state, notices } = createState();
@@ -104,7 +117,10 @@ describe('savedViewActions', () => {
     expect(saved?.metadata.name).toBe('Operational view');
     expect(saved?.session.selection.facilityIds).toEqual(['ABC']);
     await expect(listSavedViews(store)).resolves.toHaveLength(1);
-    expect(notices.at(-1)).toBe('Saved view "Operational view"');
+    expect(notices.at(-1)).toEqual({
+      message: 'Saved view "Operational view"',
+      tone: 'success',
+    });
   });
 
   it('opens a saved view by id and applies its session', async () => {
@@ -117,7 +133,10 @@ describe('savedViewActions', () => {
 
     expect(opened?.metadata.name).toBe('Review view');
     expect(applyMapSessionState).toHaveBeenCalledWith(session);
-    expect(notices.at(-1)).toBe('Opened saved view "Review view"');
+    expect(notices.at(-1)).toEqual({
+      message: 'Opened saved view "Review view"',
+      tone: 'success',
+    });
   });
 
   it('deletes an existing saved view by id', async () => {
@@ -129,6 +148,9 @@ describe('savedViewActions', () => {
 
     expect(deleted).toBe(true);
     await expect(listSavedViews(store)).resolves.toEqual([]);
-    expect(notices.at(-1)).toBe('Deleted saved view "Delete me"');
+    expect(notices.at(-1)).toEqual({
+      message: 'Deleted saved view "Delete me"',
+      tone: 'success',
+    });
   });
 });

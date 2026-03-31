@@ -3,6 +3,7 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import type { StyleLike } from 'ol/style/Style';
 import type { LayerState } from '../../types';
+import { WHOLE_WORLD_RENDER_EXTENT_3857 } from './worldExtent';
 
 export interface RuntimeLayerMapLike {
   addLayer: (layer: VectorLayer<VectorSource>) => void;
@@ -62,7 +63,9 @@ export function createRuntimeVectorLayer(
     source: new VectorSource({
       url: layer.path,
       format: new GeoJSON(),
+      wrapX: false,
     }),
+    extent: WHOLE_WORLD_RENDER_EXTENT_3857,
     zIndex: layer.type === 'point' ? 35 : 1,
     style,
   });

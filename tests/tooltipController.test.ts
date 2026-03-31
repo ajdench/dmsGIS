@@ -115,4 +115,85 @@ describe('tooltipController', () => {
     expect(pointCleared).toBe(true);
     expect(jmcCleared).toBe(true);
   });
+
+  it('preserves the selected region highlight for boundary-only tooltip state', () => {
+    const dom = createDomRefs();
+    let jmcCleared = false;
+    const selectedPointLayer = {
+      getSource: () => ({
+        clear() {},
+      }),
+      setStyle() {},
+    };
+    const selectedJmcBoundaryLayer = {
+      getSource: () => ({
+        clear() {
+          jmcCleared = true;
+        },
+      }),
+    };
+
+    renderDockedTooltip({
+      dom,
+      state: {
+        entries: [],
+        index: 0,
+        boundaryName: 'Boundary A',
+        jmcName: 'Central & Wessex',
+      },
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      selectedPointLayer: selectedPointLayer as never,
+      selectedJmcBoundaryLayer: selectedJmcBoundaryLayer as never,
+      setSelectedBoundaryForPoint() {},
+      syncSelectedJmcBoundaries() {},
+      setSelectedBoundaryState() {},
+      createSelectedPointStyle() {
+        return {};
+      },
+    });
+
+    expect(dom.name.textContent).toBe('Boundary A');
+    expect(dom.subname.textContent).toBe('Central & Wessex');
+    expect(jmcCleared).toBe(false);
+  });
+
+  it('formats the displayed region subname without changing stored tooltip state', () => {
+    const dom = createDomRefs();
+    const selectedPointLayer = {
+      getSource: () => ({
+        clear() {},
+      }),
+      setStyle() {},
+    };
+    const selectedJmcBoundaryLayer = {
+      getSource: () => ({
+        clear() {},
+      }),
+    };
+
+    renderDockedTooltip({
+      dom,
+      state: {
+        entries: [],
+        index: 0,
+        boundaryName: 'Boundary A',
+        jmcName: 'COA 3b London and East',
+      },
+      formatRegionLabel: (name) =>
+        name ? name.replace(/^COA 3b\s+/, '') : name,
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+      selectedPointLayer: selectedPointLayer as never,
+      selectedJmcBoundaryLayer: selectedJmcBoundaryLayer as never,
+      setSelectedBoundaryForPoint() {},
+      syncSelectedJmcBoundaries() {},
+      setSelectedBoundaryState() {},
+      createSelectedPointStyle() {
+        return {};
+      },
+    });
+
+    expect(dom.subname.textContent).toBe('London and East');
+  });
 });

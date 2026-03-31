@@ -15,6 +15,7 @@ export interface OverlayPanelSection {
 }
 
 const OVERLAY_FAMILY_METADATA: Record<OverlayFamily, OverlayFamilyMetadata> = {
+  // Legacy families — retained for backward compatibility.
   boardBoundaries: {
     family: 'boardBoundaries',
     title: 'Board Boundaries',
@@ -27,6 +28,12 @@ const OVERLAY_FAMILY_METADATA: Record<OverlayFamily, OverlayFamilyMetadata> = {
     order: 2,
     showWhenEmpty: false,
   },
+  wardSplitFill: {
+    family: 'wardSplitFill',
+    title: 'Ward Split Fill',
+    order: 3,
+    showWhenEmpty: false,
+  },
   nhsRegions: {
     family: 'nhsRegions',
     title: 'NHS Regions',
@@ -37,6 +44,25 @@ const OVERLAY_FAMILY_METADATA: Record<OverlayFamily, OverlayFamilyMetadata> = {
     family: 'customRegions',
     title: 'Custom Regions',
     order: 4,
+    showWhenEmpty: false,
+  },
+  // Active families.
+  regionFill: {
+    family: 'regionFill',
+    title: 'Region Fill',
+    order: 1,
+    showWhenEmpty: false,
+  },
+  englandIcb: {
+    family: 'englandIcb',
+    title: 'NHS England ICBs',
+    order: 5,
+    showWhenEmpty: false,
+  },
+  devolvedHb: {
+    family: 'devolvedHb',
+    title: 'Devolved Administrations Health Boards',
+    order: 6,
     showWhenEmpty: false,
   },
 };
@@ -92,7 +118,10 @@ function buildOverlaySections(
     })
     .filter((section) => section.showWhenEmpty || section.layers.length > 0)
     .sort((a, b) => a.order - b.order)
-    .map(({ order: _order, ...section }) => section);
+    .map(({ order, ...section }) => {
+      void order;
+      return section;
+    });
 }
 
 export function getOverlayFamilyOrder(
@@ -105,15 +134,16 @@ export function getOverlayFamiliesForPanel(
   activeViewPreset: ViewPresetId,
   layers: OverlayLayerStyle[] = [],
 ): OverlayFamily[] {
-  if (activeViewPreset !== 'current') {
-    return [];
-  }
-
-  const preferredFamilies: OverlayFamily[] = [
-    'boardBoundaries',
-    'nhsRegions',
-    'customRegions',
-  ];
+  const preferredFamilies: OverlayFamily[] =
+    activeViewPreset === 'current'
+      ? [
+          'boardBoundaries',
+          'nhsRegions',
+          'customRegions',
+          'englandIcb',
+          'devolvedHb',
+        ]
+      : ['nhsRegions', 'customRegions', 'englandIcb', 'devolvedHb'];
   const availableFamilies = new Set(layers.map((layer) => layer.family));
 
   return preferredFamilies.filter((family) => availableFamilies.has(family));
@@ -127,9 +157,9 @@ export function getOverlayPanelEmptyState(
     return null;
   }
 
-  if (activeViewPreset === 'current') {
-    return 'No overlay datasets are available';
+  if (activeViewPreset !== 'current') {
+    return 'Additional overlay controls are not available for this preset yet';
   }
 
-  return 'Additional overlay controls are not available for this preset yet';
+  return 'No overlay datasets are available';
 }

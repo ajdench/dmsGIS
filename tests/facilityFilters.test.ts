@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createFacilityRecord } from '../src/lib/facilities';
 import {
   createFacilityFilterState,
-  getFacilityFilterFacetOptions,
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
-  normalizeFacilityFilterValues,
   normalizeFacilitySearchQuery,
 } from '../src/lib/facilityFilters';
 import { parseFacilityProperties } from '../src/lib/schemas/facilities';
@@ -18,20 +16,14 @@ describe('facilityFilters', () => {
       }),
     ).toEqual({
       searchQuery: '  North  ',
-      regions: [],
-      types: [],
-      defaultVisibility: 'all',
     });
   });
 
-  it('builds typed filter definitions from state', () => {
+  it('builds search filter definitions from state', () => {
     expect(
       getFacilityFilterDefinitions(
         createFacilityFilterState({
           searchQuery: '  North  ',
-          regions: [' North ', 'East'],
-          types: ['pmc-facility'],
-          defaultVisibility: 'default-visible',
         }),
       ),
     ).toEqual([
@@ -43,33 +35,10 @@ describe('facilityFilters', () => {
         normalizedQuery: 'north',
         active: true,
       },
-      {
-        id: 'regions',
-        kind: 'multi-value',
-        label: 'Regions',
-        values: ['North', 'East'],
-        normalizedValues: ['north', 'east'],
-        active: true,
-      },
-      {
-        id: 'types',
-        kind: 'multi-value',
-        label: 'Types',
-        values: ['pmc-facility'],
-        normalizedValues: ['pmc-facility'],
-        active: true,
-      },
-      {
-        id: 'defaultVisibility',
-        kind: 'default-visibility',
-        label: 'Default Visibility',
-        value: 'default-visible',
-        active: true,
-      },
     ]);
   });
 
-  it('matches a facility against active filter definitions', () => {
+  it('matches a facility against the active search filter definition', () => {
     const visibleFacility = createFacilityRecord(
       parseFacilityProperties({
         id: 'XYZ',
@@ -91,64 +60,20 @@ describe('facilityFilters', () => {
     const filters = getFacilityFilterDefinitions(
       createFacilityFilterState({
         searchQuery: 'another',
-        regions: ['North'],
-        types: ['pmc-facility'],
-        defaultVisibility: 'default-visible',
       }),
     );
 
     expect(normalizeFacilitySearchQuery('  North  ')).toBe('north');
-    expect(normalizeFacilityFilterValues([' North ', 'North', 'East'])).toEqual([
-      'north',
-      'east',
-    ]);
     expect(matchesFacilityFilters(visibleFacility, filters)).toBe(true);
     expect(
       matchesFacilityFilters(
         hiddenFacility,
         getFacilityFilterDefinitions(
           createFacilityFilterState({
-            searchQuery: '',
-            regions: ['South'],
-            types: ['satellite'],
-            defaultVisibility: 'default-visible',
+            searchQuery: 'another',
           }),
         ),
       ),
     ).toBe(false);
-  });
-
-  it('derives sorted region and type facet options from facilities', () => {
-    const facilities = [
-      createFacilityRecord(
-        parseFacilityProperties({
-          id: 'A',
-          name: 'Alpha',
-          type: 'pmc-facility',
-          region: 'North',
-        }),
-      ),
-      createFacilityRecord(
-        parseFacilityProperties({
-          id: 'B',
-          name: 'Beta',
-          type: 'satellite',
-          region: 'South',
-        }),
-      ),
-      createFacilityRecord(
-        parseFacilityProperties({
-          id: 'C',
-          name: 'Gamma',
-          type: 'pmc-facility',
-          region: 'North',
-        }),
-      ),
-    ];
-
-    expect(getFacilityFilterFacetOptions(facilities)).toEqual({
-      regions: ['North', 'South'],
-      types: ['pmc-facility', 'satellite'],
-    });
   });
 });

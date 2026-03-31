@@ -26,6 +26,7 @@ export interface TooltipRenderState {
 interface TooltipRenderDependencies {
   dom: TooltipDomRefs;
   state: TooltipRenderState;
+  formatRegionLabel?: (name: string | null) => string | null;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
   selectedPointLayer: VectorLayer<VectorSource> | null;
@@ -37,6 +38,7 @@ interface TooltipRenderDependencies {
     shape: FacilitySymbolShape,
     size: number,
     hasVisibleBorder: boolean,
+    hasCombinedPracticeRing: boolean,
   ) => unknown;
 }
 
@@ -46,6 +48,7 @@ export function renderDockedTooltip(
   const {
     dom,
     state,
+    formatRegionLabel,
     facilitySymbolShape,
     facilitySymbolSize,
     selectedPointLayer,
@@ -85,7 +88,7 @@ export function renderDockedTooltip(
       prev,
       next,
       boundaryName: state.boundaryName,
-      jmcName: state.jmcName,
+      jmcName: formatRegionLabel?.(state.jmcName) ?? state.jmcName,
       selectedPointSource,
       selectedPointLayer,
       selectedJmcSource,
@@ -99,7 +102,7 @@ export function renderDockedTooltip(
   const index = Math.max(0, Math.min(state.index, state.entries.length - 1));
   const current = state.entries[index];
   name.textContent = current.facilityName;
-  subname.textContent = current.jmcName ?? '';
+  subname.textContent = formatRegionLabel?.(current.jmcName) ?? current.jmcName ?? '';
   page.textContent = `Page ${index + 1} of ${state.entries.length}`;
   context.textContent = current.boundaryName ?? '';
   prev.disabled = index === 0;
@@ -116,7 +119,6 @@ export function renderDockedTooltip(
   syncSelectedPointHighlight({
     entry: current,
     selectedPointLayer,
-    facilitySymbolShape,
     createSelectedPointStyle,
   });
 
@@ -143,6 +145,7 @@ function renderBoundaryOnlyTooltip(params: {
     shape: FacilitySymbolShape,
     size: number,
     hasVisibleBorder: boolean,
+    hasCombinedPracticeRing: boolean,
   ) => unknown;
   setSelectedBoundaryState: (boundaryName: string | null, jmcName: string | null) => void;
 }): number {
@@ -183,7 +186,12 @@ function renderBoundaryOnlyTooltip(params: {
     }
     if (selectedPointLayer) {
       selectedPointLayer.setStyle(
-        createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false) as never,
+        createSelectedPointStyle(
+          facilitySymbolShape,
+          facilitySymbolSize,
+          false,
+          false,
+        ) as never,
       );
     }
     selectedJmcSource?.clear();
@@ -205,10 +213,14 @@ function renderBoundaryOnlyTooltip(params: {
   selectedPointSource?.clear();
   if (selectedPointLayer) {
     selectedPointLayer.setStyle(
-      createSelectedPointStyle(facilitySymbolShape, facilitySymbolSize, false) as never,
+      createSelectedPointStyle(
+        facilitySymbolShape,
+        facilitySymbolSize,
+        false,
+        false,
+      ) as never,
     );
   }
-  selectedJmcSource?.clear();
   setSelectedBoundaryState(boundaryName, jmcName);
   return 0;
 }

@@ -10,6 +10,7 @@ describe('savedViews', () => {
   it('creates a schema-backed map session snapshot from production state slices', () => {
     const session = createMapSessionState({
       activeViewPreset: 'coa3a',
+      activeScenarioWorkspaceId: 'dphcEstimateCoa3aPlayground',
       viewport: {
         center: [100, 200],
         zoom: 5.5,
@@ -77,9 +78,6 @@ describe('savedViews', () => {
       facilitySymbolSize: 3.5,
       facilityFilters: {
         searchQuery: 'north',
-        regions: ['North'],
-        types: ['pmc-facility'],
-        defaultVisibility: 'default-visible',
       },
       selection: {
         facilityIds: ['ABC'],
@@ -91,6 +89,7 @@ describe('savedViews', () => {
     expect(session).toMatchObject({
       schemaVersion: 1,
       activeViewPreset: 'coa3a',
+      activeScenarioWorkspaceId: 'dphcEstimateCoa3aPlayground',
       viewport: {
         center: [100, 200],
         zoom: 5.5,
@@ -101,9 +100,6 @@ describe('savedViews', () => {
         symbolSize: 3.5,
         filters: {
           searchQuery: 'north',
-          regions: ['North'],
-          types: ['pmc-facility'],
-          defaultVisibility: 'default-visible',
         },
       },
       selection: {
@@ -172,6 +168,42 @@ describe('savedViews', () => {
       userId: 'user-1',
       displayName: 'Andrew',
     });
+  });
+
+  it('defaults the saved session workspace token to null when not provided', () => {
+    const session = createMapSessionState({
+      activeViewPreset: 'current',
+      basemap: {
+        provider: 'localDetailed',
+        scale: '10m',
+        landFillColor: '#ecf0e6',
+        landFillOpacity: 1,
+        showLandFill: true,
+        countryBorderColor: '#ebebeb',
+        countryBorderOpacity: 1,
+        showCountryBorders: true,
+        countryLabelColor: '#0f172a',
+        countryLabelOpacity: 1,
+        showCountryLabels: false,
+        majorCityColor: '#1f2937',
+        majorCityOpacity: 1,
+        showMajorCities: false,
+        seaFillColor: '#d9e7f5',
+        seaFillOpacity: 1,
+        showSeaFill: true,
+        seaLabelColor: '#334155',
+        seaLabelOpacity: 1,
+        showSeaLabels: false,
+      },
+      layers: [],
+      overlayLayers: [],
+      regions: [],
+      regionGlobalOpacity: 1,
+      facilitySymbolShape: 'circle',
+      facilitySymbolSize: 3.5,
+    });
+
+    expect(session.activeScenarioWorkspaceId).toBeNull();
   });
 
   it('creates a shareable saved view with explicit share policy defaults', () => {

@@ -51,10 +51,12 @@ describe('applyBoundarySelection', () => {
     expect(result).toEqual({
       boundaryName: null,
       jmcName: null,
+      scenarioRegionId: null,
       selection: {
         facilityIds: [],
         boundaryName: null,
         jmcName: null,
+        scenarioRegionId: null,
       },
     });
     expect(selectedBoundaryLayer.getSource()?.getFeatures()).toHaveLength(0);
@@ -70,6 +72,7 @@ describe('applyBoundarySelection', () => {
     });
     const feature = new Feature({
       boundary_name: 'NHS Essex Integrated Care Board',
+      boundary_code: 'E54000065',
       geometry: new Polygon([[
         [0, 0],
         [10, 0],
@@ -93,10 +96,12 @@ describe('applyBoundarySelection', () => {
     expect(result).toEqual({
       boundaryName: 'NHS Essex Integrated Care Board',
       jmcName: 'COA 3b London and East',
+      scenarioRegionId: null,
       selection: {
         facilityIds: [],
         boundaryName: 'NHS Essex Integrated Care Board',
         jmcName: 'COA 3b London and East',
+        scenarioRegionId: null,
       },
     });
     expect(selectedBoundaryLayer.getSource()?.getFeatures()).toHaveLength(1);

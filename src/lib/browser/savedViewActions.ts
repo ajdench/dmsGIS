@@ -4,11 +4,12 @@ import {
   type SavedViewStore,
 } from '../services/savedViewStore';
 import type { MapSessionState, NamedSavedView } from '../schemas/savedViews';
+import type { AppNotice } from '../../store/appStore';
 
 export interface SavedViewActionState {
   createMapSessionSnapshot(): MapSessionState;
   applyMapSessionState(session: MapSessionState): void;
-  setNotice(notice: string | null): void;
+  setNotice(notice: AppNotice | string | null): void;
 }
 
 function getNowIsoString(): string {
@@ -39,13 +40,19 @@ export async function saveCurrentViewAs(
   store: SavedViewStore | null = createBrowserSavedViewStore(),
 ): Promise<NamedSavedView | null> {
   if (!store) {
-    state.setNotice('Saved views are unavailable in this environment');
+    state.setNotice({
+      message: 'Saved views are unavailable in this environment',
+      tone: 'warning',
+    });
     return null;
   }
 
   const trimmedName = name.trim();
   if (!trimmedName) {
-    state.setNotice('Saved view name is required');
+    state.setNotice({
+      message: 'Saved view name is required',
+      tone: 'warning',
+    });
     return null;
   }
 
@@ -63,7 +70,10 @@ export async function saveCurrentViewAs(
   });
 
   const persisted = await store.save(savedView);
-  state.setNotice(`Saved view "${persisted.metadata.name}"`);
+  state.setNotice({
+    message: `Saved view "${persisted.metadata.name}"`,
+    tone: 'success',
+  });
   return persisted;
 }
 
@@ -73,24 +83,36 @@ export async function openSavedViewById(
   store: SavedViewStore | null = createBrowserSavedViewStore(),
 ): Promise<NamedSavedView | null> {
   if (!store) {
-    state.setNotice('Saved views are unavailable in this environment');
+    state.setNotice({
+      message: 'Saved views are unavailable in this environment',
+      tone: 'warning',
+    });
     return null;
   }
 
   const trimmedId = id.trim();
   if (!trimmedId) {
-    state.setNotice('Saved view selection is required');
+    state.setNotice({
+      message: 'Saved view selection is required',
+      tone: 'warning',
+    });
     return null;
   }
 
   const view = await store.get(trimmedId);
   if (!view) {
-    state.setNotice(`Saved view "${trimmedId}" was not found`);
+    state.setNotice({
+      message: `Saved view "${trimmedId}" was not found`,
+      tone: 'warning',
+    });
     return null;
   }
 
   state.applyMapSessionState(view.session);
-  state.setNotice(`Opened saved view "${view.metadata.name}"`);
+  state.setNotice({
+    message: `Opened saved view "${view.metadata.name}"`,
+    tone: 'success',
+  });
   return view;
 }
 
@@ -100,23 +122,35 @@ export async function deleteSavedViewById(
   store: SavedViewStore | null = createBrowserSavedViewStore(),
 ): Promise<boolean> {
   if (!store) {
-    state.setNotice('Saved views are unavailable in this environment');
+    state.setNotice({
+      message: 'Saved views are unavailable in this environment',
+      tone: 'warning',
+    });
     return false;
   }
 
   const trimmedId = id.trim();
   if (!trimmedId) {
-    state.setNotice('Saved view selection is required');
+    state.setNotice({
+      message: 'Saved view selection is required',
+      tone: 'warning',
+    });
     return false;
   }
 
   const existing = await store.get(trimmedId);
   if (!existing) {
-    state.setNotice(`Saved view "${trimmedId}" was not found`);
+    state.setNotice({
+      message: `Saved view "${trimmedId}" was not found`,
+      tone: 'warning',
+    });
     return false;
   }
 
   await store.delete(trimmedId);
-  state.setNotice(`Deleted saved view "${existing.metadata.name}"`);
+  state.setNotice({
+    message: `Deleted saved view "${existing.metadata.name}"`,
+    tone: 'success',
+  });
   return true;
 }

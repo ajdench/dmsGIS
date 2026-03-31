@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="faviconTitle">
+  <title id="faviconTitle">dmsGIS favicon</title>
+  <style>
+    .bg {
+      fill: #f4f5f7;
+    }
+
+    .letter {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1.6px;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .bg {
+        fill: #3d434a;
+      }
+    }
+  </style>
+  <rect class="bg" x="4" y="4" width="56" height="56" rx="12" ry="12" />
+  <text class="letter" x="19" y="34" fill="#13284c">d</text>
+  <text class="letter" x="32" y="34" fill="#8e1537">m</text>
+  <text class="letter" x="45" y="34" fill="#2f7099">s</text>
+</svg>

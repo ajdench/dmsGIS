@@ -4,17 +4,18 @@ import type { FeatureLike } from 'ol/Feature';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
 import {
-  getFacilityFeatureProperties,
-  getFacilityRecord,
-} from '../../lib/facilities';
-import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
+import { getTrueCombinedPracticeName } from '../../lib/combinedPractices';
 import type { FacilityFilterState } from '../../lib/schemas/facilities';
+import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
+import {
+  getCombinedPracticeRingGap,
+  getCombinedPracticeRingWidth,
+} from './mapStyleUtils';
 import type {
   FacilitySymbolShape,
-  RegionBoundaryLayerStyle,
   RegionStyle,
   ViewPresetId,
 } from '../../types';
@@ -25,9 +26,14 @@ export interface PointTooltipEntry {
   coordinate: [number, number];
   boundaryName: string | null;
   hasVisibleBorder: boolean;
+  hasCombinedPracticeRing: boolean;
+  symbolShape: FacilitySymbolShape;
   symbolSize: number;
   jmcName: string | null;
+  scenarioRegionId: string | null;
 }
+
+const FACILITY_POINT_HIT_TOLERANCE_PX = 6;
 
 interface PointSelectionCandidate {
   key: string;
@@ -81,15 +87,27 @@ export function getDirectPointHitsAtPixel(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: FacilityFilterState,
+  assignmentSource: VectorSource | null = null,
 ): FeatureLike[] {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const hits = map.getFeaturesAtPixel(pixel, {
-    hitTolerance: 0,
+    hitTolerance: FACILITY_POINT_HIT_TOLERANCE_PX,
     layerFilter: (layerCandidate) =>
       pointLayers.has(layerCandidate as VectorLayer<VectorSource>),
   });
 
   return hits.filter((feature) => {
+    if (
+      !isPointFeatureSelectable(
+        feature,
+        regionsByName,
+        filterDefinitions,
+        assignmentSource,
+      )
+    ) {
+      return false;
+    }
+
     const coordinate = getPointCoordinate(feature);
     if (!coordinate) return false;
     const featurePixel = map.getPixelFromCoordinate(coordinate);
@@ -102,6 +120,7 @@ export function getDirectPointHitsAtPixel(
       facilitySymbolShape,
       facilitySymbolSize,
       filterDefinitions,
+      assignmentSource,
     );
     return distance <= radius + 0.75;
   });
@@ -116,6 +135,7 @@ export function expandPointHitCluster(
   facilitySymbolSize: number,
   clickPixel: number[],
   facilityFilters: FacilityFilterState,
+  assignmentSource: VectorSource | null = null,
 ): FeatureLike[] {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
   const candidates = collectVisiblePointCandidates(
@@ -125,6 +145,7 @@ export function expandPointHitCluster(
     facilitySymbolShape,
     facilitySymbolSize,
     filterDefinitions,
+    assignmentSource,
   );
   const candidatesByKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seeds: PointSelectionCandidate[] = [];
@@ -138,6 +159,7 @@ export function expandPointHitCluster(
       facilitySymbolShape,
       facilitySymbolSize,
       filterDefinitions,
+      assignmentSource,
     );
     if (!candidate || selected.has(candidate.key)) continue;
     seeds.push(candidate);
@@ -191,6 +213,8 @@ export function collectPointTooltipEntries(params: {
     activeViewPreset: ViewPresetId,
   ) => string | null;
   facilityFilters: FacilityFilterState;
+  assignmentSource?: VectorSource | null;
+  scenarioAssignmentSource?: VectorSource | null;
 }): PointTooltipEntry[] {
   const {
     features,
@@ -200,6 +224,8 @@ export function collectPointTooltipEntries(params: {
     getBoundaryNameAtCoordinate,
     getJmcNameAtCoordinate,
     facilityFilters,
+    assignmentSource = null,
+    scenarioAssignmentSource = null,
   } = params;
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -207,19 +233,37 @@ export function collectPointTooltipEntries(params: {
   const filterDefinitions = getFacilityFilterDefinitions(facilityFilters);
 
   for (const feature of features) {
-    const facility = getFacilityRecord(feature);
+    const facility = getEffectiveFacilityRecord(feature, assignmentSource);
     if (!matchesFacilityFilters(facility, filterDefinitions)) continue;
     const name = facility.displayName;
     if (!name) continue;
 
     const coordinate = getPointCoordinate(feature) ?? fallbackCoordinate;
     const boundaryName = getBoundaryNameAtCoordinate(coordinate);
-    const jmcName = getJmcNameAtCoordinate(coordinate, activeViewPreset);
+    const scenarioAssignmentFeature =
+      scenarioAssignmentSource
+        ?.getFeatures()
+        .find((assignmentFeature) =>
+          assignmentFeature.getGeometry()?.intersectsCoordinate(coordinate),
+        ) ?? null;
+    const scenarioRegionId = scenarioAssignmentFeature
+      ? String(scenarioAssignmentFeature.get('scenario_region_id') ?? '').trim() || null
+      : null;
+    const jmcName =
+      scenarioAssignmentFeature
+        ? String(
+            scenarioAssignmentFeature.get('region_name') ??
+              scenarioAssignmentFeature.get('jmc_name') ??
+              '',
+          ).trim() || getJmcNameAtCoordinate(coordinate, activeViewPreset)
+        : getJmcNameAtCoordinate(coordinate, activeViewPreset);
     const regionName = facility.region;
     const regionStyle = regionsByName.get(regionName);
     const hasVisibleBorder =
       (regionStyle?.borderVisible ?? true) &&
       (regionStyle?.borderOpacity ?? 1) > 0.01;
+    const hasCombinedPracticeRing = !!getTrueCombinedPracticeName(facility);
+    const symbolShape = regionStyle?.shape ?? 'circle';
     const symbolSize = regionStyle?.symbolSize ?? 3.5;
     const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
     if (seen.has(key)) continue;
@@ -230,12 +274,32 @@ export function collectPointTooltipEntries(params: {
       coordinate,
       boundaryName,
       hasVisibleBorder,
+      hasCombinedPracticeRing,
+      symbolShape,
       symbolSize,
       jmcName,
+      scenarioRegionId,
     });
   }
 
   return entries;
+}
+
+export function prioritizePointTooltipEntries(
+  entries: PointTooltipEntry[],
+  facilityId: string,
+): PointTooltipEntry[] {
+  const selectedIndex = entries.findIndex((entry) => entry.facilityId === facilityId);
+
+  if (selectedIndex <= 0) {
+    return entries;
+  }
+
+  return [
+    entries[selectedIndex],
+    ...entries.slice(0, selectedIndex),
+    ...entries.slice(selectedIndex + 1),
+  ];
 }
 
 function collectVisiblePointCandidates(
@@ -245,6 +309,7 @@ function collectVisiblePointCandidates(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): PointSelectionCandidate[] {
   const candidates: PointSelectionCandidate[] = [];
 
@@ -253,7 +318,14 @@ function collectVisiblePointCandidates(
     if (!source) continue;
 
     for (const feature of source.getFeatures()) {
-      if (!isPointFeatureSelectable(feature, regionsByName, facilityFilters)) {
+      if (
+        !isPointFeatureSelectable(
+          feature,
+          regionsByName,
+          facilityFilters,
+          assignmentSource,
+        )
+      ) {
         continue;
       }
       const candidate = getPointSelectionCandidate(
@@ -263,6 +335,7 @@ function collectVisiblePointCandidates(
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
+        assignmentSource,
       );
       if (candidate) {
         candidates.push(candidate);
@@ -280,11 +353,12 @@ function getPointSelectionCandidate(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): PointSelectionCandidate | null {
   const coordinate = getPointCoordinate(feature);
   if (!coordinate) return null;
 
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return null;
   }
@@ -296,6 +370,7 @@ function getPointSelectionCandidate(
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
+    assignmentSource,
   );
 
   return {
@@ -310,8 +385,9 @@ function isPointFeatureSelectable(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): boolean {
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return false;
   }
@@ -320,11 +396,15 @@ function isPointFeatureSelectable(
   const regionStyle = regionsByName.get(regionName);
   const defaultVisible = facility.isDefaultVisible;
 
+  if (!defaultVisible) {
+    return false;
+  }
+
   if (regionStyle) {
     return regionStyle.visible;
   }
 
-  return defaultVisible;
+  return true;
 }
 
 function getPointSelectionRadius(
@@ -333,21 +413,35 @@ function getPointSelectionRadius(
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
+  assignmentSource: VectorSource | null,
 ): number {
-  const facility = getFacilityRecord(feature);
+  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return 0;
   }
 
-  const properties = getFacilityFeatureProperties(feature);
-  const regionName = properties.region;
+  const regionName = facility.region;
   const regionStyle = regionsByName.get(regionName);
   const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
+  const symbolShape = regionStyle?.shape ?? facilitySymbolShape;
   const borderVisible = regionStyle?.borderVisible ?? true;
   const borderOpacity = regionStyle?.borderOpacity ?? 1;
-  const borderWidth = borderVisible && borderOpacity > 0.01 ? 1 : 0;
+  const borderWidth =
+    borderVisible && borderOpacity > 0.01 ? (regionStyle?.borderWidth ?? 1) : 0;
+  const combinedPracticeRingWidth = getTrueCombinedPracticeName(facility)
+    ? getCombinedPracticeRingWidth(symbolSize)
+    : 0;
+  const combinedPracticeRingGap = getTrueCombinedPracticeName(facility)
+    ? getCombinedPracticeRingGap(symbolSize)
+    : 0;
 
-  return getRenderedPointPixelRadius(facilitySymbolShape, symbolSize, borderWidth);
+  return getRenderedPointPixelRadius(
+    symbolShape,
+    symbolSize,
+    borderWidth,
+    combinedPracticeRingGap,
+    combinedPracticeRingWidth,
+  );
 }
 
 function pointCandidatesOverlap(
@@ -364,14 +458,16 @@ function getRenderedPointPixelRadius(
   shape: FacilitySymbolShape,
   size: number,
   borderWidth: number,
+  outerRingGap: number,
+  outerRingWidth: number,
 ): number {
   if (shape === 'circle') {
-    return size + borderWidth;
+    return size + borderWidth + outerRingGap + outerRingWidth;
   }
 
   if (shape === 'square' || shape === 'diamond') {
-    return size * 1.05 + borderWidth;
+    return size * 1.05 + borderWidth + outerRingGap + outerRingWidth;
   }
 
-  return size * 1.15 + borderWidth;
+  return size * 1.15 + borderWidth + outerRingGap + outerRingWidth;
 }

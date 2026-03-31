@@ -5,7 +5,9 @@ import {
 } from '../src/lib/config/scenarioAssignments';
 
 describe('scenario assignments', () => {
-  it('resolves coa3a boundary overrides into scenario assignments', () => {
+  it('maps source region name directly when no boundary-name override applies', () => {
+    // Boundary-name overrides are now absorbed into codeGroupings (code-keyed).
+    // resolveScenarioAssignment passes the source region name through unchanged.
     expect(
       resolveScenarioAssignment(
         'coa3b',
@@ -14,12 +16,12 @@ describe('scenario assignments', () => {
         'JMC_CENTRE',
       ),
     ).toEqual({
-      name: 'COA 3a South East',
-      code: 'COA3A_SOUTH_EAST',
+      name: 'JMC Centre',
+      code: 'COA3A_JMC_CENTRE',
     });
   });
 
-  it('resolves coa3b london and east assignment codes from metadata', () => {
+  it('normalises coa3c london district source name to a coa3b assignment code', () => {
     expect(
       resolveScenarioAssignment(
         'coa3c',
@@ -28,8 +30,8 @@ describe('scenario assignments', () => {
         'JMC_LONDON_DISTRICT',
       ),
     ).toEqual({
-      name: 'COA 3b London and East',
-      code: 'COA3B_LONDON_EAST',
+      name: 'London District',
+      code: 'COA3B_LONDON_DISTRICT',
     });
   });
 

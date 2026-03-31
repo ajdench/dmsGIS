@@ -1,0 +1,11 @@
+{
+  "layers": [
+    {
+      "id": "facilities",
+      "name": "Facilities",
+      "type": "point",
+      "path": "data/facilities/facilities.geojson",
+      "visibleByDefault": true
+    }
+  ]
+}

@@ -9,7 +9,19 @@ import {
 } from '../src/features/map/lookupSources';
 
 describe('lookupSources', () => {
-  it('prefers the live care-board source over the fallback assignment source', () => {
+  it('prefers the live region-fill source over the fallback assignment source', () => {
+    const liveSource = new VectorSource();
+    const fallbackSource = new VectorSource();
+    const regionBoundaryLayers = new Map([
+      ['regionFill', new VectorLayer({ source: liveSource })],
+    ]);
+
+    expect(
+      getActiveAssignmentLookupSource(regionBoundaryLayers, fallbackSource),
+    ).toBe(liveSource);
+  });
+
+  it('falls back to the legacy live care-board source when regionFill is absent', () => {
     const liveSource = new VectorSource();
     const fallbackSource = new VectorSource();
     const regionBoundaryLayers = new Map([
