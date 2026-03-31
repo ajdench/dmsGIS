@@ -167,6 +167,41 @@ describe('facilityPar', () => {
     });
   });
 
+  it('maps Current Royal Navy split-parent Portsmouth fallback into London & South', () => {
+    expect(
+      summarizeFacilityParByPresetRegion({
+        preset: 'current',
+        facilities: [
+          {
+            regionName: 'Royal Navy',
+            legacyBoundaryCode: '17',
+            boundaryCode2026: '17',
+            parValue: '2191',
+          },
+          {
+            regionName: 'Royal Navy',
+            legacyBoundaryCode: 'E54000037',
+            boundaryCode2026: 'E54000037',
+            parValue: '1153',
+          },
+          {
+            regionName: 'Royal Navy',
+            legacyBoundaryCode: 'E54000042',
+            boundaryCode2026: 'E54000067',
+            parValue: '3451',
+          },
+        ],
+      }),
+    ).toEqual({
+      regionParByName: {
+        'Scotland & Northern Ireland': 2191,
+        'South West': 1153,
+        'London & South': 3451,
+      },
+      totalPar: 6795,
+    });
+  });
+
   it('treats only Royal Navy region facilities as Baseport PAR on the active assignment basis', () => {
     const features = [
       new Feature({
