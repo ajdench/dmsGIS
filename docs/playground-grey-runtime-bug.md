@@ -2,13 +2,19 @@
 
 ## Status
 
-- unresolved
+- unresolved, but partially stabilized
 - reproducible intermittently after Playground reassignment and later reload / re-entry
 - observed both:
   - locally
   - on GitHub Pages
 
 This is a runtime assignment/rendering bug, not a canonical geometry-source bug.
+
+Related but separate note:
+
+- a later Playground border bug was also found
+- that border bug was caused by deriving live Region borders from dissolved polygons instead of shared topology arcs
+- that border path has now been corrected separately and should not be confused with the grey-fill bug
 
 ## Short Summary
 
@@ -246,6 +252,26 @@ So the current reading is:
 
 - the earlier and local fixes addressed real seams
 - but at least one more runtime seam still exists
+
+## Later Dynamic Border Fix
+
+A separate later fix corrected Playground Region-border derivation:
+
+- `src/features/map/derivedScenarioOutlineSource.ts`
+- `src/features/map/MapWorkspace.tsx`
+- `tests/derivedScenarioOutlineSource.test.ts`
+
+What changed:
+
+- dynamic Playground Region borders now prefer the shipped `2026` topology-edge source
+- same-Region internal arcs are filtered out before border features are emitted
+- inter-Region arcs are duplicated per owning Region so selection/highlight can still resolve one Region at a time
+- polygon dissolve remains only as a fallback when no topology-edge source is available
+
+Why that matters:
+
+- the previous polygon-dissolve shortcut could leave internal borders visible or broken
+- the seam-first arc path is the architecturally intended model and should be treated as the preferred one going forward
 
 ## Strongest Current Hypothesis
 

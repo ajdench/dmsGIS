@@ -267,6 +267,8 @@ export function MapWorkspace() {
     useState(0);
   const [presetGroupOutlineSourceVersion, setPresetGroupOutlineSourceVersion] =
     useState(0);
+  const [scenarioTopologyEdgeSourceVersion, setScenarioTopologyEdgeSourceVersion] =
+    useState(0);
   const scenarioWorkspaceRuntimeActive =
     !!activeScenarioWorkspaceId &&
     isScenarioWorkspaceCompatibleWithPreset(
@@ -1301,9 +1303,16 @@ export function MapWorkspace() {
       (scenarioWorkspaceRuntimeActive
         ? runtimeAssignmentBaselineSource
         : null);
+    const scenarioTopologyEdgeSource =
+      activeViewPreset === 'current'
+        ? null
+        : regionBoundaryRefs.current.get('englandIcb')?.getSource() ?? null;
     scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
-      buildDerivedScenarioOutlineSource(derivedOutlineAssignmentSource);
+      buildDerivedScenarioOutlineSource(
+        derivedOutlineAssignmentSource,
+        scenarioTopologyEdgeSource,
+      );
     scenarioWorkspaceAssignmentByBoundaryNameRef.current =
       runtimeState.assignmentByBoundaryName;
 
@@ -1370,6 +1379,23 @@ export function MapWorkspace() {
       createBoundaryLayer: createRegionBoundaryLayer,
       getBoundaryLayerStyle: createRegionBoundaryStyle,
     });
+
+    const topologyEdgeSource =
+      activeViewPreset === 'current'
+        ? null
+        : regionBoundaryRefs.current.get('englandIcb')?.getSource() ?? null;
+    let topologyEdgeChangeKey: EventsKey | null = null;
+    if (topologyEdgeSource) {
+      topologyEdgeChangeKey = topologyEdgeSource.on('change', () => {
+        setScenarioTopologyEdgeSourceVersion((version) => version + 1);
+      });
+    }
+
+    return () => {
+      if (topologyEdgeChangeKey) {
+        unByKey(topologyEdgeChangeKey);
+      }
+    };
   }, [
     overlayLayers,
     activeViewPreset,
@@ -1378,6 +1404,7 @@ export function MapWorkspace() {
     scenarioWorkspaceRuntimeActive,
     activeScenarioWorkspaceBaselineAssignmentKind,
     scenarioWorkspaceBaselineSourcesVersion,
+    scenarioTopologyEdgeSourceVersion,
     presetGroupOutlineSourceVersion,
     populatedV10Codes,
     populated2026Codes,

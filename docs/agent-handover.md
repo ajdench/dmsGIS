@@ -74,6 +74,8 @@ Current shared-foundation review note:
   - `Current` split-region borders were fixed by removing the bad whole-parent `Hampshire and Isle of Wight` assignment and rebuilding `Current` outlines from dissolve-derived group geometry
   - static scenario Region-border overlays now prefer dissolve-derived group exteriors instead of the brittle topology-mesh-first path
   - `SJC JMC` `London District` is a real separate Region in the review family and now uses London purple (`#8767ac`) so it reads separately from `JMC South East`
+  - Playground dynamic scenario borders now prefer shared `2026` topology-edge arcs when available and only fall back to polygon dissolve when no edge source exists
+  - same-Region internal seams in Playground should therefore now be removed at the seam-selection stage rather than being left for dissolve cleanup to infer later
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
@@ -174,6 +176,10 @@ Current scenario-outline processing note:
   - `public/data/regions/UK_COA3B_Outline_simplified.geojson`
 - static scenario selection now prefers the precomputed per-group topology outline files under `public/data/regions/outlines/`
 - live derived outline sources remain first-choice only for Playground / draft-aware selection
+- Playground / draft-aware scenario borders should now also be treated as topology-edge-first:
+  - preferred input = shipped `2026` topology edges plus the live assignment map
+  - fallback only = polygon dissolve when no edge source is available
+  - this replaces the earlier drift where Playground tried to rediscover Region borders from dissolved board polygons
 
 Browser automation note:
 

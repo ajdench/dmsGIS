@@ -648,3 +648,28 @@ Checks passed:
 
 - `npm run test -- --run tests/viewPresets.test.ts tests/runtimeMapProducts.test.ts tests/boundarySelection.test.ts tests/selectionHighlights.test.ts`
 - `npm run build`
+
+## Later Runtime Follow-Up: Playground Dynamic Borders
+
+After the accepted review-family geometry was locked, a later runtime-only bug surfaced in Playground:
+
+- dynamic Region reassignment could leave same-Region internal borders visible or broken
+
+Cause found:
+
+- Playground was still deriving its live Region-border source from dissolved board polygons in:
+  - `src/features/map/derivedScenarioOutlineSource.ts`
+- that contradicted the intended seam-first architecture, because the repo already ships explicit `2026` topology-edge products for this purpose
+
+Fix applied later in the main repo:
+
+- `src/features/map/derivedScenarioOutlineSource.ts`
+- `src/features/map/MapWorkspace.tsx`
+- `tests/derivedScenarioOutlineSource.test.ts`
+
+Result:
+
+- dynamic Playground Region borders now prefer shared `2026` topology-edge arcs
+- same-Region internal seams are removed before emission
+- polygon dissolve is retained only as a fallback when no edge source is available
+- the runtime now also rebuilds that dynamic border source when the async topology-edge source finishes loading
