@@ -2,7 +2,11 @@ import type { FeatureLike } from 'ol/Feature';
 import type VectorSource from 'ol/source/Vector';
 import { getEffectiveFacilityRegionAssignment } from './scenarioFacilityMapping';
 import { getGroupNameForCode } from '../../lib/config/viewPresets';
-import { formatParDisplayValue, parseFacilityParValue } from '../../lib/facilityPar';
+import {
+  formatParDisplayValue,
+  parseFacilityParValue,
+  resolveCurrentRoyalNavyFallbackRegion,
+} from '../../lib/facilityPar';
 import type { ViewPresetId } from '../../types';
 
 export { formatParDisplayValue, parseFacilityParValue } from '../../lib/facilityPar';
@@ -186,7 +190,15 @@ function resolveBoundaryCodeGroupName(
     return null;
   }
 
-  return getGroupNameForCode(activeViewPreset, boundaryCode);
+  return (
+    getGroupNameForCode(activeViewPreset, boundaryCode) ??
+    resolveCurrentRoyalNavyFallbackRegion({
+      regionName: parseFacilityRegionName(readFeatureValue(feature, 'region')),
+      legacyBoundaryCode: boundaryCode,
+      boundaryCode2026: readFeatureValue(feature, 'icb_hb_code_2026'),
+      preset: activeViewPreset,
+    })
+  );
 }
 
 function getFeaturePointCoordinate(feature: FeatureLike): [number, number] | null {

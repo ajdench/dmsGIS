@@ -119,6 +119,11 @@ export function summarizeFacilityParByPresetRegion(params: {
     );
     const mappedRegionName =
       (boundaryCode ? presetConfig.codeGroupings[boundaryCode] : null) ??
+      resolveCurrentRoyalNavyFacilityFallbackRegion({
+        facility,
+        preset,
+        boundaryCode,
+      }) ??
       (preset === 'current' ? originalRegionName : '');
 
     if (!mappedRegionName) {
@@ -216,6 +221,34 @@ export function summarizeFacilityParByScenarioWorkspace(params: {
   };
 }
 
+export function resolveCurrentRoyalNavyFallbackRegion(params: {
+  regionName: string | null;
+  legacyBoundaryCode: unknown;
+  boundaryCode2026: unknown;
+  preset: ViewPresetId;
+}): string | null {
+  const { regionName, legacyBoundaryCode, boundaryCode2026, preset } = params;
+  if (preset !== 'current') {
+    return null;
+  }
+
+  if ((regionName?.trim() ?? '') !== 'Royal Navy') {
+    return null;
+  }
+
+  const boundaryCode = normalizeBoundaryCode(legacyBoundaryCode);
+  if (boundaryCode === 'E54000042') {
+    return 'London & South';
+  }
+
+  const normalizedBoundaryCode2026 = normalizeBoundaryCode(boundaryCode2026);
+  if (normalizedBoundaryCode2026 === 'E54000067') {
+    return 'London & South';
+  }
+
+  return null;
+}
+
 function normalizeBoundaryCode(value: unknown): string | null {
   if (typeof value !== 'string') {
     return null;
@@ -223,4 +256,19 @@ function normalizeBoundaryCode(value: unknown): string | null {
 
   const normalized = value.trim();
   return normalized || null;
+}
+
+function resolveCurrentRoyalNavyFacilityFallbackRegion(params: {
+  facility: FacilityParRecord;
+  preset: ViewPresetId;
+  boundaryCode: string | null;
+}): string | null {
+  const { facility, preset } = params;
+
+  return resolveCurrentRoyalNavyFallbackRegion({
+    regionName: facility.regionName,
+    legacyBoundaryCode: facility.legacyBoundaryCode,
+    boundaryCode2026: facility.boundaryCode2026,
+    preset,
+  });
 }
