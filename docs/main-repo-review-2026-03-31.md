@@ -69,6 +69,20 @@ The next review work should therefore prioritize:
 - continuing bounded extraction from those three files
 - adding more live-runtime acceptance coverage rather than only more unit coverage
 
+One such bounded extraction is now complete:
+
+- `src/features/map/playgroundRuntimeSession.ts`
+
+That helper now owns the composition of:
+
+- baseline assignment source selection
+- draft-aware runtime assignment source creation
+- derived outline source creation
+- diagnostics snapshot creation
+- runtime override map creation for `regionFill` and `scenarioOutline`
+
+This does not solve every Playground issue on its own, but it reduces the chance that `MapWorkspace.tsx` and `scenarioWorkspaceRuntime.ts` drift apart again on source-authority rules.
+
 ## Findings
 
 ### 1. Runtime Product Governance Had Drifted
