@@ -56,7 +56,9 @@ import {
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
 import {
+  buildPlaygroundRuntimeDiagnosticsSnapshot,
   buildScenarioWorkspaceRuntimeState,
+  type PlaygroundRuntimeDiagnosticsSnapshot,
   resolveScenarioWorkspaceBaselineAssignmentSource,
 } from './scenarioWorkspaceRuntime';
 import { buildDerivedScenarioOutlineSource } from './derivedScenarioOutlineSource';
@@ -132,6 +134,13 @@ interface ScenarioAssignmentPopoverState {
   boundaryName: string;
   coordinate: [number, number];
   selectedRegionId: string | null;
+}
+
+declare global {
+  interface Window {
+    __dmsGISPlaygroundDiagnostics?: PlaygroundRuntimeDiagnosticsSnapshot | null;
+    __dmsGISPlaygroundDiagnosticsHistory?: PlaygroundRuntimeDiagnosticsSnapshot[];
+  }
 }
 
 export function MapWorkspace() {
@@ -1294,6 +1303,35 @@ export function MapWorkspace() {
       buildDerivedScenarioOutlineSource(derivedOutlineAssignmentSource);
     scenarioWorkspaceAssignmentByBoundaryNameRef.current =
       runtimeState.assignmentByBoundaryName;
+
+    if (typeof window !== 'undefined') {
+      if (
+        scenarioWorkspaceRuntimeActive &&
+        activeScenarioWorkspaceId &&
+        activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
+      ) {
+        const diagnosticsSnapshot = buildPlaygroundRuntimeDiagnosticsSnapshot({
+          workspaceId: activeScenarioWorkspaceId,
+          baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
+          liveAssignmentPath,
+          preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
+          liveAssignmentSource,
+          resolvedBaselineAssignmentSource:
+            resolvedScenarioWorkspaceBaselineAssignmentSource,
+          runtimeAssignmentBaselineSource,
+          runtimeAssignmentSource: runtimeState.assignmentSource,
+          derivedOutlineAssignmentSource,
+        });
+        window.__dmsGISPlaygroundDiagnostics = diagnosticsSnapshot;
+        const history = window.__dmsGISPlaygroundDiagnosticsHistory ?? [];
+        window.__dmsGISPlaygroundDiagnosticsHistory = [
+          ...history.slice(-9),
+          diagnosticsSnapshot,
+        ];
+      } else {
+        window.__dmsGISPlaygroundDiagnostics = null;
+      }
+    }
 
     const runtimeSourceOverrides = new Map<string, VectorSource>();
     if (scenarioWorkspaceAssignmentSourceRef.current) {

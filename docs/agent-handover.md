@@ -657,6 +657,9 @@ Important current qualification:
   - not a canonical geometry-source failure
   - not a GitHub Pages-only issue
   - not a facilities-data issue
+- local programmatic diagnostics now exist for the next reproduction pass:
+  - `window.__dmsGISPlaygroundDiagnostics`
+  - `window.__dmsGISPlaygroundDiagnosticsHistory`
 
 Preset/workspace switching now also clears the actual OpenLayers selection/highlight layers and docked tooltip before paint. Store selection reset alone was not sufficient once later Playground/runtime work reintroduced stale visual state on mode switches.
 

@@ -366,6 +366,19 @@ for a few boards that later turn grey
 
 5. do not push another “fix” to GitHub Pages until one live reproduction has been explained with instrumentation
 
+Current local instrumentation path:
+
+- `window.__dmsGISPlaygroundDiagnostics`
+- `window.__dmsGISPlaygroundDiagnosticsHistory`
+
+Those programmatic snapshots now capture:
+
+- which source role Playground actually chose
+- feature counts on each candidate source
+- mapped versus unmapped feature counts
+- invalid explicit `scenario_region_id` counts
+- a small sample of unmapped boundary names
+
 ## Recovery Rule
 
 Do not treat this as solved because:
@@ -381,4 +394,3 @@ Acceptance should require:
 - same behaviour:
   - locally
   - on GitHub Pages
-
