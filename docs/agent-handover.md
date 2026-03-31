@@ -94,6 +94,7 @@ Current shared-foundation review note:
   - `SJC JMC` `London District` is a real separate Region in the review family and now uses London purple (`#8767ac`) so it reads separately from `JMC South East`
   - Playground dynamic scenario borders now prefer a dedicated preloaded shared `2026` topology-edge source and only fall back to polygon dissolve when no edge source exists
   - same-Region internal seams in Playground should therefore now be removed at the seam-selection stage rather than being left for dissolve cleanup to infer later
+  - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
