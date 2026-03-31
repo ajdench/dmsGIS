@@ -6,6 +6,7 @@ import {
   getScenarioPresetConfig,
   type ScenarioPresetConfig,
 } from './viewPresets';
+import { resolveRuntimeMapProductPath } from './runtimeMapProducts';
 import {
   parseScenarioWorkspaceBaseline,
   parseScenarioWorkspaceDraft,
@@ -105,7 +106,8 @@ export function getScenarioWorkspaceAssignmentDatasetPath(
     return null;
   }
 
-  return getScenarioPresetConfig(sourcePresetId)?.boardLayer.path ?? null;
+  const boardPath = getScenarioPresetConfig(sourcePresetId)?.boardLayer.path ?? null;
+  return boardPath ? resolveRuntimeMapProductPath(boardPath) : null;
 }
 
 export function getScenarioWorkspaceIdForPreset(
@@ -171,11 +173,11 @@ function createScenarioWorkspaceBaselineFromPreset(
     boundarySystemId: getPresetBoundarySystemId(presetId),
     assignmentSource: {
       kind: 'static-dataset',
-      path: config.boardLayer.path,
+      path: resolveRuntimeMapProductPath(config.boardLayer.path),
     },
     derivedOutlineSource: {
       kind: 'derived-dataset',
-      path: config.outlineLayer.path,
+      path: resolveRuntimeMapProductPath(config.outlineLayer.path),
     },
     lookupBoundaryPath: config.lookupBoundaryPath,
     regions,

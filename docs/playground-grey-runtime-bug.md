@@ -202,6 +202,24 @@ The risk here is:
 
 That is the class of seam most strongly implicated by the symptoms.
 
+## Newly Confirmed Regression Cause
+
+A later review found a second concrete mismatch in:
+
+- `src/lib/config/scenarioWorkspaces.ts`
+
+Interactive Playground baseline assignment datasets were still resolving from the raw preset paths like:
+
+- `data/regions/...`
+
+while the live app had already been moved onto the accepted runtime family under:
+
+- `data/compare/shared-foundation-review/...`
+
+That meant Playground could rebuild its runtime assignment source from one data root while the visible map was consuming another.
+
+This is a true regression seam introduced by the later runtime-family promotion work, not by the canonical geometry itself.
+
 ## Local Follow-up Patch Attempt
 
 Local follow-up work was added to try to lock Playground onto the correct baseline path:

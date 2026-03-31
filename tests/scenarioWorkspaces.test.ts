@@ -87,13 +87,13 @@ describe('scenarioWorkspaces', () => {
 
   it('resolves assignment dataset paths for editable workspaces from their source preset', () => {
     expect(getScenarioWorkspaceAssignmentDatasetPath('coa3c')).toBe(
-      'data/regions/UK_COA3B_Board_simplified.geojson',
+      'data/compare/shared-foundation-review/regions/UK_COA3B_Board_simplified.geojson',
     );
     expect(
       getScenarioWorkspaceAssignmentDatasetPath(DPHC_ESTIMATE_COA_3A_PLAYGROUND_ID),
-    ).toBe('data/regions/UK_COA3A_Board_simplified.geojson');
+    ).toBe('data/compare/shared-foundation-review/regions/UK_COA3A_Board_simplified.geojson');
     expect(
       getScenarioWorkspaceAssignmentDatasetPath(DPHC_ESTIMATE_COA_PLAYGROUND_ID),
-    ).toBe('data/regions/UK_COA3B_Board_simplified.geojson');
+    ).toBe('data/compare/shared-foundation-review/regions/UK_COA3B_Board_simplified.geojson');
   });
 });
