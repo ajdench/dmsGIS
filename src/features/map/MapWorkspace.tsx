@@ -126,7 +126,10 @@ import {
 import { buildSelectedFacilityPracticeSummary } from './facilityPracticeSummary';
 import { useAppStore } from '../../store/appStore';
 import { ScenarioAssignmentPopover } from './ScenarioAssignmentPopover';
-import { resolvePlaygroundSelectedRegion } from './playgroundSelection';
+import {
+  resolvePlaygroundEditorRegionId,
+  resolvePlaygroundSelectedRegion,
+} from './playgroundSelection';
 import { getScenarioPresetConfig } from '../../lib/config/viewPresets';
 
 interface ScenarioAssignmentPopoverState {
@@ -1521,11 +1524,20 @@ export function MapWorkspace() {
 
     const selectedRegionName =
       activeScenarioWorkspaceBaseline?.regions.find(
-        (region) => region.id === scenarioAssignmentPopover.selectedRegionId,
+        (region) =>
+          region.id ===
+          resolvePlaygroundEditorRegionId({
+            scenarioWorkspaceEditor,
+            scenarioAssignmentPopover,
+          }),
       )?.label ?? null;
+    const selectedRegionId = resolvePlaygroundEditorRegionId({
+      scenarioWorkspaceEditor,
+      scenarioAssignmentPopover,
+    });
 
     selectBoundary(liveFeature, scenarioAssignmentPopover.coordinate, {
-      scenarioRegionId: scenarioAssignmentPopover.selectedRegionId,
+      scenarioRegionId: selectedRegionId,
       regionName: selectedRegionName,
     });
   }, [
@@ -1533,6 +1545,7 @@ export function MapWorkspace() {
     activeScenarioWorkspaceBaseline,
     getEditableBoundaryFeature,
     scenarioAssignmentPopover,
+    scenarioWorkspaceEditor,
     selectBoundary,
   ]);
 
