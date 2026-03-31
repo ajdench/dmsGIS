@@ -18,6 +18,24 @@ The prior rollback point remains:
 - package version at time of writing: `0.1.0`
 - repo path: `/Users/andrew/Projects/dmsGIS`
 
+## Naming Note
+
+This baseline still uses a mix of:
+
+- older public contract names
+- newer internal build/review/runtime-family names
+
+That should be treated as deliberate sequential replacement, not accidental inconsistency.
+
+Current rule:
+
+- public app/runtime file names stay stable when they are still part of the live contract
+- newer source lineage, preprocess logic, and runtime routing can be improved behind those stable names
+- review-family and accepted-runtime token names are allowed to be newer and clearer
+- broad public-path renaming should wait for an explicit cutover, not happen opportunistically mid-rebuild
+
+So when an older filename remains in place here, it does not automatically mean the old processing lineage is still authoritative.
+
 ## Runtime Family
 
 The app contract is unchanged, but the shipped runtime geometry family is now rebuilt from the `v3.8` source family.
@@ -252,10 +270,18 @@ Current facilities baseline notes:
 
 ## Runtime Token
 
-The active runtime token is baseline again:
+The active runtime token is now the accepted `v3.8` family token:
 
 - `src/lib/config/runtimeMapProducts.json`
-- `activeProductId: "baseline"`
+- `activeProductId: "acceptedV38"`
+
+Important qualification:
+
+- the accepted token currently still resolves to:
+  - `data/compare/shared-foundation-review/...`
+- this is intentional for now
+- the governance fix is that the active token now names the family as accepted runtime rather than as a temporary review-only product
+- a later explicit physical promotion can still move the same accepted family back under `public/data/...` if desired
 
 The older compare families remain on disk for historical reference only:
 

@@ -32,20 +32,21 @@ Every new agent session should begin by reading:
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/agent-handover.md`
-4. `docs/sidebar-pane-status.md`
-5. `docs/prototype-to-production-playbook.md`
-6. `docs/agent-continuation-protocol.md`
-7. `docs/current-app-baseline-v3.8.md`
-8. `docs/current-app-baseline-v3.7.md`
-9. `docs/current-app-baseline-v3.6.md`
-10. `docs/current-app-baseline-v3.5.md`
-11. `docs/current-app-baseline-v3.4.md`
-12. `docs/v3.4-internal-gap-regression.md`
-13. `docs/v3.5-full-geometry-redress.md`
-14. `docs/v3.8-bsc-runtime-family-spec.md`
-15. `docs/v3.7-next-phase.md`
-16. `docs/canonical-board-rebuild-workflow.md`
-17. `docs/sidebar-parity-bugs.md`
+4. `docs/main-repo-review-2026-03-31.md`
+5. `docs/sidebar-pane-status.md`
+6. `docs/prototype-to-production-playbook.md`
+7. `docs/agent-continuation-protocol.md`
+8. `docs/current-app-baseline-v3.8.md`
+9. `docs/current-app-baseline-v3.7.md`
+10. `docs/current-app-baseline-v3.6.md`
+11. `docs/current-app-baseline-v3.5.md`
+12. `docs/current-app-baseline-v3.4.md`
+13. `docs/v3.4-internal-gap-regression.md`
+14. `docs/v3.5-full-geometry-redress.md`
+15. `docs/v3.8-bsc-runtime-family-spec.md`
+16. `docs/v3.7-next-phase.md`
+17. `docs/canonical-board-rebuild-workflow.md`
+18. `docs/sidebar-parity-bugs.md`
 
 If the task touches historical sidebar context or reset rationale, also read:
 

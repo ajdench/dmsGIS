@@ -55,7 +55,12 @@ import {
   getActiveAssignmentLookupSource,
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
-import { buildScenarioWorkspaceRuntimeState } from './scenarioWorkspaceRuntime';
+import {
+  buildPlaygroundRuntimeDiagnosticsSnapshot,
+  buildScenarioWorkspaceRuntimeState,
+  type PlaygroundRuntimeDiagnosticsSnapshot,
+  resolveScenarioWorkspaceBaselineAssignmentSource,
+} from './scenarioWorkspaceRuntime';
 import { buildDerivedScenarioOutlineSource } from './derivedScenarioOutlineSource';
 import {
   getScenarioBoundaryUnitId,
@@ -121,7 +126,10 @@ import {
 import { buildSelectedFacilityPracticeSummary } from './facilityPracticeSummary';
 import { useAppStore } from '../../store/appStore';
 import { ScenarioAssignmentPopover } from './ScenarioAssignmentPopover';
-import { resolvePlaygroundSelectedRegion } from './playgroundSelection';
+import {
+  resolvePlaygroundEditorRegionId,
+  resolvePlaygroundSelectedRegion,
+} from './playgroundSelection';
 import { getScenarioPresetConfig } from '../../lib/config/viewPresets';
 
 interface ScenarioAssignmentPopoverState {
@@ -129,6 +137,13 @@ interface ScenarioAssignmentPopoverState {
   boundaryName: string;
   coordinate: [number, number];
   selectedRegionId: string | null;
+}
+
+declare global {
+  interface Window {
+    __dmsGISPlaygroundDiagnostics?: PlaygroundRuntimeDiagnosticsSnapshot | null;
+    __dmsGISPlaygroundDiagnosticsHistory?: PlaygroundRuntimeDiagnosticsSnapshot[];
+  }
 }
 
 export function MapWorkspace() {
@@ -225,6 +240,7 @@ export function MapWorkspace() {
   const scenarioWorkspaceBaselineDatasetSourcesRef = useRef<
     Map<string, VectorSource>
   >(new Map());
+  const scenarioTopologyEdgeSourceRef = useRef<VectorSource | null>(null);
   const scenarioWorkspaceDerivedOutlineSourceRef = useRef<VectorSource | null>(null);
   const presetGroupOutlineSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
@@ -656,6 +672,8 @@ export function MapWorkspace() {
       boundarySystemLookupSourcesRef.current.get('legacyIcbHb') ?? null;
     const overlayAssignmentSource = new VectorSource();
     jmcAssignmentLookupSourceRef.current = overlayAssignmentSource;
+    const scenarioTopologyEdgeSource = new VectorSource();
+    scenarioTopologyEdgeSourceRef.current = scenarioTopologyEdgeSource;
     const scenarioLookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [];
     for (const preset of getScenarioWorkspacePresetIds()) {
       const path = getScenarioWorkspaceLookupBoundaryPath(preset);
@@ -689,6 +707,14 @@ export function MapWorkspace() {
     void loadOverlayLookupDatasets({
       datasets: [
         ...boundarySystemLookupDatasets,
+        {
+          key: 'scenarioTopologyEdges',
+          path: resolveRuntimeMapProductPath(
+            'data/regions/UK_Health_Board_2026_topology_edges.geojson',
+          ),
+          source: scenarioTopologyEdgeSource,
+          errorLabel: 'Failed to load 2026 topology edges for Playground outlines',
+        },
         ...scenarioLookupDatasets,
         ...scenarioWorkspaceAssignmentDatasets,
       ],
@@ -734,6 +760,7 @@ export function MapWorkspace() {
         jmcAssignmentLookupSourceRef,
         scenarioWorkspaceAssignmentSourceRef,
         scenarioWorkspaceBaselineAssignmentSourceRef,
+        scenarioTopologyEdgeSourceRef,
         scenarioWorkspaceDerivedOutlineSourceRef,
         presetGroupOutlineSourceRef,
         jmcAssignmentByBoundaryNameRef,
@@ -1248,28 +1275,29 @@ export function MapWorkspace() {
       jmcAssignmentLookupSourceRef.current,
     );
     const liveAssignmentPath = regionBoundaryPathRefs.current.get('regionFill') ?? null;
-    if (
-      scenarioWorkspaceRuntimeActive &&
-      !hasPreloadedWorkspaceAssignmentSource &&
-      liveAssignmentSource &&
-      liveAssignmentPath !== 'runtime:regionFill' &&
-      scenarioWorkspaceBaselineAssignmentSourceRef.current !== liveAssignmentSource
-    ) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current = liveAssignmentSource;
-    } else if (hasPreloadedWorkspaceAssignmentSource) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current =
-        preloadedWorkspaceAssignmentSource;
-    }
-    if (!scenarioWorkspaceRuntimeActive) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current = null;
-    }
+    scenarioWorkspaceBaselineAssignmentSourceRef.current =
+      resolveScenarioWorkspaceBaselineAssignmentSource({
+        runtimeActive: scenarioWorkspaceRuntimeActive,
+        baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
+        preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
+        liveAssignmentSource,
+        liveAssignmentPath,
+        currentBaselineAssignmentSource:
+          scenarioWorkspaceBaselineAssignmentSourceRef.current,
+      });
+
+    const resolvedScenarioWorkspaceBaselineAssignmentSource =
+      scenarioWorkspaceBaselineAssignmentSourceRef.current;
+    const runtimeAssignmentBaselineSource =
+      activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
+        ? resolvedScenarioWorkspaceBaselineAssignmentSource
+        : resolvedScenarioWorkspaceBaselineAssignmentSource ?? liveAssignmentSource;
 
     const runtimeState =
       scenarioWorkspaceRuntimeActive && activeScenarioWorkspaceId
         ? buildScenarioWorkspaceRuntimeState(
             activeScenarioWorkspaceId,
-            scenarioWorkspaceBaselineAssignmentSourceRef.current ??
-              liveAssignmentSource,
+            runtimeAssignmentBaselineSource,
             activeScenarioWorkspaceDraft,
             {
               includeBaselineWhenUnedited:
@@ -1283,14 +1311,51 @@ export function MapWorkspace() {
     const derivedOutlineAssignmentSource =
       runtimeState.assignmentSource ??
       (scenarioWorkspaceRuntimeActive
-        ? scenarioWorkspaceBaselineAssignmentSourceRef.current ??
-          liveAssignmentSource
+        ? runtimeAssignmentBaselineSource
         : null);
+    const scenarioTopologyEdgeSource =
+      activeViewPreset === 'current'
+        ? null
+        : scenarioTopologyEdgeSourceRef.current;
     scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
-      buildDerivedScenarioOutlineSource(derivedOutlineAssignmentSource);
+      buildDerivedScenarioOutlineSource(
+        derivedOutlineAssignmentSource,
+        scenarioTopologyEdgeSource,
+      );
     scenarioWorkspaceAssignmentByBoundaryNameRef.current =
       runtimeState.assignmentByBoundaryName;
+
+    if (typeof window !== 'undefined') {
+      if (
+        scenarioWorkspaceRuntimeActive &&
+        activeScenarioWorkspaceId &&
+        activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
+      ) {
+        const diagnosticsSnapshot = buildPlaygroundRuntimeDiagnosticsSnapshot({
+          workspaceId: activeScenarioWorkspaceId,
+          baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
+          liveAssignmentPath,
+          preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
+          liveAssignmentSource,
+          resolvedBaselineAssignmentSource:
+            resolvedScenarioWorkspaceBaselineAssignmentSource,
+          runtimeAssignmentBaselineSource,
+          runtimeAssignmentSource: runtimeState.assignmentSource,
+          derivedOutlineAssignmentSource,
+          topologyEdgeSource: scenarioTopologyEdgeSource,
+          derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
+        });
+        window.__dmsGISPlaygroundDiagnostics = diagnosticsSnapshot;
+        const history = window.__dmsGISPlaygroundDiagnosticsHistory ?? [];
+        window.__dmsGISPlaygroundDiagnosticsHistory = [
+          ...history.slice(-9),
+          diagnosticsSnapshot,
+        ];
+      } else {
+        window.__dmsGISPlaygroundDiagnostics = null;
+      }
+    }
 
     const runtimeSourceOverrides = new Map<string, VectorSource>();
     if (scenarioWorkspaceAssignmentSourceRef.current) {
@@ -1480,11 +1545,20 @@ export function MapWorkspace() {
 
     const selectedRegionName =
       activeScenarioWorkspaceBaseline?.regions.find(
-        (region) => region.id === scenarioAssignmentPopover.selectedRegionId,
+        (region) =>
+          region.id ===
+          resolvePlaygroundEditorRegionId({
+            scenarioWorkspaceEditor,
+            scenarioAssignmentPopover,
+          }),
       )?.label ?? null;
+    const selectedRegionId = resolvePlaygroundEditorRegionId({
+      scenarioWorkspaceEditor,
+      scenarioAssignmentPopover,
+    });
 
     selectBoundary(liveFeature, scenarioAssignmentPopover.coordinate, {
-      scenarioRegionId: scenarioAssignmentPopover.selectedRegionId,
+      scenarioRegionId: selectedRegionId,
       regionName: selectedRegionName,
     });
   }, [
@@ -1492,6 +1566,7 @@ export function MapWorkspace() {
     activeScenarioWorkspaceBaseline,
     getEditableBoundaryFeature,
     scenarioAssignmentPopover,
+    scenarioWorkspaceEditor,
     selectBoundary,
   ]);
 
@@ -1767,12 +1842,15 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
       stroke: new Stroke({
         color: '#fffb00',
         width: 2,
+        lineDash: [10, 6],
+        lineCap: 'round',
+        lineJoin: 'round',
       }),
       fill: new Fill({
         color: 'rgba(0, 0, 0, 0)',
       }),
     }),
-    zIndex: 20,
+    zIndex: 30,
   });
 }
 

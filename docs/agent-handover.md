@@ -4,6 +4,32 @@ This is the canonical handover document for continuing development in this repos
 
 Use this document as the first read for any new Codex, Claude Code, or similar coding-agent session.
 
+Current repo-wide assessment note:
+
+- `docs/main-repo-review-2026-03-31.md`
+
+Current runtime-product governance note:
+
+- the accepted live runtime token is now:
+  - `acceptedV38`
+- runtime token source remains:
+  - `src/lib/config/runtimeMapProducts.json`
+- the accepted token still points at:
+  - `public/data/compare/shared-foundation-review/`
+- this is an intentional interim governance decision:
+  - the accepted `v3.8` family remains rooted in the review-family data tree until a later explicit physical promotion moves it back under `public/data/...`
+  - but the active token should no longer present that accepted runtime as if it were still merely a temporary review family
+
+Current naming-governance note:
+
+- the repo still intentionally carries a mix of older public contract names and newer internal/runtime-family names
+- this should be treated as a deliberate sequential replacement process
+- stable public names may remain in place while:
+  - source lineage is improved
+  - preprocess ownership is improved
+  - runtime routing is improved
+- broad public renaming should happen only through an explicit cutover, not as incidental cleanup during geometry repair
+
 ## Purpose
 
 This handover exists to let a new coding agent resume work without re-deriving:
@@ -28,6 +54,14 @@ For investigations, implementation, preprocessing, tooling, testing, and debuggi
 
 This is especially relevant for the geospatial side of the app, where `GDAL`, `Turf`, and similar supporting tools are often the most sensible fit, but the rule is not limited to geometry work.
 
+Communication preference now promoted to repo guidance:
+
+- after each non-trivial implementation or debugging pass, provide a short plain-English summary of:
+  - the most recent development
+  - the practical meaning of that change
+  - the next sensible step
+- this is especially important during visual-check/debug loops so the user does not have to infer state from internal filenames, checkpoints, or code-level terminology alone
+
 Current validated repo-health note:
 
 - the confirmed `v3.8` main-repo baseline is currently clean through `npm run lint`, `npm run test -- --run`, `npm run build`, and `npm run test:e2e`
@@ -46,11 +80,11 @@ Current paired-runtime-family note:
 
 Current shared-foundation review note:
 
-- the active visual-inspection family is currently the explicit review family:
-  - `sharedFoundationReview`
+- the accepted live runtime family is currently tokenized as:
+  - `acceptedV38`
 - runtime token source:
   - `src/lib/config/runtimeMapProducts.json`
-- review data root:
+- accepted data root:
   - `public/data/compare/shared-foundation-review/`
 - review execution history:
   - `docs/shared-foundation-review-execution-log.md`
@@ -58,6 +92,10 @@ Current shared-foundation review note:
   - `Current` split-region borders were fixed by removing the bad whole-parent `Hampshire and Isle of Wight` assignment and rebuilding `Current` outlines from dissolve-derived group geometry
   - static scenario Region-border overlays now prefer dissolve-derived group exteriors instead of the brittle topology-mesh-first path
   - `SJC JMC` `London District` is a real separate Region in the review family and now uses London purple (`#8767ac`) so it reads separately from `JMC South East`
+  - Playground dynamic scenario borders now prefer a dedicated preloaded shared `2026` topology-edge source and only fall back to polygon dissolve when no edge source exists
+  - same-Region internal seams in Playground should therefore now be removed at the seam-selection stage rather than being left for dissolve cleanup to infer later
+  - a later Playground regression was traced to `src/lib/config/scenarioWorkspaces.ts`, where interactive baseline assignment datasets were still loading from raw `data/regions/...` preset paths instead of the active accepted runtime-family root; keep Playground baseline assignment paths aligned with `resolveRuntimeMapProductPath(...)`
+  - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
@@ -158,6 +196,10 @@ Current scenario-outline processing note:
   - `public/data/regions/UK_COA3B_Outline_simplified.geojson`
 - static scenario selection now prefers the precomputed per-group topology outline files under `public/data/regions/outlines/`
 - live derived outline sources remain first-choice only for Playground / draft-aware selection
+- Playground / draft-aware scenario borders should now also be treated as topology-edge-first:
+  - preferred input = shipped `2026` topology edges from a dedicated preloaded source plus the live assignment map
+  - fallback only = polygon dissolve when no edge source is available
+  - this replaces the earlier drift where Playground tried to rediscover Region borders from dissolved board polygons or indirectly from a visible overlay-layer source
 
 Browser automation note:
 
@@ -646,6 +688,21 @@ Editable scenario foundations are in place:
 
 Interactive Playground workspaces now also seed their draft-aware assignment and derived-outline runtime before the first reassignment is made. The latest follow-up fixed a stale-startup seam: editable workspaces now preload their source-preset board dataset as the canonical baseline assignment source, instead of capturing whichever `regionFill` source happened to be live during the first render pass. That removes the first-load grey fallback seen in parts of South East / London and East when entering Playground from another mode.
 
+Important current qualification:
+
+- that earlier Playground grey-fallback fix should not be treated as full closure
+- a newer intermittent Playground bug is still open, where some boards can later fall back to neutral grey after reassignment and later reload / re-entry even though polygons still render and facility points can still keep Region colours
+- the current bug note for that unresolved runtime path is:
+  - `docs/playground-grey-runtime-bug.md`
+- current best reading:
+  - this is a draft-aware runtime source-selection / refresh bug in the Playground assignment path
+  - not a canonical geometry-source failure
+  - not a GitHub Pages-only issue
+  - not a facilities-data issue
+- local programmatic diagnostics now exist for the next reproduction pass:
+  - `window.__dmsGISPlaygroundDiagnostics`
+  - `window.__dmsGISPlaygroundDiagnosticsHistory`
+
 Preset/workspace switching now also clears the actual OpenLayers selection/highlight layers and docked tooltip before paint. Store selection reset alone was not sufficient once later Playground/runtime work reintroduced stale visual state on mode switches.
 
 ### Sidebar exact kit
@@ -709,6 +766,7 @@ At the time of this handover:
 - the Region-assignment popover is now docked to the map bottom-right instead of following click coordinates, and draft reassignment styling now resolves live board fills from runtime-assigned Region labels while derived Region outlines preserve all dissolved pieces instead of only the first geometry
 - editable scenario runtime now captures a stable baseline assignment source from the visible `regionFill` board layer instead of falling back to the old JMC assignment lookup source, preventing COA 3b Playground reassignment from drifting onto stale geometry or grey fallback styling after edits
 - editable scenario Region geometry is now a dedicated merged polygon product derived from that canonical board-assignment source; it no longer flips between static preset outlines and runtime topology-edge fragments
+- Playground Region selection now treats the editor’s pending/selected Region as authoritative over stale popover baseline state, so a newly reassigned board keeps the new Region selection/highlight instead of appearing to snap back to its earlier baseline Region on immediate reselect
 - during an open Playground edit, selected Region-border redraw now treats the popover/editor-selected `scenarioRegionId` as authoritative instead of trusting feature-prop timing during the reselect cycle
 - COA 3b Playground currently keeps facility points on their existing non-draft styling path, so board reassignment no longer remaps facility point borders/colours yet
 - Playground selected-Region highlighting is now driven directly from the editor-selected `scenarioRegionId` plus the merged editable Region geometry source, and editable workspaces no longer fall back to static preset outline fetches for the selected Region border

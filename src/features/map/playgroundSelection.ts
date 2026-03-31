@@ -33,9 +33,10 @@ export function resolvePlaygroundSelectedRegion(
     };
   }
 
-  const selectedRegionId =
-    scenarioAssignmentPopover?.selectedRegionId ??
-    scenarioWorkspaceEditor.selectedScenarioRegionId;
+  const selectedRegionId = resolvePlaygroundEditorRegionId({
+    scenarioWorkspaceEditor,
+    scenarioAssignmentPopover,
+  });
   const selectedRegionName =
     regions?.find((region) => region.id === selectedRegionId)?.label ?? null;
 
@@ -43,4 +44,21 @@ export function resolvePlaygroundSelectedRegion(
     selectedRegionId,
     selectedRegionName,
   };
+}
+
+export function resolvePlaygroundEditorRegionId({
+  scenarioWorkspaceEditor,
+  scenarioAssignmentPopover,
+}: {
+  scenarioWorkspaceEditor: ScenarioWorkspaceEditorState;
+  scenarioAssignmentPopover: {
+    selectedRegionId: string | null;
+  } | null;
+}): string | null {
+  return (
+    scenarioWorkspaceEditor.pendingScenarioRegionId ??
+    scenarioWorkspaceEditor.selectedScenarioRegionId ??
+    scenarioAssignmentPopover?.selectedRegionId ??
+    null
+  );
 }

@@ -63,6 +63,62 @@ Core architecture decision:
   - Playground
 - future work should avoid inventing separate geometry logic for each of those states where one shared foundation can serve them all
 
+## 1.1 Naming And Replacement Policy
+
+Old file names and ids still exist throughout this repo.
+
+That is deliberate in many places.
+
+They should currently be understood in three categories:
+
+1. Stable public contract names.
+   These are filenames, ids, or paths the app, tests, or published runtime already depend on.
+   Example pattern:
+   - `UK_ICB_LHB_Boundaries_Codex_v10_*.geojson`
+
+2. Newer internal or staged build names.
+   These are clearer names used in rebuild/review/preprocess work to describe what a product actually is.
+   Example pattern:
+   - paired-family outputs
+   - review-family trees
+   - topology-edge / ward-split / water-edge artifacts
+
+3. Transitional review-family or accepted-runtime token names.
+   These are runtime governance labels used to switch families safely without broad path churn.
+   Example pattern:
+   - `acceptedV38`
+   - `sharedFoundationReview`
+
+Important working rule:
+
+- do not rename old public contract files just because the underlying processing has improved
+- improve source lineage first
+- improve preprocessing/build ownership second
+- improve runtime routing third
+- rename public contract paths only when there is a deliberate cutover plan and a clear benefit
+
+This should be treated as a deliberate sequential replacement process, not as naming negligence.
+
+Recommended replacement order when encountered:
+
+1. Keep the public contract name stable if it still protects the app/runtime/tests.
+2. Replace the underlying source/build path behind that stable contract.
+3. Introduce clearer internal names for new staged/preprocess artifacts.
+4. Promote the newer product into accepted runtime use.
+5. Only then decide whether the old public-facing name is still worth carrying.
+
+In practice, that means:
+
+- it is acceptable for a file with an old `v10`-style public name to now be produced by a much newer `BSC`-first or shared-foundation build path
+- it is not acceptable to let the old public name imply that the old processing lineage is still the true source of authority
+
+Future passes should document that distinction explicitly whenever they touch:
+
+- public data filenames
+- runtime product tokens
+- compare/review-family roots
+- paired `Current` / `2026` rebuild outputs
+
 ## 2. Repo And Server Truth
 
 ### 2.1 Active repo

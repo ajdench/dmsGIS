@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import Feature from 'ol/Feature';
+import LineString from 'ol/geom/LineString';
 import MultiPolygon from 'ol/geom/MultiPolygon';
 import Polygon from 'ol/geom/Polygon';
 import VectorSource from 'ol/source/Vector';
@@ -121,5 +122,144 @@ describe('derivedScenarioOutlineSource', () => {
     expect(londonEast).toHaveLength(1);
     expect(southEast[0]?.get('scenario_region_id')).toBe('coa3b_south_east');
     expect(londonEast[0]?.get('scenario_region_id')).toBe('coa3b_london_east');
+  });
+
+  it('derives scenario outline edges from topology and removes same-region internal seams', () => {
+    const assignmentSource = new VectorSource({
+      features: [
+        new Feature({
+          boundary_code: 'A',
+          scenario_region_id: 'region_one',
+          region_name: 'Region One',
+          geometry: new Polygon([[
+            [0, 0],
+            [10, 0],
+            [10, 10],
+            [0, 10],
+            [0, 0],
+          ]]),
+        }),
+        new Feature({
+          boundary_code: 'B',
+          scenario_region_id: 'region_one',
+          region_name: 'Region One',
+          geometry: new Polygon([[
+            [10, 0],
+            [20, 0],
+            [20, 10],
+            [10, 10],
+            [10, 0],
+          ]]),
+        }),
+      ],
+    });
+    const topologyEdgeSource = new VectorSource({
+      features: [
+        new Feature({
+          left_code: 'A',
+          right_code: '',
+          internal: false,
+          geometry: new LineString([
+            [0, 0],
+            [0, 10],
+          ]),
+        }),
+        new Feature({
+          left_code: 'A',
+          right_code: 'B',
+          internal: true,
+          geometry: new LineString([
+            [10, 0],
+            [10, 10],
+          ]),
+        }),
+        new Feature({
+          left_code: 'B',
+          right_code: '',
+          internal: false,
+          geometry: new LineString([
+            [20, 0],
+            [20, 10],
+          ]),
+        }),
+      ],
+    });
+
+    const derivedSource = buildDerivedScenarioOutlineSource(
+      assignmentSource,
+      topologyEdgeSource,
+    );
+    const derivedFeatures = derivedSource?.getFeatures() ?? [];
+
+    expect(derivedFeatures).toHaveLength(2);
+    expect(
+      derivedFeatures.every((feature) => feature.getGeometry() instanceof LineString),
+    ).toBe(true);
+    expect(
+      derivedFeatures.every((feature) => feature.get('region_name') === 'Region One'),
+    ).toBe(true);
+    expect(
+      derivedFeatures.some(
+        (feature) => String(feature.get('right_code') ?? '').trim() === 'B',
+      ),
+    ).toBe(false);
+  });
+
+  it('duplicates inter-region topology edges for both participating regions', () => {
+    const assignmentSource = new VectorSource({
+      features: [
+        new Feature({
+          boundary_code: 'A',
+          scenario_region_id: 'region_one',
+          region_name: 'Region One',
+          geometry: new Polygon([[
+            [0, 0],
+            [10, 0],
+            [10, 10],
+            [0, 10],
+            [0, 0],
+          ]]),
+        }),
+        new Feature({
+          boundary_code: 'B',
+          scenario_region_id: 'region_two',
+          region_name: 'Region Two',
+          geometry: new Polygon([[
+            [10, 0],
+            [20, 0],
+            [20, 10],
+            [10, 10],
+            [10, 0],
+          ]]),
+        }),
+      ],
+    });
+    const topologyEdgeSource = new VectorSource({
+      features: [
+        new Feature({
+          left_code: 'A',
+          right_code: 'B',
+          internal: true,
+          geometry: new LineString([
+            [10, 0],
+            [10, 10],
+          ]),
+        }),
+      ],
+    });
+
+    const derivedSource = buildDerivedScenarioOutlineSource(
+      assignmentSource,
+      topologyEdgeSource,
+    );
+    const derivedFeatures = derivedSource?.getFeatures() ?? [];
+
+    expect(derivedFeatures).toHaveLength(2);
+    expect(
+      derivedFeatures.map((feature) => feature.get('region_name')).sort(),
+    ).toEqual(['Region One', 'Region Two']);
+    expect(
+      derivedFeatures.map((feature) => feature.get('scenario_region_id')).sort(),
+    ).toEqual(['region_one', 'region_two']);
   });
 });
