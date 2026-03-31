@@ -68,6 +68,7 @@ export interface CleanupMapWorkspaceRefsParams {
   jmcAssignmentLookupSourceRef: MutableRefLike<VectorSource | null>;
   scenarioWorkspaceAssignmentSourceRef: MutableRefLike<VectorSource | null>;
   scenarioWorkspaceBaselineAssignmentSourceRef: MutableRefLike<VectorSource | null>;
+  scenarioTopologyEdgeSourceRef: MutableRefLike<VectorSource | null>;
   scenarioWorkspaceDerivedOutlineSourceRef: MutableRefLike<VectorSource | null>;
   presetGroupOutlineSourceRef: MutableRefLike<VectorSource | null>;
   jmcAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
@@ -831,6 +832,7 @@ export function cleanupMapWorkspaceRefs(
   refs.jmcAssignmentLookupSourceRef.current = null;
   refs.scenarioWorkspaceAssignmentSourceRef.current = null;
   refs.scenarioWorkspaceBaselineAssignmentSourceRef.current = null;
+  refs.scenarioTopologyEdgeSourceRef.current = null;
   refs.scenarioWorkspaceDerivedOutlineSourceRef.current = null;
   refs.presetGroupOutlineSourceRef.current = null;
   refs.jmcAssignmentByBoundaryNameRef.current.clear();

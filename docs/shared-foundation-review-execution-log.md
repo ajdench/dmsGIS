@@ -672,4 +672,4 @@ Result:
 - dynamic Playground Region borders now prefer shared `2026` topology-edge arcs
 - same-Region internal seams are removed before emission
 - polygon dissolve is retained only as a fallback when no edge source is available
-- the runtime now also rebuilds that dynamic border source when the async topology-edge source finishes loading
+- the runtime now also uses a dedicated preloaded `2026` topology-edge source rather than borrowing edges from a visible overlay layer

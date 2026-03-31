@@ -240,6 +240,7 @@ export function MapWorkspace() {
   const scenarioWorkspaceBaselineDatasetSourcesRef = useRef<
     Map<string, VectorSource>
   >(new Map());
+  const scenarioTopologyEdgeSourceRef = useRef<VectorSource | null>(null);
   const scenarioWorkspaceDerivedOutlineSourceRef = useRef<VectorSource | null>(null);
   const presetGroupOutlineSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
@@ -266,8 +267,6 @@ export function MapWorkspace() {
   const [scenarioWorkspaceBaselineSourcesVersion, setScenarioWorkspaceBaselineSourcesVersion] =
     useState(0);
   const [presetGroupOutlineSourceVersion, setPresetGroupOutlineSourceVersion] =
-    useState(0);
-  const [scenarioTopologyEdgeSourceVersion, setScenarioTopologyEdgeSourceVersion] =
     useState(0);
   const scenarioWorkspaceRuntimeActive =
     !!activeScenarioWorkspaceId &&
@@ -673,6 +672,8 @@ export function MapWorkspace() {
       boundarySystemLookupSourcesRef.current.get('legacyIcbHb') ?? null;
     const overlayAssignmentSource = new VectorSource();
     jmcAssignmentLookupSourceRef.current = overlayAssignmentSource;
+    const scenarioTopologyEdgeSource = new VectorSource();
+    scenarioTopologyEdgeSourceRef.current = scenarioTopologyEdgeSource;
     const scenarioLookupDatasets: OverlayLookupDatasetDefinition<ViewPresetId>[] = [];
     for (const preset of getScenarioWorkspacePresetIds()) {
       const path = getScenarioWorkspaceLookupBoundaryPath(preset);
@@ -706,6 +707,14 @@ export function MapWorkspace() {
     void loadOverlayLookupDatasets({
       datasets: [
         ...boundarySystemLookupDatasets,
+        {
+          key: 'scenarioTopologyEdges',
+          path: resolveRuntimeMapProductPath(
+            'data/regions/UK_Health_Board_2026_topology_edges.geojson',
+          ),
+          source: scenarioTopologyEdgeSource,
+          errorLabel: 'Failed to load 2026 topology edges for Playground outlines',
+        },
         ...scenarioLookupDatasets,
         ...scenarioWorkspaceAssignmentDatasets,
       ],
@@ -751,6 +760,7 @@ export function MapWorkspace() {
         jmcAssignmentLookupSourceRef,
         scenarioWorkspaceAssignmentSourceRef,
         scenarioWorkspaceBaselineAssignmentSourceRef,
+        scenarioTopologyEdgeSourceRef,
         scenarioWorkspaceDerivedOutlineSourceRef,
         presetGroupOutlineSourceRef,
         jmcAssignmentByBoundaryNameRef,
@@ -1306,7 +1316,7 @@ export function MapWorkspace() {
     const scenarioTopologyEdgeSource =
       activeViewPreset === 'current'
         ? null
-        : regionBoundaryRefs.current.get('englandIcb')?.getSource() ?? null;
+        : scenarioTopologyEdgeSourceRef.current;
     scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
       buildDerivedScenarioOutlineSource(
@@ -1379,23 +1389,6 @@ export function MapWorkspace() {
       createBoundaryLayer: createRegionBoundaryLayer,
       getBoundaryLayerStyle: createRegionBoundaryStyle,
     });
-
-    const topologyEdgeSource =
-      activeViewPreset === 'current'
-        ? null
-        : regionBoundaryRefs.current.get('englandIcb')?.getSource() ?? null;
-    let topologyEdgeChangeKey: EventsKey | null = null;
-    if (topologyEdgeSource) {
-      topologyEdgeChangeKey = topologyEdgeSource.on('change', () => {
-        setScenarioTopologyEdgeSourceVersion((version) => version + 1);
-      });
-    }
-
-    return () => {
-      if (topologyEdgeChangeKey) {
-        unByKey(topologyEdgeChangeKey);
-      }
-    };
   }, [
     overlayLayers,
     activeViewPreset,
@@ -1404,7 +1397,6 @@ export function MapWorkspace() {
     scenarioWorkspaceRuntimeActive,
     activeScenarioWorkspaceBaselineAssignmentKind,
     scenarioWorkspaceBaselineSourcesVersion,
-    scenarioTopologyEdgeSourceVersion,
     presetGroupOutlineSourceVersion,
     populatedV10Codes,
     populated2026Codes,

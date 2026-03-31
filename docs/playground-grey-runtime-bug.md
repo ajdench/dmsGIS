@@ -263,10 +263,11 @@ A separate later fix corrected Playground Region-border derivation:
 
 What changed:
 
-- dynamic Playground Region borders now prefer the shipped `2026` topology-edge source
+- dynamic Playground Region borders now prefer a dedicated preloaded shipped `2026` topology-edge source
 - same-Region internal arcs are filtered out before border features are emitted
 - inter-Region arcs are duplicated per owning Region so selection/highlight can still resolve one Region at a time
 - polygon dissolve remains only as a fallback when no topology-edge source is available
+- the runtime no longer depends on the visible `englandIcb` overlay layer to obtain those topology edges
 
 Why that matters:
 
