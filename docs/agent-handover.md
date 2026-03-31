@@ -4,6 +4,10 @@ This is the canonical handover document for continuing development in this repos
 
 Use this document as the first read for any new Codex, Claude Code, or similar coding-agent session.
 
+Current repo-wide assessment note:
+
+- `docs/main-repo-review-2026-03-31.md`
+
 ## Purpose
 
 This handover exists to let a new coding agent resume work without re-deriving:
