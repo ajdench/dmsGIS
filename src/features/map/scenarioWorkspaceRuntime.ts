@@ -15,6 +15,51 @@ export interface ScenarioWorkspaceRuntimeState {
   assignmentByBoundaryName: Map<string, string>;
 }
 
+export function resolveScenarioWorkspaceBaselineAssignmentSource({
+  runtimeActive,
+  baselineAssignmentKind,
+  preloadedAssignmentSource,
+  liveAssignmentSource,
+  liveAssignmentPath,
+  currentBaselineAssignmentSource,
+}: {
+  runtimeActive: boolean;
+  baselineAssignmentKind: string | null;
+  preloadedAssignmentSource: VectorSource | null;
+  liveAssignmentSource: VectorSource | null;
+  liveAssignmentPath: string | null;
+  currentBaselineAssignmentSource: VectorSource | null;
+}): VectorSource | null {
+  const hasPreloadedAssignmentSource =
+    !!preloadedAssignmentSource &&
+    preloadedAssignmentSource.getFeatures().length > 0;
+
+  if (!runtimeActive) {
+    return null;
+  }
+
+  if (hasPreloadedAssignmentSource) {
+    return preloadedAssignmentSource;
+  }
+
+  // Interactive playground workspaces should wait for their dedicated
+  // baseline assignment dataset instead of seeding from whichever live layer
+  // happens to be available first.
+  if (baselineAssignmentKind === 'interactive-runtime') {
+    return currentBaselineAssignmentSource;
+  }
+
+  if (
+    liveAssignmentSource &&
+    liveAssignmentPath !== 'runtime:regionFill' &&
+    currentBaselineAssignmentSource !== liveAssignmentSource
+  ) {
+    return liveAssignmentSource;
+  }
+
+  return currentBaselineAssignmentSource;
+}
+
 interface BuildScenarioWorkspaceRuntimeOptions {
   includeBaselineWhenUnedited?: boolean;
 }
@@ -62,8 +107,13 @@ export function buildScenarioWorkspaceRuntimeState(
       clone.getProperties() as Record<string, unknown>,
     );
     const boundaryCode = String(clone.get('boundary_code') ?? '').trim();
-    const scenarioRegionId =
+    const assignedScenarioRegionId =
       (boundaryUnitId ? assignmentByBoundaryUnitId.get(boundaryUnitId) : null) ??
+      null;
+    const scenarioRegionId =
+      (assignedScenarioRegionId && regionLabelById.has(assignedScenarioRegionId)
+        ? assignedScenarioRegionId
+        : null) ??
       resolveScenarioWorkspaceRegionId(
         workspaceId,
         String(

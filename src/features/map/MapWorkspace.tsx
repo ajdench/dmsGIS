@@ -55,7 +55,10 @@ import {
   getActiveAssignmentLookupSource,
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
-import { buildScenarioWorkspaceRuntimeState } from './scenarioWorkspaceRuntime';
+import {
+  buildScenarioWorkspaceRuntimeState,
+  resolveScenarioWorkspaceBaselineAssignmentSource,
+} from './scenarioWorkspaceRuntime';
 import { buildDerivedScenarioOutlineSource } from './derivedScenarioOutlineSource';
 import {
   getScenarioBoundaryUnitId,
@@ -1248,21 +1251,16 @@ export function MapWorkspace() {
       jmcAssignmentLookupSourceRef.current,
     );
     const liveAssignmentPath = regionBoundaryPathRefs.current.get('regionFill') ?? null;
-    if (
-      scenarioWorkspaceRuntimeActive &&
-      !hasPreloadedWorkspaceAssignmentSource &&
-      liveAssignmentSource &&
-      liveAssignmentPath !== 'runtime:regionFill' &&
-      scenarioWorkspaceBaselineAssignmentSourceRef.current !== liveAssignmentSource
-    ) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current = liveAssignmentSource;
-    } else if (hasPreloadedWorkspaceAssignmentSource) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current =
-        preloadedWorkspaceAssignmentSource;
-    }
-    if (!scenarioWorkspaceRuntimeActive) {
-      scenarioWorkspaceBaselineAssignmentSourceRef.current = null;
-    }
+    scenarioWorkspaceBaselineAssignmentSourceRef.current =
+      resolveScenarioWorkspaceBaselineAssignmentSource({
+        runtimeActive: scenarioWorkspaceRuntimeActive,
+        baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
+        preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
+        liveAssignmentSource,
+        liveAssignmentPath,
+        currentBaselineAssignmentSource:
+          scenarioWorkspaceBaselineAssignmentSourceRef.current,
+      });
 
     const runtimeState =
       scenarioWorkspaceRuntimeActive && activeScenarioWorkspaceId
