@@ -9,11 +9,11 @@ import {
 } from '../src/lib/services/layers';
 
 describe('runtimeMapProducts', () => {
-  it('keeps the explicit shared-foundation review family active during visual inspection', () => {
-    expect(getActiveRuntimeMapProductId()).toBe('sharedFoundationReview');
+  it('keeps the accepted v3.8 runtime family active', () => {
+    expect(getActiveRuntimeMapProductId()).toBe('acceptedV38');
   });
 
-  it('rewrites data paths into the shared-foundation review family', () => {
+  it('rewrites data paths into the accepted v3.8 runtime family root', () => {
     expect(resolveRuntimeMapProductPath('data/regions/UK_JMC_Board_simplified.geojson')).toBe(
       'data/compare/shared-foundation-review/regions/UK_JMC_Board_simplified.geojson',
     );
@@ -28,7 +28,7 @@ describe('runtimeMapProducts', () => {
     );
   });
 
-  it('routes the layer manifest and facilities path through the active review family', () => {
+  it('routes the layer manifest and facilities path through the accepted runtime family', () => {
     expect(getRuntimeLayerManifestPath()).toBe(
       'data/compare/shared-foundation-review/manifests/layers.manifest.json',
     );

@@ -69,6 +69,7 @@ Working stance:
 Canonical handover bundle:
 
 - `docs/agent-handover.md`
+- `docs/main-repo-review-2026-03-31.md`
 - `docs/paired-current-2026-product-success-path.md`
 - `docs/paired-current-2026-execution-checklist.md`
 - `docs/sidebar-pane-status.md`
@@ -91,22 +92,23 @@ New coding-agent read order:
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/agent-handover.md`
-4. `docs/paired-current-2026-product-success-path.md`
-5. `docs/paired-current-2026-execution-checklist.md`
-6. `docs/sidebar-pane-status.md`
-7. `docs/prototype-to-production-playbook.md`
-8. `docs/agent-continuation-protocol.md`
-9. `docs/current-app-baseline-v3.8.md`
-10. `docs/current-app-baseline-v3.7.md`
-11. `docs/current-app-baseline-v3.6.md`
-12. `docs/current-app-baseline-v3.5.md`
-13. `docs/current-app-baseline-v3.4.md`
-14. `docs/v3.4-internal-gap-regression.md`
-15. `docs/v3.5-full-geometry-redress.md`
-16. `docs/v3.8-bsc-runtime-family-spec.md`
-17. `docs/v3.7-next-phase.md`
-18. `docs/canonical-board-rebuild-workflow.md`
-19. `docs/sidebar-parity-bugs.md`
+4. `docs/main-repo-review-2026-03-31.md`
+5. `docs/paired-current-2026-product-success-path.md`
+6. `docs/paired-current-2026-execution-checklist.md`
+7. `docs/sidebar-pane-status.md`
+8. `docs/prototype-to-production-playbook.md`
+9. `docs/agent-continuation-protocol.md`
+10. `docs/current-app-baseline-v3.8.md`
+11. `docs/current-app-baseline-v3.7.md`
+12. `docs/current-app-baseline-v3.6.md`
+13. `docs/current-app-baseline-v3.5.md`
+14. `docs/current-app-baseline-v3.4.md`
+15. `docs/v3.4-internal-gap-regression.md`
+16. `docs/v3.5-full-geometry-redress.md`
+17. `docs/v3.8-bsc-runtime-family-spec.md`
+18. `docs/v3.7-next-phase.md`
+19. `docs/canonical-board-rebuild-workflow.md`
+20. `docs/sidebar-parity-bugs.md`
 
 Handover rule:
 

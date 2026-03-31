@@ -252,10 +252,18 @@ Current facilities baseline notes:
 
 ## Runtime Token
 
-The active runtime token is baseline again:
+The active runtime token is now the accepted `v3.8` family token:
 
 - `src/lib/config/runtimeMapProducts.json`
-- `activeProductId: "baseline"`
+- `activeProductId: "acceptedV38"`
+
+Important qualification:
+
+- the accepted token currently still resolves to:
+  - `data/compare/shared-foundation-review/...`
+- this is intentional for now
+- the governance fix is that the active token now names the family as accepted runtime rather than as a temporary review-only product
+- a later explicit physical promotion can still move the same accepted family back under `public/data/...` if desired
 
 The older compare families remain on disk for historical reference only:
 

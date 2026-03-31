@@ -21,9 +21,17 @@ This is a review note, not a closure note.
 
 ## Executive Summary
 
-The repo is functional, but it currently has one structural problem that amplifies several others:
+The repo is functional, but it had one structural problem that amplified several others:
 
-- review-family runtime data is effectively acting as production
+- review-family runtime data was effectively acting as production while still being named as temporary review data
+
+Decision now applied:
+
+- the active runtime token has been promoted in code/config to:
+  - `acceptedV38`
+- that accepted token still points at:
+  - `data/compare/shared-foundation-review/...`
+- this keeps the accepted runtime family stable without pretending it is still only a transient review token
 
 That matters because the app, tests, and GitHub Pages deployment can all be green while the actual runtime behavior is still unstable or ambiguous.
 
@@ -37,7 +45,7 @@ The most important current risks are:
 
 ## Findings
 
-### 1. Review Family Has Become The Effective Live Runtime
+### 1. Runtime Product Governance Had Drifted
 
 Severity:
 
@@ -46,9 +54,9 @@ Severity:
 Evidence:
 
 - `src/lib/config/runtimeMapProducts.json`
-  - `activeProductId: "sharedFoundationReview"`
+  - active runtime had been the review-family path
 - `tests/runtimeMapProducts.test.ts`
-  - explicitly expects `sharedFoundationReview` to be active
+  - had been enforcing the review-family token as active
 
 But multiple docs still say the opposite:
 
@@ -72,10 +80,12 @@ Practical effect:
 
 Recommendation:
 
-- decide one truth and make it explicit:
-  - either `sharedFoundationReview` is now the accepted live baseline and should be renamed/promoted accordingly
-  - or the active token should go back to `baseline`
-- stop using a `review`-named product as the long-lived default runtime unless that is a conscious permanent decision
+- one truth should be explicit
+- this review pass applies that decision by promoting the active token to:
+  - `acceptedV38`
+- remaining follow-up:
+  - align the rest of the docs with that decision
+  - later decide whether to physically promote the accepted data tree back under `public/data/...`
 
 ### 2. Playground Still Has Too Many Competing Authorities For Region Identity
 
@@ -343,13 +353,10 @@ Recommendation:
 
 Recommended order:
 
-1. Decide whether `sharedFoundationReview` is:
-   - temporary review
-   - or the new accepted runtime baseline
-2. Make code, tests, and docs agree on that one decision.
-3. Keep the new Playground diagnostics in place until the grey-fill bug is fully explained.
-4. Add one true integration test for Playground reassignment persistence.
-5. Only after that, continue larger geometry/runtime promotion work.
+1. Finish aligning docs to the accepted runtime token decision.
+2. Keep the new Playground diagnostics in place until the grey-fill bug is fully explained.
+3. Add one true integration test for Playground reassignment persistence.
+4. Only after that, continue larger geometry/runtime promotion work.
 
 ## Immediate Recommended Focus
 
@@ -360,4 +367,3 @@ If the goal is stability, the next best focus is:
 3. stop further broad geometry/runtime promotion until those two are settled
 
 That is the highest-value stabilization path for the repo as it stands today.
-

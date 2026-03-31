@@ -8,6 +8,18 @@ Current repo-wide assessment note:
 
 - `docs/main-repo-review-2026-03-31.md`
 
+Current runtime-product governance note:
+
+- the accepted live runtime token is now:
+  - `acceptedV38`
+- runtime token source remains:
+  - `src/lib/config/runtimeMapProducts.json`
+- the accepted token still points at:
+  - `public/data/compare/shared-foundation-review/`
+- this is an intentional interim governance decision:
+  - the accepted `v3.8` family remains rooted in the review-family data tree until a later explicit physical promotion moves it back under `public/data/...`
+  - but the active token should no longer present that accepted runtime as if it were still merely a temporary review family
+
 ## Purpose
 
 This handover exists to let a new coding agent resume work without re-deriving:
@@ -50,11 +62,11 @@ Current paired-runtime-family note:
 
 Current shared-foundation review note:
 
-- the active visual-inspection family is currently the explicit review family:
-  - `sharedFoundationReview`
+- the accepted live runtime family is currently tokenized as:
+  - `acceptedV38`
 - runtime token source:
   - `src/lib/config/runtimeMapProducts.json`
-- review data root:
+- accepted data root:
   - `public/data/compare/shared-foundation-review/`
 - review execution history:
   - `docs/shared-foundation-review-execution-log.md`

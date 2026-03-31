@@ -1,6 +1,6 @@
 {
   "version": "v3.7-runtime-map-products-1",
-  "activeProductId": "sharedFoundationReview",
+  "activeProductId": "acceptedV38",
   "products": {
     "baseline": {
       "label": "Stable baseline runtime family",
@@ -14,8 +14,8 @@
       "label": "Current East-only BSC review family",
       "dataRoot": "data/compare/current-east-bsc"
     },
-    "sharedFoundationReview": {
-      "label": "Shared foundation review family",
+    "acceptedV38": {
+      "label": "Accepted v3.8 runtime family",
       "dataRoot": "data/compare/shared-foundation-review"
     }
   }

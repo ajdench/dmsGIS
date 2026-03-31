@@ -4,7 +4,7 @@ export const runtimeMapProductIdSchema = z.enum([
   'baseline',
   'bfe',
   'currentEastBsc',
-  'sharedFoundationReview',
+  'acceptedV38',
 ]);
 
 export const runtimeMapProductSchema = z.object({

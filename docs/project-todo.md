@@ -21,6 +21,24 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Notes:** Keep the better interim state that at least shows the whole intended world crop in the pane. When this is revived, measure the actual rendered world floor against the live map pane and solve it at the OpenLayers `View` constraint seam (`center` / `resolution` / floor extent), not by stacking more zoom-pane diagnostics. No wrap remains the intended behavior. Extra map diagnostics can stay available programmatically through `window.__dmsGISMapDiagnostics`, but the zoom pane itself should stay visually minimal.
 **Files likely touched:** `src/features/map/mapWorkspaceLifecycle.ts`, `src/features/map/MapWorkspace.tsx`, any future world-floor helper or fit-contract note.
 
+### 26. Collapse Playground Region authority onto one runtime assignment source
+
+**Area:** Scenario runtime / Playground / map selection and styling
+**Priority:** High
+**What:** Replace the current multi-authority Playground Region-resolution path with one explicit authoritative assignment source per render cycle, then make board fills, selected Region borders, popover defaults, facility remapping, and metrics all derive from that same source.
+**Why:** The repo review found that Playground currently mixes feature props, baseline/runtime assignment sources, draft overrides, editor state, popover state, selection state, and derived outlines. That makes grey-fill regressions and reassignment “snapback” behavior far too easy.
+**Notes:** Start from `docs/main-repo-review-2026-03-31.md` and `docs/playground-grey-runtime-bug.md`. Keep the new `window.__dmsGISPlaygroundDiagnostics` instrumentation until the live failure is fully explained. Do not just add more fallbacks; reduce the number of authorities.
+**Files likely touched:** `src/features/map/MapWorkspace.tsx`, `src/features/map/scenarioWorkspaceRuntime.ts`, `src/features/map/playgroundSelection.ts`, `src/features/map/scenarioFacilityMapping.ts`, `src/store/appStore.ts`, related tests/e2e coverage.
+
+### 27. Fully sandbox compare/review-family rebuilds from shared preprocess outputs
+
+**Area:** Geometry preprocessing / review-family tooling / release discipline
+**Priority:** High
+**What:** Tighten the compare/review-family builders so they no longer touch shared preprocess outputs when rebuilding an inspection family.
+**Why:** The current review-family path is only non-destructive at the runtime token level. The execution log already records shared-output side effects, which means compare/review builds can still contaminate later debugging and recovery work.
+**Notes:** Start from `docs/shared-foundation-review-execution-log.md` and `docs/main-repo-review-2026-03-31.md`. Every called script in the review build flow should accept explicit staged dirs for all outputs it writes. “Inspection family” and “shared preprocess mutation” should not coexist.
+**Files likely touched:** `scripts/build-shared-foundation-review-family.mjs`, `scripts/create-ward-split.mjs`, `scripts/buildLegacyRegionOutlines.mjs`, any geometry preprocess scripts that still write to shared default output locations, plus related docs/tests.
+
 ### 25. Revisit Exact sidebar helper-button low-opacity visual treatment
 
 **Area:** Sidebar / Exact popovers / helper controls
