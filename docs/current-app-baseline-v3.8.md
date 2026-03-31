@@ -18,6 +18,24 @@ The prior rollback point remains:
 - package version at time of writing: `0.1.0`
 - repo path: `/Users/andrew/Projects/dmsGIS`
 
+## Naming Note
+
+This baseline still uses a mix of:
+
+- older public contract names
+- newer internal build/review/runtime-family names
+
+That should be treated as deliberate sequential replacement, not accidental inconsistency.
+
+Current rule:
+
+- public app/runtime file names stay stable when they are still part of the live contract
+- newer source lineage, preprocess logic, and runtime routing can be improved behind those stable names
+- review-family and accepted-runtime token names are allowed to be newer and clearer
+- broad public-path renaming should wait for an explicit cutover, not happen opportunistically mid-rebuild
+
+So when an older filename remains in place here, it does not automatically mean the old processing lineage is still authoritative.
+
 ## Runtime Family
 
 The app contract is unchanged, but the shipped runtime geometry family is now rebuilt from the `v3.8` source family.

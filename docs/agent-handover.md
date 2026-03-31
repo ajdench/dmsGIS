@@ -20,6 +20,16 @@ Current runtime-product governance note:
   - the accepted `v3.8` family remains rooted in the review-family data tree until a later explicit physical promotion moves it back under `public/data/...`
   - but the active token should no longer present that accepted runtime as if it were still merely a temporary review family
 
+Current naming-governance note:
+
+- the repo still intentionally carries a mix of older public contract names and newer internal/runtime-family names
+- this should be treated as a deliberate sequential replacement process
+- stable public names may remain in place while:
+  - source lineage is improved
+  - preprocess ownership is improved
+  - runtime routing is improved
+- broad public renaming should happen only through an explicit cutover, not as incidental cleanup during geometry repair
+
 ## Purpose
 
 This handover exists to let a new coding agent resume work without re-deriving:
