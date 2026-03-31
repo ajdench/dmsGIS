@@ -1841,8 +1841,8 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
     style: new Style({
       stroke: new Stroke({
         color: '#fffb00',
-        width: 4,
-        lineDash: [14, 10],
+        width: 2,
+        lineDash: [10, 6],
         lineCap: 'round',
         lineJoin: 'round',
       }),
@@ -1850,7 +1850,7 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
         color: 'rgba(0, 0, 0, 0)',
       }),
     }),
-    zIndex: 20,
+    zIndex: 30,
   });
 }
 
