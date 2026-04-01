@@ -21,6 +21,7 @@ import {
   createPointSymbol,
   getCombinedPracticeRingGap,
   getCombinedPracticeRingWidth,
+  getNonCombinedPointInset,
   withOpacity,
 } from './mapStyleUtils';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
@@ -91,6 +92,10 @@ export function getStyleForLayer(
         combinedPracticeRingWidth > 0
           ? getCombinedPracticeRingGap(resolvedSize)
           : 0;
+      const baseShapeInset =
+        combinedPracticeRingWidth > 0
+          ? combinedPracticeRingGap + combinedPracticeRingWidth
+          : getNonCombinedPointInset(resolvedSize);
       const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${borderWidth}:${resolvedShape}:${resolvedSize}:${combinedPracticeName ?? ''}:${combinedPracticeStyle?.visible ?? false}:${combinedPracticeStyle?.borderColor ?? ''}:${combinedPracticeStyle?.borderOpacity ?? 0}:${combinedPracticeStyle?.borderWidth ?? 0}`;
       const existing = styleCache.get(key);
       if (existing) {
@@ -109,6 +114,7 @@ export function getStyleForLayer(
             outerRingGap: combinedPracticeRingGap,
             outerRingWidth: combinedPracticeRingWidth,
             outerRingPlacement: 'inside',
+            baseShapeInset,
           },
         ),
       });

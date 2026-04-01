@@ -101,6 +101,7 @@ import {
 import { getStyleForLayer } from './facilityLayerStyles';
 import {
   createPointSymbol,
+  getNonCombinedPointInset,
   getSelectedPointHighlightOffset,
   withOpacity,
 } from './mapStyleUtils';
@@ -1821,6 +1822,7 @@ function createSelectedPointStyle(
           hasCombinedPracticeRing,
         ),
         outerRingWidth: 2,
+        baseShapeInset: hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(size),
       },
     ),
   });

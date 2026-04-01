@@ -6,6 +6,7 @@ export interface PointSymbolOptions {
   outerRingWidth?: number;
   outerRingGap?: number;
   outerRingPlacement?: 'outside' | 'inside';
+  baseShapeInset?: number;
 }
 
 export function withOpacity(hex: string, opacity: number): string {
@@ -78,6 +79,7 @@ export function createPointSymbol(
   const outerRingWidth = options.outerRingWidth ?? 0;
   const outerRingGap = options.outerRingGap ?? 0;
   const outerRingPlacement = options.outerRingPlacement ?? 'outside';
+  const baseShapeInset = options.baseShapeInset ?? 0;
   // Convert screen-pixel border width to canvas coordinate units.
   // Double it so the centered canvas stroke contributes one borderWidth of
   // visible expansion outside the filled shape.
@@ -96,6 +98,7 @@ export function createPointSymbol(
     canvasOuterRingWidth,
     canvasOuterRingGap,
     outerRingPlacement,
+    baseShapeInset / scale,
     canvasPadding,
     canvasSize,
   );
@@ -115,6 +118,7 @@ export function getPointSymbolCanvasPadding(
   const outerRingWidth = options.outerRingWidth ?? 0;
   const outerRingGap = options.outerRingGap ?? 0;
   const outerRingPlacement = options.outerRingPlacement ?? 'outside';
+  const baseShapeInset = options.baseShapeInset ?? 0;
   const canvasStrokeWidth = borderWidth > 0 ? (borderWidth / scale) * 2 : 0;
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
@@ -125,13 +129,17 @@ export function getPointSymbolCanvasPadding(
       ? canvasOuterRingGap + canvasOuterRingWidth
       : 0;
   return Math.ceil(
-    Math.max(MIN_CANVAS_PADDING, borderOutside, outerRingOutside) +
+    Math.max(MIN_CANVAS_PADDING, borderOutside, outerRingOutside, baseShapeInset / scale) +
       CANVAS_PADDING_BUFFER,
   );
 }
 
 export function getCombinedPracticeRingWidth(size: number): number {
   return Math.max(1, Math.min(2.5, size * 0.35));
+}
+
+export function getNonCombinedPointInset(size: number): number {
+  return getCombinedPracticeRingWidth(size) / 2;
 }
 
 export function getCombinedPracticeRingGap(size: number): number {
@@ -144,10 +152,12 @@ export function getSelectedPointHighlightOffset(
   hasVisibleBorder: boolean,
   hasCombinedPracticeRing: boolean,
 ): number {
-  void size;
-  void hasCombinedPracticeRing;
   const baseHighlightOffset = hasVisibleBorder ? 1 : 0;
-  return baseHighlightOffset;
+  if (hasCombinedPracticeRing) {
+    return baseHighlightOffset;
+  }
+
+  return getNonCombinedPointInset(size) + baseHighlightOffset;
 }
 
 /**
@@ -193,6 +203,7 @@ function renderShapeCanvas(
   outerRingWidth: number,
   outerRingGap: number,
   outerRingPlacement: 'outside' | 'inside',
+  baseShapeInset: number,
   canvasPadding: number,
   canvasSize: number,
 ): HTMLCanvasElement {
@@ -205,18 +216,12 @@ function renderShapeCanvas(
   // treatment stays centered, shape-matched, and visually separate from the
   // underlying point fill and border.
   const borderOutside = strokeWidth > 0 ? strokeWidth / 2 : 0;
-  const fillInset =
-    outerRingColor && outerRingWidth > 0 && outerRingPlacement === 'inside'
-      ? outerRingGap + outerRingWidth
-      : 0;
+  const fillInset = baseShapeInset;
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
     ctx.lineWidth = outerRingWidth;
-    const ringInset =
-      outerRingPlacement === 'inside'
-        ? Math.max(0, outerRingGap + outerRingWidth / 2 - borderOutside)
-        : -(outerRingGap + outerRingWidth / 2);
+    const ringInset = fillInset - outerRingGap - outerRingWidth / 2 - borderOutside;
     tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(ringInset));
     ctx.stroke();
   }

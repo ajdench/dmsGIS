@@ -11,6 +11,7 @@ import { getTrueCombinedPracticeName } from '../../lib/combinedPractices';
 import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
 import {
+  getNonCombinedPointInset,
 } from './mapStyleUtils';
 import type {
   FacilitySymbolShape,
@@ -426,12 +427,15 @@ function getPointSelectionRadius(
   const borderOpacity = regionStyle?.borderOpacity ?? 1;
   const borderWidth =
     borderVisible && borderOpacity > 0.01 ? (regionStyle?.borderWidth ?? 1) : 0;
+  const baseShapeInset = getTrueCombinedPracticeName(facility)
+    ? 0
+    : getNonCombinedPointInset(symbolSize);
 
   return getRenderedPointPixelRadius(
     symbolShape,
     symbolSize,
     borderWidth,
-    0,
+    baseShapeInset,
     0,
   );
 }
@@ -450,16 +454,16 @@ function getRenderedPointPixelRadius(
   shape: FacilitySymbolShape,
   size: number,
   borderWidth: number,
-  outerRingGap: number,
+  baseShapeInset: number,
   outerRingWidth: number,
 ): number {
   if (shape === 'circle') {
-    return size + borderWidth + outerRingGap + outerRingWidth;
+    return size - baseShapeInset + borderWidth + outerRingWidth;
   }
 
   if (shape === 'square' || shape === 'diamond') {
-    return size * 1.05 + borderWidth + outerRingGap + outerRingWidth;
+    return size * 1.05 - baseShapeInset + borderWidth + outerRingWidth;
   }
 
-  return size * 1.15 + borderWidth + outerRingGap + outerRingWidth;
+  return size * 1.15 - baseShapeInset + borderWidth + outerRingWidth;
 }
