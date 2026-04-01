@@ -1746,14 +1746,8 @@ export function MapWorkspace() {
                 scenarioAssignmentPopover.boundaryUnitId,
                 scenarioRegionId,
               );
-              setScenarioAssignmentPopover((current) =>
-                current
-                  ? {
-                      ...current,
-                      selectedRegionId: scenarioRegionId,
-                    }
-                  : current,
-              );
+              setScenarioAssignmentPopover(null);
+              selectScenarioWorkspaceBoundaryUnit(null);
             }}
             onClose={() => {
               setScenarioAssignmentPopover(null);
