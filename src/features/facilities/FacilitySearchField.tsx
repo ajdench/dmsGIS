@@ -13,7 +13,7 @@ import {
 } from '../../lib/facilitySearchSuggestions';
 import type { FacilityRecord } from '../../lib/facilities';
 import { normalizeFacilitySearchQuery } from '../../lib/facilityFilters';
-import { resolveRuntimeAssetUrl } from '../../lib/runtimeAssetUrls';
+import { loadFacilityDataset } from '../../lib/services/facilityDataset';
 
 interface FacilitySearchFieldProps {
   value: string;
@@ -52,16 +52,7 @@ export function FacilitySearchField({
       setLoadError(false);
 
       try {
-        const facilitiesUrl = resolveRuntimeAssetUrl('data/facilities/facilities.geojson');
-        const response = await fetch(facilitiesUrl);
-
-        if (!response.ok) {
-          throw new Error(`Failed to load facilities: ${response.status}`);
-        }
-
-        const data = (await response.json()) as {
-          features?: Array<{ properties?: { name?: unknown } }>;
-        };
+        const data = await loadFacilityDataset();
 
         if (cancelled) {
           return;

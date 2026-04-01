@@ -13,7 +13,6 @@ export function SavedViewsDialog() {
   const closeSavedViewsDialog = useAppStore(
     (state) => state.closeSavedViewsDialog,
   );
-  const appState = useAppStore();
   const [views, setViews] = useState<NamedSavedView[]>([]);
   const [name, setName] = useState('');
   const [isBusy, setIsBusy] = useState(false);
@@ -94,7 +93,7 @@ export function SavedViewsDialog() {
                 disabled={isBusy}
                 onClick={() => {
                   setIsBusy(true);
-                  void saveCurrentViewAs(appState, name).then((savedView) => {
+                  void saveCurrentViewAs(useAppStore.getState(), name).then((savedView) => {
                     setIsBusy(false);
                     if (!savedView) return;
                     closeSavedViewsDialog();
@@ -138,7 +137,10 @@ export function SavedViewsDialog() {
                       disabled={isBusy}
                       onClick={() => {
                         setIsBusy(true);
-                        void openSavedViewById(appState, view.metadata.id).then((opened) => {
+                        void openSavedViewById(
+                          useAppStore.getState(),
+                          view.metadata.id,
+                        ).then((opened) => {
                           setIsBusy(false);
                           if (!opened) return;
                           closeSavedViewsDialog();
@@ -153,7 +155,10 @@ export function SavedViewsDialog() {
                       disabled={isBusy}
                       onClick={() => {
                         setIsBusy(true);
-                        void deleteSavedViewById(appState, view.metadata.id).then((deleted) => {
+                        void deleteSavedViewById(
+                          useAppStore.getState(),
+                          view.metadata.id,
+                        ).then((deleted) => {
                           setIsBusy(false);
                           if (!deleted) return;
                           setViews((currentViews) =>

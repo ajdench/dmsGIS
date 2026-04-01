@@ -159,7 +159,7 @@
     font-size: var(--prototype-control-rail-compact-font-size);
     text-align: center;
     white-space: nowrap;
-    transform: translateY(var(--prototype-control-text-offset-y));
+    line-height: 1;
   }
 
   .sidebar-replacement-toggle__label--hover {

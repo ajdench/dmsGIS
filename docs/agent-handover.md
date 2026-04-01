@@ -106,6 +106,7 @@ Current validated repo-health note:
 - the confirmed `v3.8` main-repo baseline is currently clean through `npm run lint`, `npm run test -- --run`, `npm run build`, and `npm run test:e2e`
 - the current production build still emits a non-blocking Vite warning because `dist/assets/main-*.js` is just over the default `500 kB` chunk warning threshold
 - treat that as a deferred performance task, not a release blocker; the follow-up is tracked in `docs/project-todo.md`
+- facility runtime metadata derived from the facilities GeoJSON should now be loaded through one shared cached fetch path in `src/lib/services/facilityDataset.ts`, so startup state derivation and the Facilities search field do not each re-fetch and re-parse the same dataset independently
 
 Current paired-runtime-family note:
 

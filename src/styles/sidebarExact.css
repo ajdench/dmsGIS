@@ -218,7 +218,8 @@
   font-size: var(--prototype-control-rail-compact-font-size);
   text-align: center;
   white-space: nowrap;
-  transform: translate(var(--prototype-toggle-label-x-adjust), var(--prototype-control-text-offset-y));
+  line-height: 1;
+  transform: translateX(var(--prototype-toggle-label-x-adjust));
 }
 
 .prototype-toggle-button__label--default {

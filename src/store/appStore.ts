@@ -34,7 +34,6 @@ import {
 import { deriveScenarioWorkspaceFromDraft } from '../lib/scenarioWorkspaceDerived';
 import { upsertScenarioWorkspaceAssignment } from '../lib/scenarioWorkspaceAssignments';
 import {
-  parseFacilityProperties,
   type FacilityFilterState,
 } from '../lib/schemas/facilities';
 import {
@@ -48,6 +47,10 @@ import type {
   MapViewportState,
   SelectionState,
 } from '../lib/schemas/savedViews';
+import {
+  loadFacilityDataset,
+  type FacilityDatasetSnapshot,
+} from '../lib/services/facilityDataset';
 import type {
   DerivedScenarioWorkspace,
   ScenarioWorkspaceDraft,
@@ -68,6 +71,22 @@ const JMC_2026_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_
 const NHS_ENGLAND_REGIONS_BSC_PATH =
   'data/regions/NHS_England_Regions_January_2024_EN_BSC.geojson';
 const SJC_JMC_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_Outline_arcs.geojson');
+
+interface FacilityDerivedState {
+  regions: RegionStyle[];
+  combinedPractices: CombinedPracticeStyle[];
+  combinedPracticeCatalog: CombinedPracticeCatalogEntry[];
+  populatedCodes: {
+    v10: Set<string>;
+    v2026: Set<string>;
+  };
+  facilityParRecords: FacilityParRecord[];
+  pmcParDisplay: {
+    regionParDisplayByName: Record<string, string>;
+    totalParDisplay: string;
+  };
+  presetRegionParByPreset: Partial<Record<ViewPresetId, Record<string, number>>>;
+}
 
 interface ViewPresetState {
   layers: LayerState[];
@@ -358,34 +377,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const manifestLayers = await fetchLayerManifest();
       const facilitiesLayer = manifestLayers.find((layer) => layer.id === 'facilities');
-      const [
-        regions,
-        combinedPractices,
-        combinedPracticeCatalog,
-        populatedCodes,
-        facilityParRecords,
-        pmcParDisplay,
-        presetRegionParByPreset,
-      ] =
-        facilitiesLayer
-        ? await Promise.all([
-            loadRegionStyles(facilitiesLayer.path, get().facilitySymbolSize),
-            loadCombinedPracticeStyles(facilitiesLayer.path),
-            loadCombinedPracticeCatalog(facilitiesLayer.path),
-            loadPopulatedCodes(facilitiesLayer.path),
-            loadFacilityParRecords(facilitiesLayer.path),
-            loadPmcRegionParDisplay(facilitiesLayer.path),
-            loadPresetRegionParByPreset(facilitiesLayer.path),
-          ])
-        : [
-            [],
-            [],
-            [],
-            { v10: new Set<string>(), v2026: new Set<string>() },
-            [],
-            { regionParDisplayByName: {}, totalParDisplay: '—' },
-            {},
-          ];
+      const facilityDerivedState = facilitiesLayer
+        ? await loadFacilityDerivedState(
+            facilitiesLayer.path,
+            get().facilitySymbolSize,
+          )
+        : createEmptyFacilityDerivedState();
       const layers = manifestLayers.map((layer) => ({
         id: layer.id,
         name: layer.name,
@@ -396,13 +393,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       }));
       const currentViewPresetState = createViewPresetState({
         layers,
-        regions,
-        combinedPractices,
-        combinedPracticeCatalog,
+        regions: facilityDerivedState.regions,
+        combinedPractices: facilityDerivedState.combinedPractices,
+        combinedPracticeCatalog: facilityDerivedState.combinedPracticeCatalog,
       });
       set({
         layers,
-        regions,
+        regions: facilityDerivedState.regions,
         combinedPracticeStyles: cloneCombinedPracticeStyles(
           currentViewPresetState.combinedPractices,
         ),
@@ -410,12 +407,14 @@ export const useAppStore = create<AppState>((set, get) => ({
           currentViewPresetState.combinedPracticeCatalog,
         ),
         overlayLayers: cloneOverlayLayers(currentViewPresetState.overlayLayers),
-        populatedV10Codes: populatedCodes.v10,
-        populated2026Codes: populatedCodes.v2026,
-        facilityParRecords,
-        pmcRegionParDisplayByName: { ...pmcParDisplay.regionParDisplayByName },
-        pmcTotalParDisplay: pmcParDisplay.totalParDisplay,
-        presetRegionParByPreset,
+        populatedV10Codes: facilityDerivedState.populatedCodes.v10,
+        populated2026Codes: facilityDerivedState.populatedCodes.v2026,
+        facilityParRecords: facilityDerivedState.facilityParRecords,
+        pmcRegionParDisplayByName: {
+          ...facilityDerivedState.pmcParDisplay.regionParDisplayByName,
+        },
+        pmcTotalParDisplay: facilityDerivedState.pmcParDisplay.totalParDisplay,
+        presetRegionParByPreset: facilityDerivedState.presetRegionParByPreset,
         regionGlobalOpacity: currentViewPresetState.regionGlobalOpacity,
         facilitySymbolShape: currentViewPresetState.facilitySymbolShape,
         facilitySymbolSize: currentViewPresetState.facilitySymbolSize,
@@ -1326,245 +1325,208 @@ function normalizeAppNotice(notice: AppNotice | string | null): AppNotice | null
   return notice;
 }
 
-async function loadPopulatedCodes(
-  facilitiesPath: string,
-): Promise<{ v10: Set<string>; v2026: Set<string> }> {
-  try {
-    const response = await fetch(facilitiesPath);
-    if (!response.ok) return { v10: new Set(), v2026: new Set() };
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
-    const v10 = new Set<string>();
-    const v2026 = new Set<string>();
-    for (const feature of geojson.features ?? []) {
-      const p = feature.properties ?? {};
-      const code = typeof p.icb_hb_code === 'string' ? p.icb_hb_code.trim() : null;
-      const code2026 = typeof p.icb_hb_code_2026 === 'string' ? p.icb_hb_code_2026.trim() : null;
-      if (code) v10.add(code);
-      if (code2026) v2026.add(code2026);
-    }
-    return { v10, v2026 };
-  } catch {
-    return { v10: new Set(), v2026: new Set() };
-  }
+interface FacilityDerivedState {
+  regions: RegionStyle[];
+  combinedPractices: CombinedPracticeStyle[];
+  combinedPracticeCatalog: CombinedPracticeCatalogEntry[];
+  populatedCodes: { v10: Set<string>; v2026: Set<string> };
+  facilityParRecords: FacilityParRecord[];
+  pmcParDisplay: {
+    regionParDisplayByName: Record<string, string>;
+    totalParDisplay: string;
+  };
+  presetRegionParByPreset: Partial<Record<ViewPresetId, Record<string, number>>>;
 }
 
-async function loadRegionStyles(
-  path: string,
-  defaultSymbolSize: number,
-): Promise<RegionStyle[]> {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) return [];
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
-    const features = geojson.features ?? [];
-    const byRegion = new Map<
-      string,
-      {
-        visible: boolean;
-        color: string;
-        opacity: number;
-        borderVisible: boolean;
-        borderColor: string;
-        borderWidth: number;
-        borderOpacity: number;
-        shape: FacilitySymbolShape;
-        symbolSize: number;
-      }
-    >();
-
-    for (const feature of features) {
-      const props = parseFacilityProperties(feature.properties ?? {});
-      const region = props.region;
-      const color = props.point_color_hex;
-      const opacity = 1;
-      const visible = props.default_visible !== 0;
-
-      const existing = byRegion.get(region);
-      if (existing) {
-        existing.visible = existing.visible || visible;
-      } else {
-        byRegion.set(region, {
-          visible,
-          color,
-          opacity,
-          shape: 'circle',
-          borderVisible: false,
-          borderColor: '#ffffff',
-          borderWidth: 1,
-          borderOpacity: 1,
-          symbolSize: Math.max(1, Math.min(12, defaultSymbolSize)),
-        });
-      }
-    }
-
-    return [...byRegion.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([name, value]) => ({
-        name,
-        ...value,
-      }));
-  } catch {
-    return [];
-  }
-}
-
-async function loadPmcRegionParDisplay(
-  path: string,
-): Promise<{
-  regionParDisplayByName: Record<string, string>;
-  totalParDisplay: string;
-}> {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) {
-      return {
-        regionParDisplayByName: {},
-        totalParDisplay: '—',
-      };
-    }
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
-    const { regionParByName, totalPar } = summarizeFacilityParByRegion(
-      (geojson.features ?? []).map((feature) => {
-        const rawProperties = feature.properties ?? {};
-        const parsedProperties = parseFacilityProperties(rawProperties);
-
-        return {
-          regionName: parsedProperties.region,
-          parValue: rawProperties.par,
-        };
-      }),
-    );
-
-    return {
-      regionParDisplayByName: Object.fromEntries(
-        Object.entries(regionParByName).map(([regionName, value]) => [
-          regionName,
-          formatParDisplayValue(value),
-        ]),
-      ),
-      totalParDisplay: formatParDisplayValue(totalPar),
-    };
-  } catch {
-    return {
+function createEmptyFacilityDerivedState(): FacilityDerivedState {
+  return {
+    regions: [],
+    combinedPractices: [],
+    combinedPracticeCatalog: [],
+    populatedCodes: { v10: new Set<string>(), v2026: new Set<string>() },
+    facilityParRecords: [],
+    pmcParDisplay: {
       regionParDisplayByName: {},
       totalParDisplay: '—',
-    };
-  }
+    },
+    presetRegionParByPreset: {},
+  };
 }
 
-async function loadFacilityParRecords(
-  path: string,
-): Promise<FacilityParRecord[]> {
+async function loadFacilityDerivedState(
+  facilitiesPath: string,
+  defaultSymbolSize: number,
+): Promise<FacilityDerivedState> {
   try {
-    const response = await fetch(path);
-    if (!response.ok) {
-      return [];
-    }
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
-
-    return (geojson.features ?? []).map((feature) => {
-      const rawProperties = feature.properties ?? {};
-      const parsedProperties = parseFacilityProperties(rawProperties);
-
-      return {
-        regionName: parsedProperties.region,
-        legacyBoundaryCode: rawProperties.icb_hb_code,
-        boundaryCode2026: rawProperties.icb_hb_code_2026,
-        parValue: rawProperties.par,
-      };
-    });
-  } catch {
-    return [];
-  }
-}
-
-async function loadPresetRegionParByPreset(
-  path: string,
-): Promise<Partial<Record<ViewPresetId, Record<string, number>>>> {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) {
-      return {};
-    }
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
-    const facilities = (geojson.features ?? []).map((feature) => {
-      const rawProperties = feature.properties ?? {};
-      const parsedProperties = parseFacilityProperties(rawProperties);
-
-      return {
-        regionName: parsedProperties.region,
-        legacyBoundaryCode: rawProperties.icb_hb_code,
-        boundaryCode2026: rawProperties.icb_hb_code_2026,
-        parValue: rawProperties.par,
-      };
-    });
+    const dataset = await loadFacilityDataset(facilitiesPath);
 
     return {
-      coa3a: summarizeFacilityParByPresetRegion({
-        facilities,
-        preset: 'coa3a',
-        preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
-      }).regionParByName,
-      coa3b: summarizeFacilityParByPresetRegion({
-        facilities,
-        preset: 'coa3b',
-        preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
-      }).regionParByName,
-      coa3c: summarizeFacilityParByPresetRegion({
-        facilities,
-        preset: 'coa3c',
-        preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
-      }).regionParByName,
+      regions: loadRegionStyles(dataset.properties, defaultSymbolSize),
+      combinedPractices: loadCombinedPracticeStyles(dataset.features),
+      combinedPracticeCatalog: loadCombinedPracticeCatalog(dataset.features),
+      populatedCodes: loadPopulatedCodes(dataset.features),
+      facilityParRecords: loadFacilityParRecords(dataset.features, dataset.properties),
+      pmcParDisplay: loadPmcRegionParDisplay(dataset.features, dataset.properties),
+      presetRegionParByPreset: loadPresetRegionParByPreset(
+        dataset.features,
+        dataset.properties,
+      ),
     };
   } catch {
-    return {};
+    return createEmptyFacilityDerivedState();
   }
 }
 
-async function loadCombinedPracticeStyles(
-  path: string,
-): Promise<CombinedPracticeStyle[]> {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) return [];
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
+function loadPopulatedCodes(
+  features: Array<{ properties?: Record<string, unknown> }>,
+): { v10: Set<string>; v2026: Set<string> } {
+  const v10 = new Set<string>();
+  const v2026 = new Set<string>();
 
-    return buildDefaultCombinedPracticeStyles(
-      (geojson.features ?? []).map((feature) => feature.properties ?? {}),
-    );
-  } catch {
-    return [];
+  for (const feature of features) {
+    const p = feature.properties ?? {};
+    const code = typeof p.icb_hb_code === 'string' ? p.icb_hb_code.trim() : null;
+    const code2026 =
+      typeof p.icb_hb_code_2026 === 'string' ? p.icb_hb_code_2026.trim() : null;
+    if (code) v10.add(code);
+    if (code2026) v2026.add(code2026);
   }
+
+  return { v10, v2026 };
 }
 
-async function loadCombinedPracticeCatalog(
-  path: string,
-): Promise<CombinedPracticeCatalogEntry[]> {
-  try {
-    const response = await fetch(path);
-    if (!response.ok) return [];
-    const geojson = (await response.json()) as {
-      features?: Array<{ properties?: Record<string, unknown> }>;
-    };
+function loadRegionStyles(
+  propertiesList: FacilityProperties[],
+  defaultSymbolSize: number,
+): RegionStyle[] {
+  const byRegion = new Map<
+    string,
+    {
+      visible: boolean;
+      color: string;
+      opacity: number;
+      borderVisible: boolean;
+      borderColor: string;
+      borderWidth: number;
+      borderOpacity: number;
+      shape: FacilitySymbolShape;
+      symbolSize: number;
+    }
+  >();
 
-    return buildCombinedPracticeCatalog(
-      (geojson.features ?? []).map((feature) => feature.properties ?? {}),
-    );
-  } catch {
-    return [];
+  for (const props of propertiesList) {
+    const region = props.region;
+    const color = props.point_color_hex;
+    const opacity = 1;
+    const visible = props.default_visible !== 0;
+
+    const existing = byRegion.get(region);
+    if (existing) {
+      existing.visible = existing.visible || visible;
+    } else {
+      byRegion.set(region, {
+        visible,
+        color,
+        opacity,
+        shape: 'circle',
+        borderVisible: false,
+        borderColor: '#ffffff',
+        borderWidth: 1,
+        borderOpacity: 1,
+        symbolSize: Math.max(1, Math.min(12, defaultSymbolSize)),
+      });
+    }
   }
+
+  return [...byRegion.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, value]) => ({
+      name,
+      ...value,
+    }));
+}
+
+function loadPmcRegionParDisplay(
+  features: Array<{ properties?: Record<string, unknown> }>,
+  propertiesList: FacilityProperties[],
+): {
+  regionParDisplayByName: Record<string, string>;
+  totalParDisplay: string;
+} {
+  const { regionParByName, totalPar } = summarizeFacilityParByRegion(
+    propertiesList.map((properties, index) => ({
+      regionName: properties.region,
+      parValue: features[index]?.properties?.par,
+    })),
+  );
+
+  return {
+    regionParDisplayByName: Object.fromEntries(
+      Object.entries(regionParByName).map(([regionName, value]) => [
+        regionName,
+        formatParDisplayValue(value),
+      ]),
+    ),
+    totalParDisplay: formatParDisplayValue(totalPar),
+  };
+}
+
+function loadFacilityParRecords(
+  features: Array<{ properties?: Record<string, unknown> }>,
+  propertiesList: FacilityProperties[],
+): FacilityParRecord[] {
+  return propertiesList.map((properties, index) => ({
+    regionName: properties.region,
+    legacyBoundaryCode: features[index]?.properties?.icb_hb_code,
+    boundaryCode2026: features[index]?.properties?.icb_hb_code_2026,
+    parValue: features[index]?.properties?.par,
+  }));
+}
+
+function loadPresetRegionParByPreset(
+  features: Array<{ properties?: Record<string, unknown> }>,
+  propertiesList: FacilityProperties[],
+): Partial<Record<ViewPresetId, Record<string, number>>> {
+  const facilities = propertiesList.map((properties, index) => ({
+    regionName: properties.region,
+    legacyBoundaryCode: features[index]?.properties?.icb_hb_code,
+    boundaryCode2026: features[index]?.properties?.icb_hb_code_2026,
+    parValue: features[index]?.properties?.par,
+  }));
+
+  return {
+    coa3a: summarizeFacilityParByPresetRegion({
+      facilities,
+      preset: 'coa3a',
+      preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
+    }).regionParByName,
+    coa3b: summarizeFacilityParByPresetRegion({
+      facilities,
+      preset: 'coa3b',
+      preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
+    }).regionParByName,
+    coa3c: summarizeFacilityParByPresetRegion({
+      facilities,
+      preset: 'coa3c',
+      preserveOriginalRegionNames: ['Overseas', 'Royal Navy'],
+    }).regionParByName,
+  };
+}
+
+function loadCombinedPracticeStyles(
+  features: Array<{ properties?: Record<string, unknown> }>,
+): CombinedPracticeStyle[] {
+  return buildDefaultCombinedPracticeStyles(
+    features.map((feature) => feature.properties ?? {}),
+  );
+}
+
+function loadCombinedPracticeCatalog(
+  features: Array<{ properties?: Record<string, unknown> }>,
+): CombinedPracticeCatalogEntry[] {
+  return buildCombinedPracticeCatalog(
+    features.map((feature) => feature.properties ?? {}),
+  );
 }
 
 function normalizeSolidColor(input: string): {

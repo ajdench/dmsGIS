@@ -1785,7 +1785,7 @@
     text-align: center;
     white-space: nowrap;
     font-size: var(--prototype-control-rail-compact-font-size);
-    transform: translateY(var(--prototype-control-text-offset-y));
+    line-height: 1;
   }
 
   .sidebar-toggle-button__label--hover {
