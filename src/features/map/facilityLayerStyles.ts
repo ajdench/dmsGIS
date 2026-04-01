@@ -94,7 +94,9 @@ export function getStyleForLayer(
           : 0;
       const baseShapeInset =
         combinedPracticeRingWidth > 0
-          ? 0
+          ? borderWidth > 0
+            ? combinedPracticeRingGap + combinedPracticeRingWidth
+            : 0
           : getNonCombinedPointInset(resolvedSize);
       const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${borderWidth}:${resolvedShape}:${resolvedSize}:${combinedPracticeName ?? ''}:${combinedPracticeStyle?.visible ?? false}:${combinedPracticeStyle?.borderColor ?? ''}:${combinedPracticeStyle?.borderOpacity ?? 0}:${combinedPracticeStyle?.borderWidth ?? 0}`;
       const existing = styleCache.get(key);
@@ -113,7 +115,7 @@ export function getStyleForLayer(
             outerRingColor: combinedPracticeRingColor,
             outerRingGap: combinedPracticeRingGap,
             outerRingWidth: combinedPracticeRingWidth,
-            outerRingPlacement: 'outside',
+            outerRingPlacement: borderWidth > 0 ? 'inside' : 'outside',
             baseShapeInset,
           },
         ),

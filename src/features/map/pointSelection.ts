@@ -431,7 +431,9 @@ function getPointSelectionRadius(
   const hasCombinedPracticeRing = Boolean(getTrueCombinedPracticeName(facility));
   const baseShapeInset = hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(symbolSize);
   const outerRingWidth = hasCombinedPracticeRing
-    ? getCombinedPracticeRingWidth(symbolSize)
+    ? borderWidth > 0
+      ? 0
+      : getCombinedPracticeRingWidth(symbolSize)
     : 0;
 
   return getRenderedPointPixelRadius(

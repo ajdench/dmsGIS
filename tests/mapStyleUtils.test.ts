@@ -19,7 +19,7 @@ describe('mapStyleUtils', () => {
     expect(getCombinedPracticeRingWidth(size)).toBeGreaterThan(0);
     expect(getCombinedPracticeRingGap(size)).toBe(0);
     expect(combinedPracticeOffset).toBeCloseTo(
-      getNonCombinedPointInset(size) + getCombinedPracticeRingWidth(size),
+      getCombinedPracticeRingWidth(size),
       3,
     );
   });
@@ -38,7 +38,7 @@ describe('mapStyleUtils', () => {
       3,
     );
     expect(getSelectedPointHighlightOffset(3.5, true, true)).toBeCloseTo(
-      getNonCombinedPointInset(3.5) + 1 + getCombinedPracticeRingWidth(3.5),
+      getCombinedPracticeRingWidth(3.5) + 1,
       3,
     );
   });

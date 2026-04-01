@@ -124,7 +124,11 @@ export function getPointSymbolCanvasPadding(
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
   const canvasBaseShapeInset = baseShapeInset / scale;
-  const pointOutsideExtent = Math.max(0, canvasStrokeWidth - canvasBaseShapeInset);
+  const pointOuterInset =
+    outerRingPlacement === 'inside' && canvasOuterRingWidth > 0
+      ? Math.max(0, canvasBaseShapeInset - canvasOuterRingGap - canvasOuterRingWidth)
+      : canvasBaseShapeInset;
+  const pointOutsideExtent = Math.max(0, canvasStrokeWidth - pointOuterInset);
   const outerRingOutside =
     outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
       ? pointOutsideExtent + canvasOuterRingGap + canvasOuterRingWidth
@@ -153,13 +157,15 @@ export function getSelectedPointHighlightOffset(
   hasVisibleBorder: boolean,
   hasCombinedPracticeRing: boolean,
 ): number {
-  return (
-    getNonCombinedPointInset(size) +
-    (hasVisibleBorder ? 1 : 0) +
-    (hasCombinedPracticeRing
-      ? getCombinedPracticeRingGap(size) + getCombinedPracticeRingWidth(size)
-      : 0)
-  );
+  if (hasCombinedPracticeRing) {
+    return (
+      getCombinedPracticeRingGap(size) +
+      getCombinedPracticeRingWidth(size) +
+      (hasVisibleBorder ? 1 : 0)
+    );
+  }
+
+  return getNonCombinedPointInset(size) + (hasVisibleBorder ? 1 : 0);
 }
 
 /**
@@ -219,10 +225,12 @@ function renderShapeCanvas(
   // outermost rendered point edge is explicit and the selection ring can start
   // from that true outer edge.
   const fillInset = baseShapeInset;
-  const borderInset =
-    strokeWidth > 0 ? Math.max(0, fillInset - strokeWidth / 2) : fillInset;
   const pointOuterInset =
-    strokeWidth > 0 ? Math.max(0, fillInset - strokeWidth) : fillInset;
+    outerRingPlacement === 'inside' && outerRingWidth > 0
+      ? Math.max(0, fillInset - outerRingGap - outerRingWidth)
+      : fillInset;
+  const borderInset =
+    strokeWidth > 0 ? Math.max(0, pointOuterInset - strokeWidth / 2) : pointOuterInset;
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
