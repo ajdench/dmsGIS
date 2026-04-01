@@ -13,6 +13,13 @@ export interface FacilityParRecord {
 
 export const PROPORTIONAL_PAR_CORRECTION_BASE = 8500;
 
+export interface ProportionalParCorrectionSummary {
+  contributionPar: number | null;
+  contributionPercent: number | null;
+  correctionValue: number | null;
+  correctedTotal: number | null;
+}
+
 export function parseFacilityParValue(value: unknown): number | null {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -39,23 +46,60 @@ export function formatParDisplayValue(value: number | null): string {
   return new Intl.NumberFormat('en-GB').format(value);
 }
 
-export function formatProportionalParCorrectionDisplay(params: {
+export function buildProportionalParCorrectionSummary(params: {
   regionPar: number | null;
-  totalPar: number | null;
-}): string | null {
-  const { regionPar, totalPar } = params;
-  if (regionPar === null || totalPar === null || totalPar <= 0) {
-    return null;
+  baseportPar: number | null;
+  overallTotalPar: number | null;
+}): ProportionalParCorrectionSummary {
+  const { regionPar, baseportPar, overallTotalPar } = params;
+  const contributionPar =
+    (regionPar ?? 0) + (baseportPar ?? 0);
+  const hasContribution = regionPar !== null || baseportPar !== null;
+
+  if (!hasContribution) {
+    return {
+      contributionPar: null,
+      contributionPercent: null,
+      correctionValue: null,
+      correctedTotal: null,
+    };
   }
 
-  const share = regionPar / totalPar;
+  if (overallTotalPar === null || overallTotalPar <= 0) {
+    return {
+      contributionPar,
+      contributionPercent: null,
+      correctionValue: null,
+      correctedTotal: contributionPar,
+    };
+  }
+
+  const share = contributionPar / overallTotalPar;
   if (!Number.isFinite(share) || share < 0) {
+    return {
+      contributionPar,
+      contributionPercent: null,
+      correctionValue: null,
+      correctedTotal: contributionPar,
+    };
+  }
+
+  const contributionPercent = Math.round(share * 100);
+  const correctionValue = Math.round(share * PROPORTIONAL_PAR_CORRECTION_BASE);
+  return {
+    contributionPar,
+    contributionPercent,
+    correctionValue,
+    correctedTotal: contributionPar + correctionValue,
+  };
+}
+
+export function formatProportionalParCorrectionContext(percent: number | null): string | null {
+  if (percent === null) {
     return null;
   }
 
-  const percent = Math.round(share * 100);
-  const correctionValue = Math.round(share * PROPORTIONAL_PAR_CORRECTION_BASE);
-  return `(${percent}% of 8.5k) ${formatParDisplayValue(correctionValue)}`;
+  return `(${percent}% of 8500)`;
 }
 
 export function summarizeFacilityParByRegion(

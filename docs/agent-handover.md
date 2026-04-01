@@ -312,8 +312,10 @@ Current top-bar selection note:
   - Clyde -> Scotland / Highland basis
   - Devonport -> South West / Devon basis
   - Portsmouth -> London & South / Hampshire and Isle of Wight basis on `Current`
-- `Correction PAR` is `(Region PAR / Total PAR)` applied to a fixed `8,500` base and displayed as `(n% of 8.5k) value`
-- `Total PAR` is `Region PAR + Baseport PAR`
+- raw selected contribution is `Region PAR + Baseport PAR`
+- `Correction PAR` is that selected contribution as a share of the overall visible PAR total, applied to a fixed `8,500` base and displayed as `(n% of 8500) value`
+- the correction number itself stays at the normal PAR value size; only the parenthetical context is visually reduced
+- displayed `Total PAR` is `Region PAR + Baseport PAR + Correction PAR`
 - the second middle header pane now has a locked combined-practice contract:
   - non-combined / empty state stays titled `Combined Practice`
   - combined state switches to `Combined Medical Practice`

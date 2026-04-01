@@ -7,8 +7,9 @@ import {
   buildSelectedFacilityParSummary,
 } from '../src/features/map/facilityPar';
 import {
+  buildProportionalParCorrectionSummary,
   formatParDisplayValue,
-  formatProportionalParCorrectionDisplay,
+  formatProportionalParCorrectionContext,
   parseFacilityParValue,
   summarizeFacilityParByScenarioWorkspace,
   summarizeFacilityParByPresetRegion,
@@ -28,19 +29,32 @@ describe('facilityPar', () => {
     expect(formatParDisplayValue(4548)).toBe('4,548');
   });
 
-  it('formats the proportional correction display from the regional share of total PAR', () => {
+  it('builds the proportional correction summary from selected contribution against overall PAR', () => {
     expect(
-      formatProportionalParCorrectionDisplay({
+      buildProportionalParCorrectionSummary({
         regionPar: 200,
-        totalPar: 240,
+        baseportPar: 40,
+        overallTotalPar: 4500,
       }),
-    ).toBe('(83% of 8.5k) 7,083');
+    ).toEqual({
+      contributionPar: 240,
+      contributionPercent: 5,
+      correctionValue: 453,
+      correctedTotal: 693,
+    });
+    expect(formatProportionalParCorrectionContext(5)).toBe('(5% of 8500)');
     expect(
-      formatProportionalParCorrectionDisplay({
+      buildProportionalParCorrectionSummary({
         regionPar: null,
-        totalPar: 240,
+        baseportPar: null,
+        overallTotalPar: 240,
       }),
-    ).toBeNull();
+    ).toEqual({
+      contributionPar: null,
+      contributionPercent: null,
+      correctionValue: null,
+      correctedTotal: null,
+    });
   });
 
   it('summarizes PAR totals by region and overall total', () => {

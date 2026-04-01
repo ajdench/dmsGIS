@@ -9,7 +9,10 @@ import {
 import type { ViewPresetId } from '../../types';
 
 export { formatParDisplayValue, parseFacilityParValue } from '../../lib/facilityPar';
-export { formatProportionalParCorrectionDisplay } from '../../lib/facilityPar';
+export {
+  buildProportionalParCorrectionSummary,
+  formatProportionalParCorrectionContext,
+} from '../../lib/facilityPar';
 
 export interface SelectedFacilityParSummary {
   facilityPar: number | null;

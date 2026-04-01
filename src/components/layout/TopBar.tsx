@@ -40,7 +40,6 @@ const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
   {
     label: 'Correction:',
     valueKey: 'correctionPar',
-    rowClassName: 'topbar__spacer-par-row--correction',
     valueClassName: 'topbar__spacer-par-value--correction',
   },
   {
@@ -412,7 +411,18 @@ export function TopBar() {
                         valueClassName ? ` ${valueClassName}` : ''
                       }`}
                     >
-                      {pointTooltipDisplay[valueKey] ?? '—'}
+                      {valueKey === 'correctionPar' && pointTooltipDisplay.correctionParContext ? (
+                        <>
+                          <span className="topbar__spacer-par-value-context">
+                            {pointTooltipDisplay.correctionParContext}
+                          </span>{' '}
+                          <span className="topbar__spacer-par-value-number">
+                            {pointTooltipDisplay[valueKey] ?? '—'}
+                          </span>
+                        </>
+                      ) : (
+                        pointTooltipDisplay[valueKey] ?? '—'
+                      )}
                     </span>
                   </div>
                 ))}

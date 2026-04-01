@@ -324,10 +324,18 @@
 }
 
 .topbar__spacer-par-value--correction {
-  font-size: 0.9em;
-  letter-spacing: -0.02em;
   overflow: visible;
   text-overflow: clip;
+}
+
+.topbar__spacer-par-value-context {
+  font-size: 0.9em;
+  letter-spacing: -0.02em;
+}
+
+.topbar__spacer-par-value-number {
+  font-size: 1em;
+  letter-spacing: inherit;
 }
 
 .topbar__spacer-par-value--total {

@@ -29,6 +29,7 @@ describe('TopBar', () => {
         practicePar: null,
         regionPar: null,
         baseportPar: null,
+        correctionParContext: null,
         correctionPar: null,
         totalPar: null,
         pageIndex: 0,
@@ -121,8 +122,9 @@ describe('TopBar', () => {
         practicePar: null,
         regionPar: '2,000',
         baseportPar: '40',
-        correctionPar: '(98% of 8.5k) 8,333',
-        totalPar: '2,040',
+        correctionParContext: '(5% of 8500)',
+        correctionPar: '453',
+        totalPar: '2,493',
       },
     }));
 
@@ -134,7 +136,8 @@ describe('TopBar', () => {
     expect(screen.getByText('2,000')).toBeTruthy();
     expect(screen.getByText('40')).toBeTruthy();
     expect(screen.getByText('Correction:')).toBeTruthy();
-    expect(screen.getByText('(98% of 8.5k) 8,333')).toBeTruthy();
-    expect(screen.getByText('2,040')).toBeTruthy();
+    expect(screen.getByText('(5% of 8500)')).toBeTruthy();
+    expect(screen.getByText('453')).toBeTruthy();
+    expect(screen.getByText('2,493')).toBeTruthy();
   });
 });

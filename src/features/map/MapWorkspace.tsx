@@ -125,8 +125,10 @@ import { stripScenarioRegionPrefix } from '../../lib/regions/regionOrder';
 import { getFacilityFeatureProperties } from '../../lib/facilities';
 import {
   buildSelectedFacilityParSummary,
+  buildProportionalParCorrectionSummary,
   formatParDisplayValue,
-  formatProportionalParCorrectionDisplay,
+  formatProportionalParCorrectionContext,
+  parseFacilityParValue,
 } from './facilityPar';
 import { buildSelectedFacilityPracticeSummary } from './facilityPracticeSummary';
 import { useAppStore } from '../../store/appStore';
@@ -529,6 +531,10 @@ export function MapWorkspace() {
       const visiblePointFeatures = layers
         .filter((layer) => layer.type === 'point' && layer.visible)
         .flatMap((layer) => layerRefs.current.get(layer.id)?.getSource()?.getFeatures() ?? []);
+      const overallVisibleTotalPar = visiblePointFeatures.reduce((sum, feature) => {
+        const value = parseFacilityParValue(feature.get('par'));
+        return value === null ? sum : sum + value;
+      }, 0);
       const practiceSummary = buildSelectedFacilityPracticeSummary({
         facilityFeatures: visiblePointFeatures,
         selectedFacilityId: currentEntry.facilityId || null,
@@ -546,6 +552,11 @@ export function MapWorkspace() {
             jmcAssignmentLookupSourceRef.current,
           ),
         });
+      const correctionSummary = buildProportionalParCorrectionSummary({
+        regionPar,
+        baseportPar,
+        overallTotalPar: overallVisibleTotalPar > 0 ? overallVisibleTotalPar : null,
+      });
       setSelection({
         facilityIds: currentEntry.facilityId ? [currentEntry.facilityId] : [],
         boundaryName: selectedBoundaryNameRef.current ?? currentEntry.boundaryName,
@@ -562,8 +573,11 @@ export function MapWorkspace() {
         practicePar: formatParDisplayValue(practicePar),
         regionPar: formatParDisplayValue(regionPar),
         baseportPar: formatParDisplayValue(baseportPar),
-        correctionPar: formatProportionalParCorrectionDisplay({ regionPar, totalPar }),
-        totalPar: formatParDisplayValue(totalPar),
+        correctionParContext: formatProportionalParCorrectionContext(
+          correctionSummary.contributionPercent,
+        ),
+        correctionPar: formatParDisplayValue(correctionSummary.correctionValue),
+        totalPar: formatParDisplayValue(correctionSummary.correctedTotal ?? totalPar),
         pageIndex: pointTooltipIndexRef.current,
         pageCount: pointTooltipEntriesRef.current.length,
       });
@@ -573,6 +587,10 @@ export function MapWorkspace() {
       const visiblePointFeatures = layers
         .filter((layer) => layer.type === 'point' && layer.visible)
         .flatMap((layer) => layerRefs.current.get(layer.id)?.getSource()?.getFeatures() ?? []);
+      const overallVisibleTotalPar = visiblePointFeatures.reduce((sum, feature) => {
+        const value = parseFacilityParValue(feature.get('par'));
+        return value === null ? sum : sum + value;
+      }, 0);
       const { regionPar, baseportPar, totalPar } = buildSelectedFacilityParSummary({
         facilityFeatures: visiblePointFeatures,
         selectedFacilityId: null,
@@ -584,6 +602,11 @@ export function MapWorkspace() {
             regionBoundaryRefs.current,
             jmcAssignmentLookupSourceRef.current,
           ),
+      });
+      const correctionSummary = buildProportionalParCorrectionSummary({
+        regionPar,
+        baseportPar,
+        overallTotalPar: overallVisibleTotalPar > 0 ? overallVisibleTotalPar : null,
       });
       setSelection({
         facilityIds: [],
@@ -601,8 +624,11 @@ export function MapWorkspace() {
         practicePar: null,
         regionPar: formatParDisplayValue(regionPar),
         baseportPar: formatParDisplayValue(baseportPar),
-        correctionPar: formatProportionalParCorrectionDisplay({ regionPar, totalPar }),
-        totalPar: formatParDisplayValue(totalPar),
+        correctionParContext: formatProportionalParCorrectionContext(
+          correctionSummary.contributionPercent,
+        ),
+        correctionPar: formatParDisplayValue(correctionSummary.correctionValue),
+        totalPar: formatParDisplayValue(correctionSummary.correctedTotal ?? totalPar),
         pageIndex: 0,
         pageCount: 0,
       });
@@ -1066,6 +1092,7 @@ export function MapWorkspace() {
       practicePar: null,
       regionPar: null,
       baseportPar: null,
+      correctionParContext: null,
       correctionPar: null,
       totalPar: null,
       pageIndex: 0,

@@ -260,7 +260,8 @@ Why timing is worse right now:
   - left column: `Facility:`, `Practice:`, `Region:`, `Baseport:`, `Correction:`, `Total:`
   - right column: right-aligned values
 - `Total` remains emphasized through `topbar__spacer-par-value--total`.
-- `Correction` uses the display format `(n% of 8.5k) value`.
+- `Correction` uses the display format `(n% of 8500) value`.
+- The numeric correction value should render at the same size as the other PAR values; only the parenthetical context stays visually reduced.
 
 ### Locked typography and spacing seam
 
@@ -279,8 +280,9 @@ Why timing is worse right now:
   - Clyde -> Scotland / Highland basis
   - Devonport -> South West / Devon basis
   - Portsmouth -> London & South / Hampshire and Isle of Wight basis on `Current`
-- `Total PAR = Region PAR + Baseport PAR`.
-- `Correction PAR` is derived from proportional regional contribution to `Total PAR`, using the displayed `Region PAR / Total PAR` share against a fixed `8,500` base.
+- Raw selected contribution is `Region PAR + Baseport PAR`.
+- `Correction PAR` is derived from that selected contribution as a share of the overall visible PAR total, using the displayed `(n% of 8500)` contribution against a fixed `8,500` base.
+- Displayed `Total PAR = Region PAR + Baseport PAR + Correction PAR`.
 
 ### Locked combined-practice pane contract
 
