@@ -911,42 +911,6 @@
         ]
       },
       "properties": {
-        "id": "CMP18-3",
-        "name": "Defence Global Practice Europe",
-        "type": "pmc-facility",
-        "region": "Overseas",
-        "default_visible": 1,
-        "point_color_hex": "#808080",
-        "point_alpha": 1,
-        "source_file": "Export_30_Mar_26.csv",
-        "source_row": 27,
-        "combined_practice": "Defence Global [Combined] Practice Europe",
-        "active_dmicp_id": "34062",
-        "legacy_dmicp_id": "34062",
-        "status": "Open",
-        "parent": "Child",
-        "postcode": "WS14 9PY",
-        "par": "3589",
-        "coordinate_source": "csv",
-        "icb_hb_code": "E54000010",
-        "icb_hb_code_2026": "E54000010",
-        "lon_original": null,
-        "lat_original": null,
-        "snapped_to_land": null,
-        "snap_distance_m": null,
-        "snap_basis": null
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -1.775152,
-          52.661245
-        ]
-      },
-      "properties": {
         "id": "CMP18-1",
         "name": "Defence Global Practice Med Cent",
         "type": "pmc-facility",
