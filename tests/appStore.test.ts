@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { resolveRuntimeMapProductPath } from '../src/lib/config/runtimeMapProducts';
 import { useAppStore } from '../src/store/appStore';
 import type { OverlayLayerStyle, OverlayFamily } from '../src/types';
 
 const V10 = 'data/regions/UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson';
+const CURRENT_JMC_OUTLINE_PATH = 'data/regions/UK_JMC_Outline_arcs.geojson';
+const JMC_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_Outline_arcs.geojson');
 const MINIMAL_BASEMAP = {
   provider: 'localDetailed' as const,
   scale: '10m' as const,
@@ -43,6 +46,11 @@ function makeCurrentPresetState() {
     overlayLayers: [
       makeLayer('regionFill', 'regionFill', V10),
       makeLayer('wardSplitFill', 'wardSplitFill', 'data/regions/UK_WardSplit_simplified.geojson'),
+      makeLayer(
+        'wardSplitWards',
+        'wardSplitWards',
+        'data/regions/UK_WardSplit_Canonical_Current_exact.geojson',
+      ),
       makeLayer('englandIcb', 'englandIcb', V10),
       makeLayer('devolvedHb', 'devolvedHb', V10),
       {
@@ -683,6 +691,7 @@ describe('appStore region controls', () => {
     expect(currentFamilies).toEqual([
       ['regionFill', 'regionFill'],
       ['wardSplitFill', 'wardSplitFill'],
+      ['wardSplitWards', 'wardSplitWards'],
       ['englandIcb', 'englandIcb'],
       ['devolvedHb', 'devolvedHb'],
       ['nhsEnglandRegionsBsc', 'nhsRegions'],
@@ -730,7 +739,7 @@ describe('appStore region controls', () => {
     });
     expect(sjcJmcLayer).toMatchObject({
       family: 'customRegions',
-      path: 'data/regions/UK_JMC_Outline_arcs.geojson',
+      path: CURRENT_JMC_OUTLINE_PATH,
       visible: false,
       borderVisible: false,
     });
@@ -751,7 +760,7 @@ describe('appStore region controls', () => {
     expect(sjcJmcLayer).toMatchObject({
       family: 'customRegions',
       name: 'SJC JMC',
-      path: 'data/regions/UK_JMC_Outline_arcs.geojson',
+      path: JMC_OUTLINE_PATH,
       visible: false,
       borderVisible: false,
     });
@@ -1055,6 +1064,25 @@ describe('appStore region controls', () => {
       selectedScenarioRegionId: 'coa3b_midlands',
       pendingScenarioRegionId: 'coa3b_midlands',
       isDirty: false,
+    });
+  });
+
+  it('can clear the transient editor selection after applying a reassignment', () => {
+    useAppStore.getState().activateScenarioWorkspace('dphcEstimateCoaPlayground');
+    useAppStore.getState().assignScenarioWorkspaceBoundaryUnit(
+      'dphcEstimateCoaPlayground',
+      'UNIT-123',
+      'coa3b_london_east',
+    );
+    useAppStore.getState().selectScenarioWorkspaceBoundaryUnit('UNIT-123');
+
+    useAppStore.getState().selectScenarioWorkspaceBoundaryUnit(null);
+
+    expect(useAppStore.getState().scenarioWorkspaceEditor).toEqual({
+      selectedBoundaryUnitId: null,
+      selectedScenarioRegionId: null,
+      pendingScenarioRegionId: null,
+      isDirty: true,
     });
   });
 

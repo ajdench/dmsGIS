@@ -95,6 +95,10 @@ Important implementation change:
 - the dissolved runtime split build now also performs a small-fragment cleanup pass before export, reassigning detached sub-`1,000,000 m²` pieces to the nearest dominant split-region body within the same parent ICB
 - the split runtime build now also normalizes again after reprojection to `EPSG:4326`, dropping microscopic degenerate parts created by the transform before the dissolved exact and shipped runtime split products are written
 - the shipped split runtime is now also clipped to the live `Current` parent runtime polygons during export, so split fills do not materially overlap neighboring current-board fills
+- the `2026-04-01` follow-up repair removed the later interior-ring regression from both split outputs:
+  - `public/data/regions/UK_WardSplit_simplified.geojson` is back to `0` interior rings
+  - `geopackages/outputs/full_uk_current_boards/UK_SplitICB_Current_Canonical_Dissolved.geojson` is back to `0` interior rings
+  - the same pass also aligned `wardSplitFill` seam masking with `regionFill` so white slivers in split-parent cases are no longer amplified by a zero-stroke render path
 
 That means the live fills, line products, masks, and facility assignment are now rebuilt from one coordinated output family rather than through separate repair seams.
 
@@ -107,6 +111,7 @@ The final rebuild step is now a formal artifact gate, not just an informal test 
 - accepted Hampshire split spot-checks remain intact
 - land/sea mask patch extents remain within the accepted local replacement contract
 - split runtime and dissolved exact products remain valid
+- split runtime and dissolved exact products remain hole-free
 - split runtime does not materially overlap neighboring boards
 - facilities still sit inside their assigned shipped current and shipped `2026` board products
 

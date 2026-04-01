@@ -193,6 +193,59 @@ describe('combinedPractices', () => {
     );
   });
 
+  it('separates same-region combined practices from each other by default', () => {
+    const styles = buildDefaultCombinedPracticeStyles([
+      {
+        name: 'Portsmouth Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Nelson Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Garrison Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Blandford Medical Centre',
+        combined_practice: 'Blandford Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Bovington Medical Centre',
+        combined_practice: 'Blandford Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+    ]);
+
+    const families = styles.map((style) => getCombinedPracticeColorFamily(style.borderColor));
+
+    expect(new Set(styles.map((style) => style.borderColor)).size).toBe(3);
+    expect(families).not.toContain('green');
+    expect(new Set(families).size).toBe(3);
+  });
+
   it('applies the Catterick palette step override to avoid the green cluster', () => {
     const styles = buildDefaultCombinedPracticeStyles([
       {
@@ -347,5 +400,135 @@ describe('combinedPractices', () => {
     expect(west!.borderColor).toBe('#f59e0b');
     expect(getCombinedPracticeColorFamily(east!.borderColor)).not.toBe('blue');
     expect(getCombinedPracticeColorFamily(west!.borderColor)).not.toBe('blue');
+  });
+
+  it('keeps Aldershot/Pirbright and Cottesmore/Lichfield in distinct color families', () => {
+    const styles = buildDefaultCombinedPracticeStyles([
+      {
+        name: 'Aldershot Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Garrison Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Pirbright Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Pirbright Camp Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Cottesmore Medical Centre',
+        combined_practice: 'Cottesmore Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Kendrew Medical Centre',
+        combined_practice: 'Cottesmore Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Lichfield Medical Centre',
+        combined_practice: 'Lichfield Combined Medical Practice',
+        region: 'Wales & West Midlands',
+        point_color_hex: '#ed5151',
+        default_visible: 1,
+      },
+      {
+        name: 'Whittington Medical Centre',
+        combined_practice: 'Lichfield Combined Medical Practice',
+        region: 'Wales & West Midlands',
+        point_color_hex: '#ed5151',
+        default_visible: 1,
+      },
+      {
+        name: 'Coningsby Medical Centre',
+        combined_practice: 'Lincolnshire Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Cranwell Medical Centre',
+        combined_practice: 'Lincolnshire Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Portsmouth Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Nelson Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+    ]);
+
+    const aldershot = styles.find(
+      (style) => style.name === 'Aldershot Combined Medical Practice',
+    );
+    const pirbright = styles.find(
+      (style) => style.name === 'Pirbright Combined Medical Practice',
+    );
+    const cottesmore = styles.find(
+      (style) => style.name === 'Cottesmore Combined Medical Practice',
+    );
+    const lichfield = styles.find(
+      (style) => style.name === 'Lichfield Combined Medical Practice',
+    );
+    const lincolnshire = styles.find(
+      (style) => style.name === 'Lincolnshire Combined Medical Practice',
+    );
+    const portsmouth = styles.find(
+      (style) => style.name === 'Portsmouth Combined Medical Practice',
+    );
+
+    expect(aldershot?.borderColor).toBe('#ef4444');
+    expect(pirbright?.borderColor).toBe('#f97316');
+    expect(cottesmore?.borderColor).toBe('#ec4899');
+    expect(lichfield?.borderColor).toBe('#22d3ee');
+    expect(lincolnshire?.borderColor).toBe('#06b6d4');
+    expect(portsmouth?.borderColor).toBe('#fbbf24');
+    expect(getCombinedPracticeColorFamily(aldershot!.borderColor)).not.toBe(
+      getCombinedPracticeColorFamily(pirbright!.borderColor),
+    );
+    expect(getCombinedPracticeColorFamily(cottesmore!.borderColor)).not.toBe(
+      getCombinedPracticeColorFamily(lichfield!.borderColor),
+    );
+    expect(getCombinedPracticeColorFamily(portsmouth!.borderColor)).not.toBe(
+      'green',
+    );
+    expect(getCombinedPracticeColorFamily(portsmouth!.borderColor)).not.toBe(
+      'purple',
+    );
+    expect(getCombinedPracticeColorFamily(lincolnshire!.borderColor)).not.toBe(
+      'orange',
+    );
   });
 });

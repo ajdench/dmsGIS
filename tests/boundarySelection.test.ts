@@ -40,6 +40,15 @@ describe('boundarySelection', () => {
     expect(getBoundaryName(feature)).toBe('Boundary X');
   });
 
+  it('prefers ward_name when a split-ward debug feature is selected', () => {
+    const feature = new Feature({
+      ward_name: 'Stopsley',
+      boundary_name: 'NHS Hertfordshire and West Essex Integrated Care Board',
+    });
+
+    expect(getBoundaryName(feature)).toBe('Stopsley');
+  });
+
   it('prefers boundary_name over region_ref when both are present on split features', () => {
     const feature = new Feature({
       boundary_name: 'NHS Hampshire and Isle of Wight Integrated Care Board',
@@ -127,7 +136,7 @@ describe('boundarySelection', () => {
     ).toBe('COA 3b Midlands');
   });
 
-  it('collapses ward-split boundary hits back to the full parent board', () => {
+  it('collapses ward-split boundary hits back to the full parent board while preserving clicked region', () => {
     const regionFillFeature = new Feature({
       boundary_code: 'E54000042',
       boundary_name: 'Parent board',
@@ -135,6 +144,7 @@ describe('boundarySelection', () => {
     });
     const wardSplitFeature = new Feature({
       parent_code: 'E54000042',
+      boundary_code: 'E54000042',
       boundary_name: 'Parent board',
       region_ref: 'Central & Wessex',
       geometry: new Polygon(SQUARE_COORDS),
@@ -180,6 +190,62 @@ describe('boundarySelection', () => {
     expect(matched).not.toBe(wardSplitFeature);
     expect(matched?.get('boundary_code')).toBe('E54000042');
     expect(matched?.get('selection_region_ref')).toBe('Central & Wessex');
+    expect(matched?.get('region_ref')).toBe('Central & Wessex');
+  });
+
+  it('returns the raw split-ward feature when the split-ward overlay is visible', () => {
+    const regionFillFeature = new Feature({
+      boundary_code: 'E54000042',
+      boundary_name: 'Parent board',
+      geometry: new Polygon(SQUARE_COORDS),
+    });
+    const wardSplitWardFeature = new Feature({
+      parent_code: 'E54000042',
+      boundary_code: 'E54000042',
+      boundary_name: 'Parent board',
+      ward_name: 'Test ward',
+      region_ref: 'Central & Wessex',
+      geometry: new Polygon(SQUARE_COORDS),
+    });
+
+    const matched = findCareBoardBoundaryAtCoordinate(
+      [5, 5],
+      [
+        {
+          id: 'wardSplitWards',
+          name: 'Split ICB wards',
+          path: 'data/regions/ward-split-wards.geojson',
+          family: 'wardSplitWards',
+          visible: true,
+          opacity: 0,
+          borderVisible: true,
+          borderColor: '#8f8f8f',
+          borderWidth: 1,
+          borderOpacity: 0.35,
+          swatchColor: '#8f8f8f',
+        },
+        {
+          id: 'regionFill',
+          name: 'Region fill',
+          path: 'data/regions/boards.geojson',
+          family: 'regionFill',
+          visible: true,
+          opacity: 0.7,
+          borderVisible: false,
+          borderColor: '#8f8f8f',
+          borderWidth: 1,
+          borderOpacity: 0,
+          swatchColor: '#8f8f8f',
+        },
+      ],
+      new Map([
+        ['wardSplitWards', new VectorLayer({ source: new VectorSource({ features: [wardSplitWardFeature] }) })],
+        ['regionFill', new VectorLayer({ source: new VectorSource({ features: [regionFillFeature] }) })],
+      ]),
+    );
+
+    expect(matched).toBe(wardSplitWardFeature);
+    expect(getBoundaryName(matched as Feature)).toBe('Test ward');
   });
 
   it('prefers the clicked split-ward region assignment over the parent board default mapping', () => {
@@ -257,7 +323,7 @@ describe('boundarySelection', () => {
     expect(matched?.get('boundary_name')).toBe(
       'NHS Hampshire and Isle of Wight Integrated Care Board',
     );
-    expect(matched?.get('selection_region_ref')).toBe('Central & Wessex');
+    expect(matched?.get('region_ref')).toBe('Central & Wessex');
   });
 
   it('derives a Current group outline for non-split groups from runtime regionFill', () => {
@@ -301,7 +367,7 @@ describe('boundarySelection', () => {
     expect(extent?.[3] ?? 0).toBeGreaterThan(9.9);
   });
 
-  it('returns null for Current split-parent groups so the file-based external arc is used', () => {
+  it('derives a Current group outline for split-parent groups from live split-aware geometry', () => {
     const wardSplitFeature = new Feature({
       parent_code: 'E54000042',
       boundary_code: 'E54000042',
@@ -316,8 +382,7 @@ describe('boundarySelection', () => {
       ]]),
     });
 
-    expect(
-      deriveCurrentGroupOutlineFeature(
+    const outline = deriveCurrentGroupOutlineFeature(
       'Central & Wessex',
       new Map([
         [
@@ -335,69 +400,54 @@ describe('boundarySelection', () => {
           }),
         ],
       ]),
-    ),
-    ).toBeNull();
+    );
+
+    expect(outline).not.toBeNull();
+    expect(outline?.get('boundary_name')).toBe('Central & Wessex');
   });
 
   it(
-    'returns null instead of throwing when Current outline derivation hits live split-parent geometry',
+    'returns a live split-aware Current outline instead of throwing for split-parent geometry',
     () => {
-    const format = new GeoJSON({ featureProjection: 'EPSG:3857' });
-    const regionFillFeatures = format.readFeatures(
-      JSON.parse(
-        readFileSync(
-          '/Users/andrew/Projects/dmsGIS/public/data/regions/UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson',
-          'utf8',
-        ),
-      ) as object,
-    );
-    const wardSplitFeatures = format.readFeatures(
-      JSON.parse(
-        readFileSync(
-          '/Users/andrew/Projects/dmsGIS/public/data/regions/UK_WardSplit_simplified.geojson',
-          'utf8',
-        ),
-      ) as object,
-    );
+      const format = new GeoJSON({ featureProjection: 'EPSG:3857' });
+      const regionFillFeatures = format.readFeatures(
+        JSON.parse(
+          readFileSync(
+            '/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review/regions/UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson',
+            'utf8',
+          ),
+        ) as object,
+      );
+      const wardSplitFeatures = format.readFeatures(
+        JSON.parse(
+          readFileSync(
+            '/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review/regions/UK_WardSplit_simplified.geojson',
+            'utf8',
+          ),
+        ) as object,
+      );
 
-    expect(() =>
-      deriveCurrentGroupOutlineFeature(
-        'London & South',
-        new Map([
-          [
-            'regionFill',
-            new VectorLayer({
-              source: new VectorSource({ features: regionFillFeatures }),
-            }),
-          ],
-          [
-            'wardSplitFill',
-            new VectorLayer({
-              source: new VectorSource({ features: wardSplitFeatures }),
-            }),
-          ],
-        ]),
-      ),
-    ).not.toThrow();
-    expect(
-      deriveCurrentGroupOutlineFeature(
-        'London & South',
-        new Map([
-          [
-            'regionFill',
-            new VectorLayer({
-              source: new VectorSource({ features: regionFillFeatures }),
-            }),
-          ],
-          [
-            'wardSplitFill',
-            new VectorLayer({
-              source: new VectorSource({ features: wardSplitFeatures }),
-            }),
-          ],
-        ]),
-      ),
-    ).toBeNull();
+      let outline: ReturnType<typeof deriveCurrentGroupOutlineFeature> = null;
+      expect(() => {
+        outline = deriveCurrentGroupOutlineFeature(
+          'London & South',
+          new Map([
+            [
+              'regionFill',
+              new VectorLayer({
+                source: new VectorSource({ features: regionFillFeatures }),
+              }),
+            ],
+            [
+              'wardSplitFill',
+              new VectorLayer({
+                source: new VectorSource({ features: wardSplitFeatures }),
+              }),
+            ],
+          ]),
+        );
+      }).not.toThrow();
+      expect(outline).not.toBeNull();
     },
     15000,
   );

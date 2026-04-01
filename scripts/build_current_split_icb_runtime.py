@@ -17,7 +17,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely import make_valid
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
-from shapely.ops import unary_union
+from shapely.ops import polygonize, unary_union
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,13 +28,20 @@ DEFAULT_EXACT_GPKG = (
     / "full_uk_current_boards"
     / "UK_WardSplit_Canonical_Current_exact.gpkg"
 )
-DEFAULT_CURRENT_RUNTIME_GEOJSON = (
+DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES = [
+    ROOT
+    / "public"
+    / "data"
+    / "compare"
+    / "shared-foundation-review"
+    / "regions"
+    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson",
     ROOT
     / "public"
     / "data"
     / "regions"
-    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson"
-)
+    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson",
+]
 OUTPUT_DIR = ROOT / "geopackages" / "outputs" / "full_uk_current_boards"
 DEFAULT_OUTPUT_GPKG = OUTPUT_DIR / "UK_SplitICB_Current_Canonical_Dissolved.gpkg"
 DEFAULT_OUTPUT_GEOJSON = OUTPUT_DIR / "UK_SplitICB_Current_Canonical_Dissolved.geojson"
@@ -44,6 +51,7 @@ RUNTIME_CRS = "EPSG:4326"
 ANCHOR_MIN_AREA_M2 = 2_000_000
 FRAGMENT_REASSIGN_MAX_AREA_M2 = 1_000_000
 MIN_RUNTIME_PART_AREA = 1e-8
+MIN_RUNTIME_PART_AREA_WGS84 = 0.0
 TARGET_PARENT_CODES = {"E54000025", "E54000042", "E54000048"}
 
 
@@ -60,7 +68,20 @@ def get_exact_gpkg() -> Path:
 
 
 def get_current_runtime_geojson() -> Path:
-    return resolve_path("CURRENT_RUNTIME_GEOJSON_PATH", DEFAULT_CURRENT_RUNTIME_GEOJSON)
+    override = str(os.environ.get("CURRENT_RUNTIME_GEOJSON_PATH") or "").strip()
+    if override:
+        candidate = Path(override)
+        resolved = candidate if candidate.is_absolute() else ROOT / candidate
+        if not resolved.exists():
+            raise RuntimeError(f"Current runtime board source not found: {resolved}")
+        return resolved
+
+    for candidate in DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES:
+        if candidate.exists():
+            return candidate
+
+    searched = ", ".join(str(path) for path in DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES)
+    raise RuntimeError(f"Current runtime board source not found; checked: {searched}")
 
 
 def get_output_gpkg() -> Path:
@@ -94,6 +115,16 @@ def iter_polygon_parts(geom):
     return []
 
 
+def strip_polygon_holes(geom):
+    if geom is None or geom.is_empty:
+        return geom
+    if isinstance(geom, Polygon):
+        return Polygon(geom.exterior)
+    if isinstance(geom, MultiPolygon):
+        return MultiPolygon([Polygon(part.exterior) for part in geom.geoms if not part.is_empty])
+    return geom
+
+
 def normalize_polygonal(geom, min_part_area: float = 0.0):
     fixed = make_valid(geom)
     seed_parts = iter_polygon_parts(fixed)
@@ -103,6 +134,7 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
         for candidate_part in iter_polygon_parts(candidate):
             if candidate_part.is_empty or candidate_part.area <= min_part_area:
                 continue
+            candidate_part = strip_polygon_holes(candidate_part)
             coords = list(candidate_part.exterior.coords)
             if len(coords) < 4 or len(set(coords)) < 4:
                 continue
@@ -120,6 +152,7 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
     ]
     filtered_parts = []
     for part in parts:
+        part = strip_polygon_holes(part)
         coords = list(part.exterior.coords)
         if len(coords) < 4 or len(set(coords)) < 4:
             continue
@@ -130,6 +163,30 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
     if len(parts) == 1:
         return parts[0]
     return MultiPolygon(parts)
+
+
+def postprocess_hole_free_vector(path: Path, layer: str | None = None) -> None:
+    gdf = gpd.read_file(path, layer=layer)
+    min_part_area = (
+        MIN_RUNTIME_PART_AREA_WGS84
+        if gdf.crs is not None and getattr(gdf.crs, "is_geographic", False)
+        else MIN_RUNTIME_PART_AREA
+    )
+    gdf["geometry"] = gdf.geometry.apply(strip_polygon_holes)
+    gdf["geometry"] = gdf.geometry.apply(
+        lambda geom: normalize_polygonal(geom, min_part_area=min_part_area)
+    )
+    gdf = gdf.loc[gdf["geometry"].notna()].copy()
+
+    if path.suffix.lower() == ".gpkg":
+        if path.exists():
+            path.unlink()
+        gdf.to_file(path, layer=layer or "layer", driver="GPKG")
+        return
+
+    if path.exists():
+        path.unlink()
+    gdf.to_file(path, driver="GeoJSON", COORDINATE_PRECISION=7)
 
 
 def clean_split_fragments(grouped: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -211,6 +268,130 @@ def clean_split_fragments(grouped: list[dict[str, object]]) -> list[dict[str, ob
     return cleaned_rows
 
 
+def choose_shell_remainder_region(
+    remainder_part,
+    region_geometries: dict[str, object],
+) -> str:
+    ranked: list[tuple[float, float, str]] = []
+    for region_ref, region_geom in region_geometries.items():
+        if region_geom is None or region_geom.is_empty:
+            continue
+        shared_boundary = remainder_part.boundary.intersection(region_geom.boundary).length
+        distance = remainder_part.distance(region_geom)
+        ranked.append((-shared_boundary, distance, region_ref))
+
+    if not ranked:
+        raise RuntimeError("Unable to assign split-parent shell remainder to any region")
+
+    ranked.sort(key=lambda item: (item[0], item[1], item[2]))
+    return ranked[0][2]
+
+
+def enforce_parent_shell_precedence(
+    grouped_rows: list[dict[str, object]],
+    runtime_parents: dict[str, object],
+    working_crs,
+) -> list[dict[str, object]]:
+    gdf = gpd.GeoDataFrame(pd.DataFrame(grouped_rows), geometry="geometry", crs=working_crs)
+    resolved_rows: list[dict[str, object]] = []
+
+    for parent_code, parent_rows in gdf.groupby("parent_code", sort=True, dropna=False):
+        parent_geom = runtime_parents[str(parent_code)]
+        region_geometries: dict[str, object] = {}
+        metadata_by_region: dict[str, pd.Series] = {}
+
+        for row in parent_rows.itertuples():
+            region_ref = str(row.region_ref)
+            metadata_by_region[region_ref] = parent_rows.loc[row.Index]
+            clipped = normalize_polygonal(
+                row.geometry.intersection(parent_geom),
+                min_part_area=MIN_RUNTIME_PART_AREA,
+            )
+            if clipped is None or clipped.is_empty:
+                continue
+            existing = region_geometries.get(region_ref)
+            region_geometries[region_ref] = (
+                clipped
+                if existing is None
+                else normalize_polygonal(
+                    unary_union([existing, clipped]),
+                    min_part_area=MIN_RUNTIME_PART_AREA,
+                )
+            )
+
+        seam_network = unary_union(
+            [parent_geom.boundary] + [geom.boundary for geom in region_geometries.values()]
+        )
+        partition_parts = []
+        for cell in polygonize(seam_network):
+            clipped_cell = normalize_polygonal(
+                cell.intersection(parent_geom),
+                min_part_area=MIN_RUNTIME_PART_AREA_WGS84
+                if working_crs == RUNTIME_CRS
+                else MIN_RUNTIME_PART_AREA,
+            )
+            if clipped_cell is None or clipped_cell.is_empty:
+                continue
+            point = clipped_cell.representative_point()
+            if not (point.within(parent_geom) or point.touches(parent_geom)):
+                continue
+            partition_parts.extend(iter_polygon_parts(clipped_cell))
+
+        if partition_parts:
+            reassigned_geometries: dict[str, list[object]] = {
+                region_ref: []
+                for region_ref in region_geometries
+            }
+            for part in partition_parts:
+                overlaps = []
+                for region_ref, region_geom in region_geometries.items():
+                    overlap_area = part.intersection(region_geom).area
+                    if overlap_area > 0:
+                        overlaps.append((overlap_area, region_ref))
+
+                if overlaps:
+                    overlaps.sort(key=lambda item: (-item[0], item[1]))
+                    target_region = overlaps[0][1]
+                else:
+                    target_region = choose_shell_remainder_region(part, region_geometries)
+                reassigned_geometries[target_region].append(part)
+
+            region_geometries = {
+                region_ref: normalize_polygonal(
+                    unary_union(parts),
+                    min_part_area=MIN_RUNTIME_PART_AREA_WGS84
+                    if working_crs == RUNTIME_CRS
+                    else MIN_RUNTIME_PART_AREA,
+                )
+                for region_ref, parts in reassigned_geometries.items()
+                if parts
+            }
+
+        for region_ref, region_geom in region_geometries.items():
+            final_geom = normalize_polygonal(
+                region_geom.intersection(parent_geom),
+                min_part_area=MIN_RUNTIME_PART_AREA,
+            )
+            if final_geom is None or final_geom.is_empty:
+                continue
+            row = metadata_by_region[region_ref]
+            resolved_rows.append(
+                {
+                    "component_id": row["component_id"],
+                    "parent_code": row["parent_code"],
+                    "boundary_code": row["boundary_code"],
+                    "parent_name": row["parent_name"],
+                    "boundary_name": row["boundary_name"],
+                    "region_ref": row["region_ref"],
+                    "assignment_basis": row["assignment_basis"],
+                    "build_source": row["build_source"],
+                    "geometry": final_geom,
+                }
+            )
+
+    return resolved_rows
+
+
 def load_runtime_parent_geometries() -> dict[str, object]:
     parents = gpd.read_file(get_current_runtime_geojson())
     if parents.crs is None:
@@ -253,11 +434,7 @@ def main() -> None:
         source_prefix = "ward_bfc"
         if any(source.startswith("ward_bsc_") for source in build_sources):
             source_prefix = "ward_bsc"
-        assignment_basis = (
-            f"{source_prefix}_with_parent_remainder"
-            if (subset["assignment_basis"] == "canonical_parent_remainder_by_adjacency").any()
-            else f"{source_prefix}_dissolved"
-        )
+        assignment_basis = f"{source_prefix}_with_parent_remainder"
         geom = gpd.GeoSeries(subset.geometry, crs=gdf.crs).union_all()
         grouped.append(
             {
@@ -274,25 +451,37 @@ def main() -> None:
         )
 
     cleaned = clean_split_fragments(grouped)
-    out = gpd.GeoDataFrame(pd.DataFrame(cleaned), geometry="geometry", crs=TARGET_CRS)
-    out["geometry"] = out.geometry.apply(normalize_polygonal)
-    out = out.loc[out["geometry"].notna()].copy()
     runtime_parents = load_runtime_parent_geometries()
-    out["geometry"] = out.apply(
-        lambda row: normalize_polygonal(
-            row.geometry.intersection(runtime_parents[str(row.boundary_code)]),
-            min_part_area=MIN_RUNTIME_PART_AREA,
-        ),
-        axis=1,
-    )
+    resolved = enforce_parent_shell_precedence(cleaned, runtime_parents, TARGET_CRS)
+    out = gpd.GeoDataFrame(pd.DataFrame(resolved), geometry="geometry", crs=TARGET_CRS)
     out["geometry"] = out.geometry.apply(
         lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA)
     )
+    out["geometry"] = out.geometry.apply(strip_polygon_holes)
     out = out.loc[out["geometry"].notna()].copy()
     out = out.to_crs(RUNTIME_CRS)
-    out["geometry"] = out.geometry.apply(
-        lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA)
+    runtime_parents_wgs84_gdf = gpd.GeoDataFrame(
+        [
+            {"boundary_code": boundary_code, "geometry": geometry}
+            for boundary_code, geometry in runtime_parents.items()
+        ],
+        geometry="geometry",
+        crs=TARGET_CRS,
+    ).to_crs(RUNTIME_CRS)
+    runtime_parents_wgs84 = {
+        str(row.boundary_code): row.geometry
+        for row in runtime_parents_wgs84_gdf.itertuples()
+    }
+    resolved_wgs84 = enforce_parent_shell_precedence(
+        out.to_dict("records"),
+        runtime_parents_wgs84,
+        RUNTIME_CRS,
     )
+    out = gpd.GeoDataFrame(pd.DataFrame(resolved_wgs84), geometry="geometry", crs=RUNTIME_CRS)
+    out["geometry"] = out.geometry.apply(
+        lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA_WGS84)
+    )
+    out["geometry"] = out.geometry.apply(strip_polygon_holes)
     out = out.loc[out["geometry"].notna()].copy()
 
     if out.crs is None:
@@ -308,14 +497,17 @@ def main() -> None:
     if output_gpkg.exists():
         output_gpkg.unlink()
     out.to_file(output_gpkg, layer="uk_current_split_icb_dissolved", driver="GPKG")
+    postprocess_hole_free_vector(output_gpkg, layer="uk_current_split_icb_dissolved")
 
     if output_geojson.exists():
         output_geojson.unlink()
     out.to_file(output_geojson, driver="GeoJSON", COORDINATE_PRECISION=7)
+    postprocess_hole_free_vector(output_geojson)
 
     if runtime_geojson.exists():
         runtime_geojson.unlink()
     out.to_file(runtime_geojson, driver="GeoJSON", COORDINATE_PRECISION=7)
+    postprocess_hole_free_vector(runtime_geojson)
 
     print(f"Written dissolved split exact: {output_gpkg}")
     print(f"Written dissolved split exact: {output_geojson}")

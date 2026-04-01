@@ -1,12 +1,16 @@
 // @vitest-environment jsdom
 
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { createElement } from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TopBar } from '../src/components/layout/TopBar';
 import { useAppStore } from '../src/store/appStore';
 
 describe('TopBar', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     useAppStore.setState((state) => ({
       ...state,
@@ -55,5 +59,49 @@ describe('TopBar', () => {
     expect(screen.getAllByText('Combined Medical Practice').length).toBeGreaterThan(
       0,
     );
+  });
+
+  it('shows the live top-bar preset as active when not in Playground mode', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      activeViewPreset: 'coa3b',
+      activeStandardViewPreset: 'current',
+      activeScenarioWorkspaceId: null,
+    }));
+
+    render(createElement(TopBar));
+    const presetRow = within(screen.getByLabelText('Map presets'));
+
+    expect(
+      presetRow.getByRole('button', { name: 'COA 3a' }).getAttribute('aria-pressed'),
+    ).toBe('true');
+    expect(
+      presetRow.getByRole('button', { name: 'Current' }).getAttribute('aria-pressed'),
+    ).toBe('false');
+  });
+
+  it('clears all top-bar preset buttons when a Playground workspace is active', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      activeViewPreset: 'coa3c',
+      activeStandardViewPreset: 'current',
+      activeScenarioWorkspaceId: 'dphcEstimateCoaPlayground',
+    }));
+
+    render(createElement(TopBar));
+    const presetRow = within(screen.getByLabelText('Map presets'));
+
+    expect(
+      presetRow.getByRole('button', { name: 'Current' }).getAttribute('aria-pressed'),
+    ).toBe('false');
+    expect(
+      presetRow.getByRole('button', { name: 'SJC JMC' }).getAttribute('aria-pressed'),
+    ).toBe('false');
+    expect(
+      presetRow.getByRole('button', { name: 'COA 3a' }).getAttribute('aria-pressed'),
+    ).toBe('false');
+    expect(
+      presetRow.getByRole('button', { name: 'COA 3b' }).getAttribute('aria-pressed'),
+    ).toBe('false');
   });
 });

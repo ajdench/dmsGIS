@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "refresh:facilities": "node scripts/refresh-facilities-from-export.mjs",
     "build:shared-foundation-review-family": "node scripts/build-shared-foundation-review-family.mjs",
     "build:legacy-region-outlines": "node scripts/buildLegacyRegionOutlines.mjs",
     "preview": "vite preview",

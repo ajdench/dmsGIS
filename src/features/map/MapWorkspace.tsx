@@ -104,7 +104,6 @@ import { resolveSingleClickSelection } from './singleClickSelection';
 import { buildEffectivePopulatedCodes } from './populatedCodes';
 import {
   applyBoundarySelection,
-  deriveCurrentGroupOutlineFeature,
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
   findJmcNameForBoundarySelection,
@@ -361,11 +360,6 @@ export function MapWorkspace() {
 
     const selectionColor =
       getRegionGroup(activeViewPreset, jmcName)?.colors.outline ?? '#419632';
-    const currentOutlineFeature =
-      activeViewPreset === 'current'
-        ? deriveCurrentGroupOutlineFeature(jmcName, regionBoundaryRefs.current)
-        : null;
-
     if (
       syncSelectedRegionHighlightFromAvailableSources({
         activeViewPreset,
@@ -373,7 +367,7 @@ export function MapWorkspace() {
         selectedRegionId: selectedScenarioRegionId,
         selectedRegionName: jmcName,
         selectionColor,
-        currentOutlineFeature,
+        currentOutlineFeature: null,
         derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
         selectedJmcBoundaryLayer,
       })
@@ -443,13 +437,6 @@ export function MapWorkspace() {
         if (jmcName) {
           const selectionColor =
             getRegionGroup(activeViewPreset, jmcName)?.colors.outline ?? '#419632';
-          const currentOutlineFeature =
-            activeViewPreset === 'current'
-              ? deriveCurrentGroupOutlineFeature(
-                  jmcName,
-                  regionBoundaryRefs.current,
-                )
-              : null;
           if (
             syncSelectedRegionHighlightFromAvailableSources({
               activeViewPreset,
@@ -457,7 +444,7 @@ export function MapWorkspace() {
               selectedRegionId: entry.scenarioRegionId,
               selectedRegionName: jmcName,
               selectionColor,
-              currentOutlineFeature,
+              currentOutlineFeature: null,
               derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
               selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
             })
@@ -1746,14 +1733,8 @@ export function MapWorkspace() {
                 scenarioAssignmentPopover.boundaryUnitId,
                 scenarioRegionId,
               );
-              setScenarioAssignmentPopover((current) =>
-                current
-                  ? {
-                      ...current,
-                      selectedRegionId: scenarioRegionId,
-                    }
-                  : current,
-              );
+              setScenarioAssignmentPopover(null);
+              selectScenarioWorkspaceBoundaryUnit(null);
             }}
             onClose={() => {
               setScenarioAssignmentPopover(null);
@@ -1777,7 +1758,7 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
       stroke: new Stroke({
         color: '#fffb00',
         width: 2,
-        lineDash: [10, 6],
+        lineDash: [10, 8],
         lineCap: 'round',
         lineJoin: 'round',
       }),

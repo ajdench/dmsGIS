@@ -136,6 +136,55 @@ Important `v3.8` hardening:
 - the shipped split GeoJSON is also written at `7` decimal places so reprojection rounding does not reintroduce tiny overlaps against neighboring current boards
 - this prevents tiny invalid/overlapping slivers from reappearing against the new `BSC` parent family
 
+Current split-outline follow-up:
+
+- selected `Current` Region-border highlight for split cases should now route back through the precomputed `current_*.geojson` outline contract
+- those `current_*.geojson` files are now rebuilt from one prepared split-aware topology of the live `Current` family:
+  - whole non-split boards are included once with their assigned Region group
+  - hidden split parents are excluded from the whole-board side
+  - ward-split features are inserted with group ownership from `region_ref`
+  - the final per-group outline arc is meshed from that shared topology
+- this is the current preferred path because it keeps `Current` split Region borders on one prepared seam family instead of rediscovering them from runtime dissolve
+- in this checkout the accepted live rebuild target for those outline files is:
+  - `public/data/compare/shared-foundation-review/regions/outlines/`
+  - not the incomplete/stale plain `public/data/regions/outlines/` mirror
+
+Current split-ward debug overlay:
+
+- a separate Current-only overlay now exists for inspecting the exact split wards directly:
+  - `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+- this file is intentionally limited to the three split parents only, not all UK wards
+- app contract:
+  - overlay family id: `wardSplitWards`
+  - default: off
+  - when on: exact split wards become directly selectable and `ward_name` should surface in the `ICB / Health Board` header pane
+  - when off: normal split-parent ICB/HB selection behavior remains the active contract
+
+Current split-shell repair note:
+
+- the latest repair pass kept the public runtime contracts stable but changed the rebuild lineage behind them:
+  - `scripts/build_current_ward_split_exact.py`
+  - `scripts/build_current_split_icb_runtime.py`
+  - `scripts/build_current_split_internal_arcs.py`
+- key accepted change:
+  - `Chilworth, Nursling & Rownhams` now explicitly assigns to `South West`
+- key geometry rule:
+  - the parent `Current` ICB shell must take precedence over ward borders
+  - dissolved split runtime geometry now rebuilds through a shell-first partition from the parent shell plus split-region seams
+- after each such rebuild, the expected refresh set is:
+  - `public/data/regions/UK_WardSplit_simplified.geojson`
+  - `public/data/regions/UK_WardSplit_internal_arcs.geojson`
+  - `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+  - the accepted compare-family mirrors of those files
+  - `public/data/compare/shared-foundation-review/regions/outlines/current_*.geojson`
+- current honest status:
+  - this materially reduced split-shell drift, but did not remove it entirely
+  - the targeted split validator still catches a small remaining shell-coverage sliver, most recently for `E54000025`
+- separate follow-up hardening now also exists for detached split-case outline fragments:
+  - `scripts/extract-group-outlines.mjs` removes any `Current` split-aware outline component that is wholly interior to a split-parent shell and does not touch that shell boundary
+  - it also prunes shell-local split micro-components that fall below the accepted local network-size floor, so stable detached shell-edge fragments are rejected before shipping
+  - `tests/currentGroupOutlineContracts.test.ts` guards both outline contracts on the shipped accepted-runtime outline files
+
 ## Overlays
 
 Stable default-off overlays remain part of the production overlay model:
@@ -144,6 +193,8 @@ Stable default-off overlays remain part of the production overlay model:
   - `public/data/regions/NHS_England_Regions_January_2024_EN_BSC.geojson`
 - `SJC JMC`
   - `Current` overlay path: `public/data/regions/UK_JMC_Outline_arcs.geojson`
+- `Split ICB Wards`
+  - `Current` overlay path: `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
 
 Scenario presets now also expose the shared overlay families in the Overlays pane:
 

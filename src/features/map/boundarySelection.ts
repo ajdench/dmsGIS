@@ -41,6 +41,7 @@ export interface AppliedBoundarySelectionState {
 
 export function getBoundaryName(feature: Feature): string {
   const value =
+    feature.get('ward_name') ??
     feature.get('boundary_name') ??
     feature.get('parent_name') ??
     feature.get('region_name') ??
@@ -61,13 +62,22 @@ export function findCareBoardBoundaryAtCoordinate(
 ): Feature | null {
   const regionFillSource = overlayLayerRefs.get('regionFill')?.getSource() ?? null;
   const orderedOverlayLayers = [...overlayLayers].sort((a, b) => {
-    const aPriority = a.family === 'wardSplitFill' ? 0 : 1;
-    const bPriority = b.family === 'wardSplitFill' ? 0 : 1;
+    const getPriority = (family: string) => {
+      if (family === 'wardSplitWards') return 0;
+      if (family === 'wardSplitFill') return 1;
+      return 2;
+    };
+    const aPriority = getPriority(a.family);
+    const bPriority = getPriority(b.family);
     return aPriority - bPriority;
   });
 
   for (const config of orderedOverlayLayers) {
-    if (config.family !== 'regionFill' && config.family !== 'wardSplitFill') continue;
+    if (
+      config.family !== 'regionFill' &&
+      config.family !== 'wardSplitFill' &&
+      config.family !== 'wardSplitWards'
+    ) continue;
     if (!config.visible) continue;
     const layer = overlayLayerRefs.get(config.id);
     const source = layer?.getSource();
@@ -76,6 +86,9 @@ export function findCareBoardBoundaryAtCoordinate(
       .getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
     if (hit) {
+      if (config.family === 'wardSplitWards') {
+        return hit;
+      }
       return resolveSplitBoundaryParentFeature(hit, regionFillSource) ?? hit;
     }
   }
@@ -97,6 +110,9 @@ export function findBoundaryHighlightFeatureForPointCoordinate(
   return matchedBoundary;
 }
 
+const _geoJsonFormat = new GeoJSON({ featureProjection: 'EPSG:3857' });
+const CURRENT_OUTLINE_SNAP_DECIMALS = 5;
+
 function resolveSplitBoundaryParentFeature(
   feature: Feature,
   regionFillSource: VectorSource | null,
@@ -116,18 +132,15 @@ function resolveSplitBoundaryParentFeature(
   }
 
   const splitRegionRef = String(feature.get('region_ref') ?? '').trim();
-  if (!splitRegionRef) {
-    return parentFeature;
-  }
-
   const clonedParent = parentFeature.clone();
-  clonedParent.set('selection_region_ref', splitRegionRef);
+  if (splitRegionRef) {
+    clonedParent.set('selection_region_ref', splitRegionRef);
+    clonedParent.set('region_ref', splitRegionRef);
+  }
   clonedParent.set('selection_parent_code', parentCode);
+  clonedParent.set('selected_split_boundary_code', String(feature.get('boundary_code') ?? '').trim());
   return clonedParent;
 }
-
-const _geoJsonFormat = new GeoJSON({ featureProjection: 'EPSG:3857' });
-const CURRENT_OUTLINE_SNAP_DECIMALS = 5;
 
 /**
  * Async-loads the pre-computed exterior arc GeoJSON for a group and returns
@@ -190,11 +203,10 @@ export function deriveCurrentGroupOutlineFeature(
       (feature) => String(feature.get('region_ref') ?? '').trim() === groupName,
     ) ?? [];
 
-  if (splitGroupFeatures.length > 0) {
+  const features = [...regularGroupFeatures, ...splitGroupFeatures];
+  if (features.length === 0) {
     return null;
   }
-
-  const features = regularGroupFeatures;
 
   try {
     return createDerivedOutlineFeature(groupName, features);
@@ -391,6 +403,10 @@ function getScenarioJmcName(
   if (selectedRegionRef) {
     return selectedRegionRef;
   }
+  // Ward-split sub-polygons carry region_ref as the direct DPHC group name and
+  // should override the hidden parent-board default mapping.
+  const regionRef = String(feature.get('region_ref') ?? '').trim();
+  if (regionRef) return regionRef;
   // Primary: boundary_code → codeGroupings lookup (main GeoJSON features).
   const boundaryCode = String(feature.get('boundary_code') ?? '').trim();
   if (boundaryCode) {
@@ -399,9 +415,6 @@ function getScenarioJmcName(
       return mappedGroupName;
     }
   }
-  // Ward-split sub-polygons carry region_ref as the direct DPHC group name.
-  const regionRef = String(feature.get('region_ref') ?? '').trim();
-  if (regionRef) return regionRef;
   // Legacy fallback: read pre-baked group name directly from feature properties.
   return String(feature.get('region_name') ?? feature.get('jmc_name') ?? '').trim();
 }

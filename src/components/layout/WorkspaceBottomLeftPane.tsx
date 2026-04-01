@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ExactMetricPill, ExactSwatch } from '../sidebarExact';
 import { useAppStore } from '../../store/appStore';
 import { buildWorkspaceBottomCardModel } from '../../lib/workspaceBottomCards';
@@ -12,15 +12,20 @@ export function WorkspaceBottomLeftPane() {
   const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const activeScenarioWorkspaceId = useAppStore((state) => state.activeScenarioWorkspaceId);
   const getDerivedScenarioWorkspace = useAppStore((state) => state.getDerivedScenarioWorkspace);
+  const scenarioWorkspaceDrafts = useAppStore((state) => state.scenarioWorkspaceDrafts);
   const facilityParRecords = useAppStore((state) => state.facilityParRecords);
   const regions = useAppStore((state) => state.regions);
   const regionGroupOverrides = useAppStore((state) => state.regionGroupOverrides);
   const pmcRegionParDisplayByName = useAppStore((state) => state.pmcRegionParDisplayByName);
   const pmcTotalParDisplay = useAppStore((state) => state.pmcTotalParDisplay);
   const presetRegionParByPreset = useAppStore((state) => state.presetRegionParByPreset);
-  const activeScenarioWorkspace = activeScenarioWorkspaceId
-    ? getDerivedScenarioWorkspace(activeScenarioWorkspaceId)
-    : null;
+  const activeScenarioWorkspace = useMemo(
+    () =>
+      activeScenarioWorkspaceId
+        ? getDerivedScenarioWorkspace(activeScenarioWorkspaceId)
+        : null,
+    [activeScenarioWorkspaceId, getDerivedScenarioWorkspace, scenarioWorkspaceDrafts],
+  );
   const activeScenarioRegionParByName =
     activeScenarioWorkspaceId && activeScenarioWorkspace && facilityParRecords.length > 0
       ? summarizeFacilityParByScenarioWorkspace({

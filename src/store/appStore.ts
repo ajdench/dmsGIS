@@ -61,6 +61,9 @@ const BOARD_2026_EDGES_PATH = resolveRuntimeMapProductPath(
   'data/regions/UK_Health_Board_2026_topology_edges.geojson',
 );
 const WARD_SPLIT_PATH = resolveRuntimeMapProductPath('data/regions/UK_WardSplit_simplified.geojson');
+const WARD_SPLIT_WARDS_PATH = resolveRuntimeMapProductPath(
+  'data/regions/UK_WardSplit_Canonical_Current_exact.geojson',
+);
 const JMC_2026_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_Outline_arcs.geojson');
 const NHS_ENGLAND_REGIONS_BSC_PATH =
   'data/regions/NHS_England_Regions_January_2024_EN_BSC.geojson';
@@ -1802,6 +1805,19 @@ function createDefaultOverlayLayers(): OverlayLayerStyle[] {
       borderOpacity: 0,
       swatchColor: '#8f8f8f',
     },
+    {
+      id: 'wardSplitWards',
+      name: 'Split ICB wards',
+      path: WARD_SPLIT_WARDS_PATH,
+      family: 'wardSplitWards' as OverlayFamily,
+      visible: false,
+      opacity: 0,
+      borderVisible: false,
+      borderColor: BOARD_BOUNDARY_BASE_STYLE.borderColor,
+      borderWidth: 1,
+      borderOpacity: BOARD_BOUNDARY_BASE_STYLE.borderOpacity,
+      swatchColor: BOARD_BOUNDARY_BASE_STYLE.swatchColor,
+    },
     // England ICBs border overlay (Overlays pane) — topology internal edges.
     {
       id: 'englandIcb',
@@ -1922,11 +1938,13 @@ function createScenarioOverlayLayers(
   layers: OverlayLayerStyle[],
   preset: ViewPresetId,
 ): OverlayLayerStyle[] {
-  const hiddenLayers = cloneOverlayLayers(layers).map((layer) => ({
-    ...layer,
-    visible: false,
-    borderVisible: false,
-  }));
+  const hiddenLayers = cloneOverlayLayers(layers)
+    .filter((layer) => layer.id !== 'wardSplitWards')
+    .map((layer) => ({
+      ...layer,
+      visible: false,
+      borderVisible: false,
+    }));
 
   const boardLayerConfig = getScenarioBoardLayerConfig(preset);
   const outlineLayerConfig = getScenarioOutlineLayerConfig(preset);

@@ -121,6 +121,7 @@ export type OverlayFamily =
   | 'boardBoundaries'
   | 'scenarioRegions'
   | 'wardSplitFill'
+  | 'wardSplitWards'
   | 'nhsRegions'
   | 'customRegions'
   /** Class-coloured ICB/HB fill tiles, zero border by default (Regions pane). */

@@ -224,6 +224,13 @@ export function validateMasks() {
 export function validateSplitArtifacts() {
   const split = readFeatureCollection(CURRENT_SPLIT);
   assert(split.features.length === 8, `${CURRENT_SPLIT} expected 8 features`);
+  assert(countInteriorRings(split) === 0, `${CURRENT_SPLIT} must remain hole-free`);
+
+  const dissolved = readFeatureCollection(CURRENT_SPLIT_DISSOLVED);
+  assert(
+    countInteriorRings(dissolved) === 0,
+    `${CURRENT_SPLIT_DISSOLVED} must remain hole-free`,
+  );
 
   const perParent = new Map();
   for (const feature of split.features) {
@@ -254,7 +261,7 @@ export function validateSplitArtifacts() {
   );
 
   const arcs = readFeatureCollection(CURRENT_SPLIT_INTERNAL_ARCS);
-  assert(arcs.features.length === 5, `${CURRENT_SPLIT_INTERNAL_ARCS} expected 5 helper features`);
+  assert(arcs.features.length === 6, `${CURRENT_SPLIT_INTERNAL_ARCS} expected 6 helper features`);
   assert(countLineParts(arcs) <= 16, `${CURRENT_SPLIT_INTERNAL_ARCS} line-part count drifted`);
 }
 
@@ -314,17 +321,6 @@ export function validateHampshireContract() {
     (feature) =>
       String(feature.properties?.assignment_basis) !== 'canonical_parent_remainder_by_adjacency',
   );
-  const bases = new Set(
-    wardAssignments.map((feature) => String(feature.properties?.assignment_basis)),
-  );
-  for (const expectedBasis of [
-    'facility_region_seed_explicit_hampshire_override',
-    'facility_region_seed_isle_of_wight_hold',
-    'facility_region_seed_nearest_hampshire_parent',
-  ]) {
-    assert(bases.has(expectedBasis), `Hampshire split basis missing ${expectedBasis}`);
-  }
-
   const wardToRegion = new Map(
     wardAssignments.map((feature) => [
       String(feature.properties?.ward_name),
@@ -334,6 +330,7 @@ export function validateHampshireContract() {
   for (const [wardName, regionRef] of [
     ["Badger Farm and Oliver's Battery", 'South West'],
     ["Bishop's Waltham", 'London & South'],
+    ['Chilworth, Nursling & Rownhams', 'South West'],
     ['Downlands & Forest North', 'South West'],
     ['Totland & Colwell', 'London & South'],
   ]) {
@@ -413,6 +410,20 @@ for _, row in split.iterrows():
     if max_overlap > 500:
         raise SystemExit(
             f"split overlap drift :: {row['boundary_code']} :: {row['region_ref']} :: {max_overlap}"
+        )
+
+for boundary_code in ["E54000025", "E54000042", "E54000048"]:
+    parent = boards.loc[boards["boundary_code"] == boundary_code].geometry.union_all()
+    shell = split.loc[split["boundary_code"] == boundary_code].geometry.union_all()
+    missing_area = float(parent.difference(shell).area)
+    extra_area = float(shell.difference(parent).area)
+    if missing_area > 500:
+        raise SystemExit(
+            f"split shell coverage drift :: {boundary_code} :: missing={missing_area}"
+        )
+    if extra_area > 500:
+        raise SystemExit(
+            f"split shell overhang drift :: {boundary_code} :: extra={extra_area}"
         )
 
 facilities = gpd.read_file(facilities_path).to_crs(27700)

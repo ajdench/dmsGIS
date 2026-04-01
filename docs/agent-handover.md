@@ -97,6 +97,84 @@ Current shared-foundation review note:
   - a later Playground regression was traced to `src/lib/config/scenarioWorkspaces.ts`, where interactive baseline assignment datasets were still loading from raw `data/regions/...` preset paths instead of the active accepted runtime-family root; keep Playground baseline assignment paths aligned with `resolveRuntimeMapProductPath(...)`
   - Playground runtime source authority is now composed through `src/features/map/playgroundRuntimeSession.ts` instead of being recombined ad hoc inside `MapWorkspace.tsx`; keep baseline source choice, runtime assignment source, derived outline source, diagnostics, and layer override composition together there
   - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
+  - remaining `Current` split-case visual defects should currently be understood as a seam-ownership problem, not as a source-provenance problem:
+    - parent `Current` boards are still on the accepted `BSC-first` family
+    - split internals are still built from official ward `BSC`
+    - the residual white-gap / non-coincident-border issue appears when the app mixes:
+      - whole-parent ICB helper geometry
+      - split-region selection geometry derived from split polygons
+      - and separately prepared outline products
+  - the next repair path for `Current` split cases should therefore be:
+    - preprocessing-owned
+    - contract-preserving
+    - shared-seam-first
+  - keep the public app/runtime paths stable:
+    - `public/data/regions/UK_WardSplit_simplified.geojson`
+    - `public/data/regions/UK_WardSplit_internal_arcs.geojson`
+    - `public/data/regions/outlines/current_*.geojson`
+  - improve the build lineage behind those paths instead of inventing new app-facing runtime files mid-repair
+  - runtime should prefer prepared split-aware `Current` outline products again once they are rebuilt from the same seam family as:
+    - the parent ICB shell
+    - the split internals
+    - the selected Region-border arcs
+  - that repair is now partly executed:
+    - `scripts/extract-group-outlines.mjs` now rebuilds `Current` `current_*.geojson` Region outlines from one prepared split-aware topology of the live `Current` family
+    - hidden split parents are excluded from the whole-board side of that topology
+    - ward-split features are inserted into the same topology with group ownership from `region_ref`
+    - the per-group outline arc is then meshed from that prepared topology instead of being derived from per-group dissolve alone
+  - a separate Current-only debug overlay is now part of the intended split-case inspection contract:
+    - overlay family id: `wardSplitWards`
+    - runtime file: `public/data/compare/shared-foundation-review/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+    - source lineage: `geopackages/outputs/full_uk_current_boards/UK_WardSplit_Canonical_Current_exact.geojson`
+    - scope: only the three split parents, not all UK wards
+  - selection rule for that debug overlay:
+    - when `wardSplitWards` is visible, those exact split wards become directly selectable and the docked `ICB / Health Board` header should show `ward_name`
+    - when `wardSplitWards` is off, normal split-parent selection behavior remains in force
+  - `Current` runtime selection should now prefer those prepared `current_*.geojson` files again rather than the recent live `deriveCurrentGroupOutlineFeature(...)` shortcut in `MapWorkspace.tsx`
+  - visual acceptance of the split-case white-gap issue should therefore now be judged against:
+    - the rebuilt prepared outline files under `public/data/compare/shared-foundation-review/regions/outlines/`
+    - not against the older live-derived split outline path
+  - operational caveat:
+    - in this checkout, the plain `public/data/regions/` board family is incomplete/stale for these outline rebuilds
+    - the accepted live rebuild target is the runtime-family tree under:
+      - `public/data/compare/shared-foundation-review/regions/`
+  - latest split-shell repair outcome:
+    - `scripts/build_current_ward_split_exact.py` now includes an explicit Hampshire override for `Chilworth, Nursling & Rownhams` -> `South West`
+    - `scripts/build_current_split_icb_runtime.py` now rebuilds dissolved split runtime geometry through a shell-first partition of:
+      - canonical parent ICB shell
+      - clipped split-region seams
+    - this is the right pattern because ward borders must not outrank the parent ICB shell
+    - companion artifacts are now expected to be refreshed together after that rebuild:
+      - `UK_WardSplit_simplified.geojson`
+      - `UK_WardSplit_internal_arcs.geojson`
+      - `current_*.geojson` under `regions/outlines/`
+  - current residual blocker after that repair:
+    - split-specific validation improved substantially, but still reports a small remaining shell-coverage sliver in the accepted compare-family tree
+    - latest measured blocker:
+      - `E54000025` missing shell coverage still around `660.9 m²`
+    - so future work should treat the remaining split-case white-gap issue as not fully closed yet
+    - the likely remaining seam is the last agreement between the rebuilt split runtime partition and the shipped simplified parent board shell, not the ward assignment map itself
+  - detached split-case outline fragments are now also guarded at the outline-export stage:
+    - `scripts/extract-group-outlines.mjs` first prunes any `Current` split-aware outline component that sits wholly inside a split-parent shell without touching that shell boundary
+    - `scripts/extract-group-outlines.mjs` now also prunes any `Current` outline component with zero dissolved-exterior coverage, so exported stray fragments fail before ship instead of surviving as stable artifacts
+    - split-aware `Current` outline runs now also have non-reference endpoint tails trimmed back to the dissolved exterior
+    - the specific west-Hampshire / `Blackwater` spur was later traced to a deterministic `Blackwater` / `Redlynch & Landford` shared-boundary artifact in the shipped split-aware `Current` outline exports, so `scripts/extract-group-outlines.mjs` now explicitly excludes that known segment family and its legacy tip endpoints for `Central & Wessex` and `South West`
+    - `tests/currentGroupOutlineContracts.test.ts` now guards both contracts on the shipped accepted-runtime outline files:
+      - no exported `Current` outline components with zero dissolved-exterior coverage
+      - no missing dissolved-exterior components for split-aware `Current` groups
+      - split-aware `Current` outline endpoints must land back on the dissolved exterior
+      - the known `Blackwater` spur segment family must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
+      - the known `Blackwater` spur tip endpoints must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
+      - the known `Blackwater` spur tip is now remapped back to the shared root at approximately `[-1.619751051433103, 50.958566891040576]`
+      - no component may remain wholly inside the local `Blackwater` spur box after remapping
+    - practical interpretation:
+      - the accepted-runtime `Current` outline guard is now aimed at shipped risk, not a broad orphan heuristic that can over-flag valid split-aware components
+    - current verified state:
+      - the Hampshire / Dorset `Current` border between `Central & Wessex` and `South West` is present again in the shipped outline exports
+      - direct geometry inspection confirmed:
+        - shared-root endpoint count present in both exported outline files
+        - zero endpoints on the old bad `Blackwater` tip coordinates
+        - zero remaining spur-only components in the local `Blackwater` box
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
@@ -130,6 +208,25 @@ Current facilities dataset note:
 - runtime point styling and direct point-hit selection must both honor `default_visible = 0`; a visible PMC region must not resurrect closed facilities
 - `Royal Navy` is now a production PMC region and uses `#000080`
 - one documented coordinate override exists for `Nairobi Medical Centre` because the replacement CSV omits its coordinates
+- facilities refresh is now meant to follow one explicit preprocessing-owned path:
+  1. canonical CSV input
+  2. `scripts/import-facilities-csv.mjs`
+  3. `scripts/enrich-facilities.mjs`
+  4. accepted runtime-family rebuild through `scripts/build-shared-foundation-review-family.mjs`
+- operator-facing wrapper command:
+  - `npm run refresh:facilities`
+- wrapper script:
+  - `scripts/refresh-facilities-from-export.mjs`
+- the wrapper prints validation summaries for:
+  - counts
+  - PAR totals
+  - duplicate `id` groups
+  - shared `active_dmicp_id` groups
+- current facilities source-of-truth rule:
+  - do not hand-edit `public/data/compare/shared-foundation-review/facilities/facilities.geojson` as the primary update path
+  - refresh from the export and rebuild the accepted runtime family instead
+  - the accepted review-family facilities artifact is now expected to be an exact copy of the canonical enriched `public/data/facilities/facilities.geojson`
+  - `scripts/build-shared-foundation-review-family.mjs` now throws if that parity is broken
 
 Current Exact-sidebar convention note:
 
@@ -576,6 +673,29 @@ Current `v3.2` state:
     - `public/data/regions/UK_WardSplit_simplified.geojson` is geometrically valid
     - `geopackages/outputs/full_uk_current_boards/UK_SplitICB_Current_Canonical_Dissolved.geojson` is geometrically valid
   - the coherent `v3.5` rebuild automatically reran basemap alignment after this replacement; no `public/data/basemaps` files changed in git, so no `Land` / `Sea` refresh was needed for this selective internal replacement
+- follow-up execution on `2026-04-01` resolved the confirmed split-runtime white-gap regression:
+  - the live base `Current` board runtime in `public/data/compare/shared-foundation-review/regions/UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson` stayed hole-free throughout
+  - the live split-runtime product in `public/data/compare/shared-foundation-review/regions/UK_WardSplit_simplified.geojson` was measured at `171` interior rings before repair and is now back to `0`
+  - the same repair also returned `geopackages/outputs/full_uk_current_boards/UK_SplitICB_Current_Canonical_Dissolved.geojson` to `0` interior rings
+  - the fix path had three parts:
+    - `scripts/build_current_ward_split_exact.py` now resolves the legacy active-components source from the real repo paths instead of assuming a removed `public/data/regions/full-res/...` input
+    - `scripts/build_current_split_icb_runtime.py` now resolves the live `Current` board source robustly, strips holes again in the final export stage, and post-processes the written split outputs so the file-write path cannot reintroduce residual rings
+    - `src/features/map/boundaryLayerStyles.ts` now gives `wardSplitFill` the same subtle seam-masking stroke treatment as `regionFill`, so ordinary anti-alias slivers are reduced in the split-parent cases too
+  - `scripts/validate-runtime-geometry-family.mjs` now explicitly asserts hole-free split runtime and hole-free dissolved split exact outputs, so this class of regression should fail the family gate next time instead of slipping through
+  - the accepted compare-family split artifacts were refreshed from the rebuilt runtime outputs even though the larger review-family rebuild still has unrelated stale-path failures later in its chain
+  - future `Current` white-gap reports should now be triaged in this order:
+    - first confirm whether the live split-runtime artifact is still hole-free
+    - then treat any remaining slivers as render-path seam masking or a separate border-contiguity issue rather than assuming another interior-ring regression
+  - a follow-up split-case border mismatch was then fixed in the live map runtime:
+    - `deriveCurrentGroupOutlineFeature(...)` now derives `Current` selected Region outlines from the live split-aware geometry on the map instead of bailing out to the older precomputed file path whenever split features are present
+    - split-click selection now intentionally uses a hybrid basis:
+      - yellow selected-boundary helper = the whole parent ICB/HB boundary
+      - selected `Current` Region outline = the Region of the split part that was actually clicked
+    - the parent highlight clone now carries the clicked split `region_ref`, so the Region selection follows the clicked split side instead of the parent-board default mapping
+    - this should remove the earlier mismatch where split cases could show a whole-parent Region default, a different selected Region border, and a split fill that did not agree with either
+  - two unrelated review/build seams remain documented for future cleanup:
+    - `scripts/build-shared-foundation-review-family.mjs` still later trips over a missing compare-family water-edge class file during `build_group_inland_outline_modifiers.py`
+    - `scripts/validate-runtime-geometry-family.mjs` still assumes local basemap mask artifacts under `public/data/basemaps/`, which are not present in this checkout
 - the next confirmed issue after the coherent rebuild is a render-path seam, not stale geometry delivery:
   - the live app is serving the rebuilt runtime products on `http://127.0.0.1:4173/dmsGIS/`
   - the remaining white slivers seen at tighter zooms are now being treated as `regionFill` anti-alias seams in the render path
@@ -778,6 +898,8 @@ At the time of this handover:
 - editable scenario Region geometry is now a dedicated merged polygon product derived from that canonical board-assignment source; it no longer flips between static preset outlines and runtime topology-edge fragments
 - Playground Region selection now treats the editor’s pending/selected Region as authoritative over stale popover baseline state, so a newly reassigned board keeps the new Region selection/highlight instead of appearing to snap back to its earlier baseline Region on immediate reselect
 - during an open Playground edit, selected Region-border redraw now treats the popover/editor-selected `scenarioRegionId` as authoritative instead of trusting feature-prop timing during the reselect cycle
+- after a Playground reassignment is applied, the map now clears the transient assignment-popover/editor action state instead of leaving the chosen Region button latched; the saved reassignment should remain on the map, but the action pane returns to a neutral state until the next board is selected
+- top-bar preset buttons should reflect the actual live map mode, not the stored fallback standard preset: when either Playground workspace is active, the `Current` / `SJC JMC` / `COA 3a` / `COA 3b` row should show no active button, leaving the active Playground button as the exclusive mode indicator
 - COA 3b Playground currently keeps facility points on their existing non-draft styling path, so board reassignment no longer remaps facility point borders/colours yet
 - Playground selected-Region highlighting is now driven directly from the editor-selected `scenarioRegionId` plus the merged editable Region geometry source, and editable workspaces no longer fall back to static preset outline fetches for the selected Region border
 - facility clicks inside Playground now also carry draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, while facility symbol styling itself remains on the non-draft path
@@ -921,7 +1043,7 @@ Playground entry is now explicitly split by source preset.
 - `SJC JMC` per-card PAR values now calculate from the assigned `2026` facility board code (`icb_hb_code_2026`) mapped through the preset `codeGroupings`; the devolved card shows the combined total of `JMC Scotland`, `JMC Northern Ireland`, and `JMC Wales`
 - for the bottom-left `SJC JMC` cards only, `Overseas` and `Royal Navy` are preserved as explicit special PAR buckets instead of being folded into their assigned scenario-region cards; this keeps the visible card sum aligned with the absolute `Total`
 - the same `Overseas` / `Royal Navy` preservation rule now applies to `COA 3a` and `COA 3b`, so all three scenario presets reconcile to the same absolute total
-- the bottom-left scenario-card PAR path is now draft-aware for interactive Playground workspaces: `src/components/layout/WorkspaceBottomLeftPane.tsx` derives active workspace totals from loaded facility PAR records plus the live scenario-workspace assignment lookup, so Playground board reassignment immediately updates the displayed Region totals without a preset reload
+- the bottom-left scenario-card PAR path is now draft-aware for interactive Playground workspaces: `src/components/layout/WorkspaceBottomLeftPane.tsx` derives active workspace totals from loaded facility PAR records plus the live scenario-workspace assignment lookup, and it now subscribes directly to workspace-draft changes so Playground board reassignment immediately updates the displayed Region totals without a preset reload
 - clicking the scenario `Royal Navy` card pill now toggles `Regionalise` / `Unregionalise`: while regionalised, the special `Royal Navy` card clears its own preserved PAR, the same PAR is added back into the parent scenario Region cards on the active assignment basis, and each receiving card shows that added Royal Navy contribution in the zero-height middle row with a small Royal Navy swatch at left and the added PAR at right
 - the same interaction now applies in `Current`, but the redistribution path uses the Current preset's boundary-code grouping instead of a scenario assignment lookup
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
@@ -932,6 +1054,7 @@ Playground entry is now explicitly split by source preset.
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
 - the playground panel keeps the same `COA 3a` / `COA 3b` wiring and rebuilt runtime board products
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
+- combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width and bottom-left width: `932.6875px`
   - sidebar width and bottom-right width: `311.3125px`

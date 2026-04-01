@@ -75,6 +75,9 @@ export function createRegionBoundaryStyle(
   if (layer.family === 'devolvedHb') {
     return createDevolvedHbStyle(layer, overlayFamilyVisibility);
   }
+  if (layer.family === 'wardSplitWards') {
+    return createGenericOverlayOutlineStyle(layer);
+  }
   if (layer.family === 'nhsRegions' || layer.family === 'customRegions') {
     return createGenericOverlayOutlineStyle(layer);
   }
@@ -176,13 +179,23 @@ export function createWardSplitStyle(
 
     const baseColor = (override?.populatedFillColor ?? group?.colors.populated) ?? '#8f8f8f';
     const fillOpacity = override?.populatedOpacity ?? group?.populatedOpacity ?? 0.7;
+    const strokeColor = withOpacity(
+      baseColor,
+      Math.min(
+        fillOpacity * REGION_FILL_SEAM_STROKE_ALPHA_FACTOR,
+        REGION_FILL_SEAM_STROKE_MAX_ALPHA,
+      ),
+    );
 
-    const cacheKey = `${baseColor}:${fillOpacity}`;
+    const cacheKey = `${baseColor}:${fillOpacity}:${strokeColor}`;
     const existing = cache.get(cacheKey);
     if (existing) return existing;
 
     const style = new Style({
-      stroke: new Stroke({ color: 'rgba(0,0,0,0)', width: 0 }),
+      stroke: new Stroke({
+        color: strokeColor,
+        width: REGION_FILL_SEAM_STROKE_WIDTH,
+      }),
       fill: new Fill({ color: withOpacity(baseColor, fillOpacity) }),
     });
     cache.set(cacheKey, style);
@@ -559,6 +572,7 @@ export function getRegionBoundaryLayerZIndex(layer: OverlayLayerStyle): number {
   // Z-order: regionFill / wardSplitFill → 4, englandIcb / devolvedHb → 6, outline → 7
   if (layer.family === 'regionFill') return 4;
   if (layer.family === 'wardSplitFill') return 4;
+  if (layer.family === 'wardSplitWards') return 6.2;
   if (layer.family === 'nhsRegions') return 5;
   if (layer.family === 'customRegions') return 5;
   if (layer.family === 'englandIcb') return 6;

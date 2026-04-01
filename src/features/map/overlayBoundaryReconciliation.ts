@@ -101,6 +101,24 @@ export function reconcileOverlayBoundaryLayers(
       return;
     }
 
+    const shouldBeVisible = getEffectiveBoundaryLayerVisibility(layerConfig, groupOverrides);
+    const shouldLazyUnload = layerConfig.family === 'wardSplitWards' && !shouldBeVisible;
+    if (shouldLazyUnload) {
+      boundaryLayer.setSource(new VectorSource({ wrapX: false }));
+      regionBoundaryPathRefs.delete(layerConfig.id);
+      boundaryLayer.setVisible(false);
+      boundaryLayer.setStyle(
+        getBoundaryLayerStyle(
+          layerConfig,
+          activeViewPreset,
+          populatedCodes,
+          groupOverrides,
+          overlayFamilyVisibility,
+        ),
+      );
+      return;
+    }
+
     const sourceUrl = resolveSourceUrl(layerConfig.path);
     const previousSourceUrl = regionBoundaryPathRefs.get(layerConfig.id);
     if (previousSourceUrl !== sourceUrl || !boundaryLayer.getSource()) {
@@ -108,9 +126,7 @@ export function reconcileOverlayBoundaryLayers(
       regionBoundaryPathRefs.set(layerConfig.id, sourceUrl);
     }
 
-    boundaryLayer.setVisible(
-      getEffectiveBoundaryLayerVisibility(layerConfig, groupOverrides),
-    );
+    boundaryLayer.setVisible(shouldBeVisible);
     boundaryLayer.setStyle(
       getBoundaryLayerStyle(
         layerConfig,
@@ -170,6 +186,7 @@ function getEffectiveBoundaryLayerVisibility(
   groupOverrides: Record<string, RegionGroupStyleOverride> = {},
 ): boolean {
   if (
+    layer.family === 'wardSplitWards' ||
     layer.family === 'englandIcb' ||
     layer.family === 'devolvedHb' ||
     layer.family === 'nhsRegions' ||

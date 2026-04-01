@@ -12,6 +12,7 @@ const overlayFamilySchema = z.enum([
   'boardBoundaries',
   'scenarioRegions',
   'wardSplitFill',
+  'wardSplitWards',
   'nhsRegions',
   'customRegions',
   'regionFill',
