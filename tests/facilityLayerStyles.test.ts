@@ -148,7 +148,7 @@ describe('facilityLayerStyles', () => {
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingGap).toBe(0);
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingWidth).toBeGreaterThan(0);
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingPlacement).toBe(
-      'inside',
+      'outside',
     );
   });
 

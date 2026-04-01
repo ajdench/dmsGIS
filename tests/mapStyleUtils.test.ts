@@ -18,7 +18,10 @@ describe('mapStyleUtils', () => {
 
     expect(getCombinedPracticeRingWidth(size)).toBeGreaterThan(0);
     expect(getCombinedPracticeRingGap(size)).toBe(0);
-    expect(combinedPracticeOffset).toBe(0);
+    expect(combinedPracticeOffset).toBeCloseTo(
+      getNonCombinedPointInset(size) + getCombinedPracticeRingWidth(size),
+      3,
+    );
   });
 
   it('places non-combined points at the midpoint of the combined ring band', () => {
@@ -31,7 +34,11 @@ describe('mapStyleUtils', () => {
       3,
     );
     expect(getSelectedPointHighlightOffset(3.5, true, false)).toBeCloseTo(
-      1,
+      getNonCombinedPointInset(3.5) + 1,
+      3,
+    );
+    expect(getSelectedPointHighlightOffset(3.5, true, true)).toBeCloseTo(
+      getNonCombinedPointInset(3.5) + 1 + getCombinedPracticeRingWidth(3.5),
       3,
     );
   });

@@ -123,12 +123,14 @@ export function getPointSymbolCanvasPadding(
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
+  const canvasBaseShapeInset = baseShapeInset / scale;
+  const pointOutsideExtent = Math.max(0, canvasStrokeWidth - canvasBaseShapeInset);
   const outerRingOutside =
     outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
-      ? canvasOuterRingGap + canvasOuterRingWidth
-      : 0;
+      ? pointOutsideExtent + canvasOuterRingGap + canvasOuterRingWidth
+      : pointOutsideExtent;
   return Math.ceil(
-    Math.max(MIN_CANVAS_PADDING, outerRingOutside, baseShapeInset / scale) +
+    Math.max(MIN_CANVAS_PADDING, outerRingOutside, canvasBaseShapeInset) +
       CANVAS_PADDING_BUFFER,
   );
 }
@@ -151,15 +153,13 @@ export function getSelectedPointHighlightOffset(
   hasVisibleBorder: boolean,
   hasCombinedPracticeRing: boolean,
 ): number {
-  if (hasVisibleBorder) {
-    return 1;
-  }
-
-  if (hasCombinedPracticeRing) {
-    return 0;
-  }
-
-  return getNonCombinedPointInset(size);
+  return (
+    getNonCombinedPointInset(size) +
+    (hasVisibleBorder ? 1 : 0) +
+    (hasCombinedPracticeRing
+      ? getCombinedPracticeRingGap(size) + getCombinedPracticeRingWidth(size)
+      : 0)
+  );
 }
 
 /**
@@ -214,16 +214,23 @@ function renderShapeCanvas(
   canvas.height = canvasSize;
   const ctx = canvas.getContext('2d')!;
 
-  // Point borders now occupy the outer point footprint. The filled point and
-  // any combined-practice family ring sit inside that band so combined and
-  // non-combined symbols share one outer geometry model.
-  const borderInset = strokeWidth > 0 ? strokeWidth / 2 : 0;
-  const fillInset = baseShapeInset + (strokeWidth > 0 ? strokeWidth : 0);
+  // Point fills keep their own footprint. Visible point borders and any
+  // combined-practice family ring are then added outside that footprint so the
+  // outermost rendered point edge is explicit and the selection ring can start
+  // from that true outer edge.
+  const fillInset = baseShapeInset;
+  const borderInset =
+    strokeWidth > 0 ? Math.max(0, fillInset - strokeWidth / 2) : fillInset;
+  const pointOuterInset =
+    strokeWidth > 0 ? Math.max(0, fillInset - strokeWidth) : fillInset;
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
     ctx.lineWidth = outerRingWidth;
-    const ringInset = fillInset - outerRingGap - outerRingWidth / 2;
+    const ringInset =
+      outerRingPlacement === 'outside'
+        ? Math.max(0, pointOuterInset - outerRingGap - outerRingWidth / 2)
+        : Math.max(0, fillInset - outerRingGap - outerRingWidth / 2);
     tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(ringInset));
     ctx.stroke();
   }
