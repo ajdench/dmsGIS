@@ -75,6 +75,9 @@ export function createRegionBoundaryStyle(
   if (layer.family === 'devolvedHb') {
     return createDevolvedHbStyle(layer, overlayFamilyVisibility);
   }
+  if (layer.family === 'wardSplitWards') {
+    return createGenericOverlayOutlineStyle(layer);
+  }
   if (layer.family === 'nhsRegions' || layer.family === 'customRegions') {
     return createGenericOverlayOutlineStyle(layer);
   }
@@ -569,6 +572,7 @@ export function getRegionBoundaryLayerZIndex(layer: OverlayLayerStyle): number {
   // Z-order: regionFill / wardSplitFill → 4, englandIcb / devolvedHb → 6, outline → 7
   if (layer.family === 'regionFill') return 4;
   if (layer.family === 'wardSplitFill') return 4;
+  if (layer.family === 'wardSplitWards') return 6.2;
   if (layer.family === 'nhsRegions') return 5;
   if (layer.family === 'customRegions') return 5;
   if (layer.family === 'englandIcb') return 6;

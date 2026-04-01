@@ -46,6 +46,11 @@ function makeCurrentPresetState() {
     overlayLayers: [
       makeLayer('regionFill', 'regionFill', V10),
       makeLayer('wardSplitFill', 'wardSplitFill', 'data/regions/UK_WardSplit_simplified.geojson'),
+      makeLayer(
+        'wardSplitWards',
+        'wardSplitWards',
+        'data/regions/UK_WardSplit_Canonical_Current_exact.geojson',
+      ),
       makeLayer('englandIcb', 'englandIcb', V10),
       makeLayer('devolvedHb', 'devolvedHb', V10),
       {
@@ -686,6 +691,7 @@ describe('appStore region controls', () => {
     expect(currentFamilies).toEqual([
       ['regionFill', 'regionFill'],
       ['wardSplitFill', 'wardSplitFill'],
+      ['wardSplitWards', 'wardSplitWards'],
       ['englandIcb', 'englandIcb'],
       ['devolvedHb', 'devolvedHb'],
       ['nhsEnglandRegionsBsc', 'nhsRegions'],

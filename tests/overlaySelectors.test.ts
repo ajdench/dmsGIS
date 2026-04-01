@@ -60,6 +60,18 @@ const OVERLAYS: OverlayLayerStyle[] = [
     swatchColor: '#ffffff',
   },
   {
+    id: 'wardSplitWards',
+    name: 'Split ICB wards',
+    path: 'ward-split-wards.geojson',
+    family: 'wardSplitWards',
+    visible: false,
+    opacity: 0,
+    borderVisible: true,
+    borderColor: '#ffffff',
+    borderOpacity: 0.35,
+    swatchColor: '#ffffff',
+  },
+  {
     id: 'englandIcb',
     name: '2026 NHS England ICBs',
     path: 'england-icbs.geojson',
@@ -98,16 +110,17 @@ describe('overlay selectors', () => {
   it('keeps the overlays panel broader in Current and exposes shared 2026 boundary overlays in scenario presets', () => {
     expect(getOverlayLayersForPanel(OVERLAYS, 'current')).toEqual([
       OVERLAYS[0],
+      OVERLAYS[4],
       OVERLAYS[2],
       OVERLAYS[3],
-      OVERLAYS[4],
       OVERLAYS[5],
+      OVERLAYS[6],
     ]);
     expect(getOverlayLayersForPanel(OVERLAYS, 'coa3a')).toEqual([
       OVERLAYS[2],
       OVERLAYS[3],
-      OVERLAYS[4],
       OVERLAYS[5],
+      OVERLAYS[6],
     ]);
   });
 
@@ -118,6 +131,12 @@ describe('overlay selectors', () => {
         title: 'Board Boundaries',
         showWhenEmpty: false,
         layers: [OVERLAYS[0]],
+      },
+      {
+        family: 'wardSplitWards',
+        title: 'Split ICB Wards',
+        showWhenEmpty: false,
+        layers: [OVERLAYS[4]],
       },
       {
         family: 'nhsRegions',
@@ -135,13 +154,13 @@ describe('overlay selectors', () => {
         family: 'englandIcb',
         title: 'NHS England ICBs',
         showWhenEmpty: false,
-        layers: [OVERLAYS[4]],
+        layers: [OVERLAYS[5]],
       },
       {
         family: 'devolvedHb',
         title: 'Devolved Administrations Health Boards',
         showWhenEmpty: false,
-        layers: [OVERLAYS[5]],
+        layers: [OVERLAYS[6]],
       },
     ];
     expect(getOverlaySectionsForPanel(OVERLAYS, 'current')).toEqual(expectedSections);
@@ -162,13 +181,13 @@ describe('overlay selectors', () => {
         family: 'englandIcb',
         title: 'NHS England ICBs',
         showWhenEmpty: false,
-        layers: [OVERLAYS[4]],
+        layers: [OVERLAYS[5]],
       },
       {
         family: 'devolvedHb',
         title: 'Devolved Administrations Health Boards',
         showWhenEmpty: false,
-        layers: [OVERLAYS[5]],
+        layers: [OVERLAYS[6]],
       },
     ]);
   });
@@ -177,12 +196,13 @@ describe('overlay selectors', () => {
     expect(getOverlayFamilyMetadata('nhsRegions')).toMatchObject({
       family: 'nhsRegions',
       title: 'NHS Regions',
-      order: 3,
+      order: 5,
       showWhenEmpty: false,
     });
-    expect(getOverlayFamilyOrder('customRegions')).toBe(4);
+    expect(getOverlayFamilyOrder('customRegions')).toBe(6);
     expect(getOverlayFamiliesForPanel('current', OVERLAYS)).toEqual([
       'boardBoundaries',
+      'wardSplitWards',
       'nhsRegions',
       'customRegions',
       'englandIcb',

@@ -149,6 +149,17 @@ Current split-outline follow-up:
   - `public/data/compare/shared-foundation-review/regions/outlines/`
   - not the incomplete/stale plain `public/data/regions/outlines/` mirror
 
+Current split-ward debug overlay:
+
+- a separate Current-only overlay now exists for inspecting the exact split wards directly:
+  - `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+- this file is intentionally limited to the three split parents only, not all UK wards
+- app contract:
+  - overlay family id: `wardSplitWards`
+  - default: off
+  - when on: exact split wards become directly selectable and `ward_name` should surface in the `ICB / Health Board` header pane
+  - when off: normal split-parent ICB/HB selection behavior remains the active contract
+
 ## Overlays
 
 Stable default-off overlays remain part of the production overlay model:
@@ -157,6 +168,8 @@ Stable default-off overlays remain part of the production overlay model:
   - `public/data/regions/NHS_England_Regions_January_2024_EN_BSC.geojson`
 - `SJC JMC`
   - `Current` overlay path: `public/data/regions/UK_JMC_Outline_arcs.geojson`
+- `Split ICB Wards`
+  - `Current` overlay path: `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
 
 Scenario presets now also expose the shared overlay families in the Overlays pane:
 

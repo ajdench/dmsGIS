@@ -41,6 +41,7 @@ export interface AppliedBoundarySelectionState {
 
 export function getBoundaryName(feature: Feature): string {
   const value =
+    feature.get('ward_name') ??
     feature.get('boundary_name') ??
     feature.get('parent_name') ??
     feature.get('region_name') ??
@@ -61,13 +62,22 @@ export function findCareBoardBoundaryAtCoordinate(
 ): Feature | null {
   const regionFillSource = overlayLayerRefs.get('regionFill')?.getSource() ?? null;
   const orderedOverlayLayers = [...overlayLayers].sort((a, b) => {
-    const aPriority = a.family === 'wardSplitFill' ? 0 : 1;
-    const bPriority = b.family === 'wardSplitFill' ? 0 : 1;
+    const getPriority = (family: string) => {
+      if (family === 'wardSplitWards') return 0;
+      if (family === 'wardSplitFill') return 1;
+      return 2;
+    };
+    const aPriority = getPriority(a.family);
+    const bPriority = getPriority(b.family);
     return aPriority - bPriority;
   });
 
   for (const config of orderedOverlayLayers) {
-    if (config.family !== 'regionFill' && config.family !== 'wardSplitFill') continue;
+    if (
+      config.family !== 'regionFill' &&
+      config.family !== 'wardSplitFill' &&
+      config.family !== 'wardSplitWards'
+    ) continue;
     if (!config.visible) continue;
     const layer = overlayLayerRefs.get(config.id);
     const source = layer?.getSource();
@@ -76,6 +86,9 @@ export function findCareBoardBoundaryAtCoordinate(
       .getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
     if (hit) {
+      if (config.family === 'wardSplitWards') {
+        return hit;
+      }
       return resolveSplitBoundaryParentFeature(hit, regionFillSource) ?? hit;
     }
   }

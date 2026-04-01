@@ -122,6 +122,14 @@ Current shared-foundation review note:
     - hidden split parents are excluded from the whole-board side of that topology
     - ward-split features are inserted into the same topology with group ownership from `region_ref`
     - the per-group outline arc is then meshed from that prepared topology instead of being derived from per-group dissolve alone
+  - a separate Current-only debug overlay is now part of the intended split-case inspection contract:
+    - overlay family id: `wardSplitWards`
+    - runtime file: `public/data/compare/shared-foundation-review/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+    - source lineage: `geopackages/outputs/full_uk_current_boards/UK_WardSplit_Canonical_Current_exact.geojson`
+    - scope: only the three split parents, not all UK wards
+  - selection rule for that debug overlay:
+    - when `wardSplitWards` is visible, those exact split wards become directly selectable and the docked `ICB / Health Board` header should show `ward_name`
+    - when `wardSplitWards` is off, normal split-parent selection behavior remains in force
   - `Current` runtime selection should now prefer those prepared `current_*.geojson` files again rather than the recent live `deriveCurrentGroupOutlineFeature(...)` shortcut in `MapWorkspace.tsx`
   - visual acceptance of the split-case white-gap issue should therefore now be judged against:
     - the rebuilt prepared outline files under `public/data/compare/shared-foundation-review/regions/outlines/`

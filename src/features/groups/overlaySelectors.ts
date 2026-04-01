@@ -34,16 +34,22 @@ const OVERLAY_FAMILY_METADATA: Record<OverlayFamily, OverlayFamilyMetadata> = {
     order: 3,
     showWhenEmpty: false,
   },
+  wardSplitWards: {
+    family: 'wardSplitWards',
+    title: 'Split ICB Wards',
+    order: 4,
+    showWhenEmpty: false,
+  },
   nhsRegions: {
     family: 'nhsRegions',
     title: 'NHS Regions',
-    order: 3,
+    order: 5,
     showWhenEmpty: false,
   },
   customRegions: {
     family: 'customRegions',
     title: 'Custom Regions',
-    order: 4,
+    order: 6,
     showWhenEmpty: false,
   },
   // Active families.
@@ -56,13 +62,13 @@ const OVERLAY_FAMILY_METADATA: Record<OverlayFamily, OverlayFamilyMetadata> = {
   englandIcb: {
     family: 'englandIcb',
     title: 'NHS England ICBs',
-    order: 5,
+    order: 7,
     showWhenEmpty: false,
   },
   devolvedHb: {
     family: 'devolvedHb',
     title: 'Devolved Administrations Health Boards',
-    order: 6,
+    order: 8,
     showWhenEmpty: false,
   },
 };
@@ -138,6 +144,7 @@ export function getOverlayFamiliesForPanel(
     activeViewPreset === 'current'
       ? [
           'boardBoundaries',
+          'wardSplitWards',
           'nhsRegions',
           'customRegions',
           'englandIcb',

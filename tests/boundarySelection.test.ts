@@ -40,6 +40,15 @@ describe('boundarySelection', () => {
     expect(getBoundaryName(feature)).toBe('Boundary X');
   });
 
+  it('prefers ward_name when a split-ward debug feature is selected', () => {
+    const feature = new Feature({
+      ward_name: 'Stopsley',
+      boundary_name: 'NHS Hertfordshire and West Essex Integrated Care Board',
+    });
+
+    expect(getBoundaryName(feature)).toBe('Stopsley');
+  });
+
   it('prefers boundary_name over region_ref when both are present on split features', () => {
     const feature = new Feature({
       boundary_name: 'NHS Hampshire and Isle of Wight Integrated Care Board',
@@ -182,6 +191,61 @@ describe('boundarySelection', () => {
     expect(matched?.get('boundary_code')).toBe('E54000042');
     expect(matched?.get('selection_region_ref')).toBe('Central & Wessex');
     expect(matched?.get('region_ref')).toBe('Central & Wessex');
+  });
+
+  it('returns the raw split-ward feature when the split-ward overlay is visible', () => {
+    const regionFillFeature = new Feature({
+      boundary_code: 'E54000042',
+      boundary_name: 'Parent board',
+      geometry: new Polygon(SQUARE_COORDS),
+    });
+    const wardSplitWardFeature = new Feature({
+      parent_code: 'E54000042',
+      boundary_code: 'E54000042',
+      boundary_name: 'Parent board',
+      ward_name: 'Test ward',
+      region_ref: 'Central & Wessex',
+      geometry: new Polygon(SQUARE_COORDS),
+    });
+
+    const matched = findCareBoardBoundaryAtCoordinate(
+      [5, 5],
+      [
+        {
+          id: 'wardSplitWards',
+          name: 'Split ICB wards',
+          path: 'data/regions/ward-split-wards.geojson',
+          family: 'wardSplitWards',
+          visible: true,
+          opacity: 0,
+          borderVisible: true,
+          borderColor: '#8f8f8f',
+          borderWidth: 1,
+          borderOpacity: 0.35,
+          swatchColor: '#8f8f8f',
+        },
+        {
+          id: 'regionFill',
+          name: 'Region fill',
+          path: 'data/regions/boards.geojson',
+          family: 'regionFill',
+          visible: true,
+          opacity: 0.7,
+          borderVisible: false,
+          borderColor: '#8f8f8f',
+          borderWidth: 1,
+          borderOpacity: 0,
+          swatchColor: '#8f8f8f',
+        },
+      ],
+      new Map([
+        ['wardSplitWards', new VectorLayer({ source: new VectorSource({ features: [wardSplitWardFeature] }) })],
+        ['regionFill', new VectorLayer({ source: new VectorSource({ features: [regionFillFeature] }) })],
+      ]),
+    );
+
+    expect(matched).toBe(wardSplitWardFeature);
+    expect(getBoundaryName(matched as Feature)).toBe('Test ward');
   });
 
   it('prefers the clicked split-ward region assignment over the parent board default mapping', () => {
