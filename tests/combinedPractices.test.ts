@@ -460,6 +460,34 @@ describe('combinedPractices', () => {
         point_color_hex: '#ed5151',
         default_visible: 1,
       },
+      {
+        name: 'Coningsby Medical Centre',
+        combined_practice: 'Lincolnshire Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Cranwell Medical Centre',
+        combined_practice: 'Lincolnshire Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Portsmouth Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Nelson Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
     ]);
 
     const aldershot = styles.find(
@@ -474,16 +502,33 @@ describe('combinedPractices', () => {
     const lichfield = styles.find(
       (style) => style.name === 'Lichfield Combined Medical Practice',
     );
+    const lincolnshire = styles.find(
+      (style) => style.name === 'Lincolnshire Combined Medical Practice',
+    );
+    const portsmouth = styles.find(
+      (style) => style.name === 'Portsmouth Combined Medical Practice',
+    );
 
-    expect(aldershot?.borderColor).toBe('#a855f7');
+    expect(aldershot?.borderColor).toBe('#ef4444');
     expect(pirbright?.borderColor).toBe('#f97316');
     expect(cottesmore?.borderColor).toBe('#ec4899');
     expect(lichfield?.borderColor).toBe('#22d3ee');
+    expect(lincolnshire?.borderColor).toBe('#06b6d4');
+    expect(portsmouth?.borderColor).toBe('#fbbf24');
     expect(getCombinedPracticeColorFamily(aldershot!.borderColor)).not.toBe(
       getCombinedPracticeColorFamily(pirbright!.borderColor),
     );
     expect(getCombinedPracticeColorFamily(cottesmore!.borderColor)).not.toBe(
       getCombinedPracticeColorFamily(lichfield!.borderColor),
+    );
+    expect(getCombinedPracticeColorFamily(portsmouth!.borderColor)).not.toBe(
+      'green',
+    );
+    expect(getCombinedPracticeColorFamily(portsmouth!.borderColor)).not.toBe(
+      'purple',
+    );
+    expect(getCombinedPracticeColorFamily(lincolnshire!.borderColor)).not.toBe(
+      'orange',
     );
   });
 });
