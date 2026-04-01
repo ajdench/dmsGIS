@@ -343,7 +343,7 @@ function summarizeTopologyEdgeSource(source: VectorSource | null): {
   let externalFeatureCount = 0;
 
   for (const feature of features) {
-    if (Boolean(feature.get('internal'))) {
+    if (feature.get('internal')) {
       internalFeatureCount += 1;
     } else {
       externalFeatureCount += 1;

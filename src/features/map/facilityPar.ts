@@ -3,7 +3,6 @@ import type VectorSource from 'ol/source/Vector';
 import { getEffectiveFacilityRegionAssignment } from './scenarioFacilityMapping';
 import { getGroupNameForCode } from '../../lib/config/viewPresets';
 import {
-  formatParDisplayValue,
   parseFacilityParValue,
   resolveCurrentRoyalNavyFallbackRegion,
 } from '../../lib/facilityPar';

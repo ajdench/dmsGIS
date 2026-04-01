@@ -95,9 +95,19 @@ Current shared-foundation review note:
   - Playground dynamic scenario borders now prefer a dedicated preloaded shared `2026` topology-edge source and only fall back to polygon dissolve when no edge source exists
   - same-Region internal seams in Playground should therefore now be removed at the seam-selection stage rather than being left for dissolve cleanup to infer later
   - a later Playground regression was traced to `src/lib/config/scenarioWorkspaces.ts`, where interactive baseline assignment datasets were still loading from raw `data/regions/...` preset paths instead of the active accepted runtime-family root; keep Playground baseline assignment paths aligned with `resolveRuntimeMapProductPath(...)`
+  - Playground runtime source authority is now composed through `src/features/map/playgroundRuntimeSession.ts` instead of being recombined ad hoc inside `MapWorkspace.tsx`; keep baseline source choice, runtime assignment source, derived outline source, diagnostics, and layer override composition together there
   - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
+
+Current branch-hygiene note:
+
+- merged codex publish branches on GitHub have now been pruned from `origin/*`
+- merged-safe local branches `codex/restore-london-south-royal-navy-current` and `codex/review-family-staging` were deleted
+- remaining non-`main` local branches should currently be treated as either:
+  - active worktree branches
+  - recovery anchors
+  - intentionally unmerged historical branches
 
 Current facilities dataset note:
 

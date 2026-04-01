@@ -43,6 +43,46 @@ The most important current risks are:
 4. review-build sandbox leakage
 5. validation that proves builds, but not live correctness
 
+## Post-Merge Addendum
+
+After the later Playground runtime fixes were merged to GitHub `main`:
+
+- `README.md` was rewritten into a cleaner user-facing front-door document
+- the repo was brought back to a clean `main` state matching `origin/main`
+- `npm run build` is passing
+- `npm run lint` is passing again after a small hygiene cleanup
+
+The current highest-value runtime review hotspots remain:
+
+1. `src/features/map/MapWorkspace.tsx`
+2. `src/features/map/scenarioWorkspaceRuntime.ts`
+3. `src/store/appStore.ts`
+
+That means the repo should now be treated as:
+
+- operationally healthier than it was earlier in the day
+- but still architecturally concentrated around a few large runtime authority seams
+
+The next review work should therefore prioritize:
+
+- reducing Playground authority drift
+- continuing bounded extraction from those three files
+- adding more live-runtime acceptance coverage rather than only more unit coverage
+
+One such bounded extraction is now complete:
+
+- `src/features/map/playgroundRuntimeSession.ts`
+
+That helper now owns the composition of:
+
+- baseline assignment source selection
+- draft-aware runtime assignment source creation
+- derived outline source creation
+- diagnostics snapshot creation
+- runtime override map creation for `regionFill` and `scenarioOutline`
+
+This does not solve every Playground issue on its own, but it reduces the chance that `MapWorkspace.tsx` and `scenarioWorkspaceRuntime.ts` drift apart again on source-authority rules.
+
 ## Findings
 
 ### 1. Runtime Product Governance Had Drifted

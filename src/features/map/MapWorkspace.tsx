@@ -56,12 +56,9 @@ import {
 } from './lookupSources';
 import { getActiveBoundarySystemLookupSource } from './workspaceLookupSources';
 import {
-  buildPlaygroundRuntimeDiagnosticsSnapshot,
-  buildScenarioWorkspaceRuntimeState,
   type PlaygroundRuntimeDiagnosticsSnapshot,
-  resolveScenarioWorkspaceBaselineAssignmentSource,
 } from './scenarioWorkspaceRuntime';
-import { buildDerivedScenarioOutlineSource } from './derivedScenarioOutlineSource';
+import { buildPlaygroundRuntimeSession } from './playgroundRuntimeSession';
 import {
   getScenarioBoundaryUnitId,
   resolveScenarioWorkspaceRegionIdForRecord,
@@ -1267,85 +1264,41 @@ export function MapWorkspace() {
           activeScenarioWorkspaceId,
         ) ?? null
       : null;
-    const hasPreloadedWorkspaceAssignmentSource =
-      !!preloadedWorkspaceAssignmentSource &&
-      preloadedWorkspaceAssignmentSource.getFeatures().length > 0;
     const liveAssignmentSource = getActiveAssignmentLookupSource(
       regionBoundaryRefs.current,
       jmcAssignmentLookupSourceRef.current,
     );
     const liveAssignmentPath = regionBoundaryPathRefs.current.get('regionFill') ?? null;
-    scenarioWorkspaceBaselineAssignmentSourceRef.current =
-      resolveScenarioWorkspaceBaselineAssignmentSource({
-        runtimeActive: scenarioWorkspaceRuntimeActive,
-        baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
-        preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
-        liveAssignmentSource,
-        liveAssignmentPath,
-        currentBaselineAssignmentSource:
-          scenarioWorkspaceBaselineAssignmentSourceRef.current,
-      });
-
-    const resolvedScenarioWorkspaceBaselineAssignmentSource =
-      scenarioWorkspaceBaselineAssignmentSourceRef.current;
-    const runtimeAssignmentBaselineSource =
-      activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
-        ? resolvedScenarioWorkspaceBaselineAssignmentSource
-        : resolvedScenarioWorkspaceBaselineAssignmentSource ?? liveAssignmentSource;
-
-    const runtimeState =
-      scenarioWorkspaceRuntimeActive && activeScenarioWorkspaceId
-        ? buildScenarioWorkspaceRuntimeState(
-            activeScenarioWorkspaceId,
-            runtimeAssignmentBaselineSource,
-            activeScenarioWorkspaceDraft,
-            {
-              includeBaselineWhenUnedited:
-                activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime',
-            },
-          )
-        : {
-            assignmentSource: null,
-            assignmentByBoundaryName: new Map<string, string>(),
-          };
-    const derivedOutlineAssignmentSource =
-      runtimeState.assignmentSource ??
-      (scenarioWorkspaceRuntimeActive
-        ? runtimeAssignmentBaselineSource
-        : null);
     const scenarioTopologyEdgeSource =
       activeViewPreset === 'current'
         ? null
         : scenarioTopologyEdgeSourceRef.current;
-    scenarioWorkspaceAssignmentSourceRef.current = runtimeState.assignmentSource;
+    const runtimeSession = buildPlaygroundRuntimeSession({
+      workspaceId: activeScenarioWorkspaceId,
+      runtimeActive: scenarioWorkspaceRuntimeActive,
+      baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
+      preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
+      liveAssignmentSource,
+      liveAssignmentPath,
+      currentBaselineAssignmentSource:
+        scenarioWorkspaceBaselineAssignmentSourceRef.current,
+      draft: activeScenarioWorkspaceDraft,
+      topologyEdgeSource: scenarioTopologyEdgeSource,
+      presetGroupOutlineSource: presetGroupOutlineSourceRef.current,
+    });
+
+    scenarioWorkspaceBaselineAssignmentSourceRef.current =
+      runtimeSession.baselineAssignmentSource;
+    scenarioWorkspaceAssignmentSourceRef.current =
+      runtimeSession.runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
-      buildDerivedScenarioOutlineSource(
-        derivedOutlineAssignmentSource,
-        scenarioTopologyEdgeSource,
-      );
+      runtimeSession.derivedOutlineSource;
     scenarioWorkspaceAssignmentByBoundaryNameRef.current =
-      runtimeState.assignmentByBoundaryName;
+      runtimeSession.runtimeState.assignmentByBoundaryName;
 
     if (typeof window !== 'undefined') {
-      if (
-        scenarioWorkspaceRuntimeActive &&
-        activeScenarioWorkspaceId &&
-        activeScenarioWorkspaceBaselineAssignmentKind === 'interactive-runtime'
-      ) {
-        const diagnosticsSnapshot = buildPlaygroundRuntimeDiagnosticsSnapshot({
-          workspaceId: activeScenarioWorkspaceId,
-          baselineAssignmentKind: activeScenarioWorkspaceBaselineAssignmentKind,
-          liveAssignmentPath,
-          preloadedAssignmentSource: preloadedWorkspaceAssignmentSource,
-          liveAssignmentSource,
-          resolvedBaselineAssignmentSource:
-            resolvedScenarioWorkspaceBaselineAssignmentSource,
-          runtimeAssignmentBaselineSource,
-          runtimeAssignmentSource: runtimeState.assignmentSource,
-          derivedOutlineAssignmentSource,
-          topologyEdgeSource: scenarioTopologyEdgeSource,
-          derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
-        });
+      const diagnosticsSnapshot = runtimeSession.diagnosticsSnapshot;
+      if (diagnosticsSnapshot) {
         window.__dmsGISPlaygroundDiagnostics = diagnosticsSnapshot;
         const history = window.__dmsGISPlaygroundDiagnosticsHistory ?? [];
         window.__dmsGISPlaygroundDiagnosticsHistory = [
@@ -1357,24 +1310,6 @@ export function MapWorkspace() {
       }
     }
 
-    const runtimeSourceOverrides = new Map<string, VectorSource>();
-    if (scenarioWorkspaceAssignmentSourceRef.current) {
-      runtimeSourceOverrides.set(
-        'regionFill',
-        scenarioWorkspaceAssignmentSourceRef.current,
-      );
-    }
-    if (scenarioWorkspaceDerivedOutlineSourceRef.current) {
-      runtimeSourceOverrides.set(
-        'scenarioOutline',
-        scenarioWorkspaceDerivedOutlineSourceRef.current,
-      );
-    } else if (presetGroupOutlineSourceRef.current) {
-      runtimeSourceOverrides.set(
-        'scenarioOutline',
-        presetGroupOutlineSourceRef.current,
-      );
-    }
     const populatedCodes = buildEffectivePopulatedCodes(
       populatedV10Codes,
       populated2026Codes,
@@ -1385,7 +1320,7 @@ export function MapWorkspace() {
       activeViewPreset,
       regionBoundaryRefs: regionBoundaryRefs.current,
       regionBoundaryPathRefs: regionBoundaryPathRefs.current,
-      runtimeSourceOverrides,
+      runtimeSourceOverrides: runtimeSession.runtimeSourceOverrides,
       populatedCodes,
       groupOverrides: regionGroupOverrides,
       createBoundaryLayer: createRegionBoundaryLayer,
