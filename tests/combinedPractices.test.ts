@@ -531,4 +531,103 @@ describe('combinedPractices', () => {
       'orange',
     );
   });
+
+  it('separates Aldershot, Winchester, and Bovington into distinct nearby families', () => {
+    const styles = buildDefaultCombinedPracticeStyles([
+      {
+        name: 'Aldershot Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Garrison Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Marchwood Medical Centre',
+        combined_practice: 'Winchester Combined Medical Practice',
+        region: 'South West',
+        point_color_hex: '#149ece',
+        default_visible: 1,
+      },
+      {
+        name: 'Winchester Medical Centre',
+        combined_practice: 'Winchester Combined Medical Practice',
+        region: 'South West',
+        point_color_hex: '#149ece',
+        default_visible: 1,
+      },
+      {
+        name: 'Worthy Down Medical Centre',
+        combined_practice: 'Winchester Combined Medical Practice',
+        region: 'South West',
+        point_color_hex: '#149ece',
+        default_visible: 1,
+      },
+      {
+        name: 'Blandford Medical Centre',
+        combined_practice: 'Bovington Combined Medical Practice',
+        region: 'South West',
+        point_color_hex: '#149ece',
+        default_visible: 1,
+      },
+      {
+        name: 'Bovington Medical Centre',
+        combined_practice: 'Bovington Combined Medical Practice',
+        region: 'South West',
+        point_color_hex: '#149ece',
+        default_visible: 1,
+      },
+      {
+        name: 'Pirbright Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Minley Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Portsmouth Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Nelson Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+    ]);
+
+    const aldershot = styles.find(
+      (style) => style.name === 'Aldershot Combined Medical Practice',
+    );
+    const winchester = styles.find(
+      (style) => style.name === 'Winchester Combined Medical Practice',
+    );
+    const bovington = styles.find(
+      (style) => style.name === 'Bovington Combined Medical Practice',
+    );
+
+    expect(aldershot?.borderColor).toBe('#ef4444');
+    expect(winchester?.borderColor).toBe('#f472b6');
+    expect(bovington?.borderColor).toBe('#fde047');
+    expect(getCombinedPracticeColorFamily(aldershot!.borderColor)).toBe('red');
+    expect(getCombinedPracticeColorFamily(winchester!.borderColor)).toBe('pink');
+    expect(getCombinedPracticeColorFamily(bovington!.borderColor)).toBe('yellow');
+  });
 });

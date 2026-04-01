@@ -595,6 +595,7 @@ const COMBINED_PRACTICE_PALETTE_INDEX_OFFSETS: Readonly<Record<string, number>> 
 
 const COMBINED_PRACTICE_NAMED_COLOR_OVERRIDES: Readonly<Record<string, string>> = {
   'Aldershot Combined Medical Practice': '#ef4444',
+  'Bovington Combined Medical Practice': '#fde047',
   'Cottesmore Combined Medical Practice': '#ec4899',
   'East of Scotland Combined Medical Practice': '#e11d48',
   'Lichfield Combined Medical Practice': '#22d3ee',
@@ -603,4 +604,5 @@ const COMBINED_PRACTICE_NAMED_COLOR_OVERRIDES: Readonly<Record<string, string>> 
   'Portsmouth Combined Medical Practice': '#fbbf24',
   'Stonehouse Combined Medical Practice': '#db2777',
   'West of Scotland Combined Medical Practice': '#f59e0b',
+  'Winchester Combined Medical Practice': '#f472b6',
 };
