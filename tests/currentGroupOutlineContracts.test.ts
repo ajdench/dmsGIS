@@ -24,6 +24,15 @@ const CURRENT_BOARDS_PATH = path.join(
   'regions',
   'UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson',
 );
+const CURRENT_SPLIT_PATH = path.join(
+  ROOT,
+  'public',
+  'data',
+  'compare',
+  'shared-foundation-review',
+  'regions',
+  'UK_WardSplit_simplified.geojson',
+);
 const CURRENT_SPLIT_PARENT_CODES = new Set(['E54000025', 'E54000042', 'E54000048']);
 const SPLIT_AWARE_GROUPS = new Set([
   'Central & Wessex',
@@ -34,6 +43,8 @@ const SPLIT_AWARE_GROUPS = new Set([
   'Wales & West Midlands',
 ]);
 const SHELL_EPSILON = 1e-6;
+const DISSOLVE_REFERENCE_EPSILON = 1e-5;
+const SPLIT_SHELL_COMPONENT_RATIO_FLOOR = 0.2;
 
 function slug(groupName: string): string {
   return groupName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/, '');
@@ -117,6 +128,32 @@ function pointNearGeometryBoundary(
   return false;
 }
 
+function pointNearReferenceComponents(
+  point: number[],
+  referenceComponents: number[][][],
+  epsilon = DISSOLVE_REFERENCE_EPSILON,
+) {
+  return referenceComponents.some((component) => {
+    for (let index = 1; index < component.length; index += 1) {
+      if (pointToSegmentDistance(point, component[index - 1], component[index]) <= epsilon) {
+        return true;
+      }
+    }
+    return false;
+  });
+}
+
+function lineComponentLength(component: number[][]) {
+  let total = 0;
+  for (let index = 1; index < component.length; index += 1) {
+    total += Math.hypot(
+      component[index][0] - component[index - 1][0],
+      component[index][1] - component[index - 1][1],
+    );
+  }
+  return total;
+}
+
 function loadSplitParentShells() {
   const geojson = JSON.parse(fs.readFileSync(CURRENT_BOARDS_PATH, 'utf8')) as {
     features?: Array<{
@@ -136,6 +173,86 @@ function loadSplitParentShells() {
         | { type: 'MultiPolygon'; coordinates: number[][][][] } =>
         geometry?.type === 'Polygon' || geometry?.type === 'MultiPolygon',
     );
+}
+
+function loadCurrentGroupFeatures() {
+  const boards = JSON.parse(fs.readFileSync(CURRENT_BOARDS_PATH, 'utf8')) as {
+    features?: Array<{
+      properties?: { boundary_code?: string };
+      geometry?: { type?: 'Polygon' | 'MultiPolygon'; coordinates?: unknown };
+    }>;
+  };
+  const wards = JSON.parse(fs.readFileSync(CURRENT_SPLIT_PATH, 'utf8')) as {
+    features?: Array<{
+      properties?: { region_ref?: string };
+      geometry?: { type?: 'Polygon' | 'MultiPolygon'; coordinates?: unknown };
+    }>;
+  };
+  const currentPreset = getScenarioPresetConfig('current');
+  const hidden = new Set(currentPreset?.wardSplitParentCodes ?? []);
+  const byGroup = new Map<string, Array<{ type: 'Feature'; properties: Record<string, unknown>; geometry: Record<string, unknown> }>>();
+
+  for (const feature of boards.features ?? []) {
+    const code = String(feature.properties?.boundary_code ?? '');
+    if (!code || hidden.has(code)) continue;
+    const groupName = currentPreset?.codeGroupings?.[code];
+    if (!groupName || !feature.geometry) continue;
+    if (!byGroup.has(groupName)) byGroup.set(groupName, []);
+    byGroup.get(groupName)?.push({
+      type: 'Feature',
+      properties: { group: groupName },
+      geometry: feature.geometry as Record<string, unknown>,
+    });
+  }
+
+  for (const feature of wards.features ?? []) {
+    const groupName = String(feature.properties?.region_ref ?? '');
+    if (!groupName || !feature.geometry) continue;
+    if (!byGroup.has(groupName)) byGroup.set(groupName, []);
+    byGroup.get(groupName)?.push({
+      type: 'Feature',
+      properties: { group: groupName },
+      geometry: feature.geometry as Record<string, unknown>,
+    });
+  }
+
+  return byGroup;
+}
+
+function flattenPolygonFeatures(
+  features: Array<{ type: 'Feature'; properties: Record<string, unknown>; geometry: Record<string, unknown> }>,
+) {
+  const flattened: Array<{
+    type: 'Feature';
+    properties: Record<string, unknown>;
+    geometry: { type: 'Polygon'; coordinates: number[][][] };
+  }> = [];
+
+  for (const feature of features) {
+    const geometry = feature.geometry as
+      | { type: 'Polygon'; coordinates: number[][][] }
+      | { type: 'MultiPolygon'; coordinates: number[][][][] };
+    if (geometry.type === 'Polygon') {
+      flattened.push({
+        ...feature,
+        geometry,
+      });
+      continue;
+    }
+    if (geometry.type === 'MultiPolygon') {
+      for (const polygonCoordinates of geometry.coordinates) {
+        flattened.push({
+          ...feature,
+          geometry: {
+            type: 'Polygon',
+            coordinates: polygonCoordinates,
+          },
+        });
+      }
+    }
+  }
+
+  return flattened;
 }
 
 describe('Current group outline contracts', () => {
@@ -190,6 +307,82 @@ describe('Current group outline contracts', () => {
         }));
 
       expect(orphanComponents.length, filePath).toBe(0);
+    }
+  });
+
+  it('keeps split-aware Current outline components aligned to the true dissolved exterior', async () => {
+    const byGroup = loadCurrentGroupFeatures();
+    const dissolve = (await import('@turf/dissolve')).default;
+
+    for (const groupName of SPLIT_AWARE_GROUPS) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const sourceFeatures = flattenPolygonFeatures(byGroup.get(groupName) ?? []);
+      const dissolved = dissolve({
+        type: 'FeatureCollection',
+        features: sourceFeatures,
+      }, { propertyName: 'group' });
+
+      const referenceComponents: number[][][] = [];
+      for (const feature of dissolved.features ?? []) {
+        const geometry = feature.geometry;
+        if (!geometry) continue;
+        if (geometry.type === 'Polygon') {
+          referenceComponents.push(geometry.coordinates[0]);
+          continue;
+        }
+        if (geometry.type === 'MultiPolygon') {
+          for (const polygon of geometry.coordinates) {
+            referenceComponents.push(polygon[0]);
+          }
+        }
+      }
+
+      const components = getLineComponents(geojson.features?.[0]?.geometry);
+      const detachedComponents = components.filter((component) => {
+        const nearReferenceCount = component.filter((point) =>
+          pointNearReferenceComponents(point, referenceComponents)).length;
+        return nearReferenceCount < Math.min(2, component.length);
+      });
+
+      expect(detachedComponents.length, filePath).toBe(0);
+    }
+  });
+
+  it('does not ship shell-local micro-components for split-aware Current outlines', () => {
+    const splitParentShells = loadSplitParentShells();
+    expect(splitParentShells.length).toBe(3);
+
+    for (const groupName of SPLIT_AWARE_GROUPS) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const components = getLineComponents(geojson.features?.[0]?.geometry);
+      expect(components.length, filePath).toBeGreaterThan(0);
+
+      for (const shell of splitParentShells) {
+        const shellComponents = components.filter((component) => {
+          const midpoint = component[Math.floor(component.length / 2)];
+          return pointInGeometry(midpoint, shell);
+        });
+        if (shellComponents.length <= 1) continue;
+
+        const lengths = shellComponents.map((component) => lineComponentLength(component));
+        const longest = Math.max(...lengths);
+        const microComponents = lengths.filter((length) =>
+          length < longest * SPLIT_SHELL_COMPONENT_RATIO_FLOOR);
+
+        expect(microComponents.length, `${filePath} within split shell`).toBe(0);
+      }
     }
   });
 });

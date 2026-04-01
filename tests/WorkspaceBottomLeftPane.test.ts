@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WorkspaceBottomLeftPane } from '../src/components/layout/WorkspaceBottomLeftPane';
@@ -277,5 +277,71 @@ describe('WorkspaceBottomLeftPane', () => {
     expect(screen.queryByText('London and East')).toBeTruthy();
     expect(screen.getByText('25')).toBeTruthy();
     expect(screen.getByText('40')).toBeTruthy();
+  });
+
+  it('updates active playground PAR cards when a boundary is reassigned after render', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      activeViewPreset: 'coa3c',
+      activeScenarioWorkspaceId: 'dphcEstimateCoaPlayground',
+      scenarioWorkspaceDrafts: {
+        dphcEstimateCoaPlayground: {
+          schemaVersion: 1,
+          id: 'dphcEstimateCoaPlayground',
+          label: 'DPHC Estimate COA Playground (COA 3b)',
+          boundarySystemId: 'icbHb2026',
+          baseWorkspaceId: 'dphcEstimateCoaPlayground',
+          assignments: [],
+        },
+      },
+      facilityParRecords: [
+        {
+          regionName: 'North',
+          legacyBoundaryCode: null,
+          boundaryCode2026: 'E54000071',
+          parValue: '100',
+        },
+      ],
+      presetRegionParByPreset: {
+        coa3c: {
+          'COA 3b Devolved Administrations': 0,
+          'COA 3b North': 0,
+          'COA 3b Midlands': 0,
+          'COA 3b South West': 0,
+          'COA 3b South East': 0,
+          'COA 3b London and East': 100,
+          Overseas: 0,
+          'Royal Navy': 0,
+        },
+      },
+    }));
+
+    const { container } = render(createElement(WorkspaceBottomLeftPane));
+
+    const getCardText = (title: string) =>
+      [...container.querySelectorAll('.workspace-bottom-shell__title-card')]
+        .find(
+          (card) => {
+            const label = card.querySelector('.workspace-bottom-shell__title-card-title')?.textContent;
+            return label?.replace(/\s+/g, ' ').trim() === title;
+          },
+        )
+        ?.textContent ?? '';
+
+    expect(getCardText('London and East')).toContain('100');
+    expect(getCardText('South East')).not.toContain('100');
+
+    act(() => {
+      useAppStore
+        .getState()
+        .assignScenarioWorkspaceBoundaryUnit(
+          'dphcEstimateCoaPlayground',
+          'E54000071',
+          'coa3b_south_east',
+        );
+    });
+
+    expect(getCardText('South East')).toContain('100');
+    expect(getCardText('London and East')).not.toContain('100');
   });
 });

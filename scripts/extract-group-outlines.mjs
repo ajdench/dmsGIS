@@ -41,6 +41,8 @@ const PRESET_COLLECTION_OUTPUTS = {
 };
 const CURRENT_SPLIT_PARENT_CODES = new Set(['E54000025', 'E54000042', 'E54000048']);
 const SHELL_EPSILON = 1e-6;
+const DISSOLVE_REFERENCE_EPSILON = 1e-5;
+const SPLIT_SHELL_COMPONENT_RATIO_FLOOR = 0.2;
 
 fs.mkdirSync(OUTLINES, { recursive: true });
 
@@ -183,7 +185,23 @@ function pointNearGeometryBoundary(point, geometry, epsilon = SHELL_EPSILON) {
   return false;
 }
 
-function pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells) {
+function pointNearReferenceComponents(point, referenceComponents, epsilon = DISSOLVE_REFERENCE_EPSILON) {
+  return referenceComponents.some((component) =>
+    pointNearRingBoundary(point, component, epsilon));
+}
+
+function lineComponentLength(component) {
+  let total = 0;
+  for (let index = 1; index < component.length; index += 1) {
+    total += Math.hypot(
+      component[index][0] - component[index - 1][0],
+      component[index][1] - component[index - 1][1],
+    );
+  }
+  return total;
+}
+
+function pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells, dissolveReferenceFeature) {
   if (!arcFeature?.geometry || !splitParentShells.length) {
     return arcFeature;
   }
@@ -192,10 +210,47 @@ function pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells) {
   if (!components.length) {
     return arcFeature;
   }
+  const referenceComponents = getLineComponents(dissolveReferenceFeature?.geometry);
+  const shellLocalLengths = new Map();
+
+  for (const component of components) {
+    const midpoint = component[Math.floor(component.length / 2)];
+    for (const shell of splitParentShells) {
+      if (!pointInGeometry(midpoint, shell)) continue;
+      const shellKey = JSON.stringify(shell.coordinates);
+      const lengths = shellLocalLengths.get(shellKey) ?? [];
+      lengths.push(lineComponentLength(component));
+      shellLocalLengths.set(shellKey, lengths);
+      break;
+    }
+  }
 
   const kept = components.filter((component) => {
+    const midpoint = component[Math.floor(component.length / 2)];
+    if (referenceComponents.length > 0) {
+      const nearReferenceCount = component.filter((point) =>
+        pointNearReferenceComponents(point, referenceComponents)).length;
+      if (nearReferenceCount < Math.min(2, component.length)) {
+        return false;
+      }
+    }
+
     for (const shell of splitParentShells) {
+      const midpointInside = pointInGeometry(midpoint, shell);
       const allInside = component.every((point) => pointInGeometry(point, shell));
+      if (midpointInside) {
+        const shellKey = JSON.stringify(shell.coordinates);
+        const shellLengths = shellLocalLengths.get(shellKey) ?? [];
+        const longestShellComponent = shellLengths.length > 0
+          ? Math.max(...shellLengths)
+          : 0;
+        if (
+          longestShellComponent > 0
+          && lineComponentLength(component) < longestShellComponent * SPLIT_SHELL_COMPONENT_RATIO_FLOOR
+        ) {
+          return false;
+        }
+      }
       if (!allInside) {
         continue;
       }
@@ -468,10 +523,18 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
         console.warn(`  [empty arc] ${presetId} / "${group.name}"`);
         continue;
       }
+      const dissolveReferenceFeature =
+        presetId === 'current' && wardFeatures.length > 0
+          ? groupExteriorArcFromDissolve(allFeatures, group.name)
+          : null;
 
       const cleanedArcFeature =
         presetId === 'current' && wardFeatures.length > 0
-          ? pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells)
+          ? pruneCurrentSplitInteriorOrphans(
+            arcFeature,
+            splitParentShells,
+            dissolveReferenceFeature,
+          )
           : arcFeature;
 
       const outlineGeoJSON = {

@@ -155,8 +155,11 @@ Current shared-foundation review note:
     - so future work should treat the remaining split-case white-gap issue as not fully closed yet
     - the likely remaining seam is the last agreement between the rebuilt split runtime partition and the shipped simplified parent board shell, not the ward assignment map itself
   - detached split-case outline fragments are now also guarded at the outline-export stage:
-    - `scripts/extract-group-outlines.mjs` prunes any `Current` split-aware outline component that sits wholly inside a split-parent shell without touching that shell boundary
-    - `tests/currentGroupOutlineContracts.test.ts` now asserts that the shipped split-aware `Current` outline files do not contain those detached interior orphan components
+    - `scripts/extract-group-outlines.mjs` first prunes any `Current` split-aware outline component that sits wholly inside a split-parent shell without touching that shell boundary
+    - it then also prunes split-shell local micro-components that are materially smaller than the dominant local shell network, so the same detached shell-edge fragments fail before ship instead of surviving as stable exported artifacts
+    - `tests/currentGroupOutlineContracts.test.ts` now guards both contracts on the shipped accepted-runtime outline files:
+      - no detached interior orphan components inside split-parent shells
+      - no shell-local split micro-components below the configured network-size floor
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
@@ -1025,7 +1028,7 @@ Playground entry is now explicitly split by source preset.
 - `SJC JMC` per-card PAR values now calculate from the assigned `2026` facility board code (`icb_hb_code_2026`) mapped through the preset `codeGroupings`; the devolved card shows the combined total of `JMC Scotland`, `JMC Northern Ireland`, and `JMC Wales`
 - for the bottom-left `SJC JMC` cards only, `Overseas` and `Royal Navy` are preserved as explicit special PAR buckets instead of being folded into their assigned scenario-region cards; this keeps the visible card sum aligned with the absolute `Total`
 - the same `Overseas` / `Royal Navy` preservation rule now applies to `COA 3a` and `COA 3b`, so all three scenario presets reconcile to the same absolute total
-- the bottom-left scenario-card PAR path is now draft-aware for interactive Playground workspaces: `src/components/layout/WorkspaceBottomLeftPane.tsx` derives active workspace totals from loaded facility PAR records plus the live scenario-workspace assignment lookup, so Playground board reassignment immediately updates the displayed Region totals without a preset reload
+- the bottom-left scenario-card PAR path is now draft-aware for interactive Playground workspaces: `src/components/layout/WorkspaceBottomLeftPane.tsx` derives active workspace totals from loaded facility PAR records plus the live scenario-workspace assignment lookup, and it now subscribes directly to workspace-draft changes so Playground board reassignment immediately updates the displayed Region totals without a preset reload
 - clicking the scenario `Royal Navy` card pill now toggles `Regionalise` / `Unregionalise`: while regionalised, the special `Royal Navy` card clears its own preserved PAR, the same PAR is added back into the parent scenario Region cards on the active assignment basis, and each receiving card shows that added Royal Navy contribution in the zero-height middle row with a small Royal Navy swatch at left and the added PAR at right
 - the same interaction now applies in `Current`, but the redistribution path uses the Current preset's boundary-code grouping instead of a scenario assignment lookup
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped

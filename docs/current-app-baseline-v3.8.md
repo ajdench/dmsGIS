@@ -182,7 +182,8 @@ Current split-shell repair note:
   - the targeted split validator still catches a small remaining shell-coverage sliver, most recently for `E54000025`
 - separate follow-up hardening now also exists for detached split-case outline fragments:
   - `scripts/extract-group-outlines.mjs` removes any `Current` split-aware outline component that is wholly interior to a split-parent shell and does not touch that shell boundary
-  - `tests/currentGroupOutlineContracts.test.ts` guards that contract on the shipped accepted-runtime outline files
+  - it also prunes shell-local split micro-components that fall below the accepted local network-size floor, so stable detached shell-edge fragments are rejected before shipping
+  - `tests/currentGroupOutlineContracts.test.ts` guards both outline contracts on the shipped accepted-runtime outline files
 
 ## Overlays
 
