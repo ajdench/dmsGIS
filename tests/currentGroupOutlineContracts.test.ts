@@ -58,9 +58,21 @@ const BLACKWATER_EXCLUDED_SEGMENTS: number[][][] = [
   [[-1.628523215864711, 50.99840736083645], [-1.628433534147071, 50.998188571849006]],
   [[-1.628804844036594, 50.999094411665354], [-1.628712749058782, 50.998869742100936]],
 ];
-const BLACKWATER_EXCLUDED_ENDPOINTS: Record<string, number[][]> = {
-  'Central & Wessex': [[-1.602934, 50.978524]],
-  'South West': [[-1.6049213, 50.9762065]],
+const BLACKWATER_ENDPOINT_REMAPS: Record<string, { tip: number[]; root: number[] }> = {
+  'Central & Wessex': {
+    tip: [-1.602934, 50.978524],
+    root: [-1.619751051433103, 50.958566891040576],
+  },
+  'South West': {
+    tip: [-1.6049213, 50.9762065],
+    root: [-1.619751051433103, 50.958566891040576],
+  },
+};
+const BLACKWATER_SPUR_BBOX = {
+  minX: -1.63,
+  minY: 50.95,
+  maxX: -1.6,
+  maxY: 50.98,
 };
 
 function slug(groupName: string): string {
@@ -498,7 +510,7 @@ describe('Current group outline contracts', () => {
     }
   });
 
-  it('excludes the known Blackwater spur endpoints from Current split-aware outlines', () => {
+  it('remaps the known Blackwater spur tips back to the shared root on Current split-aware outlines', () => {
     for (const groupName of ['Central & Wessex', 'South West']) {
       const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
       const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
@@ -508,10 +520,18 @@ describe('Current group outline contracts', () => {
       };
 
       const badEndpoints: number[][] = [];
+      let rootSeen = false;
       for (const component of getLineComponents(geojson.features?.[0]?.geometry)) {
         const first = component[0];
         const last = component[component.length - 1];
-        for (const endpoint of BLACKWATER_EXCLUDED_ENDPOINTS[groupName]) {
+        const { tip, root } = BLACKWATER_ENDPOINT_REMAPS[groupName];
+        if (
+          pointToSegmentDistance(first, root, root) <= DISSOLVE_REFERENCE_EPSILON
+          || pointToSegmentDistance(last, root, root) <= DISSOLVE_REFERENCE_EPSILON
+        ) {
+          rootSeen = true;
+        }
+        for (const endpoint of [tip]) {
           if (
             pointToSegmentDistance(first, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
             || pointToSegmentDistance(last, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
@@ -522,6 +542,39 @@ describe('Current group outline contracts', () => {
       }
 
       expect(badEndpoints.length, filePath).toBe(0);
+      expect(rootSeen, filePath).toBe(true);
+    }
+  });
+
+  it('does not leave a local Blackwater spur-only component after remapping', () => {
+    for (const groupName of ['Central & Wessex', 'South West']) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const localComponents = getLineComponents(geojson.features?.[0]?.geometry).filter((component) => {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        for (const [x, y] of component) {
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+        return (
+          minX >= BLACKWATER_SPUR_BBOX.minX
+          && maxX <= BLACKWATER_SPUR_BBOX.maxX
+          && minY >= BLACKWATER_SPUR_BBOX.minY
+          && maxY <= BLACKWATER_SPUR_BBOX.maxY
+        );
+      });
+
+      expect(localComponents.length, filePath).toBe(0);
     }
   });
 });

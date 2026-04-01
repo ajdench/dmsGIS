@@ -165,8 +165,16 @@ Current shared-foundation review note:
       - split-aware `Current` outline endpoints must land back on the dissolved exterior
       - the known `Blackwater` spur segment family must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
       - the known `Blackwater` spur tip endpoints must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
+      - the known `Blackwater` spur tip is now remapped back to the shared root at approximately `[-1.619751051433103, 50.958566891040576]`
+      - no component may remain wholly inside the local `Blackwater` spur box after remapping
     - practical interpretation:
       - the accepted-runtime `Current` outline guard is now aimed at shipped risk, not a broad orphan heuristic that can over-flag valid split-aware components
+    - current verified state:
+      - the Hampshire / Dorset `Current` border between `Central & Wessex` and `South West` is present again in the shipped outline exports
+      - direct geometry inspection confirmed:
+        - shared-root endpoint count present in both exported outline files
+        - zero endpoints on the old bad `Blackwater` tip coordinates
+        - zero remaining spur-only components in the local `Blackwater` box
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 

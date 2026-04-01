@@ -73,14 +73,22 @@ const CURRENT_KNOWN_EXCLUDED_SEGMENTS = new Map([
     [[-1.628804844036594, 50.999094411665354], [-1.628712749058782, 50.998869742100936]],
   ]],
 ]);
-const CURRENT_KNOWN_EXCLUDED_ENDPOINTS = new Map([
-  ['Central & Wessex', [
-    [-1.602934, 50.978524],
-  ]],
-  ['South West', [
-    [-1.6049213, 50.9762065],
-  ]],
+const CURRENT_KNOWN_ENDPOINT_REMAPS = new Map([
+  ['Central & Wessex', {
+    tip: [-1.602934, 50.978524],
+    root: [-1.619751051433103, 50.958566891040576],
+  }],
+  ['South West', {
+    tip: [-1.6049213, 50.9762065],
+    root: [-1.619751051433103, 50.958566891040576],
+  }],
 ]);
+const CURRENT_BLACKWATER_SPUR_BBOX = {
+  minX: -1.63,
+  minY: 50.95,
+  maxX: -1.6,
+  maxY: 50.98,
+};
 
 fs.mkdirSync(OUTLINES, { recursive: true });
 
@@ -470,23 +478,57 @@ function pruneKnownCurrentSegments(arcFeature, groupName) {
   };
 }
 
-function pruneKnownCurrentComponents(arcFeature, groupName) {
-  const excludedEndpoints = CURRENT_KNOWN_EXCLUDED_ENDPOINTS.get(groupName) ?? [];
-  if (!arcFeature?.geometry || excludedEndpoints.length === 0) {
+function rectifyKnownCurrentComponents(arcFeature, groupName) {
+  const remap = CURRENT_KNOWN_ENDPOINT_REMAPS.get(groupName);
+  if (!arcFeature?.geometry || !remap) {
     return arcFeature;
   }
 
-  const shouldDropComponent = (component) => {
+  const kept = [];
+  for (const component of getLineComponents(arcFeature.geometry)) {
     const first = component[0];
     const last = component[component.length - 1];
-    return excludedEndpoints.some((endpoint) => (
-      pointToSegmentDistance(first, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
-      || pointToSegmentDistance(last, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
-    ));
-  };
+    const firstNearTip = pointToSegmentDistance(first, remap.tip, remap.tip) <= DISSOLVE_REFERENCE_EPSILON;
+    const lastNearTip = pointToSegmentDistance(last, remap.tip, remap.tip) <= DISSOLVE_REFERENCE_EPSILON;
 
-  const kept = getLineComponents(arcFeature.geometry)
-    .filter((component) => !shouldDropComponent(component));
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const [x, y] of component) {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+
+    const isLocalSpurComponent =
+      minX >= CURRENT_BLACKWATER_SPUR_BBOX.minX
+      && maxX <= CURRENT_BLACKWATER_SPUR_BBOX.maxX
+      && minY >= CURRENT_BLACKWATER_SPUR_BBOX.minY
+      && maxY <= CURRENT_BLACKWATER_SPUR_BBOX.maxY;
+
+    const firstNearRoot = pointToSegmentDistance(first, remap.root, remap.root) <= DISSOLVE_REFERENCE_EPSILON;
+    const lastNearRoot = pointToSegmentDistance(last, remap.root, remap.root) <= DISSOLVE_REFERENCE_EPSILON;
+
+    if ((firstNearTip || lastNearTip || firstNearRoot || lastNearRoot) && isLocalSpurComponent) {
+      continue;
+    }
+
+    if (firstNearTip || lastNearTip) {
+      const adjusted = component.map((point) => [...point]);
+      if (firstNearTip) {
+        adjusted[0] = [...remap.root];
+      }
+      if (lastNearTip) {
+        adjusted[adjusted.length - 1] = [...remap.root];
+      }
+      kept.push(adjusted);
+      continue;
+    }
+
+    kept.push(component);
+  }
 
   if (kept.length === 0) {
     return arcFeature;
@@ -893,8 +935,8 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
 
       const cleanedArcFeature =
         presetId === 'current'
-          ? pruneKnownCurrentSegments(
-            pruneKnownCurrentComponents(
+          ? rectifyKnownCurrentComponents(
+            pruneKnownCurrentSegments(
               pruneCurrentSplitInteriorOrphans(
                 arcFeature,
                 splitParentShells,
