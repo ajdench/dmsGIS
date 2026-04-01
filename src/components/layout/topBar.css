@@ -106,6 +106,7 @@
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--topbar-pane-shadow);
+  overflow: visible;
 }
 
 .topbar__pane--brand,
@@ -135,6 +136,39 @@
       var(--topbar-spacer-surface-top) 0%,
       var(--topbar-spacer-surface-bottom) 100%
     );
+}
+
+/* Header text uses small optical Y-offsets; keep it painting above neighboring pane surfaces
+   instead of getting shaved by rounded boxes or adjacent header panes. */
+.topbar__pane--brand,
+.topbar__pane--spacer,
+.topbar-cluster__pane {
+  position: relative;
+  overflow: visible;
+}
+
+.topbar-strip :is(
+    .topbar__spacer-label,
+    .topbar__spacer-practice-summary,
+    .topbar__spacer-practice-name,
+    .topbar__spacer-practice-member,
+    .topbar__spacer-par-grid,
+    .topbar__spacer-par-title,
+    .topbar__spacer-par-value,
+    .topbar-cluster__facility-cell,
+    .topbar-cluster__facility-prefix,
+    .topbar-cluster__facility-value--facility,
+    .topbar-cluster__label,
+    .topbar-cluster__label-prefix,
+    .topbar-cluster__label-name,
+    .topbar-brand__title,
+    .topbar-brand__descriptor,
+    .topbar-brand__descriptor-line,
+    .topbar-brand__subtitle
+  ) {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
 }
 
 .topbar__spacer-label {
