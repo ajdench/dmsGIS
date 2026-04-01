@@ -617,6 +617,18 @@
     cursor: pointer;
   }
 
+  .workspace-bottom-shell__title-card-middle-pill-control--info {
+    background: var(--status-info-bg);
+    border-color: var(--status-info-border);
+    color: var(--status-info-text);
+  }
+
+  .workspace-bottom-shell__title-card-middle-pill-control--info.prototype-metric-pill--button:hover {
+    background: color-mix(in srgb, var(--status-info-bg) 82%, white);
+    border-color: color-mix(in srgb, var(--status-info-border) 88%, var(--status-info-text));
+    color: var(--status-info-text);
+  }
+
   .workspace-bottom-shell__title-card-middle-pill-control .prototype-metric-pill__value {
     display: flex;
     width: 100%;

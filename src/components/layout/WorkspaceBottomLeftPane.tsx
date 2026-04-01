@@ -97,7 +97,7 @@ export function WorkspaceBottomLeftPane() {
                       <ExactMetricPill
                         value={card.middleRow.label}
                         asButton
-                        className="workspace-bottom-shell__title-card-middle-pill-control"
+                        className="workspace-bottom-shell__title-card-middle-pill-control workspace-bottom-shell__title-card-middle-pill-control--info"
                         onClick={() =>
                           setIsRoyalNavyRegionalized((currentValue) => !currentValue)
                         }
