@@ -692,7 +692,10 @@
   }
 
   .map-panel__inner {
-    @apply h-full overflow-hidden;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     position: relative;
     min-height: var(--map-min-height);
     border-radius: var(--radius);
@@ -704,12 +707,23 @@
   }
 
   .map-canvas {
-    @apply h-full w-full;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    position: relative;
     background: var(--map-sea-fill-bg, #d9e7f5);
   }
 
   .map-canvas--initializing {
     opacity: 0;
+  }
+
+  .map-canvas .ol-viewport,
+  .map-canvas .ol-overlaycontainer,
+  .map-canvas .ol-overlaycontainer-stopevent {
+    width: 100%;
+    height: 100%;
   }
 
   .map-canvas .ol-viewport {

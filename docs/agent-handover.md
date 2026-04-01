@@ -1109,6 +1109,12 @@ Recovered by:
   - `.sidebar`
   - `.map-panel`
   - `.panel`
+- then hardening the map container sizing explicitly for:
+  - `.map-panel__inner`
+  - `.map-canvas`
+  - `.map-canvas .ol-viewport`
+  - `.map-canvas .ol-overlaycontainer`
+  - `.map-canvas .ol-overlaycontainer-stopevent`
 
 Verified on the live dev app:
 
@@ -1117,6 +1123,7 @@ Verified on the live dev app:
 - no `Error:` banner after settle
 - no `No regions loaded.` banner after settle
 - map left / sidebar right / bottom row aligned correctly again
+- OpenLayers viewport and zoom controls render at full pane height again
 
 Recovery note:
 

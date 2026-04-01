@@ -74,6 +74,25 @@ Recovered by replacing layout-critical `@apply` usage with explicit CSS declarat
 - `.map-panel`
 - `.panel`
 
+### 5. Map canvas height inheritance was still broken after shell recovery
+
+After the shell grid was restored, the map pane and sidebar matched again, but the OpenLayers viewport still rendered at `0px` height.
+
+Observed live:
+
+- `.map-panel` had the correct full pane height
+- `.map-panel__inner` had collapsed to its fallback `min-height`
+- `.ol-viewport` and `.ol-overlaycontainer-stopevent` were both `0px` high
+- zoom controls existed, but the map content itself was not visible
+
+Recovered by hardening explicit map container sizing for:
+
+- `.map-panel__inner`
+- `.map-canvas`
+- `.map-canvas .ol-viewport`
+- `.map-canvas .ol-overlaycontainer`
+- `.map-canvas .ol-overlaycontainer-stopevent`
+
 ## Verification
 
 Verified in the main repo:
@@ -88,6 +107,8 @@ Live browser verification against `http://127.0.0.1:5174/dmsGIS/` confirmed:
 - no `Error:` banner after settle
 - no `No regions loaded.` banner after settle
 - shell grid restored with map left / sidebar right / bottom row aligned correctly
+- OpenLayers viewport and zoom controls now render at full map height
+- settled live screenshot showed normal map rendering with facility points and sidebar controls present
 
 The only remaining console noise in headless checks was:
 
