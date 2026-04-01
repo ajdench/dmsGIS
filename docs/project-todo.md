@@ -21,6 +21,15 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Notes:** Keep the better interim state that at least shows the whole intended world crop in the pane. When this is revived, measure the actual rendered world floor against the live map pane and solve it at the OpenLayers `View` constraint seam (`center` / `resolution` / floor extent), not by stacking more zoom-pane diagnostics. No wrap remains the intended behavior. Extra map diagnostics can stay available programmatically through `window.__dmsGISMapDiagnostics`, but the zoom pane itself should stay visually minimal.
 **Files likely touched:** `src/features/map/mapWorkspaceLifecycle.ts`, `src/features/map/MapWorkspace.tsx`, any future world-floor helper or fit-contract note.
 
+### 29. Decide how correction-adjusted PAR should surface in the below-map cards
+
+**Area:** Workspace bottom cards / PAR presentation / product semantics
+**Priority:** High
+**What:** Decide how the new header-level `Correction` PAR logic should be represented in the below-map cards and any related total displays.
+**Why:** The top-bar PAR pane now uses real correction math: selected contribution is `Region + Baseport`, correction is that contribution's share of the overall visible PAR total applied to a fixed `8500` base, and the displayed top-bar total now includes correction. The below-map cards still present raw PAR values, so the product now needs an explicit rule for whether those cards remain raw, gain an adjusted secondary line, or switch to adjusted totals in some scoped way.
+**Notes:** Recommended next step is to keep each region card's primary number as raw PAR for now and prototype adjusted presentation only as a secondary treatment or on the bottom-row total card first. Avoid immediately folding correction into every region card headline value, because that will make regionalisation and cross-card reconciliation harder to read. If this is later promoted, define one canonical "raw vs adjusted" contract first and use it consistently across header, cards, and any saved/exported summaries.
+**Files likely touched:** `src/lib/workspaceBottomCards.ts`, `src/components/layout/WorkspaceBottomLeftPane.tsx`, related tests in `tests/workspaceBottomCards.test.ts` and `tests/WorkspaceBottomLeftPane.test.ts`, plus any handover/baseline docs that lock the chosen presentation.
+
 ### 26. Collapse Playground Region authority onto one runtime assignment source
 
 **Area:** Scenario runtime / Playground / map selection and styling
