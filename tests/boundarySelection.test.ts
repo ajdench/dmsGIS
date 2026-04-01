@@ -127,7 +127,7 @@ describe('boundarySelection', () => {
     ).toBe('COA 3b Midlands');
   });
 
-  it('keeps ward-split boundary hits on the clicked split feature', () => {
+  it('collapses ward-split boundary hits back to the full parent board while preserving clicked region', () => {
     const regionFillFeature = new Feature({
       boundary_code: 'E54000042',
       boundary_name: 'Parent board',
@@ -178,8 +178,9 @@ describe('boundarySelection', () => {
     );
 
     expect(matched).not.toBeNull();
-    expect(matched).toBe(wardSplitFeature);
+    expect(matched).not.toBe(wardSplitFeature);
     expect(matched?.get('boundary_code')).toBe('E54000042');
+    expect(matched?.get('selection_region_ref')).toBe('Central & Wessex');
     expect(matched?.get('region_ref')).toBe('Central & Wessex');
   });
 

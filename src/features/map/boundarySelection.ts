@@ -59,6 +59,7 @@ export function findCareBoardBoundaryAtCoordinate(
   overlayLayers: OverlayLayerStyle[],
   overlayLayerRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
 ): Feature | null {
+  const regionFillSource = overlayLayerRefs.get('regionFill')?.getSource() ?? null;
   const orderedOverlayLayers = [...overlayLayers].sort((a, b) => {
     const aPriority = a.family === 'wardSplitFill' ? 0 : 1;
     const bPriority = b.family === 'wardSplitFill' ? 0 : 1;
@@ -75,7 +76,7 @@ export function findCareBoardBoundaryAtCoordinate(
       .getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
     if (hit) {
-      return hit;
+      return resolveSplitBoundaryParentFeature(hit, regionFillSource) ?? hit;
     }
   }
 
@@ -98,6 +99,35 @@ export function findBoundaryHighlightFeatureForPointCoordinate(
 
 const _geoJsonFormat = new GeoJSON({ featureProjection: 'EPSG:3857' });
 const CURRENT_OUTLINE_SNAP_DECIMALS = 5;
+
+function resolveSplitBoundaryParentFeature(
+  feature: Feature,
+  regionFillSource: VectorSource | null,
+): Feature | null {
+  const parentCode = String(feature.get('parent_code') ?? '').trim();
+  if (!parentCode || !regionFillSource) {
+    return null;
+  }
+
+  const parentFeature =
+    regionFillSource
+      .getFeatures()
+      .find((candidate) => String(candidate.get('boundary_code') ?? '').trim() === parentCode) ??
+    null;
+  if (!parentFeature) {
+    return null;
+  }
+
+  const splitRegionRef = String(feature.get('region_ref') ?? '').trim();
+  const clonedParent = parentFeature.clone();
+  if (splitRegionRef) {
+    clonedParent.set('selection_region_ref', splitRegionRef);
+    clonedParent.set('region_ref', splitRegionRef);
+  }
+  clonedParent.set('selection_parent_code', parentCode);
+  clonedParent.set('selected_split_boundary_code', String(feature.get('boundary_code') ?? '').trim());
+  return clonedParent;
+}
 
 /**
  * Async-loads the pre-computed exterior arc GeoJSON for a group and returns
