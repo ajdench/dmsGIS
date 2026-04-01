@@ -101,7 +101,6 @@ import {
 import { getStyleForLayer } from './facilityLayerStyles';
 import {
   createPointSymbol,
-  getNonCombinedPointInset,
   withOpacity,
 } from './mapStyleUtils';
 import {
@@ -1158,6 +1157,9 @@ export function MapWorkspace() {
       overlayLayers,
       layerRefs: layerRefs.current,
       regionBoundaryRefs: regionBoundaryRefs.current,
+      combinedPracticeStylesByName: new Map(
+        combinedPracticeStyles.map((practice) => [practice.name, practice]),
+      ),
       facilitySymbolShape,
       facilitySymbolSize,
       facilityFilters,
@@ -1604,6 +1606,9 @@ export function MapWorkspace() {
         overlayLayers,
         layerRefs: layerRefs.current,
         regionBoundaryRefs: regionBoundaryRefs.current,
+        combinedPracticeStylesByName: new Map(
+          combinedPracticeStyles.map((practice) => [practice.name, practice]),
+        ),
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
@@ -1875,7 +1880,7 @@ function createEstimatedSelectedPointStyle(entry: PointTooltipEntry): Style[] {
     fillColor: 'rgba(0, 0, 0, 0)',
     borderColor: 'rgba(0, 0, 0, 0)',
     borderWidth: entry.hasVisibleBorder ? 1 : 0,
-    baseShapeInset: entry.hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(entry.symbolSize),
+    baseShapeInset: 0,
     outerRingColor: entry.hasCombinedPracticeRing ? '#000000' : undefined,
     outerRingGap: 0,
     outerRingWidth: entry.hasCombinedPracticeRing ? 1 : 0,

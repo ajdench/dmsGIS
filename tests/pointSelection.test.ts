@@ -250,6 +250,19 @@ describe('pointSelection', () => {
       facilityFilters: {
         searchQuery: '',
       },
+      combinedPracticeStylesByName: new Map([
+        [
+          'Portsmouth Combined Medical Practice',
+          {
+            name: 'Portsmouth Combined Medical Practice',
+            displayName: 'Portsmouth',
+            visible: true,
+            borderColor: '#0f766e',
+            borderWidth: 1,
+            borderOpacity: 1,
+          },
+        ],
+      ]),
     });
 
     expect(entries[0]?.hasCombinedPracticeRing).toBe(true);
@@ -294,6 +307,7 @@ describe('pointSelection', () => {
           },
         ],
       ]),
+      new Map(),
       'circle',
       3.5,
       {
@@ -341,6 +355,7 @@ describe('pointSelection', () => {
           },
         ],
       ]),
+      new Map(),
       'circle',
       3.5,
       {

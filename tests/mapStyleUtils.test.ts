@@ -2,18 +2,14 @@ import { describe, expect, it } from 'vitest';
 import {
   getCombinedPracticeRingGap,
   getCombinedPracticeRingWidth,
-  getNonCombinedPointInset,
   getPointSymbolCanvasPadding,
 } from '../src/features/map/mapStyleUtils';
 import { getPointPresentationOuterDistance } from '../src/features/map/pointPresentation';
 
 describe('mapStyleUtils', () => {
-  it('keeps non-combined points aligned to the combined-ring midpoint', () => {
+  it('keeps the combined-practice ring contract stable', () => {
     const size = 3.5;
-    expect(getNonCombinedPointInset(3.5)).toBeCloseTo(
-      getCombinedPracticeRingWidth(3.5) / 2,
-      3,
-    );
+    expect(getCombinedPracticeRingWidth(size)).toBeGreaterThan(0);
     expect(getCombinedPracticeRingGap(size)).toBe(0);
   });
 

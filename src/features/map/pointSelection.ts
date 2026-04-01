@@ -7,18 +7,18 @@ import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
-import { getTrueCombinedPracticeName } from '../../lib/combinedPractices';
 import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
-import {
-  getCombinedPracticeRingWidth,
-  getNonCombinedPointInset,
-} from './mapStyleUtils';
 import type {
+  CombinedPracticeStyle,
   FacilitySymbolShape,
   RegionStyle,
   ViewPresetId,
 } from '../../types';
+import {
+  getRenderedPointPixelRadiusFromPresentation,
+  resolvePointPresentation,
+} from './pointPresentation';
 
 export interface PointTooltipEntry {
   facilityId: string;
@@ -84,6 +84,7 @@ export function getDirectPointHitsAtPixel(
   pixel: number[],
   pointLayers: Set<VectorLayer<VectorSource>>,
   regionsByName: Map<string, RegionStyle>,
+  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: FacilityFilterState,
@@ -117,6 +118,7 @@ export function getDirectPointHitsAtPixel(
     const radius = getPointSelectionRadius(
       feature,
       regionsByName,
+      combinedPracticeStylesByName,
       facilitySymbolShape,
       facilitySymbolSize,
       filterDefinitions,
@@ -131,6 +133,7 @@ export function expandPointHitCluster(
   seedFeatures: FeatureLike[],
   pointLayers: Set<VectorLayer<VectorSource>>,
   regionsByName: Map<string, RegionStyle>,
+  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   clickPixel: number[],
@@ -142,6 +145,7 @@ export function expandPointHitCluster(
     map,
     pointLayers,
     regionsByName,
+    combinedPracticeStylesByName,
     facilitySymbolShape,
     facilitySymbolSize,
     filterDefinitions,
@@ -153,12 +157,13 @@ export function expandPointHitCluster(
 
   for (const feature of seedFeatures) {
     const candidate = getPointSelectionCandidate(
-      map,
-      feature,
-      regionsByName,
-      facilitySymbolShape,
-      facilitySymbolSize,
-      filterDefinitions,
+        map,
+        feature,
+        regionsByName,
+        combinedPracticeStylesByName,
+        facilitySymbolShape,
+        facilitySymbolSize,
+        filterDefinitions,
       assignmentSource,
     );
     if (!candidate || selected.has(candidate.key)) continue;
@@ -213,6 +218,7 @@ export function collectPointTooltipEntries(params: {
     activeViewPreset: ViewPresetId,
   ) => string | null;
   facilityFilters: FacilityFilterState;
+  combinedPracticeStylesByName?: Map<string, CombinedPracticeStyle>;
   assignmentSource?: VectorSource | null;
   scenarioAssignmentSource?: VectorSource | null;
 }): PointTooltipEntry[] {
@@ -224,6 +230,7 @@ export function collectPointTooltipEntries(params: {
     getBoundaryNameAtCoordinate,
     getJmcNameAtCoordinate,
     facilityFilters,
+    combinedPracticeStylesByName = new Map<string, CombinedPracticeStyle>(),
     assignmentSource = null,
     scenarioAssignmentSource = null,
   } = params;
@@ -259,12 +266,14 @@ export function collectPointTooltipEntries(params: {
         : getJmcNameAtCoordinate(coordinate, activeViewPreset);
     const regionName = facility.region;
     const regionStyle = regionsByName.get(regionName);
-    const hasVisibleBorder =
-      (regionStyle?.borderVisible ?? true) &&
-      (regionStyle?.borderOpacity ?? 1) > 0.01;
-    const hasCombinedPracticeRing = !!getTrueCombinedPracticeName(facility);
-    const symbolShape = regionStyle?.shape ?? 'circle';
-    const symbolSize = regionStyle?.symbolSize ?? 3.5;
+    const pointPresentation = resolvePointPresentation({
+      feature,
+      regions: regionsByName,
+      combinedPracticeStyles: combinedPracticeStylesByName,
+      symbolShape: regionStyle?.shape ?? 'circle',
+      symbolSize: regionStyle?.symbolSize ?? 3.5,
+      assignmentSource,
+    });
     const key = `${name}:${coordinate[0].toFixed(3)}:${coordinate[1].toFixed(3)}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -273,10 +282,10 @@ export function collectPointTooltipEntries(params: {
       facilityName: name,
       coordinate,
       boundaryName,
-      hasVisibleBorder,
-      hasCombinedPracticeRing,
-      symbolShape,
-      symbolSize,
+      hasVisibleBorder: pointPresentation.borderWidth > 0,
+      hasCombinedPracticeRing: pointPresentation.outerRingWidth > 0,
+      symbolShape: pointPresentation.shape,
+      symbolSize: pointPresentation.size,
       jmcName,
       scenarioRegionId,
     });
@@ -306,6 +315,7 @@ function collectVisiblePointCandidates(
   map: OLMap,
   pointLayers: Set<VectorLayer<VectorSource>>,
   regionsByName: Map<string, RegionStyle>,
+  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
@@ -332,6 +342,7 @@ function collectVisiblePointCandidates(
         map,
         feature,
         regionsByName,
+        combinedPracticeStylesByName,
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
@@ -350,6 +361,7 @@ function getPointSelectionCandidate(
   map: OLMap,
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
+  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
@@ -367,6 +379,7 @@ function getPointSelectionCandidate(
   const radius = getPointSelectionRadius(
     feature,
     regionsByName,
+    combinedPracticeStylesByName,
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
@@ -410,6 +423,7 @@ function isPointFeatureSelectable(
 function getPointSelectionRadius(
   feature: FeatureLike,
   regionsByName: Map<string, RegionStyle>,
+  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
   facilitySymbolShape: FacilitySymbolShape,
   facilitySymbolSize: number,
   facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
@@ -422,27 +436,16 @@ function getPointSelectionRadius(
 
   const regionName = facility.region;
   const regionStyle = regionsByName.get(regionName);
-  const symbolSize = regionStyle?.symbolSize ?? facilitySymbolSize;
-  const symbolShape = regionStyle?.shape ?? facilitySymbolShape;
-  const borderVisible = regionStyle?.borderVisible ?? true;
-  const borderOpacity = regionStyle?.borderOpacity ?? 1;
-  const borderWidth =
-    borderVisible && borderOpacity > 0.01 ? (regionStyle?.borderWidth ?? 1) : 0;
-  const hasCombinedPracticeRing = Boolean(getTrueCombinedPracticeName(facility));
-  const baseShapeInset = hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(symbolSize);
-  const outerRingWidth = hasCombinedPracticeRing
-    ? borderWidth > 0
-      ? 0
-      : getCombinedPracticeRingWidth(symbolSize)
-    : 0;
+  const pointPresentation = resolvePointPresentation({
+    feature,
+    regions: regionsByName,
+    combinedPracticeStyles: combinedPracticeStylesByName,
+    symbolShape: regionStyle?.shape ?? facilitySymbolShape,
+    symbolSize: regionStyle?.symbolSize ?? facilitySymbolSize,
+    assignmentSource,
+  });
 
-  return getRenderedPointPixelRadius(
-    symbolShape,
-    symbolSize,
-    borderWidth,
-    baseShapeInset,
-    outerRingWidth,
-  );
+  return getRenderedPointPixelRadiusFromPresentation(pointPresentation);
 }
 
 function pointCandidatesOverlap(
@@ -453,27 +456,4 @@ function pointCandidatesOverlap(
   const dy = a.pixel[1] - b.pixel[1];
   const distance = Math.hypot(dx, dy);
   return distance <= a.radius + b.radius + 0.75;
-}
-
-function getRenderedPointPixelRadius(
-  shape: FacilitySymbolShape,
-  size: number,
-  borderWidth: number,
-  baseShapeInset: number,
-  outerRingWidth: number,
-): number {
-  const hasVisibleOuterBorder = borderWidth > 0;
-  if (shape === 'circle') {
-    return hasVisibleOuterBorder ? size + outerRingWidth : size - baseShapeInset + outerRingWidth;
-  }
-
-  if (shape === 'square' || shape === 'diamond') {
-    return hasVisibleOuterBorder
-      ? size * 1.05 + outerRingWidth
-      : size * 1.05 - baseShapeInset + outerRingWidth;
-  }
-
-  return hasVisibleOuterBorder
-    ? size * 1.15 + outerRingWidth
-    : size * 1.15 - baseShapeInset + outerRingWidth;
 }

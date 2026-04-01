@@ -143,29 +143,9 @@ export function getCombinedPracticeRingWidth(size: number): number {
   return Math.max(1, Math.min(2.5, size * 0.35));
 }
 
-export function getNonCombinedPointInset(size: number): number {
-  return getCombinedPracticeRingWidth(size) / 2;
-}
-
 export function getCombinedPracticeRingGap(size: number): number {
   void size;
   return 0;
-}
-
-export function getSelectedPointHighlightOffset(
-  size: number,
-  hasVisibleBorder: boolean,
-  hasCombinedPracticeRing: boolean,
-): number {
-  if (hasCombinedPracticeRing) {
-    return (
-      getCombinedPracticeRingGap(size) +
-      getCombinedPracticeRingWidth(size) +
-      (hasVisibleBorder ? 1 : 0)
-    );
-  }
-
-  return getNonCombinedPointInset(size) + (hasVisibleBorder ? 1 : 0);
 }
 
 /**

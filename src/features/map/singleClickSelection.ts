@@ -10,6 +10,7 @@ import {
   type PointTooltipEntry,
 } from './pointSelection';
 import type {
+  CombinedPracticeStyle,
   FacilitySymbolShape,
   LayerState,
   OverlayLayerStyle,
@@ -27,6 +28,7 @@ interface ResolveSingleClickSelectionParams {
   overlayLayers: OverlayLayerStyle[];
   layerRefs: Map<string, VectorLayer<VectorSource>>;
   regionBoundaryRefs: Map<string, VectorLayer<VectorSource>>;
+  combinedPracticeStylesByName?: Map<string, CombinedPracticeStyle>;
   facilitySymbolShape: FacilitySymbolShape;
   facilitySymbolSize: number;
   facilityFilters: FacilityFilterState;
@@ -56,6 +58,7 @@ export function resolveSingleClickSelection(
     overlayLayers,
     layerRefs,
     regionBoundaryRefs,
+    combinedPracticeStylesByName = new Map<string, CombinedPracticeStyle>(),
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
@@ -71,6 +74,7 @@ export function resolveSingleClickSelection(
     pixel,
     pointLayers,
     visibleRegions,
+    combinedPracticeStylesByName,
     facilitySymbolShape,
     facilitySymbolSize,
     facilityFilters,
@@ -83,6 +87,7 @@ export function resolveSingleClickSelection(
       hitFeatures,
       pointLayers,
       visibleRegions,
+      combinedPracticeStylesByName,
       facilitySymbolShape,
       facilitySymbolSize,
       pixel,
@@ -106,6 +111,7 @@ export function resolveSingleClickSelection(
         },
         getJmcNameAtCoordinate,
         facilityFilters,
+        combinedPracticeStylesByName,
         assignmentSource,
         scenarioAssignmentSource,
       }),

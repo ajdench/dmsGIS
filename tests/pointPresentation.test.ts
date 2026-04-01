@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
 import { getCombinedPracticeRingWidth } from '../src/features/map/mapStyleUtils';
-import { getPointPresentationOuterDistance } from '../src/features/map/pointPresentation';
+import {
+  getPointPresentationOuterDistance,
+  resolvePointPresentation,
+} from '../src/features/map/pointPresentation';
 
 describe('pointPresentation', () => {
   it('keeps the selected halo flush with a plain point edge', () => {
@@ -11,7 +16,7 @@ describe('pointPresentation', () => {
         fillColor: 'rgba(65, 150, 50, 1)',
         borderColor: 'rgba(0, 0, 0, 0)',
         borderWidth: 0,
-        baseShapeInset: 0.6125,
+        baseShapeInset: 0,
         outerRingGap: 0,
         outerRingWidth: 0,
         outerRingPlacement: 'outside',
@@ -27,7 +32,7 @@ describe('pointPresentation', () => {
         fillColor: 'rgba(65, 150, 50, 1)',
         borderColor: 'rgba(255, 255, 255, 1)',
         borderWidth: 2,
-        baseShapeInset: 0.6125,
+        baseShapeInset: 0,
         outerRingGap: 0,
         outerRingWidth: 0,
         outerRingPlacement: 'inside',
@@ -67,5 +72,74 @@ describe('pointPresentation', () => {
         outerRingPlacement: 'inside',
       }),
     ).toBeCloseTo(ringWidth + 1, 3);
+  });
+
+  it('keeps plain points at their true size until a visible combined treatment is active', () => {
+    const plainFeature = new Feature({
+      geometry: new Point([0, 0]),
+      id: 'FAC-1',
+      name: 'Plain Facility',
+      region: 'North',
+      type: 'pmc-facility',
+      default_visible: true,
+      point_color_hex: '#a7c636',
+    });
+    const combinedFeature = new Feature({
+      geometry: new Point([0, 0]),
+      id: 'FAC-2',
+      name: 'Combined Facility',
+      combined_practice: 'Portsmouth Combined Medical Practice',
+      region: 'North',
+      type: 'pmc-facility',
+      default_visible: true,
+      point_color_hex: '#a7c636',
+    });
+    const regions = new Map([
+      [
+        'North',
+        {
+          name: 'North',
+          visible: true,
+          color: '#a7c636',
+          opacity: 1,
+          shape: 'circle' as const,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          borderOpacity: 0.5,
+          symbolSize: 3.5,
+        },
+      ],
+    ]);
+
+    const plainPresentation = resolvePointPresentation({
+      feature: plainFeature,
+      regions,
+      combinedPracticeStyles: new Map(),
+      symbolShape: 'circle',
+      symbolSize: 3.5,
+    });
+    const combinedPresentation = resolvePointPresentation({
+      feature: combinedFeature,
+      regions,
+      combinedPracticeStyles: new Map([
+        [
+          'Portsmouth Combined Medical Practice',
+          {
+            name: 'Portsmouth Combined Medical Practice',
+            displayName: 'Portsmouth',
+            visible: true,
+            borderColor: '#0f766e',
+            borderWidth: 1,
+            borderOpacity: 1,
+          },
+        ],
+      ]),
+      symbolShape: 'circle',
+      symbolSize: 3.5,
+    });
+
+    expect(plainPresentation.baseShapeInset).toBe(0);
+    expect(combinedPresentation.baseShapeInset).toBeGreaterThan(0);
   });
 });

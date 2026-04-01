@@ -175,7 +175,7 @@ describe('facilityLayerStyles', () => {
     expect(createPointSymbolMock).toHaveBeenCalledTimes(1);
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingColor).toBeUndefined();
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingWidth).toBe(0);
-    expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.baseShapeInset).toBeGreaterThan(0);
+    expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.baseShapeInset).toBe(0);
   });
 
   it('returns undefined when a facility does not match active filters', () => {

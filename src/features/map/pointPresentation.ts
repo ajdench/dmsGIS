@@ -12,7 +12,6 @@ import {
   blendWithWhite,
   getCombinedPracticeRingGap,
   getCombinedPracticeRingWidth,
-  getNonCombinedPointInset,
   withOpacity,
 } from './mapStyleUtils';
 
@@ -91,7 +90,7 @@ export function resolvePointPresentation(
       ? borderWidth > 0
         ? outerRingGap + outerRingWidth
         : 0
-      : getNonCombinedPointInset(size);
+      : 0;
 
   return {
     shape,
@@ -127,4 +126,22 @@ export function getPointPresentationOuterDistance(
     outerRingWidth > 0 ? outerRingGap + outerRingWidth : 0;
 
   return Math.max(0, borderOutsideDistance, ringOutsideDistance);
+}
+
+export function getRenderedPointPixelRadiusFromPresentation(
+  presentation: ResolvedPointPresentation,
+): number {
+  const { shape, size, baseShapeInset } = presentation;
+  const innerRadius = Math.max(0, size - baseShapeInset);
+  const outsideDistance = getPointPresentationOuterDistance(presentation);
+
+  if (shape === 'circle') {
+    return innerRadius + outsideDistance;
+  }
+
+  if (shape === 'square' || shape === 'diamond') {
+    return innerRadius * 1.05 + outsideDistance;
+  }
+
+  return innerRadius * 1.15 + outsideDistance;
 }
