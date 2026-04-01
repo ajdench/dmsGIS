@@ -7,6 +7,16 @@ Use this document as the first read for any new Codex, Claude Code, or similar c
 Current repo-wide assessment note:
 
 - `docs/main-repo-review-2026-03-31.md`
+- `docs/recovery-state-2026-04-01-main-repo.md`
+
+Current repo-recovery note:
+
+- on 1 April 2026, active work crossed between the real main repo at `/Users/andrew/Projects/dmsGIS` and the separate iCloud checkout under `Library/Mobile Documents/.../dmsGIS`
+- treat `docs/recovery-state-2026-04-01-main-repo.md` as the canonical record of:
+  - the local commit line above GitHub `main`
+  - the detached-HEAD state in the main repo
+  - the fact that `jj` history remained intact
+  - the fact that the iCloud checkout does not currently carry the same Facilities / Combined Practices runtime surface
 
 Current runtime-product governance note:
 

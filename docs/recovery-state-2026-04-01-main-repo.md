@@ -1,5 +1,14 @@
 # Recovery State — 2026-04-01
 
+This note records the recovery state for the canonical repo at:
+
+- `/Users/andrew/Projects/dmsGIS`
+
+It exists to prevent further confusion between:
+
+- the canonical production repo
+- the separate iCloud checkout at `/Users/andrew/Library/Mobile Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS`
+
 ## Canonical repo
 
 The canonical working repo is:
@@ -93,9 +102,143 @@ Recovered by hardening explicit map container sizing for:
 - `.map-canvas .ol-overlaycontainer`
 - `.map-canvas .ol-overlaycontainer-stopevent`
 
+## Saved local line since the last GitHub commit
+
+The last merged GitHub `main` commit is:
+
+- `47c58fbb`
+
+The preserved local feature/styling line that had existed above it was:
+
+1. `75699754` `Keep combined and non-combined point diameters aligned`
+2. `e3080e96` `Update split parent highlight test to current contract`
+3. `65f14429` `Preserve PMC point presentation across preset switches`
+4. `483453c8` `Set plain point size to combined-ring midpoint`
+5. `5e3907ea` `Show PAR region summary for boundary selections`
+6. `8aa36c2b` `Separate Aldershot Winchester and Bovington defaults`
+7. `3e6aa1a9` `Style Royal Navy regionalize control with info blue`
+8. `a89affaa` `Fix PMC point border defaults and outer border geometry`
+9. `423ff0dc` `Move PMC point border and ring geometry outside fill`
+10. `ca96a1ce` `Correct PMC outer border geometry to wrap outward`
+11. `f51e69c2` `Make PMC point borders grow outward from outer edge`
+
+The later main-repo recovery commits were:
+
+12. `09c01391` `Recover main repo runtime asset loading and shell layout`
+13. `48058e75` `Finish main repo recovery with map viewport height fix`
+
+## Change summary by area
+
+### PMC point rendering and sizing
+
+The largest local change area is PMC point rendering.
+
+Relevant commits:
+
+- `75699754`
+- `483453c8`
+- `a89affaa`
+- `423ff0dc`
+- `ca96a1ce`
+- `f51e69c2`
+
+Main touched files:
+
+- `src/features/map/mapStyleUtils.ts`
+- `src/features/map/facilityLayerStyles.ts`
+- `src/features/map/pointSelection.ts`
+- `tests/mapStyleUtils.test.ts`
+- `tests/facilityLayerStyles.test.ts`
+
+Intent of those changes:
+
+- keep non-combined point size aligned with the combined-practice ring contract
+- move point border/ring geometry outside the fill
+- refine default border behavior
+- keep point hit-radius logic aligned with rendered point geometry
+
+### Preset switching / facility presentation persistence
+
+Relevant commit:
+
+- `65f14429`
+
+Main touched files:
+
+- `src/store/appStore.ts`
+- `tests/appStore.test.ts`
+- `docs/agent-handover.md`
+
+Intent:
+
+- preset/workspace switching should clear transient selection state
+- PMC point presentation state should persist across `Current`, `SJC JMC`, `COA 3a`, `COA 3b`, and Playground
+
+### PAR header behavior for boundary selection
+
+Relevant commit:
+
+- `5e3907ea`
+
+Main touched files:
+
+- `src/features/map/facilityPar.ts`
+- `src/features/map/MapWorkspace.tsx`
+- `tests/facilityPar.test.ts`
+- `tests/TopBar.test.ts`
+- `docs/agent-handover.md`
+
+Intent:
+
+- when an `ICB / Health Board` is selected without an active facility point selection, show `Region`, `Baseport`, and `Total` in the PAR header pane
+
+### Combined-practice defaults
+
+Relevant commit:
+
+- `8aa36c2b`
+
+Main touched files:
+
+- `src/lib/combinedPractices.ts`
+- `tests/combinedPractices.test.ts`
+
+Intent:
+
+- separate the Aldershot, Winchester, and Bovington default combined-practice handling
+
+### Royal Navy control color
+
+Relevant commit:
+
+- `3e6aa1a9`
+
+Main touched files:
+
+- `src/components/layout/WorkspaceBottomLeftPane.tsx`
+- `src/styles/global.css`
+
+Intent:
+
+- apply the blue info/toast color treatment to the `Regionalise / Unregionalise` control without changing its shape
+
+### Split-parent highlight test adjustment
+
+Relevant commit:
+
+- `e3080e96`
+
+Main touched file:
+
+- `tests/selectionHighlights.test.ts`
+
+Intent:
+
+- update the split-parent highlight test to match the current approved selection contract
+
 ## Verification
 
-Verified in the main repo:
+Verified in the canonical main repo:
 
 - `npm run test -- --run tests/runtimeAssetUrls.test.ts tests/layersService.test.ts tests/overlayLookupBootstrap.test.ts tests/overlayBoundaryReconciliation.test.ts tests/runtimeMapProducts.test.ts tests/boundarySystems.test.ts tests/scenarioWorkspaces.test.ts`
 - `npm run build`
@@ -110,23 +253,20 @@ Live browser verification against `http://127.0.0.1:5174/dmsGIS/` confirmed:
 - OpenLayers viewport and zoom controls now render at full map height
 - settled live screenshot showed normal map rendering with facility points and sidebar controls present
 
-The only remaining console noise in headless checks was:
+## Has JJ been affected?
 
-- OpenLayers warning during initial zero-size mount before the map container settles
+No evidence suggests that `jj` history itself was damaged.
 
-This did not block the recovered runtime.
+What was observed in the canonical repo:
 
-## iCloud checkout status
+- `jj` history remained present and usable
+- the working copy was clean
+- the actual failure was repo-path confusion plus real runtime/layout regressions
 
-The iCloud repo is not the authoritative runtime repo.
+The practical problem was:
 
-It currently appears to contain:
-
-- detached `HEAD`
-- a docs-only unique commit line around Datawrapper provenance
-- `.vite` cache/deps noise in working copy
-
-Do not continue production work there unless intentionally recovering that docs-only line.
+- work later in the thread was accidentally continued in the separate iCloud checkout
+- the canonical repo then needed runtime/layout recovery after the swap was undone
 
 ## Practical rule
 
