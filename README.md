@@ -50,6 +50,7 @@ npm run build
 npm run lint
 npm run test
 npm run test:e2e
+npm run refresh:facilities
 jj status
 ```
 
@@ -89,6 +90,39 @@ npm run build
 - the accepted runtime family currently resolves under:
   - [`public/data/compare/shared-foundation-review/`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review)
 - legacy public file names are still used in places as stable app/runtime contracts while underlying source lineage is improved behind them
+
+## Facilities Refresh Workflow
+
+- canonical facilities source input:
+  - `Export_30_Mar_26.csv`
+- canonical generated facilities artifact:
+  - [`public/data/facilities/facilities.geojson`](/Users/andrew/Projects/dmsGIS/public/data/facilities/facilities.geojson)
+- accepted runtime facilities artifact currently consumed by the live app token:
+  - [`public/data/compare/shared-foundation-review/facilities/facilities.geojson`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review/facilities/facilities.geojson)
+
+Use this command when the facilities export changes:
+
+```bash
+npm run refresh:facilities
+```
+
+What it does:
+
+- imports the canonical export CSV into `public/data/facilities/facilities.geojson`
+- enriches facilities with boundary-code metadata
+- rebuilds the accepted `shared-foundation-review` runtime family so the live app stays aligned
+- prints a validation summary for:
+  - counts
+  - PAR totals
+  - duplicate ids
+  - shared `active_dmicp_id` groups
+
+Optional:
+
+```bash
+node scripts/refresh-facilities-from-export.mjs --input /absolute/path/to/new-export.csv
+node scripts/refresh-facilities-from-export.mjs --skip-accepted-runtime-rebuild
+```
 
 ## Recommended Read Order For A New Coding Session
 

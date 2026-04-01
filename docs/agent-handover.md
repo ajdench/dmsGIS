@@ -130,6 +130,23 @@ Current facilities dataset note:
 - runtime point styling and direct point-hit selection must both honor `default_visible = 0`; a visible PMC region must not resurrect closed facilities
 - `Royal Navy` is now a production PMC region and uses `#000080`
 - one documented coordinate override exists for `Nairobi Medical Centre` because the replacement CSV omits its coordinates
+- facilities refresh is now meant to follow one explicit preprocessing-owned path:
+  1. canonical CSV input
+  2. `scripts/import-facilities-csv.mjs`
+  3. `scripts/enrich-facilities.mjs`
+  4. accepted runtime-family rebuild through `scripts/build-shared-foundation-review-family.mjs`
+- operator-facing wrapper command:
+  - `npm run refresh:facilities`
+- wrapper script:
+  - `scripts/refresh-facilities-from-export.mjs`
+- the wrapper prints validation summaries for:
+  - counts
+  - PAR totals
+  - duplicate `id` groups
+  - shared `active_dmicp_id` groups
+- current facilities source-of-truth rule:
+  - do not hand-edit `public/data/compare/shared-foundation-review/facilities/facilities.geojson` as the primary update path
+  - refresh from the export and rebuild the accepted runtime family instead
 
 Current Exact-sidebar convention note:
 
