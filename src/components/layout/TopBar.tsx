@@ -1,6 +1,7 @@
 import './topBar.css';
 import { Fragment, useState } from 'react';
 import { exportCurrentMapView } from '../../features/export/exportCurrentMapView';
+import { isDphcEstimateCoaPlaygroundWorkspaceId } from '../../lib/config/scenarioWorkspaces';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
 import { useAppStore } from '../../store/appStore';
 
@@ -145,7 +146,8 @@ export function TopBar() {
   const openSavedViewsDialog = useAppStore((state) => state.openSavedViewsDialog);
   const resetActiveViewPreset = useAppStore((state) => state.resetActiveViewPreset);
   const setNotice = useAppStore((state) => state.setNotice);
-  const activeStandardViewPreset = useAppStore((state) => state.activeStandardViewPreset);
+  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
+  const activeScenarioWorkspaceId = useAppStore((state) => state.activeScenarioWorkspaceId);
   const activateViewPreset = useAppStore((state) => state.activateViewPreset);
   const requestFacilitySelection = useAppStore((state) => state.requestFacilitySelection);
   const selectedBoundaryName = useAppStore((state) => state.selection.boundaryName);
@@ -166,6 +168,7 @@ export function TopBar() {
     pointTooltipDisplay.pageCount > 0
       ? `${pointTooltipDisplay.pageIndex + 1} of ${pointTooltipDisplay.pageCount}`
       : null;
+  const playgroundModeActive = isDphcEstimateCoaPlaygroundWorkspaceId(activeScenarioWorkspaceId);
 
   const handleActionClick = (label: ActionLabel) => {
     if (label === 'Open') {
@@ -422,7 +425,7 @@ export function TopBar() {
             aria-label="Map presets"
           >
             {VIEW_PRESET_BUTTONS.map(({ id, label }) => {
-              const isActive = activeStandardViewPreset === id;
+              const isActive = !playgroundModeActive && activeViewPreset === id;
               const buttonClassName = `button topbar-strip__action-button${
                 isActive ? ' topbar-strip__action-button--preset-active' : ''
               }`;
