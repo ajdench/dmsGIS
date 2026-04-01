@@ -138,8 +138,31 @@ describe('pointPresentation', () => {
       symbolShape: 'circle',
       symbolSize: 3.5,
     });
+    const compensatedPlainPresentation = resolvePointPresentation({
+      feature: plainFeature,
+      regions,
+      combinedPracticeStyles: new Map([
+        [
+          'Portsmouth Combined Medical Practice',
+          {
+            name: 'Portsmouth Combined Medical Practice',
+            displayName: 'Portsmouth',
+            visible: true,
+            borderColor: '#0f766e',
+            borderWidth: 1,
+            borderOpacity: 1,
+          },
+        ],
+      ]),
+      symbolShape: 'circle',
+      symbolSize: 3.5,
+    });
 
     expect(plainPresentation.baseShapeInset).toBe(0);
+    expect(compensatedPlainPresentation.baseShapeInset).toBeCloseTo(
+      -(getCombinedPracticeRingWidth(3.5) / 2),
+      3,
+    );
     expect(combinedPresentation.baseShapeInset).toBeGreaterThan(0);
   });
 });

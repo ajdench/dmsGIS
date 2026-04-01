@@ -66,6 +66,10 @@ export function resolvePointPresentation(
   const combinedPracticeStyle = combinedPracticeName
     ? combinedPracticeStyles.get(combinedPracticeName)
     : null;
+  const activeCombinedTreatmentWidth = getActiveCombinedTreatmentWidth(
+    combinedPracticeStyles,
+    size,
+  );
   const outerRingColor =
     combinedPracticeStyle &&
     combinedPracticeStyle.visible &&
@@ -90,7 +94,9 @@ export function resolvePointPresentation(
       ? borderWidth > 0
         ? outerRingGap + outerRingWidth
         : 0
-      : 0;
+      : activeCombinedTreatmentWidth > 0
+        ? -(activeCombinedTreatmentWidth / 2)
+        : 0;
 
   return {
     shape,
@@ -144,4 +150,24 @@ export function getRenderedPointPixelRadiusFromPresentation(
   }
 
   return innerRadius * 1.15 + outsideDistance;
+}
+
+function getActiveCombinedTreatmentWidth(
+  combinedPracticeStyles: Map<string, CombinedPracticeStyle>,
+  size: number,
+): number {
+  let maxWidth = 0;
+
+  for (const practice of combinedPracticeStyles.values()) {
+    if (!practice.visible || practice.borderOpacity <= 0 || practice.borderWidth <= 0) {
+      continue;
+    }
+
+    maxWidth = Math.max(
+      maxWidth,
+      getCombinedPracticeRingWidth(size) * practice.borderWidth,
+    );
+  }
+
+  return maxWidth;
 }
