@@ -128,7 +128,7 @@ export function getPointSymbolCanvasPadding(
     outerRingPlacement === 'inside' && canvasOuterRingWidth > 0
       ? Math.max(0, canvasBaseShapeInset - canvasOuterRingGap - canvasOuterRingWidth)
       : canvasBaseShapeInset;
-  const pointOutsideExtent = Math.max(0, canvasStrokeWidth - pointOuterInset);
+  const pointOutsideExtent = Math.max(0, canvasStrokeWidth / 2 - pointOuterInset);
   const outerRingOutside =
     outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
       ? pointOutsideExtent + canvasOuterRingGap + canvasOuterRingWidth
@@ -230,7 +230,7 @@ function renderShapeCanvas(
       ? Math.max(0, fillInset - outerRingGap - outerRingWidth)
       : fillInset;
   const borderInset =
-    strokeWidth > 0 ? Math.max(0, pointOuterInset - strokeWidth / 2) : pointOuterInset;
+    strokeWidth > 0 ? pointOuterInset - strokeWidth / 2 : pointOuterInset;
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
