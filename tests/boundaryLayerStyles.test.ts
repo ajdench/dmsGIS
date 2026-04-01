@@ -191,6 +191,26 @@ describe('boundaryLayerStyles', () => {
     expect((style.getStroke() as Stroke).getWidth()).toBe(0.2);
   });
 
+  it('uses the same subtle seam stroke for ward split fills', () => {
+    const styleFn = createRegionBoundaryStyle(
+      createOverlayLayer({ family: 'wardSplitFill', borderVisible: false }),
+      'current',
+    );
+    const feature = new Feature({
+      region_ref: 'London & South',
+      geometry: new Polygon(POLYGON_COORDS),
+    });
+
+    const style = styleFn(feature) as Style;
+    expect(style).toBeInstanceOf(Style);
+    const fillColor = (style.getFill() as Fill).getColor() as string;
+    const strokeColor = (style.getStroke() as Stroke).getColor() as string;
+    expect(fillColor).toContain('rgba(');
+    expect(strokeColor).toContain('rgba(');
+    expect((style.getStroke() as Stroke).getWidth()).toBe(0.2);
+    expect(strokeColor).not.toBe('rgba(0,0,0,0)');
+  });
+
   it('assigns explicit z-order to key boundary layers', () => {
     expect(
       getRegionBoundaryLayerZIndex(

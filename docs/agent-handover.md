@@ -595,6 +595,22 @@ Current `v3.2` state:
     - `public/data/regions/UK_WardSplit_simplified.geojson` is geometrically valid
     - `geopackages/outputs/full_uk_current_boards/UK_SplitICB_Current_Canonical_Dissolved.geojson` is geometrically valid
   - the coherent `v3.5` rebuild automatically reran basemap alignment after this replacement; no `public/data/basemaps` files changed in git, so no `Land` / `Sea` refresh was needed for this selective internal replacement
+- follow-up execution on `2026-04-01` resolved the confirmed split-runtime white-gap regression:
+  - the live base `Current` board runtime in `public/data/compare/shared-foundation-review/regions/UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson` stayed hole-free throughout
+  - the live split-runtime product in `public/data/compare/shared-foundation-review/regions/UK_WardSplit_simplified.geojson` was measured at `171` interior rings before repair and is now back to `0`
+  - the same repair also returned `geopackages/outputs/full_uk_current_boards/UK_SplitICB_Current_Canonical_Dissolved.geojson` to `0` interior rings
+  - the fix path had three parts:
+    - `scripts/build_current_ward_split_exact.py` now resolves the legacy active-components source from the real repo paths instead of assuming a removed `public/data/regions/full-res/...` input
+    - `scripts/build_current_split_icb_runtime.py` now resolves the live `Current` board source robustly, strips holes again in the final export stage, and post-processes the written split outputs so the file-write path cannot reintroduce residual rings
+    - `src/features/map/boundaryLayerStyles.ts` now gives `wardSplitFill` the same subtle seam-masking stroke treatment as `regionFill`, so ordinary anti-alias slivers are reduced in the split-parent cases too
+  - `scripts/validate-runtime-geometry-family.mjs` now explicitly asserts hole-free split runtime and hole-free dissolved split exact outputs, so this class of regression should fail the family gate next time instead of slipping through
+  - the accepted compare-family split artifacts were refreshed from the rebuilt runtime outputs even though the larger review-family rebuild still has unrelated stale-path failures later in its chain
+  - future `Current` white-gap reports should now be triaged in this order:
+    - first confirm whether the live split-runtime artifact is still hole-free
+    - then treat any remaining slivers as render-path seam masking or a separate border-contiguity issue rather than assuming another interior-ring regression
+  - two unrelated review/build seams remain documented for future cleanup:
+    - `scripts/build-shared-foundation-review-family.mjs` still later trips over a missing compare-family water-edge class file during `build_group_inland_outline_modifiers.py`
+    - `scripts/validate-runtime-geometry-family.mjs` still assumes local basemap mask artifacts under `public/data/basemaps/`, which are not present in this checkout
 - the next confirmed issue after the coherent rebuild is a render-path seam, not stale geometry delivery:
   - the live app is serving the rebuilt runtime products on `http://127.0.0.1:4173/dmsGIS/`
   - the remaining white slivers seen at tighter zooms are now being treated as `regionFill` anti-alias seams in the render path

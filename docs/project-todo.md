@@ -120,7 +120,11 @@ Both should preserve canonical internal board borders while rebuilding masks/out
 **Priority:** High
 **What:** Review the live `v3.5` geometry family for any remaining internal ICB/HB border discontinuity or visible land/sea conformance issues now that shipped polygon holes have been removed and the coherent rebuild path is live.
 **Why:** `v3.5` resolved the confirmed interior-ring regression and rebuilt the live family coherently, but the motivating user-visible continuity/conformance concerns still need operator verification on the rebuilt products.
-**Notes:** Start from `docs/current-app-baseline-v3.6.md`, then use `docs/current-app-baseline-v3.5.md`, `docs/current-app-baseline-v3.4.md`, and `docs/v3.4-internal-gap-regression.md` only as historical context. Prefer reviewing the live `v3.6` products before reopening deeper geometry changes.
+**Notes:** Start from `docs/current-app-baseline-v3.6.md`, then use `docs/current-app-baseline-v3.5.md`, `docs/current-app-baseline-v3.4.md`, and `docs/v3.4-internal-gap-regression.md` only as historical context. Prefer reviewing the live `v3.6` products before reopening deeper geometry changes. Update from `2026-04-01`: the confirmed split-runtime interior-ring regression has now been repaired. The accepted review-family `Current` base board runtime remains hole-free, and the accepted review-family split-runtime product is now also back to `0` interior rings after the rebuild. Treat future white-gap reports as:
+- first a check that the live split-runtime artifact has not regressed from `0` interior rings
+- then, if geometry is still clean, a render-path seam-masking or separate border-contiguity investigation
+- and keep split runtime included in geometry-family hole validation, not only the base board products
+- note also that the broader compare-family rebuild still has unrelated stale-path follow-up work in its water-edge modifier step, so targeted artifact refresh may be safer than assuming the full review-family wrapper is clean end to end
 **Files likely touched:** regenerated runtime boundary products, shared-edge products, visible basemap alignment assets, and related docs/tests if a further follow-up is confirmed.
 
 ### 11. Restore lint parity in the main repo

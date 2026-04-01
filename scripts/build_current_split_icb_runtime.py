@@ -28,13 +28,20 @@ DEFAULT_EXACT_GPKG = (
     / "full_uk_current_boards"
     / "UK_WardSplit_Canonical_Current_exact.gpkg"
 )
-DEFAULT_CURRENT_RUNTIME_GEOJSON = (
+DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES = [
+    ROOT
+    / "public"
+    / "data"
+    / "compare"
+    / "shared-foundation-review"
+    / "regions"
+    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson",
     ROOT
     / "public"
     / "data"
     / "regions"
-    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson"
-)
+    / "UK_ICB_LHB_Boundaries_Codex_v10_simplified.geojson",
+]
 OUTPUT_DIR = ROOT / "geopackages" / "outputs" / "full_uk_current_boards"
 DEFAULT_OUTPUT_GPKG = OUTPUT_DIR / "UK_SplitICB_Current_Canonical_Dissolved.gpkg"
 DEFAULT_OUTPUT_GEOJSON = OUTPUT_DIR / "UK_SplitICB_Current_Canonical_Dissolved.geojson"
@@ -60,7 +67,20 @@ def get_exact_gpkg() -> Path:
 
 
 def get_current_runtime_geojson() -> Path:
-    return resolve_path("CURRENT_RUNTIME_GEOJSON_PATH", DEFAULT_CURRENT_RUNTIME_GEOJSON)
+    override = str(os.environ.get("CURRENT_RUNTIME_GEOJSON_PATH") or "").strip()
+    if override:
+        candidate = Path(override)
+        resolved = candidate if candidate.is_absolute() else ROOT / candidate
+        if not resolved.exists():
+            raise RuntimeError(f"Current runtime board source not found: {resolved}")
+        return resolved
+
+    for candidate in DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES:
+        if candidate.exists():
+            return candidate
+
+    searched = ", ".join(str(path) for path in DEFAULT_CURRENT_RUNTIME_GEOJSON_CANDIDATES)
+    raise RuntimeError(f"Current runtime board source not found; checked: {searched}")
 
 
 def get_output_gpkg() -> Path:
@@ -94,6 +114,16 @@ def iter_polygon_parts(geom):
     return []
 
 
+def strip_polygon_holes(geom):
+    if geom is None or geom.is_empty:
+        return geom
+    if isinstance(geom, Polygon):
+        return Polygon(geom.exterior)
+    if isinstance(geom, MultiPolygon):
+        return MultiPolygon([Polygon(part.exterior) for part in geom.geoms if not part.is_empty])
+    return geom
+
+
 def normalize_polygonal(geom, min_part_area: float = 0.0):
     fixed = make_valid(geom)
     seed_parts = iter_polygon_parts(fixed)
@@ -103,6 +133,7 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
         for candidate_part in iter_polygon_parts(candidate):
             if candidate_part.is_empty or candidate_part.area <= min_part_area:
                 continue
+            candidate_part = strip_polygon_holes(candidate_part)
             coords = list(candidate_part.exterior.coords)
             if len(coords) < 4 or len(set(coords)) < 4:
                 continue
@@ -120,6 +151,7 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
     ]
     filtered_parts = []
     for part in parts:
+        part = strip_polygon_holes(part)
         coords = list(part.exterior.coords)
         if len(coords) < 4 or len(set(coords)) < 4:
             continue
@@ -130,6 +162,25 @@ def normalize_polygonal(geom, min_part_area: float = 0.0):
     if len(parts) == 1:
         return parts[0]
     return MultiPolygon(parts)
+
+
+def postprocess_hole_free_vector(path: Path, layer: str | None = None) -> None:
+    gdf = gpd.read_file(path, layer=layer)
+    gdf["geometry"] = gdf.geometry.apply(strip_polygon_holes)
+    gdf["geometry"] = gdf.geometry.apply(
+        lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA)
+    )
+    gdf = gdf.loc[gdf["geometry"].notna()].copy()
+
+    if path.suffix.lower() == ".gpkg":
+        if path.exists():
+            path.unlink()
+        gdf.to_file(path, layer=layer or "layer", driver="GPKG")
+        return
+
+    if path.exists():
+        path.unlink()
+    gdf.to_file(path, driver="GeoJSON", COORDINATE_PRECISION=7)
 
 
 def clean_split_fragments(grouped: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -288,11 +339,13 @@ def main() -> None:
     out["geometry"] = out.geometry.apply(
         lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA)
     )
+    out["geometry"] = out.geometry.apply(strip_polygon_holes)
     out = out.loc[out["geometry"].notna()].copy()
     out = out.to_crs(RUNTIME_CRS)
     out["geometry"] = out.geometry.apply(
         lambda geom: normalize_polygonal(geom, min_part_area=MIN_RUNTIME_PART_AREA)
     )
+    out["geometry"] = out.geometry.apply(strip_polygon_holes)
     out = out.loc[out["geometry"].notna()].copy()
 
     if out.crs is None:
@@ -308,14 +361,17 @@ def main() -> None:
     if output_gpkg.exists():
         output_gpkg.unlink()
     out.to_file(output_gpkg, layer="uk_current_split_icb_dissolved", driver="GPKG")
+    postprocess_hole_free_vector(output_gpkg, layer="uk_current_split_icb_dissolved")
 
     if output_geojson.exists():
         output_geojson.unlink()
     out.to_file(output_geojson, driver="GeoJSON", COORDINATE_PRECISION=7)
+    postprocess_hole_free_vector(output_geojson)
 
     if runtime_geojson.exists():
         runtime_geojson.unlink()
     out.to_file(runtime_geojson, driver="GeoJSON", COORDINATE_PRECISION=7)
+    postprocess_hole_free_vector(runtime_geojson)
 
     print(f"Written dissolved split exact: {output_gpkg}")
     print(f"Written dissolved split exact: {output_geojson}")

@@ -176,13 +176,23 @@ export function createWardSplitStyle(
 
     const baseColor = (override?.populatedFillColor ?? group?.colors.populated) ?? '#8f8f8f';
     const fillOpacity = override?.populatedOpacity ?? group?.populatedOpacity ?? 0.7;
+    const strokeColor = withOpacity(
+      baseColor,
+      Math.min(
+        fillOpacity * REGION_FILL_SEAM_STROKE_ALPHA_FACTOR,
+        REGION_FILL_SEAM_STROKE_MAX_ALPHA,
+      ),
+    );
 
-    const cacheKey = `${baseColor}:${fillOpacity}`;
+    const cacheKey = `${baseColor}:${fillOpacity}:${strokeColor}`;
     const existing = cache.get(cacheKey);
     if (existing) return existing;
 
     const style = new Style({
-      stroke: new Stroke({ color: 'rgba(0,0,0,0)', width: 0 }),
+      stroke: new Stroke({
+        color: strokeColor,
+        width: REGION_FILL_SEAM_STROKE_WIDTH,
+      }),
       fill: new Fill({ color: withOpacity(baseColor, fillOpacity) }),
     });
     cache.set(cacheKey, style);

@@ -224,6 +224,13 @@ export function validateMasks() {
 export function validateSplitArtifacts() {
   const split = readFeatureCollection(CURRENT_SPLIT);
   assert(split.features.length === 8, `${CURRENT_SPLIT} expected 8 features`);
+  assert(countInteriorRings(split) === 0, `${CURRENT_SPLIT} must remain hole-free`);
+
+  const dissolved = readFeatureCollection(CURRENT_SPLIT_DISSOLVED);
+  assert(
+    countInteriorRings(dissolved) === 0,
+    `${CURRENT_SPLIT_DISSOLVED} must remain hole-free`,
+  );
 
   const perParent = new Map();
   for (const feature of split.features) {

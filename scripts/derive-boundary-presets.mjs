@@ -123,6 +123,15 @@ function writeGeoJson(outputPath, geojson) {
   console.log(`  Written: ${path.basename(outputPath)} (${count} features, ${sizeMB} MB)`);
 }
 
+function readFirstExistingJson(candidates) {
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return JSON.parse(fs.readFileSync(candidate, 'utf8'));
+    }
+  }
+  throw new Error(`Missing required input; checked: ${candidates.join(', ')}`);
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -137,12 +146,10 @@ async function main() {
   const src2026 = JSON.parse(
     fs.readFileSync(path.join(REGIONS, 'UK_Health_Board_Boundaries_Codex_2026_simplified.geojson'), 'utf8'),
   );
-  const jmcAssignments = JSON.parse(
-    fs.readFileSync(
-      path.join(REGIONS, 'full-res', 'UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'),
-      'utf8',
-    ),
-  );
+  const jmcAssignments = readFirstExistingJson([
+    path.join(REGIONS, 'UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'),
+    path.join(REGIONS, 'full-res', 'UK_JMC_Source_Board_Assignments_Codex_v02_geojson.geojson'),
+  ]);
 
   // Build lookup: boundary_code → jmc_name from 2026 assignment file.
   const jmc2026Lookup = new Map(

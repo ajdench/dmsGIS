@@ -33,9 +33,10 @@ DEFAULT_CURRENT_EXACT_GPKG = (
     / "full_uk_current_boards"
     / "UK_ICB_LHB_Boundaries_Canonical_Current_exact.gpkg"
 )
-LEGACY_ACTIVE_COMPONENTS = (
-    ROOT / "public" / "data" / "regions" / "full-res" / "UK_Active_Components_Codex_v10_geojson.geojson"
-)
+DEFAULT_LEGACY_ACTIVE_COMPONENTS_CANDIDATES = [
+    ROOT / "public" / "data" / "regions" / "UK_Active_Components_Codex_v10_geojson.geojson",
+    ROOT / "public" / "data" / "regions" / "full-res" / "UK_Active_Components_Codex_v10_geojson.geojson",
+]
 FACILITIES_GEOJSON = ROOT / "public" / "data" / "facilities" / "facilities.geojson"
 OUTPUT_DIR = ROOT / "geopackages" / "outputs" / "full_uk_current_boards"
 DEFAULT_OUTPUT_GPKG = OUTPUT_DIR / "UK_WardSplit_Canonical_Current_exact.gpkg"
@@ -157,8 +158,25 @@ def get_output_geojson() -> Path:
     return DEFAULT_OUTPUT_GEOJSON
 
 
+def get_legacy_active_components_path() -> Path:
+    override = str(os.environ.get("LEGACY_ACTIVE_COMPONENTS_PATH") or "").strip()
+    if override:
+        candidate = Path(override)
+        resolved = candidate if candidate.is_absolute() else ROOT / candidate
+        if not resolved.exists():
+            raise RuntimeError(f"Legacy active components source not found: {resolved}")
+        return resolved
+
+    for candidate in DEFAULT_LEGACY_ACTIVE_COMPONENTS_CANDIDATES:
+        if candidate.exists():
+            return candidate
+
+    searched = ", ".join(str(path) for path in DEFAULT_LEGACY_ACTIVE_COMPONENTS_CANDIDATES)
+    raise RuntimeError(f"Legacy active components source not found; checked: {searched}")
+
+
 def load_legacy_assignments() -> tuple[dict[str, dict[str, set[str]]], dict[str, dict[str, dict[str, ogr.Geometry]]]]:
-    data = json.loads(LEGACY_ACTIVE_COMPONENTS.read_text())
+    data = json.loads(get_legacy_active_components_path().read_text())
 
     lad_region_map: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
     partial_reference_geoms: dict[str, dict[str, dict[str, ogr.Geometry]]] = defaultdict(
