@@ -5,6 +5,7 @@ export interface PointSymbolOptions {
   outerRingColor?: string;
   outerRingWidth?: number;
   outerRingGap?: number;
+  outerRingPlacement?: 'outside' | 'inside';
 }
 
 export function withOpacity(hex: string, opacity: number): string {
@@ -76,6 +77,7 @@ export function createPointSymbol(
   const scale = getSymbolScale(size);
   const outerRingWidth = options.outerRingWidth ?? 0;
   const outerRingGap = options.outerRingGap ?? 0;
+  const outerRingPlacement = options.outerRingPlacement ?? 'outside';
   // Convert screen-pixel border width to canvas coordinate units.
   // Double it so the centered canvas stroke contributes one borderWidth of
   // visible expansion outside the filled shape.
@@ -93,6 +95,7 @@ export function createPointSymbol(
     options.outerRingColor,
     canvasOuterRingWidth,
     canvasOuterRingGap,
+    outerRingPlacement,
     canvasPadding,
     canvasSize,
   );
@@ -111,13 +114,16 @@ export function getPointSymbolCanvasPadding(
   const scale = getSymbolScale(size);
   const outerRingWidth = options.outerRingWidth ?? 0;
   const outerRingGap = options.outerRingGap ?? 0;
+  const outerRingPlacement = options.outerRingPlacement ?? 'outside';
   const canvasStrokeWidth = borderWidth > 0 ? (borderWidth / scale) * 2 : 0;
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
   const borderOutside = canvasStrokeWidth > 0 ? canvasStrokeWidth / 2 : 0;
   const outerRingOutside =
-    canvasOuterRingWidth > 0 ? canvasOuterRingGap + canvasOuterRingWidth : 0;
+    outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
+      ? canvasOuterRingGap + canvasOuterRingWidth
+      : 0;
   return Math.ceil(
     Math.max(MIN_CANVAS_PADDING, borderOutside, outerRingOutside) +
       CANVAS_PADDING_BUFFER,
@@ -138,14 +144,10 @@ export function getSelectedPointHighlightOffset(
   hasVisibleBorder: boolean,
   hasCombinedPracticeRing: boolean,
 ): number {
+  void size;
+  void hasCombinedPracticeRing;
   const baseHighlightOffset = hasVisibleBorder ? 1 : 0;
-  if (!hasCombinedPracticeRing) {
-    return baseHighlightOffset;
-  }
-
-  // For combined-practice points, the yellow highlight should begin exactly at
-  // the family ring's outer edge rather than floating as a detached halo.
-  return Math.max(baseHighlightOffset, getCombinedPracticeRingWidth(size));
+  return baseHighlightOffset;
 }
 
 /**
@@ -190,6 +192,7 @@ function renderShapeCanvas(
   outerRingColor: string | undefined,
   outerRingWidth: number,
   outerRingGap: number,
+  outerRingPlacement: 'outside' | 'inside',
   canvasPadding: number,
   canvasSize: number,
 ): HTMLCanvasElement {
@@ -201,32 +204,41 @@ function renderShapeCanvas(
   // Outer family ring: render an outside-only same-shape stroke so the family
   // treatment stays centered, shape-matched, and visually separate from the
   // underlying point fill and border.
+  const borderOutside = strokeWidth > 0 ? strokeWidth / 2 : 0;
+  const fillInset =
+    outerRingColor && outerRingWidth > 0 && outerRingPlacement === 'inside'
+      ? outerRingGap + outerRingWidth
+      : 0;
+
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
     ctx.lineWidth = outerRingWidth;
-    tracePath(
-      ctx,
-      shape,
-      canvasPadding,
-      1 + (2 * (outerRingGap + outerRingWidth / 2)) / 80,
-    );
+    const ringInset =
+      outerRingPlacement === 'inside'
+        ? Math.max(0, outerRingGap + outerRingWidth / 2 - borderOutside)
+        : -(outerRingGap + outerRingWidth / 2);
+    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(ringInset));
     ctx.stroke();
   }
 
   // Fill the shape
   ctx.fillStyle = fillColor;
-  tracePath(ctx, shape, canvasPadding);
+  tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(fillInset));
   ctx.fill();
 
   // Main point border: normal centered stroke on the same shape path.
   if (borderColor && strokeWidth > 0) {
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = strokeWidth;
-    tracePath(ctx, shape, canvasPadding);
+    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(fillInset));
     ctx.stroke();
   }
 
   return canvas;
+}
+
+function getScaleFactorFromInset(inset: number): number {
+  return 1 - (2 * inset) / 80;
 }
 
 /**

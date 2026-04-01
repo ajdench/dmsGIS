@@ -7,7 +7,7 @@ import {
 } from '../src/features/map/mapStyleUtils';
 
 describe('mapStyleUtils', () => {
-  it('adds extra highlight clearance for combined-practice points', () => {
+  it('keeps combined-practice highlight clearance aligned to the shared point edge', () => {
     const size = 3.5;
     const combinedPracticeOffset = getSelectedPointHighlightOffset(
       size,
@@ -17,12 +17,8 @@ describe('mapStyleUtils', () => {
 
     expect(getCombinedPracticeRingWidth(size)).toBeGreaterThan(0);
     expect(getCombinedPracticeRingGap(size)).toBe(0);
-    expect(combinedPracticeOffset).toBeGreaterThan(
+    expect(combinedPracticeOffset).toBe(
       getSelectedPointHighlightOffset(size, false, false),
-    );
-    expect(combinedPracticeOffset).toBeCloseTo(
-      getCombinedPracticeRingWidth(size),
-      3,
     );
   });
 

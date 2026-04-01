@@ -31,6 +31,7 @@ vi.mock('../src/features/map/mapStyleUtils', async () => {
         outerRingColor?: string;
         outerRingGap?: number;
         outerRingWidth?: number;
+        outerRingPlacement?: 'outside' | 'inside';
       },
     ) => {
       createPointSymbolMock({
@@ -146,6 +147,9 @@ describe('facilityLayerStyles', () => {
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingColor).toBeTruthy();
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingGap).toBe(0);
     expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingWidth).toBeGreaterThan(0);
+    expect(createPointSymbolMock.mock.calls[0]?.[0]?.options?.outerRingPlacement).toBe(
+      'inside',
+    );
   });
 
   it('does not add the outer ring for singleton self-only combined practice values', () => {

@@ -108,6 +108,7 @@ export function getStyleForLayer(
             outerRingColor: combinedPracticeRingColor,
             outerRingGap: combinedPracticeRingGap,
             outerRingWidth: combinedPracticeRingWidth,
+            outerRingPlacement: 'inside',
           },
         ),
       });

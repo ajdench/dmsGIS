@@ -11,8 +11,6 @@ import { getTrueCombinedPracticeName } from '../../lib/combinedPractices';
 import type { FacilityFilterState } from '../../lib/schemas/facilities';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
 import {
-  getCombinedPracticeRingGap,
-  getCombinedPracticeRingWidth,
 } from './mapStyleUtils';
 import type {
   FacilitySymbolShape,
@@ -428,19 +426,13 @@ function getPointSelectionRadius(
   const borderOpacity = regionStyle?.borderOpacity ?? 1;
   const borderWidth =
     borderVisible && borderOpacity > 0.01 ? (regionStyle?.borderWidth ?? 1) : 0;
-  const combinedPracticeRingWidth = getTrueCombinedPracticeName(facility)
-    ? getCombinedPracticeRingWidth(symbolSize)
-    : 0;
-  const combinedPracticeRingGap = getTrueCombinedPracticeName(facility)
-    ? getCombinedPracticeRingGap(symbolSize)
-    : 0;
 
   return getRenderedPointPixelRadius(
     symbolShape,
     symbolSize,
     borderWidth,
-    combinedPracticeRingGap,
-    combinedPracticeRingWidth,
+    0,
+    0,
   );
 }
 
