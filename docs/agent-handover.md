@@ -18,6 +18,13 @@ Current repo-recovery note:
   - the fact that `jj` history remained intact
   - the fact that the iCloud checkout does not currently carry the same Facilities / Combined Practices runtime surface
 
+Current replay/runtime-asset note:
+
+- after the full saved local line was replayed onto a clean GitHub-`main` base, one more runtime contract bug surfaced and is now part of the recovery truth:
+  - `data/manifests/layers.manifest.json` stays on the stable public root
+  - only the layer entries inside that manifest are runtime-rewritten into the active family
+  - in this app's dev setup, asset URLs remain base-path aware and resolve under `/dmsGIS/data/...`, not `/data/...`
+
 Current runtime-product governance note:
 
 - the accepted live runtime token is now:

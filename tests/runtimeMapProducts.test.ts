@@ -28,10 +28,8 @@ describe('runtimeMapProducts', () => {
     );
   });
 
-  it('routes the layer manifest and facilities path through the accepted runtime family', () => {
-    expect(getRuntimeLayerManifestPath()).toBe(
-      'data/compare/shared-foundation-review/manifests/layers.manifest.json',
-    );
+  it('keeps the layer manifest stable while routing facility data through the accepted runtime family', () => {
+    expect(getRuntimeLayerManifestPath()).toBe('data/manifests/layers.manifest.json');
     expect(resolveRuntimeLayerPath('data/facilities/facilities.geojson')).toBe(
       'data/compare/shared-foundation-review/facilities/facilities.geojson',
     );

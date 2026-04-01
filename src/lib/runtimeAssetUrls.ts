@@ -13,7 +13,7 @@ export function buildRuntimeAssetUrl(
   }
 
   const normalizedPath = path.replace(/^\/+/, '');
-  const basePath = environment.isDev ? '/' : environment.baseUrl || '/';
+  const basePath = environment.baseUrl || '/';
   return new URL(normalizedPath, new URL(basePath, environment.origin)).toString();
 }
 

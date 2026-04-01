@@ -5,10 +5,8 @@ import {
 } from '../src/lib/services/layers';
 
 describe('layers service runtime path helpers', () => {
-  it('resolves the manifest through the active runtime family', () => {
-    expect(getRuntimeLayerManifestPath()).toBe(
-      'data/compare/shared-foundation-review/manifests/layers.manifest.json',
-    );
+  it('keeps the manifest on the stable public root', () => {
+    expect(getRuntimeLayerManifestPath()).toBe('data/manifests/layers.manifest.json');
   });
 
   it('resolves manifest layer entries through the same active runtime family', () => {

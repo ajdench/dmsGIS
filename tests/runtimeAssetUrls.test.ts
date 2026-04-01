@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildRuntimeAssetUrl } from '../src/lib/runtimeAssetUrls';
 
 describe('runtimeAssetUrls', () => {
-  it('serves public assets from the root path during dev', () => {
+  it('keeps the configured base path during dev', () => {
     expect(
       buildRuntimeAssetUrl('data/compare/shared-foundation-review/regions/example.geojson', {
         origin: 'http://127.0.0.1:5174',
@@ -10,7 +10,7 @@ describe('runtimeAssetUrls', () => {
         isDev: true,
       }),
     ).toBe(
-      'http://127.0.0.1:5174/data/compare/shared-foundation-review/regions/example.geojson',
+      'http://127.0.0.1:5174/dmsGIS/data/compare/shared-foundation-review/regions/example.geojson',
     );
   });
 

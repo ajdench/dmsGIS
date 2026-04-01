@@ -7,7 +7,9 @@ import { resolveRuntimeMapProductPath } from '../config/runtimeMapProducts';
 import { resolveRuntimeAssetUrl } from '../runtimeAssetUrls';
 
 export function getRuntimeLayerManifestPath(): string {
-  return resolveRuntimeMapProductPath('data/manifests/layers.manifest.json');
+  // The manifest is a stable index file at the public root; only the layer
+  // entries inside it are remapped into the active runtime family.
+  return 'data/manifests/layers.manifest.json';
 }
 
 export function resolveRuntimeLayerPath(pathValue: string): string {

@@ -102,6 +102,25 @@ Recovered by hardening explicit map container sizing for:
 - `.map-canvas .ol-overlaycontainer`
 - `.map-canvas .ol-overlaycontainer-stopevent`
 
+### 6. Layer manifest and dev asset base-path contract needed one more correction
+
+After the saved local line was replayed onto the recovered main repo, the app still came up unwired because:
+
+- `layers.manifest.json` had been treated like a runtime-family product and rewritten under the compare-family root
+- runtime asset URL generation in dev had also been changed to assume `/data/...` rather than the app's real served base path `/dmsGIS/data/...`
+
+The correct contract is:
+
+- `data/manifests/layers.manifest.json` stays on the stable public root
+- the layer entries inside that manifest are still runtime-rewritten into the active accepted family
+- dev asset URLs in this app keep the configured base path and therefore resolve under `/dmsGIS/data/...`
+
+Recovered by:
+
+- keeping `getRuntimeLayerManifestPath()` stable in `src/lib/services/layers.ts`
+- keeping `buildRuntimeAssetUrl(...)` base-path aware in `src/lib/runtimeAssetUrls.ts`
+- updating the associated runtime-path tests
+
 ## Saved local line since the last GitHub commit
 
 The last merged GitHub `main` commit is:
@@ -242,6 +261,7 @@ Verified in the canonical main repo:
 
 - `npm run test -- --run tests/runtimeAssetUrls.test.ts tests/layersService.test.ts tests/overlayLookupBootstrap.test.ts tests/overlayBoundaryReconciliation.test.ts tests/runtimeMapProducts.test.ts tests/boundarySystems.test.ts tests/scenarioWorkspaces.test.ts`
 - `npm run build`
+- `npm run test -- --run tests/runtimeAssetUrls.test.ts tests/layersService.test.ts tests/runtimeMapProducts.test.ts`
 
 Live browser verification against `http://127.0.0.1:5174/dmsGIS/` confirmed:
 
@@ -252,6 +272,13 @@ Live browser verification against `http://127.0.0.1:5174/dmsGIS/` confirmed:
 - shell grid restored with map left / sidebar right / bottom row aligned correctly
 - OpenLayers viewport and zoom controls now render at full map height
 - settled live screenshot showed normal map rendering with facility points and sidebar controls present
+
+Fresh Chromium verification against the rebuilt recovery branches also confirmed:
+
+- no `Error:` banner after settle
+- no `No regions loaded.` banner after settle
+- `Loading layers...` clears after startup
+- OpenLayers zoom controls and map canvas are present
 
 ## Has JJ been affected?
 
