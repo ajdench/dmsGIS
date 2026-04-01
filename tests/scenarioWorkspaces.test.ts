@@ -6,6 +6,7 @@ import {
   createScenarioWorkspaceDraft,
   getScenarioWorkspaceAssignmentDatasetPath,
   getScenarioWorkspaceBaseline,
+  getScenarioWorkspaceLookupBoundaryPath,
   getScenarioWorkspaceSourcePresetId,
   isScenarioWorkspaceCompatibleWithPreset,
 } from '../src/lib/config/scenarioWorkspaces';
@@ -95,5 +96,17 @@ describe('scenarioWorkspaces', () => {
     expect(
       getScenarioWorkspaceAssignmentDatasetPath(DPHC_ESTIMATE_COA_PLAYGROUND_ID),
     ).toBe('data/compare/shared-foundation-review/regions/UK_COA3B_Board_simplified.geojson');
+  });
+
+  it('resolves lookup boundary paths through the active runtime family', () => {
+    expect(getScenarioWorkspaceLookupBoundaryPath('coa3a')).toBe(
+      'data/compare/shared-foundation-review/regions/UK_JMC_Outline_simplified.geojson',
+    );
+    expect(getScenarioWorkspaceLookupBoundaryPath('coa3b')).toBe(
+      'data/compare/shared-foundation-review/regions/UK_COA3A_Outline_simplified.geojson',
+    );
+    expect(getScenarioWorkspaceLookupBoundaryPath('coa3c')).toBe(
+      'data/compare/shared-foundation-review/regions/UK_COA3B_Outline_simplified.geojson',
+    );
   });
 });

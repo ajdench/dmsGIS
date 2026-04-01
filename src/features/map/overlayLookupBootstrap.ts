@@ -2,6 +2,7 @@ import type Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureLike } from 'ol/Feature';
+import { resolveRuntimeAssetUrl } from '../../lib/runtimeAssetUrls';
 
 export interface OverlayLookupDatasetDefinition<Key extends string = string> {
   key: Key;
@@ -105,7 +106,7 @@ export function loadGeoJsonIntoSource(
 }
 
 export function resolveDataUrl(path: string): string {
-  return new URL(path, window.location.origin + import.meta.env.BASE_URL).toString();
+  return resolveRuntimeAssetUrl(path);
 }
 
 async function fetchGeoJson(url: string): Promise<unknown> {

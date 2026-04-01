@@ -13,6 +13,7 @@ import {
 } from '../../lib/facilitySearchSuggestions';
 import type { FacilityRecord } from '../../lib/facilities';
 import { normalizeFacilitySearchQuery } from '../../lib/facilityFilters';
+import { resolveRuntimeAssetUrl } from '../../lib/runtimeAssetUrls';
 
 interface FacilitySearchFieldProps {
   value: string;
@@ -51,7 +52,7 @@ export function FacilitySearchField({
       setLoadError(false);
 
       try {
-        const facilitiesUrl = `${import.meta.env.BASE_URL}data/facilities/facilities.geojson`;
+        const facilitiesUrl = resolveRuntimeAssetUrl('data/facilities/facilities.geojson');
         const response = await fetch(facilitiesUrl);
 
         if (!response.ok) {

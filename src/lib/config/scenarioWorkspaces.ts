@@ -179,7 +179,7 @@ function createScenarioWorkspaceBaselineFromPreset(
       kind: 'derived-dataset',
       path: resolveRuntimeMapProductPath(config.outlineLayer.path),
     },
-    lookupBoundaryPath: config.lookupBoundaryPath,
+    lookupBoundaryPath: resolveRuntimeMapProductPath(config.lookupBoundaryPath),
     regions,
     // boundaryNameRegionOverrides is legacy; overrides are absorbed into codeGroupings.
     boundaryNameRegionOverrides: {},

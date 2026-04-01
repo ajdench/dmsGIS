@@ -8,6 +8,7 @@ import type {
   RegionGroupStyleOverride,
   ViewPresetId,
 } from '../../types';
+import { resolveRuntimeAssetUrl } from '../../lib/runtimeAssetUrls';
 
 const DEV_OVERLAY_SOURCE_VERSION = import.meta.env.DEV
   ? String(Date.now())
@@ -159,10 +160,7 @@ export function resolveOverlayBoundarySourceUrl(
   path: string,
   sourceVersion: string | null = DEV_OVERLAY_SOURCE_VERSION,
 ): string {
-  const url = new URL(
-    path,
-    new URL(import.meta.env.BASE_URL, window.location.origin),
-  );
+  const url = new URL(resolveRuntimeAssetUrl(path));
   if (sourceVersion) {
     url.searchParams.set('v', sourceVersion);
   }

@@ -1077,3 +1077,47 @@ When ending a non-trivial thread:
 - update `docs/agent-handover.md` and `docs/agent-continuation-protocol.md` if the strategy or handoff rules changed
 
 This is the rule that should preserve seamless transfer between coding agents.
+
+## 2026-04-01 Recovery
+
+Canonical repo:
+
+- `/Users/andrew/Projects/dmsGIS`
+
+Do not treat the iCloud checkout as the production source of truth:
+
+- `/Users/andrew/Library/Mobile Documents/com~apple~CloudDocs/Documents/Projects/dmsGIS`
+
+What was recovered in the canonical repo:
+
+- the app was not permanently lost; it was broken by a real runtime/layout regression after repo-path confusion
+- dev asset URL builders were sending some GeoJSON fetches to `/dmsGIS/data/...` in local dev, which returned the HTML app shell instead of JSON
+- `MapWorkspace.tsx` was also bypassing runtime-product rewriting for boundary-system lookup paths by iterating the raw `BOUNDARY_SYSTEMS` constant
+- scenario workspace baselines were keeping raw `lookupBoundaryPath` values instead of runtime-rewritten ones
+- the live shell layout was also broken because layout-critical `display: grid` / `display: flex` behavior was still relying on `@apply`, but the served app was computing `.app-shell` and `.workspace-grid` as `display: block`
+
+Recovered by:
+
+- centralizing dev/prod asset URL resolution in `src/lib/runtimeAssetUrls.ts`
+- routing manifest/facility/overlay/basemap loaders through that helper
+- switching boundary-system lookup loading to resolved boundary-system paths
+- rewriting scenario workspace lookup paths through the active runtime-family resolver
+- hardening the shell CSS with explicit layout declarations for:
+  - `html, body, #root`
+  - `.app-shell`
+  - `.workspace-grid`
+  - `.sidebar`
+  - `.map-panel`
+  - `.panel`
+
+Verified on the live dev app:
+
+- no startup JSON parse errors from failed GeoJSON loads
+- no `Loading layers...` banner after settle
+- no `Error:` banner after settle
+- no `No regions loaded.` banner after settle
+- map left / sidebar right / bottom row aligned correctly again
+
+Recovery note:
+
+- `docs/recovery-state-2026-04-01-main-repo.md`

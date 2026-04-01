@@ -30,9 +30,13 @@ import type {
   ScenarioWorkspaceId,
   ViewPresetId,
 } from '../../types';
-import { BOUNDARY_SYSTEMS } from '../../lib/config/boundarySystems';
+import {
+  BOUNDARY_SYSTEMS,
+  getBoundarySystem,
+} from '../../lib/config/boundarySystems';
 import { getUkBasemapAlignmentPathsForPreset } from '../../lib/config/basemapAlignment';
 import { resolveRuntimeMapProductPath } from '../../lib/config/runtimeMapProducts';
+import { resolveRuntimeAssetUrl } from '../../lib/runtimeAssetUrls';
 import {
   getInteractiveScenarioWorkspaceIds,
   getScenarioWorkspaceAssignmentDatasetPath,
@@ -642,7 +646,8 @@ export function MapWorkspace() {
     });
 
     const boundarySystemLookupDatasets: OverlayLookupDatasetDefinition<BoundarySystemId>[] =
-      Object.values(BOUNDARY_SYSTEMS).map((boundarySystem) => {
+      (Object.keys(BOUNDARY_SYSTEMS) as BoundarySystemId[]).map((boundarySystemId) => {
+        const boundarySystem = getBoundarySystem(boundarySystemId);
         const source = new VectorSource({ wrapX: false });
         boundarySystemLookupSourcesRef.current.set(boundarySystem.id, source);
         return {
@@ -1948,30 +1953,17 @@ function getBasemapUrls(activeViewPreset: ViewPresetId): {
   marineLabels: string;
   populatedPlaces: string;
 } {
-  const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin);
   const ukAlignmentPaths = getUkBasemapAlignmentPathsForPreset(activeViewPreset);
 
   return {
-    ocean: new URL('data/basemaps/ne_10m_ocean.geojson', baseUrl).toString(),
-    land: new URL('data/basemaps/ne_10m_land.geojson', baseUrl).toString(),
-    countries: new URL(
-      'data/basemaps/ne_10m_admin_0_countries.geojson',
-      baseUrl,
-    ).toString(),
-    ukAlignedSea: new URL(ukAlignmentPaths.seaPath, baseUrl).toString(),
-    ukAlignedLand: new URL(ukAlignmentPaths.landPath, baseUrl).toString(),
-    ukInternalBorders: new URL(
-      'data/basemaps/uk_internal_borders.geojson',
-      baseUrl,
-    ).toString(),
-    marineLabels: new URL(
-      'data/basemaps/ne_110m_geography_marine_polys.geojson',
-      baseUrl,
-    ).toString(),
-    populatedPlaces: new URL(
-      'data/basemaps/ne_110m_populated_places_simple.geojson',
-      baseUrl,
-    ).toString(),
+    ocean: resolveRuntimeAssetUrl('data/basemaps/ne_10m_ocean.geojson'),
+    land: resolveRuntimeAssetUrl('data/basemaps/ne_10m_land.geojson'),
+    countries: resolveRuntimeAssetUrl('data/basemaps/ne_10m_admin_0_countries.geojson'),
+    ukAlignedSea: resolveRuntimeAssetUrl(ukAlignmentPaths.seaPath),
+    ukAlignedLand: resolveRuntimeAssetUrl(ukAlignmentPaths.landPath),
+    ukInternalBorders: resolveRuntimeAssetUrl('data/basemaps/uk_internal_borders.geojson'),
+    marineLabels: resolveRuntimeAssetUrl('data/basemaps/ne_110m_geography_marine_polys.geojson'),
+    populatedPlaces: resolveRuntimeAssetUrl('data/basemaps/ne_110m_populated_places_simple.geojson'),
   };
 }
 
