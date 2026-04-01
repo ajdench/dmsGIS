@@ -223,25 +223,27 @@ describe('selectionHighlights', () => {
       setStyle,
     } as unknown as VectorLayer<VectorSource>;
     const createSelectedPointStyle = vi.fn(() => ({}));
+    const entry = {
+      facilityId: 'FAC-1',
+      facilityName: 'Test Facility',
+      coordinate: [4, 6] as [number, number],
+      boundaryName: null,
+      hasVisibleBorder: true,
+      hasCombinedPracticeRing: true,
+      symbolShape: 'square' as const,
+      symbolSize: 7,
+      jmcName: 'JMC North',
+      scenarioRegionId: null,
+    };
 
     syncSelectedPointHighlight({
-      entry: {
-        facilityId: 'FAC-1',
-        facilityName: 'Test Facility',
-        coordinate: [4, 6],
-        boundaryName: null,
-        hasVisibleBorder: true,
-        hasCombinedPracticeRing: true,
-        symbolShape: 'square',
-        symbolSize: 7,
-        jmcName: 'JMC North',
-      },
+      entry,
       selectedPointLayer,
       createSelectedPointStyle,
     });
 
     expect(setStyle).toHaveBeenCalledTimes(1);
-    expect(createSelectedPointStyle).toHaveBeenCalledWith('square', 7, true, true);
+    expect(createSelectedPointStyle).toHaveBeenCalledWith(entry);
     const feature = source.getFeatures()[0];
     expect(feature?.getGeometry()).toBeInstanceOf(Point);
   });

@@ -2,7 +2,7 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
-import type { FacilitySymbolShape, OverlayLayerStyle, ViewPresetId } from '../../types';
+import type { OverlayLayerStyle, ViewPresetId } from '../../types';
 import {
   findBoundaryHighlightFeatureForPointCoordinate,
   getBoundaryName,
@@ -29,12 +29,7 @@ interface SyncJmcOutlineHighlightParams {
 interface SyncSelectedPointHighlightParams {
   entry: PointTooltipEntry;
   selectedPointLayer: VectorLayer<VectorSource> | null;
-  createSelectedPointStyle: (
-    shape: FacilitySymbolShape,
-    size: number,
-    hasVisibleBorder: boolean,
-    hasCombinedPracticeRing: boolean,
-  ) => unknown;
+  createSelectedPointStyle: (entry: PointTooltipEntry | null) => unknown;
 }
 
 interface SyncSelectedRegionHighlightFromDerivedSourceParams {
@@ -138,14 +133,7 @@ export function syncSelectedPointHighlight(
   }
 
   if (selectedPointLayer) {
-    selectedPointLayer.setStyle(
-      createSelectedPointStyle(
-        entry.symbolShape,
-        entry.symbolSize,
-        entry.hasVisibleBorder,
-        entry.hasCombinedPracticeRing,
-      ) as never,
-    );
+    selectedPointLayer.setStyle(createSelectedPointStyle(entry) as never);
   }
 }
 

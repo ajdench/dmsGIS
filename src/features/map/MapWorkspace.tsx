@@ -102,9 +102,13 @@ import { getStyleForLayer } from './facilityLayerStyles';
 import {
   createPointSymbol,
   getNonCombinedPointInset,
-  getSelectedPointHighlightOffset,
   withOpacity,
 } from './mapStyleUtils';
+import {
+  getPointPresentationOuterDistance,
+  resolvePointPresentation,
+  type ResolvedPointPresentation,
+} from './pointPresentation';
 import { resolveSingleClickSelection } from './singleClickSelection';
 import { buildEffectivePopulatedCodes } from './populatedCodes';
 import {
@@ -397,6 +401,48 @@ export function MapWorkspace() {
     );
   }, [activeViewPreset, playgroundModeActive, setSelection]);
 
+  const createSelectedPointStyle = useCallback((entry: PointTooltipEntry | null) => {
+    if (!entry) {
+      return createEmptySelectedPointStyle();
+    }
+
+    const activeAssignmentSource =
+      scenarioWorkspaceAssignmentSourceRef.current ??
+      getActiveAssignmentLookupSource(
+        regionBoundaryRefs.current,
+        jmcAssignmentLookupSourceRef.current,
+      );
+    const regionsByName = new Map(regions.map((region) => [region.name, region]));
+    const combinedPracticeStylesByName = new Map(
+      combinedPracticeStyles.map((practice) => [practice.name, practice]),
+    );
+    const selectedFeature = layers
+      .filter((layer) => layer.type === 'point' && layer.visible)
+      .flatMap((layer) => layerRefs.current.get(layer.id)?.getSource()?.getFeatures() ?? [])
+      .find((feature) => getFacilityFeatureProperties(feature).id === entry.facilityId);
+
+    if (!selectedFeature) {
+      return createEstimatedSelectedPointStyle(entry);
+    }
+
+    return createSelectedPointStylesFromPresentation(
+      resolvePointPresentation({
+        feature: selectedFeature,
+        regions: regionsByName,
+        combinedPracticeStyles: combinedPracticeStylesByName,
+        symbolShape: facilitySymbolShape,
+        symbolSize: facilitySymbolSize,
+        assignmentSource: activeAssignmentSource,
+      }),
+    );
+  }, [
+    combinedPracticeStyles,
+    facilitySymbolShape,
+    facilitySymbolSize,
+    layers,
+    regions,
+  ]);
+
   const renderPointTooltip = useCallback(() => {
     const formatTooltipRegionName = (name: string | null) =>
       playgroundModeActive ? (name ? stripScenarioRegionPrefix(name) : name) : name;
@@ -420,8 +466,6 @@ export function MapWorkspace() {
         jmcName: selectedJmcNameRef.current,
       },
       formatRegionLabel: formatTooltipRegionName,
-      facilitySymbolShape,
-      facilitySymbolSize,
       selectedPointLayer: selectedPointRef.current,
       selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
       setSelectedBoundaryForPoint: (entry) => {
@@ -1813,36 +1857,72 @@ function createSelectedJmcBoundaryLayer(): VectorLayer<VectorSource> {
 function createSelectedPointLayer(): VectorLayer<VectorSource> {
   return new VectorLayer({
     source: new VectorSource({ wrapX: false }),
-    style: createSelectedPointStyle('circle', 6, false, false),
+    style: createEmptySelectedPointStyle(),
     zIndex: 40,
   });
 }
 
-function createSelectedPointStyle(
-  shape: FacilitySymbolShape,
-  size: number,
-  hasVisibleBorder: boolean,
-  hasCombinedPracticeRing: boolean,
-): Style {
+function createEmptySelectedPointStyle(): Style {
   return new Style({
+    image: createPointSymbol('circle', 6, 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)', 0),
+  });
+}
+
+function createEstimatedSelectedPointStyle(entry: PointTooltipEntry): Style[] {
+  const estimatedPresentation: ResolvedPointPresentation = {
+    shape: entry.symbolShape,
+    size: entry.symbolSize,
+    fillColor: 'rgba(0, 0, 0, 0)',
+    borderColor: 'rgba(0, 0, 0, 0)',
+    borderWidth: entry.hasVisibleBorder ? 1 : 0,
+    baseShapeInset: entry.hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(entry.symbolSize),
+    outerRingColor: entry.hasCombinedPracticeRing ? '#000000' : undefined,
+    outerRingGap: 0,
+    outerRingWidth: entry.hasCombinedPracticeRing ? 1 : 0,
+    outerRingPlacement: entry.hasVisibleBorder ? 'inside' : 'outside',
+  };
+
+  return createSelectedPointStylesFromPresentation(estimatedPresentation);
+}
+
+function createSelectedPointStylesFromPresentation(
+  presentation: ResolvedPointPresentation,
+): Style[] {
+  const highlightStyle = new Style({
     image: createPointSymbol(
-      shape,
-      size,
+      presentation.shape,
+      presentation.size,
       'rgba(0, 0, 0, 0)',
       'rgba(0, 0, 0, 0)',
       0,
       {
         outerRingColor: '#fffb00',
-        outerRingGap: getSelectedPointHighlightOffset(
-          size,
-          hasVisibleBorder,
-          hasCombinedPracticeRing,
-        ),
+        outerRingGap: getPointPresentationOuterDistance(presentation),
         outerRingWidth: 2,
-        baseShapeInset: hasCombinedPracticeRing ? 0 : getNonCombinedPointInset(size),
+        baseShapeInset: presentation.baseShapeInset,
       },
     ),
+    zIndex: 0,
   });
+  const pointStyle = new Style({
+    image: createPointSymbol(
+      presentation.shape,
+      presentation.size,
+      presentation.fillColor,
+      presentation.borderColor,
+      presentation.borderWidth,
+      {
+        outerRingColor: presentation.outerRingColor,
+        outerRingGap: presentation.outerRingGap,
+        outerRingWidth: presentation.outerRingWidth,
+        outerRingPlacement: presentation.outerRingPlacement,
+        baseShapeInset: presentation.baseShapeInset,
+      },
+    ),
+    zIndex: 1,
+  });
+
+  return [highlightStyle, pointStyle];
 }
 
 export function createBasemapLayers(): BasemapLayerSet {

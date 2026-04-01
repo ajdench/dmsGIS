@@ -1,6 +1,5 @@
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorSource from 'ol/source/Vector';
-import type { FacilitySymbolShape } from '../../types';
 import type { PointTooltipEntry } from './pointSelection';
 import { syncSelectedPointHighlight } from './selectionHighlights';
 
@@ -27,19 +26,12 @@ interface TooltipRenderDependencies {
   dom: TooltipDomRefs;
   state: TooltipRenderState;
   formatRegionLabel?: (name: string | null) => string | null;
-  facilitySymbolShape: FacilitySymbolShape;
-  facilitySymbolSize: number;
   selectedPointLayer: VectorLayer<VectorSource> | null;
   selectedJmcBoundaryLayer: VectorLayer<VectorSource> | null;
   setSelectedBoundaryForPoint: (entry: PointTooltipEntry) => void;
   syncSelectedJmcBoundaries: (entry: PointTooltipEntry) => void;
   setSelectedBoundaryState: (boundaryName: string | null, jmcName: string | null) => void;
-  createSelectedPointStyle: (
-    shape: FacilitySymbolShape,
-    size: number,
-    hasVisibleBorder: boolean,
-    hasCombinedPracticeRing: boolean,
-  ) => unknown;
+  createSelectedPointStyle: (entry: PointTooltipEntry | null) => unknown;
 }
 
 export function renderDockedTooltip(
@@ -49,8 +41,6 @@ export function renderDockedTooltip(
     dom,
     state,
     formatRegionLabel,
-    facilitySymbolShape,
-    facilitySymbolSize,
     selectedPointLayer,
     selectedJmcBoundaryLayer,
     setSelectedBoundaryForPoint,
@@ -92,8 +82,6 @@ export function renderDockedTooltip(
       selectedPointSource,
       selectedPointLayer,
       selectedJmcSource,
-      facilitySymbolShape,
-      facilitySymbolSize,
       createSelectedPointStyle,
       setSelectedBoundaryState,
     });
@@ -139,14 +127,7 @@ function renderBoundaryOnlyTooltip(params: {
   selectedPointSource: VectorSource | null | undefined;
   selectedPointLayer: VectorLayer<VectorSource> | null;
   selectedJmcSource: VectorSource | null | undefined;
-  facilitySymbolShape: FacilitySymbolShape;
-  facilitySymbolSize: number;
-  createSelectedPointStyle: (
-    shape: FacilitySymbolShape,
-    size: number,
-    hasVisibleBorder: boolean,
-    hasCombinedPracticeRing: boolean,
-  ) => unknown;
+  createSelectedPointStyle: (entry: PointTooltipEntry | null) => unknown;
   setSelectedBoundaryState: (boundaryName: string | null, jmcName: string | null) => void;
 }): number {
   const {
@@ -163,8 +144,6 @@ function renderBoundaryOnlyTooltip(params: {
     selectedPointSource,
     selectedPointLayer,
     selectedJmcSource,
-    facilitySymbolShape,
-    facilitySymbolSize,
     createSelectedPointStyle,
     setSelectedBoundaryState,
   } = params;
@@ -185,14 +164,7 @@ function renderBoundaryOnlyTooltip(params: {
       selectedPointSource.clear();
     }
     if (selectedPointLayer) {
-      selectedPointLayer.setStyle(
-        createSelectedPointStyle(
-          facilitySymbolShape,
-          facilitySymbolSize,
-          false,
-          false,
-        ) as never,
-      );
+      selectedPointLayer.setStyle(createSelectedPointStyle(null) as never);
     }
     selectedJmcSource?.clear();
     setSelectedBoundaryState(null, null);
@@ -212,14 +184,7 @@ function renderBoundaryOnlyTooltip(params: {
   root.classList.remove('map-tooltip-card--hidden');
   selectedPointSource?.clear();
   if (selectedPointLayer) {
-    selectedPointLayer.setStyle(
-      createSelectedPointStyle(
-        facilitySymbolShape,
-        facilitySymbolSize,
-        false,
-        false,
-      ) as never,
-    );
+    selectedPointLayer.setStyle(createSelectedPointStyle(null) as never);
   }
   setSelectedBoundaryState(boundaryName, jmcName);
   return 0;

@@ -4,48 +4,33 @@ import {
   getCombinedPracticeRingWidth,
   getNonCombinedPointInset,
   getPointSymbolCanvasPadding,
-  getSelectedPointHighlightOffset,
 } from '../src/features/map/mapStyleUtils';
+import { getPointPresentationOuterDistance } from '../src/features/map/pointPresentation';
 
 describe('mapStyleUtils', () => {
-  it('keeps combined-practice highlight clearance at the family-ring edge', () => {
+  it('keeps non-combined points aligned to the combined-ring midpoint', () => {
     const size = 3.5;
-    const combinedPracticeOffset = getSelectedPointHighlightOffset(
-      size,
-      false,
-      true,
-    );
-
-    expect(getCombinedPracticeRingWidth(size)).toBeGreaterThan(0);
-    expect(getCombinedPracticeRingGap(size)).toBe(0);
-    expect(combinedPracticeOffset).toBeCloseTo(
-      getCombinedPracticeRingWidth(size),
-      3,
-    );
-  });
-
-  it('places non-combined points at the midpoint of the combined ring band', () => {
     expect(getNonCombinedPointInset(3.5)).toBeCloseTo(
       getCombinedPracticeRingWidth(3.5) / 2,
       3,
     );
-    expect(getSelectedPointHighlightOffset(3.5, false, false)).toBeCloseTo(
-      getNonCombinedPointInset(3.5),
-      3,
-    );
-    expect(getSelectedPointHighlightOffset(3.5, true, false)).toBeCloseTo(
-      getNonCombinedPointInset(3.5) + 1,
-      3,
-    );
-    expect(getSelectedPointHighlightOffset(3.5, true, true)).toBeCloseTo(
-      getCombinedPracticeRingWidth(3.5) + 1,
-      3,
-    );
+    expect(getCombinedPracticeRingGap(size)).toBe(0);
   });
 
   it('increases canvas padding for smaller highlighted point symbols', () => {
     const size = 2;
-    const highlightOffset = getSelectedPointHighlightOffset(size, false, true);
+    const highlightOffset = getPointPresentationOuterDistance({
+      shape: 'circle',
+      size,
+      fillColor: 'rgba(0, 0, 0, 0)',
+      borderColor: 'rgba(0, 0, 0, 0)',
+      borderWidth: 1,
+      baseShapeInset: getCombinedPracticeRingWidth(size),
+      outerRingColor: '#000000',
+      outerRingGap: 0,
+      outerRingWidth: getCombinedPracticeRingWidth(size),
+      outerRingPlacement: 'inside',
+    });
 
     expect(
       getPointSymbolCanvasPadding(size, 0, {

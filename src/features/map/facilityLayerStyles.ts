@@ -7,25 +7,15 @@ import type {
   RegionStyle,
 } from '../../types';
 import {
-  getFacilityFeatureProperties,
-} from '../../lib/facilities';
-import {
-  getTrueCombinedPracticeName,
-} from '../../lib/combinedPractices';
-import {
   getFacilityFilterDefinitions,
   matchesFacilityFilters,
 } from '../../lib/facilityFilters';
 import {
-  blendWithWhite,
   createPointSymbol,
-  getCombinedPracticeRingGap,
-  getCombinedPracticeRingWidth,
-  getNonCombinedPointInset,
-  withOpacity,
 } from './mapStyleUtils';
 import { getEffectiveFacilityRecord } from './scenarioFacilityMapping';
 import type VectorSource from 'ol/source/Vector';
+import { resolvePointPresentation } from './pointPresentation';
 
 // Module-level style cache — persists across getStyleForLayer calls so that
 // OL Icon instances (SVG data-URL images) are reused rather than re-decoded,
@@ -48,57 +38,31 @@ export function getStyleForLayer(
         return undefined;
       }
 
-      const properties = getFacilityFeatureProperties(feature);
       const regionStyle = regions.get(facility.region);
       const defaultVisible = facility.isDefaultVisible;
       if (!defaultVisible || (regionStyle && !regionStyle.visible)) {
         return undefined;
       }
-
-      const hex = regionStyle?.color ?? properties.point_color_hex;
-      const opacity = regionStyle ? regionStyle.opacity : 1;
-      const borderVisible = regionStyle?.borderVisible ?? true;
-      const borderColor = regionStyle?.borderColor ?? '#ffffff';
-      const borderOpacity = regionStyle?.borderOpacity ?? 1;
-      const borderWidth = (borderVisible && borderOpacity > 0) ? (regionStyle?.borderWidth ?? 1) : 0;
-      const resolvedShape = regionStyle?.shape ?? symbolShape;
-      const resolvedSize = regionStyle?.symbolSize ?? symbolSize;
-      const combinedPracticeName = getTrueCombinedPracticeName(facility);
-      const combinedPracticeStyle = combinedPracticeName
-        ? combinedPracticeStyles.get(combinedPracticeName)
-        : null;
-      const combinedPracticeRingColor =
-        combinedPracticeStyle &&
-        combinedPracticeStyle.visible &&
-        combinedPracticeStyle.borderOpacity > 0 &&
-        combinedPracticeStyle.borderWidth > 0
-          ? withOpacity(
-              combinedPracticeStyle.borderColor,
-              Math.max(
-                0,
-                Math.min(1, opacity * combinedPracticeStyle.borderOpacity),
-              ),
-            )
-          : undefined;
-      const combinedPracticeRingWidth =
-        combinedPracticeStyle &&
-        combinedPracticeStyle.visible &&
-        combinedPracticeStyle.borderOpacity > 0 &&
-        combinedPracticeStyle.borderWidth > 0
-          ? getCombinedPracticeRingWidth(resolvedSize) *
-            combinedPracticeStyle.borderWidth
-          : 0;
-      const combinedPracticeRingGap =
-        combinedPracticeRingWidth > 0
-          ? getCombinedPracticeRingGap(resolvedSize)
-          : 0;
-      const baseShapeInset =
-        combinedPracticeRingWidth > 0
-          ? borderWidth > 0
-            ? combinedPracticeRingGap + combinedPracticeRingWidth
-            : 0
-          : getNonCombinedPointInset(resolvedSize);
-      const key = `${hex}:${opacity}:${borderVisible}:${borderColor}:${borderOpacity}:${borderWidth}:${resolvedShape}:${resolvedSize}:${combinedPracticeName ?? ''}:${combinedPracticeStyle?.visible ?? false}:${combinedPracticeStyle?.borderColor ?? ''}:${combinedPracticeStyle?.borderOpacity ?? 0}:${combinedPracticeStyle?.borderWidth ?? 0}`;
+      const pointPresentation = resolvePointPresentation({
+        feature,
+        regions,
+        combinedPracticeStyles,
+        symbolShape,
+        symbolSize,
+        assignmentSource,
+      });
+      const key = [
+        pointPresentation.fillColor,
+        pointPresentation.borderColor,
+        pointPresentation.borderWidth,
+        pointPresentation.shape,
+        pointPresentation.size,
+        pointPresentation.outerRingColor ?? '',
+        pointPresentation.outerRingGap,
+        pointPresentation.outerRingWidth,
+        pointPresentation.outerRingPlacement,
+        pointPresentation.baseShapeInset,
+      ].join(':');
       const existing = styleCache.get(key);
       if (existing) {
         return existing;
@@ -106,17 +70,17 @@ export function getStyleForLayer(
 
       const style = new Style({
         image: createPointSymbol(
-          resolvedShape,
-          resolvedSize,
-          withOpacity(hex, opacity),
-          blendWithWhite(borderColor, borderOpacity),
-          borderWidth,
+          pointPresentation.shape,
+          pointPresentation.size,
+          pointPresentation.fillColor,
+          pointPresentation.borderColor,
+          pointPresentation.borderWidth,
           {
-            outerRingColor: combinedPracticeRingColor,
-            outerRingGap: combinedPracticeRingGap,
-            outerRingWidth: combinedPracticeRingWidth,
-            outerRingPlacement: borderWidth > 0 ? 'inside' : 'outside',
-            baseShapeInset,
+            outerRingColor: pointPresentation.outerRingColor,
+            outerRingGap: pointPresentation.outerRingGap,
+            outerRingWidth: pointPresentation.outerRingWidth,
+            outerRingPlacement: pointPresentation.outerRingPlacement,
+            baseShapeInset: pointPresentation.baseShapeInset,
           },
         ),
       });
