@@ -256,28 +256,31 @@ Why timing is worse right now:
 
 - The `Population at Risk (PAR)` top-bar pane is now locked as a production-owned internal summary surface in `src/components/layout/TopBar.tsx` and `src/components/layout/topBar.css`.
 - It is no longer a repeated three-column `label / PAR: / value` pattern.
-- The live contract is now a two-column grid:
-  - left column: `Facility:`, `Practice:`, `Region:`, `Baseport:`, `Total:`
+- The live contract is now a six-row two-column summary:
+  - left column: `Facility:`, `Practice:`, `Region:`, `Baseport:`, `Correction:`, `Total:`
   - right column: right-aligned values
 - `Total` remains emphasized through `topbar__spacer-par-value--total`.
+- `Correction` uses the display format `(n% of 8.5k) value`.
 
 ### Locked typography and spacing seam
 
 - The PAR pane uses its own scoped tokens and should not borrow general middle-pane text tuning:
-  - `--topbar-spacer-par-grid-font-size: 0.625rem`
-  - `--topbar-spacer-par-grid-row-gap: 0.35em`
+  - `--topbar-spacer-par-grid-font-size: 0.55rem`
+  - `--topbar-spacer-par-fixed-height: 4rem`
   - `--topbar-spacer-par-grid-offset-y: calc(var(--topbar-cluster-label-offset-y) - 0.07em)`
-- The pane stays bottom-anchored through `.topbar__pane--spacer-par { justify-content: space-between; }` plus `.topbar__spacer-par-grid { align-content: end; }`.
-- If PAR spacing is tuned again later, preserve the bottom-row anchor and adjust the offset token deliberately rather than changing the pane layout model.
+- The pane now uses a fixed-height distributed row stack in `.topbar__spacer-par-summary`; keep the first and last rows visually anchored while interior rows stay evenly spaced.
+- The only approved row-specific vertical adjustments are the tiny paint-only transforms on `Facility` and `Total`.
+- If PAR spacing is tuned again later, preserve the fixed-height distributed layout contract and adjust row paint offsets deliberately rather than reintroducing row-specific margin hacks.
 
 ### Locked data contract
 
-- `Facility PAR`, `Practice PAR`, `Region PAR`, `Baseport PAR`, and `Total PAR` all flow from `pointTooltipDisplay`.
+- `Facility PAR`, `Practice PAR`, `Region PAR`, `Baseport PAR`, `Correction PAR`, and `Total PAR` all flow from `pointTooltipDisplay`.
 - `Baseport PAR` is Royal-Navy-only, but now follows the active board geography rather than the stored PMC region label:
   - Clyde -> Scotland / Highland basis
   - Devonport -> South West / Devon basis
   - Portsmouth -> London & South / Hampshire and Isle of Wight basis on `Current`
 - `Total PAR = Region PAR + Baseport PAR`.
+- `Correction PAR` is derived from proportional regional contribution to `Total PAR`, using the displayed `Region PAR / Total PAR` share against a fixed `8,500` base.
 
 ### Locked combined-practice pane contract
 

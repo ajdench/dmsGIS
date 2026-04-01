@@ -288,19 +288,23 @@ Current Exact-sidebar convention note:
 Current top-bar selection note:
 
 - the `Population at Risk (PAR)` header pane is no longer a placeholder-only label
-- it now uses a true internal production summary grid with five rows:
+- it now uses a true internal production summary grid with six rows:
   - `Facility:`
   - `Practice:`
   - `Region:`
   - `Baseport:`
+  - `Correction:`
   - `Total:`
 - the grid is now a locked two-column pattern:
   - left column = labels with trailing `:`
   - right column = right-aligned values
-- the PAR pane grid now keys off the same lower-row baseline treatment as the merged `ICB / Health Board` row, with a small additional upward trim for visual match and the bottom row kept anchored
+- the PAR pane now uses a fixed-height distributed internal row stack, so the top and bottom rows stay anchored while interior spacing remains even
+- only two PAR row-specific optical nudges are approved:
+  - `Facility` may sit a tiny touch lower
+  - `Total` may sit a tiny touch higher
 - current locked PAR tuning tokens in `src/components/layout/topBar.css` are:
-  - `--topbar-spacer-par-grid-font-size: 0.625rem`
-  - `--topbar-spacer-par-grid-row-gap: 0.35em`
+  - `--topbar-spacer-par-grid-font-size: 0.55rem`
+  - `--topbar-spacer-par-fixed-height: 4rem`
   - `--topbar-spacer-par-grid-offset-y: calc(var(--topbar-cluster-label-offset-y) - 0.07em)`
 - `Practice PAR` is derived from the selected facility’s `combined_practice`
 - `Region PAR` must continue to follow the active displayed region/assignment basis rather than assuming only raw PMC region names
@@ -308,6 +312,7 @@ Current top-bar selection note:
   - Clyde -> Scotland / Highland basis
   - Devonport -> South West / Devon basis
   - Portsmouth -> London & South / Hampshire and Isle of Wight basis on `Current`
+- `Correction PAR` is `(Region PAR / Total PAR)` applied to a fixed `8,500` base and displayed as `(n% of 8.5k) value`
 - `Total PAR` is `Region PAR + Baseport PAR`
 - the second middle header pane now has a locked combined-practice contract:
   - non-combined / empty state stays titled `Combined Practice`
