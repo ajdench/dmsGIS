@@ -59,7 +59,6 @@ export function findCareBoardBoundaryAtCoordinate(
   overlayLayers: OverlayLayerStyle[],
   overlayLayerRefs: globalThis.Map<string, VectorLayer<VectorSource>>,
 ): Feature | null {
-  const regionFillSource = overlayLayerRefs.get('regionFill')?.getSource() ?? null;
   const orderedOverlayLayers = [...overlayLayers].sort((a, b) => {
     const aPriority = a.family === 'wardSplitFill' ? 0 : 1;
     const bPriority = b.family === 'wardSplitFill' ? 0 : 1;
@@ -76,7 +75,7 @@ export function findCareBoardBoundaryAtCoordinate(
       .getFeatures()
       .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
     if (hit) {
-      return resolveSplitBoundaryParentFeature(hit, regionFillSource) ?? hit;
+      return hit;
     }
   }
 
@@ -95,35 +94,6 @@ export function findBoundaryHighlightFeatureForPointCoordinate(
   );
   if (!matchedBoundary) return null;
   return matchedBoundary;
-}
-
-function resolveSplitBoundaryParentFeature(
-  feature: Feature,
-  regionFillSource: VectorSource | null,
-): Feature | null {
-  const parentCode = String(feature.get('parent_code') ?? '').trim();
-  if (!parentCode || !regionFillSource) {
-    return null;
-  }
-
-  const parentFeature =
-    regionFillSource
-      .getFeatures()
-      .find((candidate) => String(candidate.get('boundary_code') ?? '').trim() === parentCode) ??
-    null;
-  if (!parentFeature) {
-    return null;
-  }
-
-  const splitRegionRef = String(feature.get('region_ref') ?? '').trim();
-  if (!splitRegionRef) {
-    return parentFeature;
-  }
-
-  const clonedParent = parentFeature.clone();
-  clonedParent.set('selection_region_ref', splitRegionRef);
-  clonedParent.set('selection_parent_code', parentCode);
-  return clonedParent;
 }
 
 const _geoJsonFormat = new GeoJSON({ featureProjection: 'EPSG:3857' });
@@ -190,11 +160,10 @@ export function deriveCurrentGroupOutlineFeature(
       (feature) => String(feature.get('region_ref') ?? '').trim() === groupName,
     ) ?? [];
 
-  if (splitGroupFeatures.length > 0) {
+  const features = [...regularGroupFeatures, ...splitGroupFeatures];
+  if (features.length === 0) {
     return null;
   }
-
-  const features = regularGroupFeatures;
 
   try {
     return createDerivedOutlineFeature(groupName, features);
@@ -391,6 +360,10 @@ function getScenarioJmcName(
   if (selectedRegionRef) {
     return selectedRegionRef;
   }
+  // Ward-split sub-polygons carry region_ref as the direct DPHC group name and
+  // should override the hidden parent-board default mapping.
+  const regionRef = String(feature.get('region_ref') ?? '').trim();
+  if (regionRef) return regionRef;
   // Primary: boundary_code → codeGroupings lookup (main GeoJSON features).
   const boundaryCode = String(feature.get('boundary_code') ?? '').trim();
   if (boundaryCode) {
@@ -399,9 +372,6 @@ function getScenarioJmcName(
       return mappedGroupName;
     }
   }
-  // Ward-split sub-polygons carry region_ref as the direct DPHC group name.
-  const regionRef = String(feature.get('region_ref') ?? '').trim();
-  if (regionRef) return regionRef;
   // Legacy fallback: read pre-baked group name directly from feature properties.
   return String(feature.get('region_name') ?? feature.get('jmc_name') ?? '').trim();
 }

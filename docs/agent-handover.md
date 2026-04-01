@@ -608,6 +608,10 @@ Current `v3.2` state:
   - future `Current` white-gap reports should now be triaged in this order:
     - first confirm whether the live split-runtime artifact is still hole-free
     - then treat any remaining slivers as render-path seam masking or a separate border-contiguity issue rather than assuming another interior-ring regression
+  - a follow-up split-case border mismatch was then fixed in the live map runtime:
+    - clicked split ICB parts are no longer collapsed back onto the hidden whole-parent geometry for the yellow selected-boundary helper
+    - `deriveCurrentGroupOutlineFeature(...)` now derives `Current` selected Region outlines from the live split-aware geometry on the map instead of bailing out to the older precomputed file path whenever split features are present
+    - this means the yellow selected-boundary helper and the selected `Current` Region boundary now share the same split-aware basis in the three special split-parent cases, reducing double-border and apparent non-contiguity artefacts
   - two unrelated review/build seams remain documented for future cleanup:
     - `scripts/build-shared-foundation-review-family.mjs` still later trips over a missing compare-family water-edge class file during `build_group_inland_outline_modifiers.py`
     - `scripts/validate-runtime-geometry-family.mjs` still assumes local basemap mask artifacts under `public/data/basemaps/`, which are not present in this checkout
