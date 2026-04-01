@@ -31,7 +31,7 @@ describe('mapStyleUtils', () => {
       3,
     );
     expect(getSelectedPointHighlightOffset(3.5, true, false)).toBeCloseTo(
-      getNonCombinedPointInset(3.5) + 1,
+      1,
       3,
     );
   });

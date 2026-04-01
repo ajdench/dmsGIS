@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SidebarControlRow } from '../../components/sidebar/SidebarControlRow';
 import { SidebarControlSections } from '../../components/sidebar/SidebarControlSections';
 import { SidebarPanelShell } from '../../components/sidebar/SidebarPanelShell';
@@ -11,7 +11,6 @@ export function PmcPanel() {
   const currentViewPresetState = useAppStore(
     (state) => state.currentViewPresetState,
   );
-  const activeViewPreset = useAppStore((state) => state.activeViewPreset);
   const regionGlobalOpacity = useAppStore((state) => state.regionGlobalOpacity);
   const facilitySymbolShape = useAppStore((state) => state.facilitySymbolShape);
   const facilitySymbolSize = useAppStore((state) => state.facilitySymbolSize);
@@ -54,22 +53,9 @@ export function PmcPanel() {
   const copyFillToBorder = useAppStore((state) => state.copyFillToBorder);
   const copyRegionFillToBorder = useAppStore((state) => state.copyRegionFillToBorder);
   const setFacilitySymbolSize = useAppStore((state) => state.setFacilitySymbolSize);
-  const [globalBorderPopoverState, setGlobalBorderPopoverState] = useState<
-    'on' | 'off'
-  >('off');
   const defaultRegionColors = Object.fromEntries(
     (currentViewPresetState?.regions ?? []).map((region) => [region.name, region.color]),
   );
-
-  useEffect(() => {
-    // The global PMC border popover is a family control surface, not a row-state summary.
-    setGlobalBorderPopoverState('off');
-  }, [activeViewPreset]);
-
-  const handleAllRegionBorderVisibility = (visible: boolean) => {
-    setGlobalBorderPopoverState(visible ? 'on' : 'off');
-    setAllRegionBorderVisibility(visible);
-  };
 
   const pmc = buildPmcPanelDefinition({
     regions,
@@ -89,7 +75,7 @@ export function PmcPanel() {
     setAllRegionVisibility,
     setAllRegionColor,
     resetAllRegionColorsToDefault,
-    setAllRegionBorderVisibility: handleAllRegionBorderVisibility,
+    setAllRegionBorderVisibility,
     setAllRegionBorderColor,
     setAllRegionBorderOpacity,
     setAllRegionBorderWidth,
@@ -98,7 +84,6 @@ export function PmcPanel() {
     setAllRegionShape,
     setFacilitySymbolSize,
     defaultRegionColors,
-    borderSectionStateOverride: globalBorderPopoverState,
   });
 
   return (

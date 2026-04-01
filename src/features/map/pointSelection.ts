@@ -457,13 +457,18 @@ function getRenderedPointPixelRadius(
   baseShapeInset: number,
   outerRingWidth: number,
 ): number {
+  const hasVisibleOuterBorder = borderWidth > 0;
   if (shape === 'circle') {
-    return size - baseShapeInset + borderWidth + outerRingWidth;
+    return hasVisibleOuterBorder ? size + outerRingWidth : size - baseShapeInset + outerRingWidth;
   }
 
   if (shape === 'square' || shape === 'diamond') {
-    return size * 1.05 - baseShapeInset + borderWidth + outerRingWidth;
+    return hasVisibleOuterBorder
+      ? size * 1.05 + outerRingWidth
+      : size * 1.05 - baseShapeInset + outerRingWidth;
   }
 
-  return size * 1.15 - baseShapeInset + borderWidth + outerRingWidth;
+  return hasVisibleOuterBorder
+    ? size * 1.15 + outerRingWidth
+    : size * 1.15 - baseShapeInset + outerRingWidth;
 }

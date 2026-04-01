@@ -1078,6 +1078,7 @@ Playground entry is now explicitly split by source preset.
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
 - combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides
 - combined-practice family rings now use an inside-band symbol contract in `src/features/map/mapStyleUtils.ts`: the family ring is drawn inside the shared outer point diameter instead of expanding it, and non-combined points now stop at the midpoint of that family-ring band so plain points still read slightly larger while point-size controls and combined border-width controls continue to change the inner/ring split
+- PMC point borders now default to off in the loaded region style state, and when enabled they wrap the outer point footprint for both combined and non-combined points rather than drawing only on the inner fill geometry; enabling borders from older zero-opacity state should promote them back to a visible default border
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width and bottom-left width: `932.6875px`
   - sidebar width and bottom-right width: `311.3125px`

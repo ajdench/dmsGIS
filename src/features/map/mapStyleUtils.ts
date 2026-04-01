@@ -80,10 +80,10 @@ export function createPointSymbol(
   const outerRingGap = options.outerRingGap ?? 0;
   const outerRingPlacement = options.outerRingPlacement ?? 'outside';
   const baseShapeInset = options.baseShapeInset ?? 0;
-  // Convert screen-pixel border width to canvas coordinate units.
-  // Double it so the centered canvas stroke contributes one borderWidth of
-  // visible expansion outside the filled shape.
-  const canvasStrokeWidth = borderWidth > 0 ? (borderWidth / scale) * 2 : 0;
+  // Convert the desired screen-pixel border width to canvas coordinate units.
+  // Point borders now occupy an inside band at the outer point footprint rather
+  // than expanding the symbol beyond that footprint.
+  const canvasStrokeWidth = borderWidth > 0 ? borderWidth / scale : 0;
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
@@ -119,17 +119,16 @@ export function getPointSymbolCanvasPadding(
   const outerRingGap = options.outerRingGap ?? 0;
   const outerRingPlacement = options.outerRingPlacement ?? 'outside';
   const baseShapeInset = options.baseShapeInset ?? 0;
-  const canvasStrokeWidth = borderWidth > 0 ? (borderWidth / scale) * 2 : 0;
+  const canvasStrokeWidth = borderWidth > 0 ? borderWidth / scale : 0;
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
-  const borderOutside = canvasStrokeWidth > 0 ? canvasStrokeWidth / 2 : 0;
   const outerRingOutside =
     outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
       ? canvasOuterRingGap + canvasOuterRingWidth
       : 0;
   return Math.ceil(
-    Math.max(MIN_CANVAS_PADDING, borderOutside, outerRingOutside, baseShapeInset / scale) +
+    Math.max(MIN_CANVAS_PADDING, outerRingOutside, baseShapeInset / scale) +
       CANVAS_PADDING_BUFFER,
   );
 }
@@ -152,12 +151,15 @@ export function getSelectedPointHighlightOffset(
   hasVisibleBorder: boolean,
   hasCombinedPracticeRing: boolean,
 ): number {
-  const baseHighlightOffset = hasVisibleBorder ? 1 : 0;
-  if (hasCombinedPracticeRing) {
-    return baseHighlightOffset;
+  if (hasVisibleBorder) {
+    return 1;
   }
 
-  return getNonCombinedPointInset(size) + baseHighlightOffset;
+  if (hasCombinedPracticeRing) {
+    return 0;
+  }
+
+  return getNonCombinedPointInset(size);
 }
 
 /**
@@ -212,16 +214,16 @@ function renderShapeCanvas(
   canvas.height = canvasSize;
   const ctx = canvas.getContext('2d')!;
 
-  // Outer family ring: render an outside-only same-shape stroke so the family
-  // treatment stays centered, shape-matched, and visually separate from the
-  // underlying point fill and border.
-  const borderOutside = strokeWidth > 0 ? strokeWidth / 2 : 0;
-  const fillInset = baseShapeInset;
+  // Point borders now occupy the outer point footprint. The filled point and
+  // any combined-practice family ring sit inside that band so combined and
+  // non-combined symbols share one outer geometry model.
+  const borderInset = strokeWidth > 0 ? strokeWidth / 2 : 0;
+  const fillInset = baseShapeInset + (strokeWidth > 0 ? strokeWidth : 0);
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
     ctx.lineWidth = outerRingWidth;
-    const ringInset = fillInset - outerRingGap - outerRingWidth / 2 - borderOutside;
+    const ringInset = fillInset - outerRingGap - outerRingWidth / 2;
     tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(ringInset));
     ctx.stroke();
   }
@@ -235,7 +237,7 @@ function renderShapeCanvas(
   if (borderColor && strokeWidth > 0) {
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = strokeWidth;
-    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(fillInset));
+    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(borderInset));
     ctx.stroke();
   }
 

@@ -653,7 +653,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   setRegionBorderVisibility: (name, visible) =>
     set((state) => ({
       regions: state.regions.map((region) =>
-        region.name === name ? { ...region, borderVisible: visible } : region,
+        region.name === name
+          ? {
+              ...region,
+              borderVisible: visible,
+              borderOpacity:
+                visible && region.borderOpacity <= 0 ? 1 : region.borderOpacity,
+              borderWidth:
+                visible && region.borderWidth <= 0 ? 1 : region.borderWidth,
+            }
+          : region,
       ),
     })),
   setRegionBorderColor: (name, color) =>
@@ -739,7 +748,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     }),
   setAllRegionBorderVisibility: (visible) =>
     set((state) => ({
-      regions: state.regions.map((region) => ({ ...region, borderVisible: visible })),
+      regions: state.regions.map((region) => ({
+        ...region,
+        borderVisible: visible,
+        borderOpacity:
+          visible && region.borderOpacity <= 0 ? 1 : region.borderOpacity,
+        borderWidth: visible && region.borderWidth <= 0 ? 1 : region.borderWidth,
+      })),
     })),
   setAllRegionBorderColor: (color) =>
     set((state) => {
@@ -1375,10 +1390,10 @@ async function loadRegionStyles(
           color,
           opacity,
           shape: 'circle',
-          borderVisible: true,
+          borderVisible: false,
           borderColor: '#ffffff',
           borderWidth: 1,
-          borderOpacity: 0,
+          borderOpacity: 1,
           symbolSize: Math.max(1, Math.min(12, defaultSymbolSize)),
         });
       }

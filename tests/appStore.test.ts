@@ -251,6 +251,44 @@ describe('appStore region controls', () => {
     );
   });
 
+  it('makes point borders immediately visible when turning them on from the default-off state', () => {
+    useAppStore.setState({
+      regions: [
+        {
+          name: 'North',
+          visible: true,
+          color: '#a7c636',
+          opacity: 1,
+          shape: 'circle',
+          borderVisible: false,
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
+        {
+          name: 'East',
+          visible: true,
+          color: '#fc921f',
+          opacity: 1,
+          shape: 'circle',
+          borderVisible: false,
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
+      ],
+    });
+
+    useAppStore.getState().setAllRegionBorderVisibility(true);
+
+    const { regions } = useAppStore.getState();
+    expect(regions.every((region) => region.borderVisible)).toBe(true);
+    expect(regions.every((region) => region.borderOpacity === 1)).toBe(true);
+    expect(regions.every((region) => region.borderWidth === 1)).toBe(true);
+  });
+
   it('resets global combined-practice colours back to the active preset defaults', () => {
     useAppStore.getState().setAllCombinedPracticeBorderColor('#111111');
     useAppStore.getState().resetAllCombinedPracticeColorsToDefault();
