@@ -23,14 +23,22 @@ type ParSummaryRow = {
     | 'practicePar'
     | 'regionPar'
     | 'baseportPar'
+    | 'correctionPar'
     | 'totalPar';
   valueClassName?: string;
+  rowClassName?: string;
 };
 const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
   { label: 'Facility:', valueKey: 'facilityPar' },
   { label: 'Practice:', valueKey: 'practicePar' },
   { label: 'Region:', valueKey: 'regionPar' },
   { label: 'Baseport:', valueKey: 'baseportPar' },
+  {
+    label: 'Correction:',
+    valueKey: 'correctionPar',
+    rowClassName: 'topbar__spacer-par-row--correction',
+    valueClassName: 'topbar__spacer-par-value--correction',
+  },
   {
     label: 'Total:',
     valueKey: 'totalPar',
@@ -388,28 +396,21 @@ export function TopBar() {
             ) : null}
             {isParPane ? (
               <div className="topbar__spacer-par-summary" aria-label="Population at risk summary">
-                <div className="topbar__spacer-par-grid">
-                  {PAR_SUMMARY_ROWS.map(({ label: rowLabel, valueKey, valueClassName }) => (
-                    <Fragment key={rowLabel}>
-                      <span
-                        className="topbar__spacer-par-title"
-                      >
-                        {rowLabel}
-                      </span>
-                      <span
-                        className={`topbar__spacer-par-value${
-                          valueClassName ? ` ${valueClassName}` : ''
-                        }`}
-                      >
-                        {pointTooltipDisplay[valueKey] ?? '—'}
-                      </span>
-                    </Fragment>
-                  ))}
-                </div>
-                <span className="topbar__spacer-par-inserted-row">
-                  Proportional <em className="topbar__spacer-par-emphasis">Registration</em>{' '}
-                  correction:
-                </span>
+                {PAR_SUMMARY_ROWS.map(({ label: rowLabel, valueKey, valueClassName, rowClassName }) => (
+                  <div
+                    key={rowLabel}
+                    className={`topbar__spacer-par-row${rowClassName ? ` ${rowClassName}` : ''}`}
+                  >
+                    <span className="topbar__spacer-par-title">{rowLabel}</span>
+                    <span
+                      className={`topbar__spacer-par-value${
+                        valueClassName ? ` ${valueClassName}` : ''
+                      }`}
+                    >
+                      {pointTooltipDisplay[valueKey] ?? '—'}
+                    </span>
+                  </div>
+                ))}
               </div>
             ) : null}
           </div>

@@ -11,6 +11,8 @@ export interface FacilityParRecord {
   parValue: unknown;
 }
 
+export const PROPORTIONAL_PAR_CORRECTION_BASE = 8500;
+
 export function parseFacilityParValue(value: unknown): number | null {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -35,6 +37,25 @@ export function formatParDisplayValue(value: number | null): string {
   }
 
   return new Intl.NumberFormat('en-GB').format(value);
+}
+
+export function formatProportionalParCorrectionDisplay(params: {
+  regionPar: number | null;
+  totalPar: number | null;
+}): string | null {
+  const { regionPar, totalPar } = params;
+  if (regionPar === null || totalPar === null || totalPar <= 0) {
+    return null;
+  }
+
+  const share = regionPar / totalPar;
+  if (!Number.isFinite(share) || share < 0) {
+    return null;
+  }
+
+  const percent = Math.round(share * 100);
+  const correctionValue = Math.round(share * PROPORTIONAL_PAR_CORRECTION_BASE);
+  return `(${percent}% of 8.5k) ${formatParDisplayValue(correctionValue)}`;
 }
 
 export function summarizeFacilityParByRegion(

@@ -8,6 +8,7 @@ import {
 } from '../src/features/map/facilityPar';
 import {
   formatParDisplayValue,
+  formatProportionalParCorrectionDisplay,
   parseFacilityParValue,
   summarizeFacilityParByScenarioWorkspace,
   summarizeFacilityParByPresetRegion,
@@ -25,6 +26,21 @@ describe('facilityPar', () => {
   it('formats null PAR values as an em dash', () => {
     expect(formatParDisplayValue(null)).toBe('—');
     expect(formatParDisplayValue(4548)).toBe('4,548');
+  });
+
+  it('formats the proportional correction display from the regional share of total PAR', () => {
+    expect(
+      formatProportionalParCorrectionDisplay({
+        regionPar: 200,
+        totalPar: 240,
+      }),
+    ).toBe('(83% of 8.5k) 7,083');
+    expect(
+      formatProportionalParCorrectionDisplay({
+        regionPar: null,
+        totalPar: 240,
+      }),
+    ).toBeNull();
   });
 
   it('summarizes PAR totals by region and overall total', () => {

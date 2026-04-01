@@ -54,12 +54,14 @@
   --topbar-spacer-practice-combined-title-font-size-min: 0.5rem;
   --topbar-spacer-practice-combined-title-font-size-ideal: 8cqi;
   --topbar-spacer-practice-combined-title-font-size-max: var(--topbar-middle-pane-text-font-size);
-  --topbar-spacer-par-grid-font-size: 0.625rem;
+  --topbar-spacer-practice-summary-row-count: 5;
+  --topbar-spacer-par-grid-font-size: 0.55rem;
   --topbar-spacer-practice-second-column-offset: 0.375rem;
   /* PAR pane rows key off the merged board-label baseline treatment, then sit a touch higher. */
   --topbar-spacer-par-grid-offset-y: calc(var(--topbar-cluster-label-offset-y) - 0.07em);
-  --topbar-spacer-par-grid-row-gap: 0.35em;
-  --topbar-spacer-par-grid-row-count: 5;
+  --topbar-spacer-par-grid-row-gap: 0.22rem;
+  --topbar-spacer-par-grid-row-count: 6;
+  --topbar-spacer-par-fixed-height: 4rem;
   --topbar-cluster-bottom-content-width: var(--topbar-cluster-longest-label-width);
   --topbar-cluster-bottom-min-width: calc(
     var(--topbar-cluster-bottom-content-width) + (2 * var(--topbar-cluster-pane-padding-x))
@@ -203,7 +205,7 @@
 .topbar__spacer-practice-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(var(--topbar-spacer-par-grid-row-count), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--topbar-spacer-practice-summary-row-count), minmax(0, 1fr));
   column-gap: var(--space-3);
   row-gap: var(--topbar-spacer-par-grid-row-gap);
   width: 100%;
@@ -214,8 +216,8 @@
   line-height: var(--topbar-cluster-label-line-height);
   letter-spacing: var(--topbar-cluster-label-letter-spacing);
   min-block-size: calc(
-    (var(--topbar-spacer-par-grid-row-count) * 1em) +
-      ((var(--topbar-spacer-par-grid-row-count) - 1) * var(--topbar-spacer-par-grid-row-gap))
+    (var(--topbar-spacer-practice-summary-row-count) * 1em) +
+      ((var(--topbar-spacer-practice-summary-row-count) - 1) * var(--topbar-spacer-par-grid-row-gap))
   );
   transform: translateY(var(--topbar-spacer-par-grid-offset-y));
 }
@@ -277,12 +279,11 @@
 }
 
 .topbar__spacer-par-summary {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 100%;
-  min-block-size: calc(
-    (var(--topbar-spacer-par-grid-row-count) * 1em) +
-      ((var(--topbar-spacer-par-grid-row-count) - 1) * var(--topbar-spacer-par-grid-row-gap))
-  );
+  height: var(--topbar-spacer-par-fixed-height);
   color: var(--topbar-cluster-label-color);
   font-size: var(--topbar-spacer-par-grid-font-size);
   line-height: var(--topbar-cluster-label-line-height);
@@ -290,14 +291,13 @@
   transform: translateY(var(--topbar-spacer-par-grid-offset-y));
 }
 
-.topbar__spacer-par-grid {
+.topbar__spacer-par-row {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  grid-template-rows: repeat(var(--topbar-spacer-par-grid-row-count), max-content);
-  column-gap: 0.45ch;
-  row-gap: var(--topbar-spacer-par-grid-row-gap);
+  column-gap: 0.38ch;
   width: 100%;
-  align-content: end;
+  min-height: 0;
+  align-items: baseline;
 }
 
 .topbar__spacer-par-title {
@@ -305,33 +305,26 @@
   white-space: nowrap;
 }
 
-.topbar__spacer-par-inserted-row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(3.73em + (3 * var(--topbar-spacer-par-grid-row-gap)));
-  font-size: 0.575em;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: visible;
-  text-overflow: clip;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.topbar__spacer-par-emphasis {
-  font-style: italic;
-}
-
 .topbar__spacer-par-value {
   min-width: 0;
+  display: block;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
+}
+
+.topbar__spacer-par-row--correction {
+  margin-top: calc(var(--topbar-spacer-par-grid-row-gap) * -0.35);
+}
+
+.topbar__spacer-par-value--correction {
+  font-size: 0.9em;
+  letter-spacing: -0.02em;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .topbar__spacer-par-value--total {

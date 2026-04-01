@@ -95,6 +95,7 @@ interface PointTooltipDisplayState {
   practicePar: string | null;
   regionPar: string | null;
   baseportPar: string | null;
+  correctionPar: string | null;
   totalPar: string | null;
   pageIndex: number;
   pageCount: number;
@@ -1695,6 +1696,7 @@ function createDefaultPointTooltipDisplayState(): PointTooltipDisplayState {
     practicePar: null,
     regionPar: null,
     baseportPar: null,
+    correctionPar: null,
     totalPar: null,
     pageIndex: 0,
     pageCount: 0,

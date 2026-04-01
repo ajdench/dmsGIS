@@ -126,6 +126,7 @@ import { getFacilityFeatureProperties } from '../../lib/facilities';
 import {
   buildSelectedFacilityParSummary,
   formatParDisplayValue,
+  formatProportionalParCorrectionDisplay,
 } from './facilityPar';
 import { buildSelectedFacilityPracticeSummary } from './facilityPracticeSummary';
 import { useAppStore } from '../../store/appStore';
@@ -561,6 +562,7 @@ export function MapWorkspace() {
         practicePar: formatParDisplayValue(practicePar),
         regionPar: formatParDisplayValue(regionPar),
         baseportPar: formatParDisplayValue(baseportPar),
+        correctionPar: formatProportionalParCorrectionDisplay({ regionPar, totalPar }),
         totalPar: formatParDisplayValue(totalPar),
         pageIndex: pointTooltipIndexRef.current,
         pageCount: pointTooltipEntriesRef.current.length,
@@ -599,6 +601,7 @@ export function MapWorkspace() {
         practicePar: null,
         regionPar: formatParDisplayValue(regionPar),
         baseportPar: formatParDisplayValue(baseportPar),
+        correctionPar: formatProportionalParCorrectionDisplay({ regionPar, totalPar }),
         totalPar: formatParDisplayValue(totalPar),
         pageIndex: 0,
         pageCount: 0,
@@ -1063,6 +1066,7 @@ export function MapWorkspace() {
       practicePar: null,
       regionPar: null,
       baseportPar: null,
+      correctionPar: null,
       totalPar: null,
       pageIndex: 0,
       pageCount: 0,

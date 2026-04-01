@@ -29,6 +29,7 @@ describe('TopBar', () => {
         practicePar: null,
         regionPar: null,
         baseportPar: null,
+        correctionPar: null,
         totalPar: null,
         pageIndex: 0,
         pageCount: 0,
@@ -120,6 +121,7 @@ describe('TopBar', () => {
         practicePar: null,
         regionPar: '2,000',
         baseportPar: '40',
+        correctionPar: '(98% of 8.5k) 8,333',
         totalPar: '2,040',
       },
     }));
@@ -131,6 +133,8 @@ describe('TopBar', () => {
     expect(screen.getByText('Central & Wessex')).toBeTruthy();
     expect(screen.getByText('2,000')).toBeTruthy();
     expect(screen.getByText('40')).toBeTruthy();
+    expect(screen.getByText('Correction:')).toBeTruthy();
+    expect(screen.getByText('(98% of 8.5k) 8,333')).toBeTruthy();
     expect(screen.getByText('2,040')).toBeTruthy();
   });
 });
