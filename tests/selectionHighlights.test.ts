@@ -168,7 +168,9 @@ describe('selectionHighlights', () => {
     });
     const highlighted = selectedBoundaryLayer.getSource()?.getFeatures()[0];
     expect(highlighted?.get('boundary_code')).toBe('E54000042');
-    expect(highlighted?.get('region_ref')).toBeUndefined();
+    expect(highlighted?.get('region_ref')).toBe('Central & Wessex');
+    expect(highlighted?.get('selection_region_ref')).toBe('Central & Wessex');
+    expect(highlighted?.get('selection_parent_code')).toBe('E54000042');
   });
 
   it('syncs selected JMC outline features onto the highlight layer', () => {
