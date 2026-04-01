@@ -55,6 +55,8 @@
   --topbar-spacer-practice-combined-title-font-size-ideal: 8cqi;
   --topbar-spacer-practice-combined-title-font-size-max: var(--topbar-middle-pane-text-font-size);
   --topbar-spacer-practice-summary-row-count: 5;
+  --topbar-spacer-practice-summary-font-size: 0.625rem;
+  --topbar-spacer-practice-summary-row-gap: 0.35em;
   --topbar-spacer-par-grid-font-size: 0.55rem;
   --topbar-spacer-practice-second-column-offset: 0.375rem;
   /* PAR pane rows key off the merged board-label baseline treatment, then sit a touch higher. */
@@ -207,17 +209,17 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(var(--topbar-spacer-practice-summary-row-count), minmax(0, 1fr));
   column-gap: var(--space-3);
-  row-gap: var(--topbar-spacer-par-grid-row-gap);
+  row-gap: var(--topbar-spacer-practice-summary-row-gap);
   width: 100%;
   align-content: start;
   overflow: visible;
   color: var(--topbar-cluster-label-color);
-  font-size: var(--topbar-spacer-par-grid-font-size);
+  font-size: var(--topbar-spacer-practice-summary-font-size);
   line-height: var(--topbar-cluster-label-line-height);
   letter-spacing: var(--topbar-cluster-label-letter-spacing);
   min-block-size: calc(
     (var(--topbar-spacer-practice-summary-row-count) * 1em) +
-      ((var(--topbar-spacer-practice-summary-row-count) - 1) * var(--topbar-spacer-par-grid-row-gap))
+      ((var(--topbar-spacer-practice-summary-row-count) - 1) * var(--topbar-spacer-practice-summary-row-gap))
   );
   transform: translateY(var(--topbar-spacer-par-grid-offset-y));
 }
