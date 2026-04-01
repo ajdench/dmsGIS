@@ -83,6 +83,10 @@ export function formatFacilityRefreshSummary(summary, label) {
   return lines.join('\n');
 }
 
+export function facilityFeatureCollectionsMatch(leftFeatures, rightFeatures) {
+  return JSON.stringify(leftFeatures ?? []) === JSON.stringify(rightFeatures ?? []);
+}
+
 export function parseParValue(value) {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;

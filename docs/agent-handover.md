@@ -147,6 +147,8 @@ Current facilities dataset note:
 - current facilities source-of-truth rule:
   - do not hand-edit `public/data/compare/shared-foundation-review/facilities/facilities.geojson` as the primary update path
   - refresh from the export and rebuild the accepted runtime family instead
+  - the accepted review-family facilities artifact is now expected to be an exact copy of the canonical enriched `public/data/facilities/facilities.geojson`
+  - `scripts/build-shared-foundation-review-family.mjs` now throws if that parity is broken
 
 Current Exact-sidebar convention note:
 

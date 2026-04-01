@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  facilityFeatureCollectionsMatch,
+  loadFacilitiesGeoJson,
+} from './facility-refresh-validation.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +38,14 @@ const REVIEW_ALIGNMENT_REPORT = path.join(
   REVIEW_STAGE_ROOT,
   'paired_current_2026_alignment_report.json',
 );
+const CANONICAL_FACILITIES = path.join(
+  ROOT,
+  'public',
+  'data',
+  'facilities',
+  'facilities.geojson',
+);
+const REVIEW_FACILITIES_GEOJSON = path.join(REVIEW_FACILITIES, 'facilities.geojson');
 
 function run(command, args, env = {}) {
   execFileSync(command, args, {
@@ -120,14 +132,6 @@ function main() {
     BASEMAPS_DIR: path.relative(ROOT, REVIEW_BASEMAPS),
   });
 
-  run('node', ['scripts/enrich-facilities.mjs'], {
-    REGIONS_DIR: path.relative(ROOT, REVIEW_REGIONS),
-    FACILITIES_GEOJSON_PATH: path.relative(
-      ROOT,
-      path.join(REVIEW_FACILITIES, 'facilities.geojson'),
-    ),
-  });
-
   run('node', ['scripts/buildLegacyRegionOutlines.mjs'], {
     LEGACY_REGION_OUTLINE_INPUT_PATHS: [
       path.join(
@@ -184,6 +188,19 @@ function main() {
     CURRENT_SOURCE_OUTPUT_PATH: path.relative(ROOT, REVIEW_CURRENT_SOURCE),
     Y2026_SOURCE_OUTPUT_PATH: path.relative(ROOT, REVIEW_Y2026_SOURCE),
   });
+
+  const canonicalFacilities = loadFacilitiesGeoJson(CANONICAL_FACILITIES);
+  const reviewFacilities = loadFacilitiesGeoJson(REVIEW_FACILITIES_GEOJSON);
+  if (
+    !facilityFeatureCollectionsMatch(
+      canonicalFacilities.features,
+      reviewFacilities.features,
+    )
+  ) {
+    throw new Error(
+      'Shared-foundation review facilities drifted from the canonical enriched facilities artifact.',
+    );
+  }
 
   console.log(`\nShared-foundation review family built: public/data/compare/${PRODUCT_ID}`);
 }

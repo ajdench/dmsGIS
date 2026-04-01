@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  facilityFeatureCollectionsMatch,
   parseParValue,
   summarizeFacilityRefreshFeatures,
 } from '../scripts/facility-refresh-validation.mjs';
@@ -56,5 +57,14 @@ describe('facilityRefreshValidation', () => {
     expect(summary.duplicateIdGroups[0]?.key).toBe('A2');
     expect(summary.sharedActiveDmicpIdGroups).toHaveLength(1);
     expect(summary.sharedActiveDmicpIdGroups[0]?.key).toBe('34062');
+  });
+
+  it('can assert exact parity between canonical and runtime facility feature collections', () => {
+    const left = [{ properties: { id: 'A1' } }, { properties: { id: 'A2' } }];
+    const right = [{ properties: { id: 'A1' } }, { properties: { id: 'A2' } }];
+    const different = [{ properties: { id: 'A1' } }, { properties: { id: 'A3' } }];
+
+    expect(facilityFeatureCollectionsMatch(left, right)).toBe(true);
+    expect(facilityFeatureCollectionsMatch(left, different)).toBe(false);
   });
 });

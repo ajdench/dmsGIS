@@ -111,6 +111,8 @@ What it does:
 - imports the canonical export CSV into `public/data/facilities/facilities.geojson`
 - enriches facilities with boundary-code metadata
 - rebuilds the accepted `shared-foundation-review` runtime family so the live app stays aligned
+- asserts that `public/data/compare/shared-foundation-review/facilities/facilities.geojson`
+  remains an exact copy of the canonical enriched facilities artifact
 - prints a validation summary for:
   - counts
   - PAR totals

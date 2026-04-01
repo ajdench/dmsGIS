@@ -2,6 +2,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
+  facilityFeatureCollectionsMatch,
   formatFacilityRefreshSummary,
   loadFacilitiesGeoJson,
   summarizeFacilityRefreshFeatures,
@@ -81,12 +82,24 @@ function main() {
   console.log(`\n${formatFacilityRefreshSummary(canonicalSummary, 'Canonical facilities')}`);
 
   if (options.rebuildAcceptedRuntime) {
-    const runtimeSummary = summarizeFacilityRefreshFeatures(
-      loadFacilitiesGeoJson(ACCEPTED_RUNTIME_FACILITIES_PATH).features,
-    );
+    const runtimeGeoJson = loadFacilitiesGeoJson(ACCEPTED_RUNTIME_FACILITIES_PATH);
+    const runtimeSummary = summarizeFacilityRefreshFeatures(runtimeGeoJson.features);
     console.log(
       `\n${formatFacilityRefreshSummary(runtimeSummary, 'Accepted runtime facilities')}`,
     );
+
+    if (
+      !facilityFeatureCollectionsMatch(
+        loadFacilitiesGeoJson(CANONICAL_FACILITIES_PATH).features,
+        runtimeGeoJson.features,
+      )
+    ) {
+      throw new Error(
+        'Accepted runtime facilities drifted from canonical enriched facilities output.',
+      );
+    }
+
+    console.log('\nAccepted runtime facilities parity: exact match to canonical enriched artifact.');
   }
 
   console.log('\nFacilities refresh complete.');
