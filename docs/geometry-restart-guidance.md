@@ -262,6 +262,13 @@ Latest implementation note:
 - this preserves the public outline-file contract while replacing the old per-group dissolve-first path for `Current`
 - future passes should continue improving that prepared seam lineage rather than reintroducing runtime-only `Current` split outline derivation
 - in this checkout, the accepted runtime-family tree under `public/data/compare/shared-foundation-review/regions/` is the live target for those rebuilds
+- further hardening rule:
+  - if a rebuilt split runtime still leaves measurable `parent shell - split union` remainder or `split union - parent shell` overhang in the shipped artifact, the repair is not complete enough yet
+  - the stronger preferred pattern is:
+    - build one seam network from parent shell plus split-region seams
+    - polygonize that network into cells
+    - assign those cells back to Regions
+  - do not rely only on late dissolve cleanup or client-side stroke masking to hide parent-shell disagreement
 
 ### 3.4 What scenario presets load today
 

@@ -160,6 +160,27 @@ Current split-ward debug overlay:
   - when on: exact split wards become directly selectable and `ward_name` should surface in the `ICB / Health Board` header pane
   - when off: normal split-parent ICB/HB selection behavior remains the active contract
 
+Current split-shell repair note:
+
+- the latest repair pass kept the public runtime contracts stable but changed the rebuild lineage behind them:
+  - `scripts/build_current_ward_split_exact.py`
+  - `scripts/build_current_split_icb_runtime.py`
+  - `scripts/build_current_split_internal_arcs.py`
+- key accepted change:
+  - `Chilworth, Nursling & Rownhams` now explicitly assigns to `South West`
+- key geometry rule:
+  - the parent `Current` ICB shell must take precedence over ward borders
+  - dissolved split runtime geometry now rebuilds through a shell-first partition from the parent shell plus split-region seams
+- after each such rebuild, the expected refresh set is:
+  - `public/data/regions/UK_WardSplit_simplified.geojson`
+  - `public/data/regions/UK_WardSplit_internal_arcs.geojson`
+  - `public/data/regions/UK_WardSplit_Canonical_Current_exact.geojson`
+  - the accepted compare-family mirrors of those files
+  - `public/data/compare/shared-foundation-review/regions/outlines/current_*.geojson`
+- current honest status:
+  - this materially reduced split-shell drift, but did not remove it entirely
+  - the targeted split validator still catches a small remaining shell-coverage sliver, most recently for `E54000025`
+
 ## Overlays
 
 Stable default-off overlays remain part of the production overlay model:

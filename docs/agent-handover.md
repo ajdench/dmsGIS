@@ -138,6 +138,22 @@ Current shared-foundation review note:
     - in this checkout, the plain `public/data/regions/` board family is incomplete/stale for these outline rebuilds
     - the accepted live rebuild target is the runtime-family tree under:
       - `public/data/compare/shared-foundation-review/regions/`
+  - latest split-shell repair outcome:
+    - `scripts/build_current_ward_split_exact.py` now includes an explicit Hampshire override for `Chilworth, Nursling & Rownhams` -> `South West`
+    - `scripts/build_current_split_icb_runtime.py` now rebuilds dissolved split runtime geometry through a shell-first partition of:
+      - canonical parent ICB shell
+      - clipped split-region seams
+    - this is the right pattern because ward borders must not outrank the parent ICB shell
+    - companion artifacts are now expected to be refreshed together after that rebuild:
+      - `UK_WardSplit_simplified.geojson`
+      - `UK_WardSplit_internal_arcs.geojson`
+      - `current_*.geojson` under `regions/outlines/`
+  - current residual blocker after that repair:
+    - split-specific validation improved substantially, but still reports a small remaining shell-coverage sliver in the accepted compare-family tree
+    - latest measured blocker:
+      - `E54000025` missing shell coverage still around `660.9 m²`
+    - so future work should treat the remaining split-case white-gap issue as not fully closed yet
+    - the likely remaining seam is the last agreement between the rebuilt split runtime partition and the shipped simplified parent board shell, not the ward assignment map itself
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 

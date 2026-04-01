@@ -53,6 +53,7 @@ HAMPSHIRE_EXPLICIT_REGION_OVERRIDES = {
     "E05014777": ("South West", "facility_region_seed_explicit_hampshire_override"),
     "E05012143": ("South West", "facility_region_seed_explicit_hampshire_override"),
     "E05013458": ("South West", "facility_region_seed_explicit_hampshire_override"),
+    "E05012936": ("South West", "facility_region_seed_explicit_hampshire_override"),
 }
 
 COMPONENT_RE = re.compile(r"^icb_lad_(e\d{8})(?:_(.+))?$")
@@ -507,7 +508,13 @@ def build_output_features() -> list[dict[str, object]]:
                 if clipped is None or clipped.IsEmpty() or clipped.GetArea() <= 0:
                     continue
 
-                if len(region_refs) == 1:
+                explicit_override = None
+                if parent_code == HAMPSHIRE_PARENT_CODE:
+                    explicit_override = HAMPSHIRE_EXPLICIT_REGION_OVERRIDES.get(ward_code)
+
+                if explicit_override is not None:
+                    region_ref, assignment_basis = explicit_override
+                elif len(region_refs) == 1:
                     region_ref = next(iter(region_refs))
                     assignment_basis = "whole_lad_from_legacy_split"
                 else:
