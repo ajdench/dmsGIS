@@ -39,6 +39,8 @@ const PRESET_COLLECTION_OUTPUTS = {
   coa3b: 'UK_COA3A_Outline_arcs.geojson',
   coa3c: 'UK_COA3B_Outline_arcs.geojson',
 };
+const CURRENT_SPLIT_PARENT_CODES = new Set(['E54000025', 'E54000042', 'E54000048']);
+const SHELL_EPSILON = 1e-6;
 
 fs.mkdirSync(OUTLINES, { recursive: true });
 
@@ -95,6 +97,125 @@ function cloneFeatureWithGroup(feature, groupName) {
       ...(feature.properties ?? {}),
       __group: groupName,
     },
+  };
+}
+
+function getLineComponents(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === 'LineString') return [geometry.coordinates];
+  if (geometry.type === 'MultiLineString') return geometry.coordinates;
+  return [];
+}
+
+function pointInRing(point, ring) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    const intersects = ((yi > y) !== (yj > y))
+      && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || Number.EPSILON) + xi);
+    if (intersects) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function pointInPolygon(point, polygonCoordinates) {
+  if (!polygonCoordinates?.length) return false;
+  if (!pointInRing(point, polygonCoordinates[0])) return false;
+  for (const hole of polygonCoordinates.slice(1)) {
+    if (pointInRing(point, hole)) return false;
+  }
+  return true;
+}
+
+function pointInGeometry(point, geometry) {
+  if (!geometry) return false;
+  if (geometry.type === 'Polygon') {
+    return pointInPolygon(point, geometry.coordinates);
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates.some((polygon) => pointInPolygon(point, polygon));
+  }
+  return false;
+}
+
+function pointToSegmentDistance(point, start, end) {
+  const [px, py] = point;
+  const [x1, y1] = start;
+  const [x2, y2] = end;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  if (dx === 0 && dy === 0) {
+    return Math.hypot(px - x1, py - y1);
+  }
+  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)));
+  const projX = x1 + t * dx;
+  const projY = y1 + t * dy;
+  return Math.hypot(px - projX, py - projY);
+}
+
+function pointNearRingBoundary(point, ring, epsilon = SHELL_EPSILON) {
+  for (let index = 1; index < ring.length; index += 1) {
+    if (pointToSegmentDistance(point, ring[index - 1], ring[index]) <= epsilon) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function pointNearGeometryBoundary(point, geometry, epsilon = SHELL_EPSILON) {
+  if (!geometry) return false;
+  const polygons = geometry.type === 'Polygon'
+    ? [geometry.coordinates]
+    : geometry.type === 'MultiPolygon'
+      ? geometry.coordinates
+      : [];
+  for (const polygon of polygons) {
+    for (const ring of polygon) {
+      if (pointNearRingBoundary(point, ring, epsilon)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells) {
+  if (!arcFeature?.geometry || !splitParentShells.length) {
+    return arcFeature;
+  }
+
+  const components = getLineComponents(arcFeature.geometry);
+  if (!components.length) {
+    return arcFeature;
+  }
+
+  const kept = components.filter((component) => {
+    for (const shell of splitParentShells) {
+      const allInside = component.every((point) => pointInGeometry(point, shell));
+      if (!allInside) {
+        continue;
+      }
+      const touchesShell = component.some((point) => pointNearGeometryBoundary(point, shell));
+      if (!touchesShell) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  if (!kept.length) {
+    return arcFeature;
+  }
+
+  return {
+    ...arcFeature,
+    geometry: kept.length === 1
+      ? { type: 'LineString', coordinates: kept[0] }
+      : { type: 'MultiLineString', coordinates: kept },
   };
 }
 
@@ -305,6 +426,12 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
       presetId === 'current'
         ? new Set(preset.wardSplitParentCodes ?? [])
         : new Set();
+    const splitParentShells =
+      presetId === 'current'
+        ? [...CURRENT_SPLIT_PARENT_CODES]
+          .map((boundaryCode) => byCode.get(boundaryCode)?.geometry ?? null)
+          .filter(Boolean)
+        : [];
     const preparedTopology = buildPresetPreparedTopology({
       presetId,
       boardFeatures: geojson.features,
@@ -342,11 +469,16 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
         continue;
       }
 
+      const cleanedArcFeature =
+        presetId === 'current' && wardFeatures.length > 0
+          ? pruneCurrentSplitInteriorOrphans(arcFeature, splitParentShells)
+          : arcFeature;
+
       const outlineGeoJSON = {
         type: 'FeatureCollection',
         features: [
           {
-            ...arcFeature,
+            ...cleanedArcFeature,
             properties: {
               preset: presetId,
               group: group.name,

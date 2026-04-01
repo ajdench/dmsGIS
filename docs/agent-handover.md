@@ -154,6 +154,9 @@ Current shared-foundation review note:
       - `E54000025` missing shell coverage still around `660.9 m²`
     - so future work should treat the remaining split-case white-gap issue as not fully closed yet
     - the likely remaining seam is the last agreement between the rebuilt split runtime partition and the shipped simplified parent board shell, not the ward assignment map itself
+  - detached split-case outline fragments are now also guarded at the outline-export stage:
+    - `scripts/extract-group-outlines.mjs` prunes any `Current` split-aware outline component that sits wholly inside a split-parent shell without touching that shell boundary
+    - `tests/currentGroupOutlineContracts.test.ts` now asserts that the shipped split-aware `Current` outline files do not contain those detached interior orphan components
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 

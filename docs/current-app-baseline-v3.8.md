@@ -180,6 +180,9 @@ Current split-shell repair note:
 - current honest status:
   - this materially reduced split-shell drift, but did not remove it entirely
   - the targeted split validator still catches a small remaining shell-coverage sliver, most recently for `E54000025`
+- separate follow-up hardening now also exists for detached split-case outline fragments:
+  - `scripts/extract-group-outlines.mjs` removes any `Current` split-aware outline component that is wholly interior to a split-parent shell and does not touch that shell boundary
+  - `tests/currentGroupOutlineContracts.test.ts` guards that contract on the shipped accepted-runtime outline files
 
 ## Overlays
 
