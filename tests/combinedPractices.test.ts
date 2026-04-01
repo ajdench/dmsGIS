@@ -401,4 +401,89 @@ describe('combinedPractices', () => {
     expect(getCombinedPracticeColorFamily(east!.borderColor)).not.toBe('blue');
     expect(getCombinedPracticeColorFamily(west!.borderColor)).not.toBe('blue');
   });
+
+  it('keeps Aldershot/Pirbright and Cottesmore/Lichfield in distinct color families', () => {
+    const styles = buildDefaultCombinedPracticeStyles([
+      {
+        name: 'Aldershot Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Garrison Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Pirbright Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Pirbright Camp Medical Centre',
+        combined_practice: 'Pirbright Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Cottesmore Medical Centre',
+        combined_practice: 'Cottesmore Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Kendrew Medical Centre',
+        combined_practice: 'Cottesmore Combined Medical Practice',
+        region: 'East',
+        point_color_hex: '#fc921f',
+        default_visible: 1,
+      },
+      {
+        name: 'Lichfield Medical Centre',
+        combined_practice: 'Lichfield Combined Medical Practice',
+        region: 'Wales & West Midlands',
+        point_color_hex: '#ed5151',
+        default_visible: 1,
+      },
+      {
+        name: 'Whittington Medical Centre',
+        combined_practice: 'Lichfield Combined Medical Practice',
+        region: 'Wales & West Midlands',
+        point_color_hex: '#ed5151',
+        default_visible: 1,
+      },
+    ]);
+
+    const aldershot = styles.find(
+      (style) => style.name === 'Aldershot Combined Medical Practice',
+    );
+    const pirbright = styles.find(
+      (style) => style.name === 'Pirbright Combined Medical Practice',
+    );
+    const cottesmore = styles.find(
+      (style) => style.name === 'Cottesmore Combined Medical Practice',
+    );
+    const lichfield = styles.find(
+      (style) => style.name === 'Lichfield Combined Medical Practice',
+    );
+
+    expect(aldershot?.borderColor).toBe('#a855f7');
+    expect(pirbright?.borderColor).toBe('#f97316');
+    expect(cottesmore?.borderColor).toBe('#ec4899');
+    expect(lichfield?.borderColor).toBe('#22d3ee');
+    expect(getCombinedPracticeColorFamily(aldershot!.borderColor)).not.toBe(
+      getCombinedPracticeColorFamily(pirbright!.borderColor),
+    );
+    expect(getCombinedPracticeColorFamily(cottesmore!.borderColor)).not.toBe(
+      getCombinedPracticeColorFamily(lichfield!.borderColor),
+    );
+  });
 });
