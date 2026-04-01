@@ -193,6 +193,59 @@ describe('combinedPractices', () => {
     );
   });
 
+  it('separates same-region combined practices from each other by default', () => {
+    const styles = buildDefaultCombinedPracticeStyles([
+      {
+        name: 'Portsmouth Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Nelson Medical Centre',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Aldershot Garrison Medical Centre',
+        combined_practice: 'Aldershot Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Blandford Medical Centre',
+        combined_practice: 'Blandford Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+      {
+        name: 'Bovington Medical Centre',
+        combined_practice: 'Blandford Combined Medical Practice',
+        region: 'London & South',
+        point_color_hex: '#419632',
+        default_visible: 1,
+      },
+    ]);
+
+    const families = styles.map((style) => getCombinedPracticeColorFamily(style.borderColor));
+
+    expect(new Set(styles.map((style) => style.borderColor)).size).toBe(3);
+    expect(families).not.toContain('green');
+    expect(new Set(families).size).toBe(3);
+  });
+
   it('applies the Catterick palette step override to avoid the green cluster', () => {
     const styles = buildDefaultCombinedPracticeStyles([
       {

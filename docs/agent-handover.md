@@ -156,10 +156,17 @@ Current shared-foundation review note:
     - the likely remaining seam is the last agreement between the rebuilt split runtime partition and the shipped simplified parent board shell, not the ward assignment map itself
   - detached split-case outline fragments are now also guarded at the outline-export stage:
     - `scripts/extract-group-outlines.mjs` first prunes any `Current` split-aware outline component that sits wholly inside a split-parent shell without touching that shell boundary
-    - it then also prunes split-shell local micro-components that are materially smaller than the dominant local shell network, so the same detached shell-edge fragments fail before ship instead of surviving as stable exported artifacts
+    - `scripts/extract-group-outlines.mjs` now also prunes any `Current` outline component with zero dissolved-exterior coverage, so exported stray fragments fail before ship instead of surviving as stable artifacts
+    - split-aware `Current` outline runs now also have non-reference endpoint tails trimmed back to the dissolved exterior
+    - the specific west-Hampshire / `Blackwater` spur was later traced to a deterministic `Blackwater` / `Redlynch & Landford` shared-boundary artifact in the shipped split-aware `Current` outline exports, so `scripts/extract-group-outlines.mjs` now explicitly excludes that known segment family and its legacy tip endpoints for `Central & Wessex` and `South West`
     - `tests/currentGroupOutlineContracts.test.ts` now guards both contracts on the shipped accepted-runtime outline files:
-      - no detached interior orphan components inside split-parent shells
-      - no shell-local split micro-components below the configured network-size floor
+      - no exported `Current` outline components with zero dissolved-exterior coverage
+      - no missing dissolved-exterior components for split-aware `Current` groups
+      - split-aware `Current` outline endpoints must land back on the dissolved exterior
+      - the known `Blackwater` spur segment family must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
+      - the known `Blackwater` spur tip endpoints must be absent from `current_central_wessex.geojson` and `current_south_west.geojson`
+    - practical interpretation:
+      - the accepted-runtime `Current` outline guard is now aimed at shipped risk, not a broad orphan heuristic that can over-flag valid split-aware components
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 
@@ -1039,6 +1046,7 @@ Playground entry is now explicitly split by source preset.
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
 - the playground panel keeps the same `COA 3a` / `COA 3b` wiring and rebuilt runtime board products
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
+- combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width and bottom-left width: `932.6875px`
   - sidebar width and bottom-right width: `311.3125px`

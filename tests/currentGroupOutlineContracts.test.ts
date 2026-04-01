@@ -44,7 +44,24 @@ const SPLIT_AWARE_GROUPS = new Set([
 ]);
 const SHELL_EPSILON = 1e-6;
 const DISSOLVE_REFERENCE_EPSILON = 1e-5;
-const SPLIT_SHELL_COMPONENT_RATIO_FLOOR = 0.2;
+const BLACKWATER_EXCLUDED_SEGMENTS: number[][][] = [
+  [[-1.606092162566745, 50.97475763424615], [-1.619751051433103, 50.958566891040576]],
+  [[-1.603075106296357, 50.97833219637941], [-1.604904704594691, 50.976164593318344]],
+  [[-1.619432546227886, 50.98472207898823], [-1.619723714983771, 50.9830762720422]],
+  [[-1.618980577516788, 50.98727655271801], [-1.619070856398087, 50.98676632991061]],
+  [[-1.618958720929101, 50.98740007635013], [-1.618962474656326, 50.98737886201456]],
+  [[-1.619540020579129, 50.987672484289455], [-1.618958720929101, 50.98740007635013]],
+  [[-1.624749670665667, 50.99011354877915], [-1.6242391470279, 50.989874356702266]],
+  [[-1.625364068031521, 50.99069896274061], [-1.625345427072826, 50.99065347042919]],
+  [[-1.628132351616869, 50.99745378639705], [-1.628107876483447, 50.99739407413407]],
+  [[-1.628305726212586, 50.99787676583073], [-1.628193158782532, 50.99760213764673]],
+  [[-1.628523215864711, 50.99840736083645], [-1.628433534147071, 50.998188571849006]],
+  [[-1.628804844036594, 50.999094411665354], [-1.628712749058782, 50.998869742100936]],
+];
+const BLACKWATER_EXCLUDED_ENDPOINTS: Record<string, number[][]> = {
+  'Central & Wessex': [[-1.602934, 50.978524]],
+  'South West': [[-1.6049213, 50.9762065]],
+};
 
 function slug(groupName: string): string {
   return groupName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/, '');
@@ -141,17 +158,6 @@ function pointNearReferenceComponents(
     }
     return false;
   });
-}
-
-function lineComponentLength(component: number[][]) {
-  let total = 0;
-  for (let index = 1; index < component.length; index += 1) {
-    total += Math.hypot(
-      component[index][0] - component[index - 1][0],
-      component[index][1] - component[index - 1][1],
-    );
-  }
-  return total;
 }
 
 function loadSplitParentShells() {
@@ -283,33 +289,6 @@ describe('Current group outline contracts', () => {
     }
   });
 
-  it('does not ship detached interior orphan components for split-aware Current outlines', () => {
-    const splitParentShells = loadSplitParentShells();
-    expect(splitParentShells.length).toBe(3);
-
-    for (const groupName of SPLIT_AWARE_GROUPS) {
-      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
-      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
-        features?: Array<{
-          geometry?: { type?: string; coordinates?: unknown[] };
-        }>;
-      };
-
-      const components = getLineComponents(geojson.features?.[0]?.geometry);
-      expect(components.length, filePath).toBeGreaterThan(0);
-
-      const orphanComponents = components.filter((component) =>
-        splitParentShells.some((shell) => {
-          const allInside = component.every((point) => pointInGeometry(point, shell));
-          if (!allInside) return false;
-          const touchesShell = component.some((point) => pointNearGeometryBoundary(point, shell));
-          return !touchesShell;
-        }));
-
-      expect(orphanComponents.length, filePath).toBe(0);
-    }
-  });
-
   it('keeps split-aware Current outline components aligned to the true dissolved exterior', async () => {
     const byGroup = loadCurrentGroupFeatures();
     const dissolve = (await import('@turf/dissolve')).default;
@@ -354,9 +333,53 @@ describe('Current group outline contracts', () => {
     }
   });
 
-  it('does not ship shell-local micro-components for split-aware Current outlines', () => {
-    const splitParentShells = loadSplitParentShells();
-    expect(splitParentShells.length).toBe(3);
+  it('does not ship Current outline components that have zero dissolved-exterior coverage', async () => {
+    const byGroup = loadCurrentGroupFeatures();
+    const dissolve = (await import('@turf/dissolve')).default;
+
+    for (const groupName of getScenarioPresetConfig('current')?.regionGroups.map((group) => group.name) ?? []) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const sourceFeatures = flattenPolygonFeatures(byGroup.get(groupName) ?? []);
+      const dissolved = dissolve({
+        type: 'FeatureCollection',
+        features: sourceFeatures,
+      }, { propertyName: 'group' });
+
+      const referenceComponents: number[][][] = [];
+      for (const feature of dissolved.features ?? []) {
+        const geometry = feature.geometry;
+        if (!geometry) continue;
+        if (geometry.type === 'Polygon') {
+          referenceComponents.push(geometry.coordinates[0]);
+          continue;
+        }
+        if (geometry.type === 'MultiPolygon') {
+          for (const polygon of geometry.coordinates) {
+            referenceComponents.push(polygon[0]);
+          }
+        }
+      }
+
+      const components = getLineComponents(geojson.features?.[0]?.geometry);
+      const zeroCoverageComponents = components.filter((component) => {
+        const nearReferenceCount = component.filter((point) =>
+          pointNearReferenceComponents(point, referenceComponents)).length;
+        return nearReferenceCount === 0;
+      });
+
+      expect(zeroCoverageComponents.length, filePath).toBe(0);
+    }
+  });
+
+  it('retains every dissolved-exterior component for split-aware Current outlines', async () => {
+    const byGroup = loadCurrentGroupFeatures();
+    const dissolve = (await import('@turf/dissolve')).default;
 
     for (const groupName of SPLIT_AWARE_GROUPS) {
       const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
@@ -366,23 +389,139 @@ describe('Current group outline contracts', () => {
         }>;
       };
 
-      const components = getLineComponents(geojson.features?.[0]?.geometry);
-      expect(components.length, filePath).toBeGreaterThan(0);
+      const sourceFeatures = flattenPolygonFeatures(byGroup.get(groupName) ?? []);
+      const dissolved = dissolve({
+        type: 'FeatureCollection',
+        features: sourceFeatures,
+      }, { propertyName: 'group' });
 
-      for (const shell of splitParentShells) {
-        const shellComponents = components.filter((component) => {
-          const midpoint = component[Math.floor(component.length / 2)];
-          return pointInGeometry(midpoint, shell);
-        });
-        if (shellComponents.length <= 1) continue;
+      const exportedComponents = getLineComponents(geojson.features?.[0]?.geometry);
+      const uncoveredReferenceComponents: number[][][] = [];
 
-        const lengths = shellComponents.map((component) => lineComponentLength(component));
-        const longest = Math.max(...lengths);
-        const microComponents = lengths.filter((length) =>
-          length < longest * SPLIT_SHELL_COMPONENT_RATIO_FLOOR);
+      for (const feature of dissolved.features ?? []) {
+        const geometry = feature.geometry;
+        if (!geometry) continue;
+        const polygons = geometry.type === 'Polygon'
+          ? [geometry.coordinates]
+          : geometry.type === 'MultiPolygon'
+            ? geometry.coordinates
+            : [];
 
-        expect(microComponents.length, `${filePath} within split shell`).toBe(0);
+        for (const polygon of polygons) {
+          const component = polygon[0];
+          if (!component?.length) continue;
+          const nearExportCount = component.filter((point) =>
+            pointNearReferenceComponents(point, exportedComponents)).length;
+          if (nearExportCount === 0) {
+            uncoveredReferenceComponents.push(component);
+          }
+        }
       }
+
+      expect(uncoveredReferenceComponents.length, filePath).toBe(0);
+    }
+  });
+
+  it('keeps split-aware Current outline endpoints on the dissolved exterior', async () => {
+    const byGroup = loadCurrentGroupFeatures();
+    const dissolve = (await import('@turf/dissolve')).default;
+
+    for (const groupName of SPLIT_AWARE_GROUPS) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const sourceFeatures = flattenPolygonFeatures(byGroup.get(groupName) ?? []);
+      const dissolved = dissolve({
+        type: 'FeatureCollection',
+        features: sourceFeatures,
+      }, { propertyName: 'group' });
+
+      const referenceComponents: number[][][] = [];
+      for (const feature of dissolved.features ?? []) {
+        const geometry = feature.geometry;
+        if (!geometry) continue;
+        if (geometry.type === 'Polygon') {
+          referenceComponents.push(geometry.coordinates[0]);
+          continue;
+        }
+        if (geometry.type === 'MultiPolygon') {
+          for (const polygon of geometry.coordinates) {
+            referenceComponents.push(polygon[0]);
+          }
+        }
+      }
+
+      const badEndpoints = getLineComponents(geojson.features?.[0]?.geometry).filter((component) => {
+        const first = component[0];
+        const last = component[component.length - 1];
+        return !pointNearReferenceComponents(first, referenceComponents)
+          || !pointNearReferenceComponents(last, referenceComponents);
+      });
+
+      expect(badEndpoints.length, filePath).toBe(0);
+    }
+  });
+
+  it('excludes the known Blackwater spur segment family from Current split-aware outlines', () => {
+    for (const groupName of ['Central & Wessex', 'South West']) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const offendingSegments: number[][][] = [];
+      for (const component of getLineComponents(geojson.features?.[0]?.geometry)) {
+        for (let index = 1; index < component.length; index += 1) {
+          const start = component[index - 1];
+          const end = component[index];
+          const midpoint = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+          const matchesExcluded = BLACKWATER_EXCLUDED_SEGMENTS.some(([left, right]) => (
+            pointToSegmentDistance(midpoint, left, right) <= DISSOLVE_REFERENCE_EPSILON
+            || (
+              pointToSegmentDistance(start, left, right) <= DISSOLVE_REFERENCE_EPSILON
+              && pointToSegmentDistance(end, left, right) <= DISSOLVE_REFERENCE_EPSILON
+            )
+          ));
+          if (matchesExcluded) {
+            offendingSegments.push([start, end]);
+          }
+        }
+      }
+
+      expect(offendingSegments.length, filePath).toBe(0);
+    }
+  });
+
+  it('excludes the known Blackwater spur endpoints from Current split-aware outlines', () => {
+    for (const groupName of ['Central & Wessex', 'South West']) {
+      const filePath = path.join(OUTLINES_DIR, `current_${slug(groupName)}.geojson`);
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf8')) as {
+        features?: Array<{
+          geometry?: { type?: string; coordinates?: unknown[] };
+        }>;
+      };
+
+      const badEndpoints: number[][] = [];
+      for (const component of getLineComponents(geojson.features?.[0]?.geometry)) {
+        const first = component[0];
+        const last = component[component.length - 1];
+        for (const endpoint of BLACKWATER_EXCLUDED_ENDPOINTS[groupName]) {
+          if (
+            pointToSegmentDistance(first, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
+            || pointToSegmentDistance(last, endpoint, endpoint) <= DISSOLVE_REFERENCE_EPSILON
+          ) {
+            badEndpoints.push(endpoint);
+          }
+        }
+      }
+
+      expect(badEndpoints.length, filePath).toBe(0);
     }
   });
 });
