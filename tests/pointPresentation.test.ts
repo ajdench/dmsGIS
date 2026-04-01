@@ -3,6 +3,7 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { getCombinedPracticeRingWidth } from '../src/features/map/mapStyleUtils';
 import {
+  getPlainPointActiveCombinedTreatmentCompensation,
   getPointPresentationOuterDistance,
   resolvePointPresentation,
 } from '../src/features/map/pointPresentation';
@@ -160,9 +161,27 @@ describe('pointPresentation', () => {
 
     expect(plainPresentation.baseShapeInset).toBe(0);
     expect(compensatedPlainPresentation.baseShapeInset).toBeCloseTo(
-      -(getCombinedPracticeRingWidth(3.5) / 2),
+      -getPlainPointActiveCombinedTreatmentCompensation(
+        3.5,
+        getCombinedPracticeRingWidth(3.5),
+      ),
       3,
     );
+    expect(Math.abs(compensatedPlainPresentation.baseShapeInset)).toBeLessThan(
+      getCombinedPracticeRingWidth(3.5) / 2,
+    );
     expect(combinedPresentation.baseShapeInset).toBeGreaterThan(0);
+  });
+
+  it('uses a lighter-than-half-width compensation for plain points under active combined treatment', () => {
+    const ringWidth = getCombinedPracticeRingWidth(3.5);
+    const compensation = getPlainPointActiveCombinedTreatmentCompensation(
+      3.5,
+      ringWidth,
+    );
+
+    expect(compensation).toBeGreaterThan(0);
+    expect(compensation).toBeLessThan(ringWidth / 2);
+    expect(compensation).toBeCloseTo(0.343, 2);
   });
 });

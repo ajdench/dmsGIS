@@ -28,6 +28,8 @@ export interface ResolvedPointPresentation {
   outerRingPlacement: 'outside' | 'inside';
 }
 
+const PLAIN_POINT_ACTIVE_COMBINED_TREATMENT_WEIGHT = 0.25;
+
 interface ResolvePointPresentationParams {
   feature: FeatureLike;
   regions: Map<string, RegionStyle>;
@@ -95,7 +97,10 @@ export function resolvePointPresentation(
         ? outerRingGap + outerRingWidth
         : 0
       : activeCombinedTreatmentWidth > 0
-        ? -(activeCombinedTreatmentWidth / 2)
+        ? -getPlainPointActiveCombinedTreatmentCompensation(
+            size,
+            activeCombinedTreatmentWidth,
+          )
         : 0;
 
   return {
@@ -170,4 +175,20 @@ function getActiveCombinedTreatmentWidth(
   }
 
   return maxWidth;
+}
+
+export function getPlainPointActiveCombinedTreatmentCompensation(
+  size: number,
+  activeCombinedTreatmentWidth: number,
+): number {
+  if (activeCombinedTreatmentWidth <= 0) {
+    return 0;
+  }
+
+  const weightedAddedArea =
+    PLAIN_POINT_ACTIVE_COMBINED_TREATMENT_WEIGHT *
+    (2 * size * activeCombinedTreatmentWidth +
+      activeCombinedTreatmentWidth * activeCombinedTreatmentWidth);
+
+  return Math.sqrt(size * size + weightedAddedArea) - size;
 }
