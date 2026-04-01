@@ -302,6 +302,10 @@
   align-items: baseline;
 }
 
+.topbar__spacer-par-row--facility {
+  transform: translateY(1px);
+}
+
 .topbar__spacer-par-title {
   font-weight: 500;
   white-space: nowrap;
@@ -320,6 +324,10 @@
 
 .topbar__spacer-par-row--correction {
   margin-top: calc(var(--topbar-spacer-par-grid-row-gap) * -0.35);
+}
+
+.topbar__spacer-par-row--total {
+  transform: translateY(-1px);
 }
 
 .topbar__spacer-par-value--correction {

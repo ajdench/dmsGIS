@@ -29,7 +29,11 @@ type ParSummaryRow = {
   rowClassName?: string;
 };
 const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
-  { label: 'Facility:', valueKey: 'facilityPar' },
+  {
+    label: 'Facility:',
+    valueKey: 'facilityPar',
+    rowClassName: 'topbar__spacer-par-row--facility',
+  },
   { label: 'Practice:', valueKey: 'practicePar' },
   { label: 'Region:', valueKey: 'regionPar' },
   { label: 'Baseport:', valueKey: 'baseportPar' },
@@ -42,6 +46,7 @@ const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
   {
     label: 'Total:',
     valueKey: 'totalPar',
+    rowClassName: 'topbar__spacer-par-row--total',
     valueClassName: 'topbar__spacer-par-value--total',
   },
 ] as const;
