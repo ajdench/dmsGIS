@@ -1771,7 +1771,7 @@ function createSelectedBoundaryLayer(): VectorLayer<VectorSource> {
       stroke: new Stroke({
         color: '#fffb00',
         width: 2,
-        lineDash: [10, 6],
+        lineDash: [10, 8],
         lineCap: 'round',
         lineJoin: 'round',
       }),
