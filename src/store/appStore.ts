@@ -436,6 +436,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       activeStandardViewPreset: preset,
       ...createActivatedPresetState({
         currentViewPresetState: state.currentViewPresetState,
+        currentFacilityPresentationState: state,
+        preserveFacilityPresentationState: true,
         scenarioWorkspaceDrafts: state.scenarioWorkspaceDrafts,
         preset,
         workspaceId: getScenarioWorkspaceIdForPreset(preset),
@@ -445,6 +447,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) =>
       createActivatedPresetState({
         currentViewPresetState: state.currentViewPresetState,
+        currentFacilityPresentationState: state,
+        preserveFacilityPresentationState: true,
         scenarioWorkspaceDrafts: state.scenarioWorkspaceDrafts,
         preset,
         workspaceId,
@@ -458,9 +462,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         : state.scenarioWorkspaceDrafts,
       scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
     })),
-  resetActiveViewPreset: () => {
-    get().activateViewPreset(get().activeViewPreset);
-    set({
+  resetActiveViewPreset: () =>
+    set((state) => ({
+      ...createActivatedPresetState({
+        currentViewPresetState: state.currentViewPresetState,
+        currentFacilityPresentationState: state,
+        preserveFacilityPresentationState: false,
+        scenarioWorkspaceDrafts: state.scenarioWorkspaceDrafts,
+        preset: state.activeViewPreset,
+        workspaceId: state.activeScenarioWorkspaceId,
+      }),
       facilityFilters: createFacilityFilterState(),
       scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
       selection: createDefaultSelectionState(),
@@ -468,8 +479,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         message: 'Reset active view preset',
         tone: 'info',
       },
-    });
-  },
+    })),
   ensureScenarioWorkspaceDraft: (workspaceId) => {
     const current = get().scenarioWorkspaceDrafts[workspaceId];
     if (current) {
@@ -1707,11 +1717,22 @@ function ensureScenarioWorkspaceDrafts(
 
 function createActivatedPresetState({
   currentViewPresetState,
+  currentFacilityPresentationState,
+  preserveFacilityPresentationState,
   scenarioWorkspaceDrafts,
   preset,
   workspaceId,
 }: {
   currentViewPresetState: ViewPresetState | null;
+  currentFacilityPresentationState: Pick<
+    AppState,
+    | 'regions'
+    | 'combinedPracticeStyles'
+    | 'facilitySymbolShape'
+    | 'facilitySymbolSize'
+    | 'regionGlobalOpacity'
+  >;
+  preserveFacilityPresentationState: boolean;
   scenarioWorkspaceDrafts: Partial<Record<ScenarioWorkspaceId, ScenarioWorkspaceDraft>>;
   preset: ViewPresetId;
   workspaceId: ScenarioWorkspaceId | null;
@@ -1752,26 +1773,58 @@ function createActivatedPresetState({
         }
       : createScenarioViewPresetState(currentViewPresetState, preset);
 
+  const nextFacilityPresentationState = preserveFacilityPresentationState
+    ? createPersistentFacilityPresentationState(currentFacilityPresentationState)
+    : {
+        regions: cloneRegions(nextState.regions),
+        combinedPractices: cloneCombinedPracticeStyles(nextState.combinedPractices),
+        facilitySymbolShape: nextState.facilitySymbolShape,
+        facilitySymbolSize: nextState.facilitySymbolSize,
+        regionGlobalOpacity: nextState.regionGlobalOpacity,
+      };
+
   return {
     activeViewPreset: preset,
     activeScenarioWorkspaceId: workspaceId,
     layers: cloneLayers(nextState.layers),
-    regions: cloneRegions(nextState.regions),
+    regions: cloneRegions(nextFacilityPresentationState.regions),
     combinedPracticeStyles: cloneCombinedPracticeStyles(
-      nextState.combinedPractices,
+      nextFacilityPresentationState.combinedPractices,
     ),
     combinedPracticeCatalog: cloneCombinedPracticeCatalog(
       nextState.combinedPracticeCatalog,
     ),
     overlayLayers: cloneOverlayLayers(nextState.overlayLayers),
-    regionGlobalOpacity: nextState.regionGlobalOpacity,
-    facilitySymbolShape: nextState.facilitySymbolShape,
-    facilitySymbolSize: nextState.facilitySymbolSize,
+    regionGlobalOpacity: nextFacilityPresentationState.regionGlobalOpacity,
+    facilitySymbolShape: nextFacilityPresentationState.facilitySymbolShape,
+    facilitySymbolSize: nextFacilityPresentationState.facilitySymbolSize,
     facilityFilters: createFacilityFilterState(nextState.facilityFilters),
     basemap: { ...nextState.basemap },
     scenarioWorkspaceDrafts: nextDrafts,
     scenarioWorkspaceEditor: createDefaultScenarioWorkspaceEditorState(),
     selection: createDefaultSelectionState(),
+  };
+}
+
+function createPersistentFacilityPresentationState(
+  source: Pick<
+    AppState,
+    | 'regions'
+    | 'combinedPracticeStyles'
+    | 'facilitySymbolShape'
+    | 'facilitySymbolSize'
+    | 'regionGlobalOpacity'
+  >,
+): Pick<
+  ViewPresetState,
+  'regions' | 'combinedPractices' | 'facilitySymbolShape' | 'facilitySymbolSize' | 'regionGlobalOpacity'
+> {
+  return {
+    regions: cloneRegions(source.regions),
+    combinedPractices: cloneCombinedPracticeStyles(source.combinedPracticeStyles),
+    facilitySymbolShape: source.facilitySymbolShape,
+    facilitySymbolSize: source.facilitySymbolSize,
+    regionGlobalOpacity: source.regionGlobalOpacity,
   };
 }
 

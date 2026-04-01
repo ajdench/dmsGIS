@@ -62,6 +62,20 @@ Communication preference now promoted to repo guidance:
   - the next sensible step
 - this is especially important during visual-check/debug loops so the user does not have to infer state from internal filenames, checkpoints, or code-level terminology alone
 
+Current preset-switch contract note:
+
+- changing production map state between `Current`, `SJC JMC`, `COA 3a`, `COA 3b`, and Playground should clear transient selection state only:
+  - selected facility ids
+  - selected ICB / Health Board name
+  - selected JMC / scenario Region name
+- live PMC point presentation state should persist across those mode switches:
+  - global symbol shape
+  - global symbol size
+  - per-Region point style settings
+  - combined-practice point/border styling
+- `Reset active view preset` is intentionally different:
+  - it should still restore the active preset baseline instead of carrying customized point presentation state forward
+
 Current validated repo-health note:
 
 - the confirmed `v3.8` main-repo baseline is currently clean through `npm run lint`, `npm run test -- --run`, `npm run build`, and `npm run test:e2e`

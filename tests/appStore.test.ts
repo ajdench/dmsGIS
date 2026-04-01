@@ -413,15 +413,79 @@ describe('appStore region controls', () => {
     expect(state.activeViewPreset).toBe('coa3a');
     expect(state.layers[0]).toMatchObject({ visible: true, opacity: 1 });
     expect(state.regions[0]).toMatchObject({
-      visible: true,
-      color: '#a7c636',
-      opacity: 1,
-      symbolSize: 3.5,
+      visible: false,
+      color: '#000000',
+      opacity: 0.25,
+      symbolSize: 9,
     });
     expect(state.overlayLayers.every((layer) => !layer.visible)).toBe(true);
-    expect(state.facilitySymbolShape).toBe('circle');
-    expect(state.facilitySymbolSize).toBe(3.5);
-    expect(state.regionGlobalOpacity).toBe(1);
+    expect(state.facilitySymbolShape).toBe('square');
+    expect(state.facilitySymbolSize).toBe(9);
+    expect(state.regionGlobalOpacity).toBe(0.25);
+    expect(state.selection).toEqual({
+      facilityIds: [],
+      boundaryName: null,
+      jmcName: null,
+      scenarioRegionId: null,
+    });
+  });
+
+  it('preserves point presentation state when returning to current while clearing transient selection', () => {
+    useAppStore.setState({
+      activeViewPreset: 'coa3a',
+      currentViewPresetState: makeCurrentPresetState(),
+      regions: [
+        {
+          name: 'North',
+          visible: false,
+          color: '#13579b',
+          opacity: 0.45,
+          borderVisible: true,
+          borderColor: '#2468ac',
+          borderOpacity: 0.8,
+          symbolSize: 8.25,
+        },
+      ],
+      combinedPracticeStyles: [
+        {
+          name: 'Portsmouth Combined Medical Practice',
+          displayName: 'Portsmouth',
+          visible: true,
+          borderColor: '#112233',
+          borderWidth: 2.5,
+          borderOpacity: 0.9,
+        },
+      ],
+      facilitySymbolShape: 'triangle',
+      facilitySymbolSize: 8.25,
+      regionGlobalOpacity: 0.45,
+      selection: {
+        facilityIds: ['FAC-2'],
+        boundaryName: 'Boundary B',
+        jmcName: null,
+        scenarioRegionId: 'coa3a_north',
+      },
+    });
+
+    useAppStore.getState().activateViewPreset('current');
+
+    const state = useAppStore.getState();
+    expect(state.activeViewPreset).toBe('current');
+    expect(state.regions[0]).toMatchObject({
+      visible: false,
+      color: '#13579b',
+      opacity: 0.45,
+      symbolSize: 8.25,
+    });
+    expect(state.combinedPracticeStyles[0]).toMatchObject({
+      name: 'Portsmouth Combined Medical Practice',
+      borderColor: '#112233',
+      borderWidth: 2.5,
+      borderOpacity: 0.9,
+    });
+    expect(state.facilitySymbolShape).toBe('triangle');
+    expect(state.facilitySymbolSize).toBe(8.25);
+    expect(state.regionGlobalOpacity).toBe(0.45);
     expect(state.selection).toEqual({
       facilityIds: [],
       boundaryName: null,
@@ -964,6 +1028,27 @@ describe('appStore region controls', () => {
       activeStandardViewPreset: 'current',
       activeViewPreset: 'current',
       currentViewPresetState: makeCurrentPresetState(),
+      regions: [
+        {
+          name: 'North',
+          visible: true,
+          color: '#556677',
+          opacity: 0.6,
+          borderVisible: true,
+          borderColor: '#99aabb',
+          borderOpacity: 0.5,
+          symbolSize: 6.5,
+        },
+      ],
+      facilitySymbolShape: 'diamond',
+      facilitySymbolSize: 6.5,
+      regionGlobalOpacity: 0.6,
+      selection: {
+        facilityIds: ['FAC-9'],
+        boundaryName: 'Boundary Playground',
+        jmcName: 'JMC East',
+        scenarioRegionId: 'coa3c_east',
+      },
     });
 
     useAppStore
@@ -974,6 +1059,20 @@ describe('appStore region controls', () => {
     expect(state.activeStandardViewPreset).toBe('current');
     expect(state.activeViewPreset).toBe('coa3c');
     expect(state.activeScenarioWorkspaceId).toBe('dphcEstimateCoaPlayground');
+    expect(state.facilitySymbolShape).toBe('diamond');
+    expect(state.facilitySymbolSize).toBe(6.5);
+    expect(state.regionGlobalOpacity).toBe(0.6);
+    expect(state.regions[0]).toMatchObject({
+      color: '#556677',
+      opacity: 0.6,
+      symbolSize: 6.5,
+    });
+    expect(state.selection).toEqual({
+      facilityIds: [],
+      boundaryName: null,
+      jmcName: null,
+      scenarioRegionId: null,
+    });
   });
 
   it('restores the active playground workspace token from a saved session snapshot', () => {
