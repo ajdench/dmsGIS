@@ -523,6 +523,23 @@ export function MapWorkspace() {
         pageCount: pointTooltipEntriesRef.current.length,
       });
     } else {
+      const rawRegionName = selectedJmcNameRef.current;
+      const regionName = formatTooltipRegionName(rawRegionName);
+      const visiblePointFeatures = layers
+        .filter((layer) => layer.type === 'point' && layer.visible)
+        .flatMap((layer) => layerRefs.current.get(layer.id)?.getSource()?.getFeatures() ?? []);
+      const { regionPar, baseportPar, totalPar } = buildSelectedFacilityParSummary({
+        facilityFeatures: visiblePointFeatures,
+        selectedFacilityId: null,
+        selectedRegionName: rawRegionName,
+        activeViewPreset,
+        assignmentSource:
+          scenarioWorkspaceAssignmentSourceRef.current ??
+          getActiveAssignmentLookupSource(
+            regionBoundaryRefs.current,
+            jmcAssignmentLookupSourceRef.current,
+          ),
+      });
       setSelection({
         facilityIds: [],
         boundaryName: selectedBoundaryNameRef.current,
@@ -531,15 +548,15 @@ export function MapWorkspace() {
       });
       setPointTooltipDisplay({
         facilityName: null,
-        regionName: null,
+        regionName,
         isCombinedPractice: false,
         combinedPracticeName: null,
         combinedPracticeMembers: [],
         facilityPar: null,
         practicePar: null,
-        regionPar: null,
-        baseportPar: null,
-        totalPar: null,
+        regionPar: formatParDisplayValue(regionPar),
+        baseportPar: formatParDisplayValue(baseportPar),
+        totalPar: formatParDisplayValue(totalPar),
         pageIndex: 0,
         pageCount: 0,
       });

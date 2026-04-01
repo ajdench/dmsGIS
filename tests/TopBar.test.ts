@@ -104,4 +104,33 @@ describe('TopBar', () => {
       presetRow.getByRole('button', { name: 'COA 3b' }).getAttribute('aria-pressed'),
     ).toBe('false');
   });
+
+  it('shows boundary-only PAR summary values when a board remains selected without a facility', () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      selection: {
+        ...state.selection,
+        boundaryName: 'NHS Hampshire and Isle of Wight Integrated Care Board',
+      },
+      pointTooltipDisplay: {
+        ...state.pointTooltipDisplay,
+        facilityName: null,
+        regionName: 'Central & Wessex',
+        facilityPar: null,
+        practicePar: null,
+        regionPar: '2,000',
+        baseportPar: '40',
+        totalPar: '2,040',
+      },
+    }));
+
+    render(createElement(TopBar));
+
+    expect(screen.getByText('ICB:')).toBeTruthy();
+    expect(screen.getByText('Hampshire and Isle of Wight')).toBeTruthy();
+    expect(screen.getByText('Central & Wessex')).toBeTruthy();
+    expect(screen.getByText('2,000')).toBeTruthy();
+    expect(screen.getByText('40')).toBeTruthy();
+    expect(screen.getByText('2,040')).toBeTruthy();
+  });
 });

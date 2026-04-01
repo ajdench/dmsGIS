@@ -33,7 +33,7 @@ export function buildSelectedFacilityParSummary(params: {
     activeViewPreset,
   } = params;
 
-  if (!selectedFacilityId || !selectedRegionName) {
+  if (!selectedRegionName) {
     return {
       facilityPar: null,
       practicePar: null,
@@ -52,16 +52,18 @@ export function buildSelectedFacilityParSummary(params: {
   let baseportPar = 0;
   let baseportHasPar = false;
 
-  for (const feature of facilityFeatures) {
-    const featureId = readFeatureValue(feature, 'id');
-    const combinedPracticeName = parseFacilityPracticeName(
-      readFeatureValue(feature, 'combined_practice'),
-    );
+  if (selectedFacilityId) {
+    for (const feature of facilityFeatures) {
+      const featureId = readFeatureValue(feature, 'id');
+      const combinedPracticeName = parseFacilityPracticeName(
+        readFeatureValue(feature, 'combined_practice'),
+      );
 
-    if (featureId === selectedFacilityId) {
-      selectedPracticeName = combinedPracticeName;
-      facilityPar = parseFacilityParValue(readFeatureValue(feature, 'par'));
-      break;
+      if (featureId === selectedFacilityId) {
+        selectedPracticeName = combinedPracticeName;
+        facilityPar = parseFacilityParValue(readFeatureValue(feature, 'par'));
+        break;
+      }
     }
   }
 
@@ -77,7 +79,11 @@ export function buildSelectedFacilityParSummary(params: {
       activeViewPreset,
     );
     if (featurePar !== null) {
-      if (combinedPracticeName && combinedPracticeName === selectedPracticeName) {
+      if (
+        selectedPracticeName &&
+        combinedPracticeName &&
+        combinedPracticeName === selectedPracticeName
+      ) {
         practicePar += featurePar;
         practiceHasPar = true;
       }

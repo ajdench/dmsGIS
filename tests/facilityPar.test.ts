@@ -375,4 +375,61 @@ describe('facilityPar', () => {
       totalPar: 3451,
     });
   });
+
+  it('can summarize region, baseport, and total PAR for a boundary-only selection', () => {
+    const features = [
+      new Feature({
+        geometry: new Point([1, 2]),
+        id: 'FAC-1',
+        region: 'North',
+        combined_practice: 'Alpha Combined Medical Practice',
+        par: '120',
+      }),
+      new Feature({
+        geometry: new Point([3, 4]),
+        id: 'FAC-2',
+        region: 'North',
+        combined_practice: 'Alpha Combined Medical Practice',
+        par: '80',
+      }),
+      new Feature({
+        geometry: new Point([7, 8]),
+        id: 'BP1',
+        region: 'Royal Navy',
+        combined_practice: 'Portsmouth Combined Medical Practice',
+        par: '40',
+      }),
+    ];
+
+    const assignmentSource = new VectorSource({
+      features: [
+        new Feature({
+          geometry: new Polygon([[
+            [0, 0],
+            [10, 0],
+            [10, 10],
+            [0, 10],
+            [0, 0],
+          ]]),
+          region_name: 'COA 3b London and East',
+        }),
+      ],
+    });
+
+    expect(
+      buildSelectedFacilityParSummary({
+        facilityFeatures: features,
+        selectedFacilityId: null,
+        selectedRegionName: 'COA 3b London and East',
+        assignmentSource,
+        activeViewPreset: 'coa3c',
+      }),
+    ).toEqual({
+      facilityPar: null,
+      practicePar: null,
+      regionPar: 200,
+      baseportPar: 40,
+      totalPar: 240,
+    });
+  });
 });

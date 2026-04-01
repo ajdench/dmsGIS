@@ -76,6 +76,14 @@ Current preset-switch contract note:
 - `Reset active view preset` is intentionally different:
   - it should still restore the active preset baseline instead of carrying customized point presentation state forward
 
+Current selection-summary contract note:
+
+- when an `ICB / Health Board` remains selected without an active facility point selection, the TopBar PAR pane should still show the selected region summary:
+  - `Region`
+  - `Baseport`
+  - `Total`
+- this should be produced through the shared PAR-summary path rather than a presentation-only fallback, so point-selected and boundary-only summaries stay on one calculation contract
+
 Current validated repo-health note:
 
 - the confirmed `v3.8` main-repo baseline is currently clean through `npm run lint`, `npm run test -- --run`, `npm run build`, and `npm run test:e2e`
