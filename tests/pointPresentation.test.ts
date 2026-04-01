@@ -36,7 +36,7 @@ describe('pointPresentation', () => {
         baseShapeInset: 0,
         outerRingGap: 0,
         outerRingWidth: 0,
-        outerRingPlacement: 'inside',
+        outerRingPlacement: 'outside',
       }),
     ).toBeCloseTo(2, 3);
   });
@@ -66,11 +66,11 @@ describe('pointPresentation', () => {
         fillColor: 'rgba(65, 150, 50, 1)',
         borderColor: 'rgba(255, 255, 255, 1)',
         borderWidth: 1,
-        baseShapeInset: ringWidth,
+        baseShapeInset: 0,
         outerRingColor: 'rgba(15, 118, 110, 1)',
         outerRingGap: 0,
         outerRingWidth: ringWidth,
-        outerRingPlacement: 'inside',
+        outerRingPlacement: 'outside',
       }),
     ).toBeCloseTo(ringWidth + 1, 3);
   });
@@ -170,7 +170,8 @@ describe('pointPresentation', () => {
     expect(Math.abs(compensatedPlainPresentation.baseShapeInset)).toBeLessThan(
       getCombinedPracticeRingWidth(3.5) / 2,
     );
-    expect(combinedPresentation.baseShapeInset).toBeGreaterThan(0);
+    expect(combinedPresentation.baseShapeInset).toBe(0);
+    expect(combinedPresentation.outerRingPlacement).toBe('outside');
   });
 
   it('uses a lighter-than-half-width compensation for plain points under active combined treatment', () => {

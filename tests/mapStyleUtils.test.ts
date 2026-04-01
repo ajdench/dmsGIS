@@ -21,11 +21,11 @@ describe('mapStyleUtils', () => {
       fillColor: 'rgba(0, 0, 0, 0)',
       borderColor: 'rgba(0, 0, 0, 0)',
       borderWidth: 1,
-      baseShapeInset: getCombinedPracticeRingWidth(size),
+      baseShapeInset: 0,
       outerRingColor: '#000000',
       outerRingGap: 0,
       outerRingWidth: getCombinedPracticeRingWidth(size),
-      outerRingPlacement: 'inside',
+      outerRingPlacement: 'outside',
     });
 
     expect(
@@ -35,5 +35,21 @@ describe('mapStyleUtils', () => {
         outerRingWidth: 2,
       }),
     ).toBeGreaterThan(30);
+  });
+
+  it('grows canvas padding as outer point treatments stack outside the symbol', () => {
+    const size = 3.5;
+    const borderOnlyPadding = getPointSymbolCanvasPadding(size, 1, {
+      baseShapeInset: 0,
+    });
+    const combinedWithBorderPadding = getPointSymbolCanvasPadding(size, 1, {
+      outerRingColor: '#0f766e',
+      outerRingGap: 0,
+      outerRingWidth: getCombinedPracticeRingWidth(size),
+      outerRingPlacement: 'outside',
+      baseShapeInset: 0,
+    });
+
+    expect(combinedWithBorderPadding).toBeGreaterThan(borderOnlyPadding);
   });
 });

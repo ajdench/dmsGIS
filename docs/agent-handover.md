@@ -1096,9 +1096,10 @@ Playground entry is now explicitly split by source preset.
 - combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides
 - combined-practice family rings and visible PMC point borders should now be treated as outer point treatments in `src/features/map/mapStyleUtils.ts`, not as inside-band decoration:
   - the fill keeps its own footprint
-  - the visible point border sits outside that fill footprint
   - the combined-practice family ring sits outside the point footprint when present
+  - the visible point border sits outside the current outer point treatment, so it wraps either the plain point or the point-plus-combined ring
   - the luminous selected-point ring must therefore start from the true outermost rendered point edge for plain, bordered, combined, and bordered-plus-combined points
+  - canvas padding must be derived from that final rendered outer footprint so larger point sizes and stacked outer treatments do not clip
 - PMC point borders still default to off in the loaded region style state, and enabling them from older zero-opacity state should promote them back to a visible default border
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width and bottom-left width: `932.6875px`

@@ -1884,7 +1884,7 @@ function createEstimatedSelectedPointStyle(entry: PointTooltipEntry): Style[] {
     outerRingColor: entry.hasCombinedPracticeRing ? '#000000' : undefined,
     outerRingGap: 0,
     outerRingWidth: entry.hasCombinedPracticeRing ? 1 : 0,
-    outerRingPlacement: entry.hasVisibleBorder ? 'inside' : 'outside',
+    outerRingPlacement: 'outside',
   };
 
   return createSelectedPointStylesFromPresentation(estimatedPresentation);

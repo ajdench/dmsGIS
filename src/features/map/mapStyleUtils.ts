@@ -81,8 +81,8 @@ export function createPointSymbol(
   const outerRingPlacement = options.outerRingPlacement ?? 'outside';
   const baseShapeInset = options.baseShapeInset ?? 0;
   // Convert the desired screen-pixel border width to canvas coordinate units.
-  // Point borders now occupy an inside band at the outer point footprint rather
-  // than expanding the symbol beyond that footprint.
+  // The point border is an outer treatment, so padding has to follow the final
+  // rendered footprint rather than the original fill path alone.
   const canvasStrokeWidth = borderWidth > 0 ? borderWidth / scale : 0;
   const canvasOuterRingWidth =
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
@@ -124,17 +124,16 @@ export function getPointSymbolCanvasPadding(
     outerRingWidth > 0 ? outerRingWidth / scale : 0;
   const canvasOuterRingGap = outerRingGap > 0 ? outerRingGap / scale : 0;
   const canvasBaseShapeInset = baseShapeInset / scale;
-  const pointOuterInset =
-    outerRingPlacement === 'inside' && canvasOuterRingWidth > 0
-      ? Math.max(0, canvasBaseShapeInset - canvasOuterRingGap - canvasOuterRingWidth)
-      : canvasBaseShapeInset;
-  const pointOutsideExtent = Math.max(0, canvasStrokeWidth / 2 - pointOuterInset);
-  const outerRingOutside =
+  const fillOutsideExtent = Math.max(0, -canvasBaseShapeInset);
+  const ringOutsideExtent =
     outerRingPlacement === 'outside' && canvasOuterRingWidth > 0
-      ? pointOutsideExtent + canvasOuterRingGap + canvasOuterRingWidth
-      : pointOutsideExtent;
+      ? canvasOuterRingGap + canvasOuterRingWidth
+      : 0;
+  const borderOutsideExtent = canvasStrokeWidth > 0 ? canvasStrokeWidth : 0;
+  const outerFootprintExtent =
+    fillOutsideExtent + ringOutsideExtent + borderOutsideExtent;
   return Math.ceil(
-    Math.max(MIN_CANVAS_PADDING, outerRingOutside, canvasBaseShapeInset) +
+    Math.max(MIN_CANVAS_PADDING, outerFootprintExtent) +
       CANVAS_PADDING_BUFFER,
   );
 }
@@ -201,25 +200,32 @@ function renderShapeCanvas(
   const ctx = canvas.getContext('2d')!;
 
   // Point fills keep their own footprint. Visible point borders and any
-  // combined-practice family ring are then added outside that footprint so the
-  // outermost rendered point edge is explicit and the selection ring can start
-  // from that true outer edge.
+  // combined-practice family ring are then added as explicit outer treatments.
+  // The point border always starts from the current outer edge, whether that is
+  // the fill itself or the fill plus an outer ring.
   const fillInset = baseShapeInset;
-  const pointOuterInset =
-    outerRingPlacement === 'inside' && outerRingWidth > 0
-      ? Math.max(0, fillInset - outerRingGap - outerRingWidth)
+  const ringCenterInset =
+    outerRingPlacement === 'outside'
+      ? fillInset - outerRingGap - outerRingWidth / 2
+      : fillInset + outerRingGap + outerRingWidth / 2;
+  const currentOuterEdgeInset =
+    outerRingColor && outerRingWidth > 0 && outerRingPlacement === 'outside'
+      ? fillInset - outerRingGap - outerRingWidth
       : fillInset;
-  const borderInset =
-    strokeWidth > 0 ? pointOuterInset - strokeWidth / 2 : pointOuterInset;
+  const borderCenterInset =
+    strokeWidth > 0
+      ? currentOuterEdgeInset - strokeWidth / 2
+      : currentOuterEdgeInset;
 
   if (outerRingColor && outerRingWidth > 0) {
     ctx.strokeStyle = outerRingColor;
     ctx.lineWidth = outerRingWidth;
-    const ringInset =
-      outerRingPlacement === 'outside'
-        ? Math.max(0, pointOuterInset - outerRingGap - outerRingWidth / 2)
-        : Math.max(0, fillInset - outerRingGap - outerRingWidth / 2);
-    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(ringInset));
+    tracePath(
+      ctx,
+      shape,
+      canvasPadding,
+      getScaleFactorFromInset(ringCenterInset),
+    );
     ctx.stroke();
   }
 
@@ -228,11 +234,17 @@ function renderShapeCanvas(
   tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(fillInset));
   ctx.fill();
 
-  // Main point border: normal centered stroke on the same shape path.
+  // Main point border: centered on the current outer edge so the whole border
+  // extends outside the already-rendered point treatment.
   if (borderColor && strokeWidth > 0) {
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = strokeWidth;
-    tracePath(ctx, shape, canvasPadding, getScaleFactorFromInset(borderInset));
+    tracePath(
+      ctx,
+      shape,
+      canvasPadding,
+      getScaleFactorFromInset(borderCenterInset),
+    );
     ctx.stroke();
   }
 

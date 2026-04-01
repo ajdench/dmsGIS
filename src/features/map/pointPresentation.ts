@@ -92,16 +92,12 @@ export function resolvePointPresentation(
   const outerRingGap =
     outerRingWidth > 0 ? getCombinedPracticeRingGap(size) : 0;
   const baseShapeInset =
-    outerRingWidth > 0
-      ? borderWidth > 0
-        ? outerRingGap + outerRingWidth
-        : 0
-      : activeCombinedTreatmentWidth > 0
-        ? -getPlainPointActiveCombinedTreatmentCompensation(
-            size,
-            activeCombinedTreatmentWidth,
-          )
-        : 0;
+    outerRingWidth <= 0 && activeCombinedTreatmentWidth > 0
+      ? -getPlainPointActiveCombinedTreatmentCompensation(
+          size,
+          activeCombinedTreatmentWidth,
+        )
+      : 0;
 
   return {
     shape,
@@ -113,7 +109,7 @@ export function resolvePointPresentation(
     outerRingColor,
     outerRingGap,
     outerRingWidth,
-    outerRingPlacement: borderWidth > 0 ? 'inside' : 'outside',
+    outerRingPlacement: 'outside',
   };
 }
 
@@ -122,21 +118,17 @@ export function getPointPresentationOuterDistance(
 ): number {
   const {
     borderWidth,
-    baseShapeInset,
     outerRingGap,
     outerRingWidth,
     outerRingPlacement,
   } = presentation;
-  const pointOuterInset =
-    outerRingPlacement === 'inside' && outerRingWidth > 0
-      ? baseShapeInset - outerRingGap - outerRingWidth
-      : baseShapeInset;
-  const borderOutsideDistance =
-    borderWidth > 0 ? baseShapeInset - (pointOuterInset - borderWidth) : 0;
   const ringOutsideDistance =
-    outerRingWidth > 0 ? outerRingGap + outerRingWidth : 0;
+    outerRingPlacement === 'outside' && outerRingWidth > 0
+      ? outerRingGap + outerRingWidth
+      : 0;
+  const borderOutsideDistance = borderWidth > 0 ? borderWidth : 0;
 
-  return Math.max(0, borderOutsideDistance, ringOutsideDistance);
+  return Math.max(0, ringOutsideDistance + borderOutsideDistance);
 }
 
 export function getRenderedPointPixelRadiusFromPresentation(
