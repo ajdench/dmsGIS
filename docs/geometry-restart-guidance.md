@@ -213,6 +213,56 @@ Source:
 
 - `src/lib/config/viewPresets.json`
 
+### 3.3.1 Current split-case seam rule
+
+The three special `Current` split parents still need one more important constraint
+to stay stable in future rebuilds.
+
+Confirmed source truth:
+
+- parent `Current` boards remain on the accepted `BSC-first` board family
+- split internals are built from official ward `BSC`
+
+Confirmed remaining defect:
+
+- residual white gaps and non-coincident yellow-vs-gold borders in split cases
+  are not currently best explained by wrong source provenance
+- they are best explained by geometry-contract drift between:
+  - the prepared parent ICB shell
+  - the prepared split fills
+  - the prepared split internal arcs
+  - and the selected Region-border geometry path
+
+Working rule from this point:
+
+- future `Current` split-case fixes should be preprocessing-owned first
+- runtime should choose among prepared split-aware seam products rather than
+  rediscovering split Region borders from polygons
+
+More specifically:
+
+1. The whole-parent ICB/HB shell keeps primacy.
+2. Split internal seams must come from the shared split arc network.
+3. Selected `Current` Region borders in split cases should be rebuilt from the
+   same parent-shell-plus-internal-arc family.
+4. Public runtime contract paths should remain stable while that lineage is
+   improved behind the scenes.
+
+That means the next repair path should preserve:
+
+- `public/data/regions/UK_WardSplit_simplified.geojson`
+- `public/data/regions/UK_WardSplit_internal_arcs.geojson`
+- `public/data/regions/outlines/current_*.geojson`
+
+but improve how those products are generated so they agree on one seam family.
+
+Latest implementation note:
+
+- the active repair now rebuilds `Current` `current_*.geojson` Region-outline files from one prepared split-aware topology of the live `Current` family
+- this preserves the public outline-file contract while replacing the old per-group dissolve-first path for `Current`
+- future passes should continue improving that prepared seam lineage rather than reintroducing runtime-only `Current` split outline derivation
+- in this checkout, the accepted runtime-family tree under `public/data/compare/shared-foundation-review/regions/` is the live target for those rebuilds
+
 ### 3.4 What scenario presets load today
 
 `SJC JMC`

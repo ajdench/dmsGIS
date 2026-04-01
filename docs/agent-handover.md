@@ -97,6 +97,39 @@ Current shared-foundation review note:
   - a later Playground regression was traced to `src/lib/config/scenarioWorkspaces.ts`, where interactive baseline assignment datasets were still loading from raw `data/regions/...` preset paths instead of the active accepted runtime-family root; keep Playground baseline assignment paths aligned with `resolveRuntimeMapProductPath(...)`
   - Playground runtime source authority is now composed through `src/features/map/playgroundRuntimeSession.ts` instead of being recombined ad hoc inside `MapWorkspace.tsx`; keep baseline source choice, runtime assignment source, derived outline source, diagnostics, and layer override composition together there
   - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
+  - remaining `Current` split-case visual defects should currently be understood as a seam-ownership problem, not as a source-provenance problem:
+    - parent `Current` boards are still on the accepted `BSC-first` family
+    - split internals are still built from official ward `BSC`
+    - the residual white-gap / non-coincident-border issue appears when the app mixes:
+      - whole-parent ICB helper geometry
+      - split-region selection geometry derived from split polygons
+      - and separately prepared outline products
+  - the next repair path for `Current` split cases should therefore be:
+    - preprocessing-owned
+    - contract-preserving
+    - shared-seam-first
+  - keep the public app/runtime paths stable:
+    - `public/data/regions/UK_WardSplit_simplified.geojson`
+    - `public/data/regions/UK_WardSplit_internal_arcs.geojson`
+    - `public/data/regions/outlines/current_*.geojson`
+  - improve the build lineage behind those paths instead of inventing new app-facing runtime files mid-repair
+  - runtime should prefer prepared split-aware `Current` outline products again once they are rebuilt from the same seam family as:
+    - the parent ICB shell
+    - the split internals
+    - the selected Region-border arcs
+  - that repair is now partly executed:
+    - `scripts/extract-group-outlines.mjs` now rebuilds `Current` `current_*.geojson` Region outlines from one prepared split-aware topology of the live `Current` family
+    - hidden split parents are excluded from the whole-board side of that topology
+    - ward-split features are inserted into the same topology with group ownership from `region_ref`
+    - the per-group outline arc is then meshed from that prepared topology instead of being derived from per-group dissolve alone
+  - `Current` runtime selection should now prefer those prepared `current_*.geojson` files again rather than the recent live `deriveCurrentGroupOutlineFeature(...)` shortcut in `MapWorkspace.tsx`
+  - visual acceptance of the split-case white-gap issue should therefore now be judged against:
+    - the rebuilt prepared outline files under `public/data/compare/shared-foundation-review/regions/outlines/`
+    - not against the older live-derived split outline path
+  - operational caveat:
+    - in this checkout, the plain `public/data/regions/` board family is incomplete/stale for these outline rebuilds
+    - the accepted live rebuild target is the runtime-family tree under:
+      - `public/data/compare/shared-foundation-review/regions/`
 - current inspection address:
   - `http://127.0.0.1:5174/dmsGIS/`
 

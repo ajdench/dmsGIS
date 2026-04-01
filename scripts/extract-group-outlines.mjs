@@ -88,6 +88,83 @@ function groupExteriorArc(groupFeatures) {
   };
 }
 
+function cloneFeatureWithGroup(feature, groupName) {
+  return {
+    ...feature,
+    properties: {
+      ...(feature.properties ?? {}),
+      __group: groupName,
+    },
+  };
+}
+
+function buildPresetPreparedTopology({
+  presetId,
+  boardFeatures,
+  wardFeatures,
+  codeGroupings,
+  hiddenParentCodes,
+}) {
+  const preparedFeatures = [];
+
+  for (const feature of boardFeatures) {
+    const boundaryCode = String(feature.properties?.boundary_code ?? '').trim();
+    if (!boundaryCode) continue;
+    if (presetId === 'current' && hiddenParentCodes.has(boundaryCode)) {
+      continue;
+    }
+    const groupName = String(codeGroupings[boundaryCode] ?? '').trim();
+    if (!groupName) continue;
+    preparedFeatures.push(cloneFeatureWithGroup(feature, groupName));
+  }
+
+  if (presetId === 'current') {
+    for (const feature of wardFeatures) {
+      const groupName = String(feature.properties?.region_ref ?? '').trim();
+      if (!groupName) continue;
+      preparedFeatures.push(cloneFeatureWithGroup(feature, groupName));
+    }
+  }
+
+  if (!preparedFeatures.length) {
+    return null;
+  }
+
+  return topology({
+    layer: {
+      type: 'FeatureCollection',
+      features: preparedFeatures,
+    },
+  });
+}
+
+function groupExteriorArcFromPreparedTopology(groupTopology, groupName) {
+  if (!groupTopology?.objects?.layer) {
+    return null;
+  }
+
+  const line = mesh(groupTopology, groupTopology.objects.layer, (a, b) => {
+    const aGroup = String(a?.properties?.__group ?? '').trim();
+    const bGroup = String(b?.properties?.__group ?? '').trim();
+
+    if (a === b) {
+      return aGroup === groupName;
+    }
+
+    const aMatch = aGroup === groupName;
+    const bMatch = bGroup === groupName;
+    return aMatch !== bMatch;
+  });
+
+  if (!line || !line.coordinates || line.coordinates.length === 0) return null;
+
+  return {
+    type: 'Feature',
+    geometry: line,
+    properties: {},
+  };
+}
+
 function groupExteriorArcFromDissolve(groupFeatures, groupName) {
   if (!groupFeatures.length) return null;
 
@@ -224,6 +301,18 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
       }
     }
 
+    const hiddenParentCodes =
+      presetId === 'current'
+        ? new Set(preset.wardSplitParentCodes ?? [])
+        : new Set();
+    const preparedTopology = buildPresetPreparedTopology({
+      presetId,
+      boardFeatures: geojson.features,
+      wardFeatures: Array.from(wardSplitByRegionRef.values()).flat(),
+      codeGroupings,
+      hiddenParentCodes,
+    });
+
     // Group name → set of boundary_codes.
     const groupCodes = new Map();
     for (const [code, groupName] of Object.entries(codeGroupings)) {
@@ -243,7 +332,10 @@ for (const [boardRelPath, presetIds] of pathToPresets) {
       }
 
       const arcFeature =
-        groupExteriorArcFromDissolve(allFeatures, group.name)
+        (presetId === 'current'
+          ? groupExteriorArcFromPreparedTopology(preparedTopology, group.name)
+          : null)
+        ?? groupExteriorArcFromDissolve(allFeatures, group.name)
         ?? groupExteriorArc(allFeatures);
       if (!arcFeature) {
         console.warn(`  [empty arc] ${presetId} / "${group.name}"`);

@@ -104,7 +104,6 @@ import { resolveSingleClickSelection } from './singleClickSelection';
 import { buildEffectivePopulatedCodes } from './populatedCodes';
 import {
   applyBoundarySelection,
-  deriveCurrentGroupOutlineFeature,
   findCareBoardBoundaryAtCoordinate,
   findJmcNameAtCoordinate,
   findJmcNameForBoundarySelection,
@@ -361,11 +360,6 @@ export function MapWorkspace() {
 
     const selectionColor =
       getRegionGroup(activeViewPreset, jmcName)?.colors.outline ?? '#419632';
-    const currentOutlineFeature =
-      activeViewPreset === 'current'
-        ? deriveCurrentGroupOutlineFeature(jmcName, regionBoundaryRefs.current)
-        : null;
-
     if (
       syncSelectedRegionHighlightFromAvailableSources({
         activeViewPreset,
@@ -373,7 +367,7 @@ export function MapWorkspace() {
         selectedRegionId: selectedScenarioRegionId,
         selectedRegionName: jmcName,
         selectionColor,
-        currentOutlineFeature,
+        currentOutlineFeature: null,
         derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
         selectedJmcBoundaryLayer,
       })
@@ -443,13 +437,6 @@ export function MapWorkspace() {
         if (jmcName) {
           const selectionColor =
             getRegionGroup(activeViewPreset, jmcName)?.colors.outline ?? '#419632';
-          const currentOutlineFeature =
-            activeViewPreset === 'current'
-              ? deriveCurrentGroupOutlineFeature(
-                  jmcName,
-                  regionBoundaryRefs.current,
-                )
-              : null;
           if (
             syncSelectedRegionHighlightFromAvailableSources({
               activeViewPreset,
@@ -457,7 +444,7 @@ export function MapWorkspace() {
               selectedRegionId: entry.scenarioRegionId,
               selectedRegionName: jmcName,
               selectionColor,
-              currentOutlineFeature,
+              currentOutlineFeature: null,
               derivedOutlineSource: scenarioWorkspaceDerivedOutlineSourceRef.current,
               selectedJmcBoundaryLayer: selectedJmcBoundaryRef.current,
             })

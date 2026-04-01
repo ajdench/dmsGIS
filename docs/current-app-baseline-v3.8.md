@@ -136,6 +136,19 @@ Important `v3.8` hardening:
 - the shipped split GeoJSON is also written at `7` decimal places so reprojection rounding does not reintroduce tiny overlaps against neighboring current boards
 - this prevents tiny invalid/overlapping slivers from reappearing against the new `BSC` parent family
 
+Current split-outline follow-up:
+
+- selected `Current` Region-border highlight for split cases should now route back through the precomputed `current_*.geojson` outline contract
+- those `current_*.geojson` files are now rebuilt from one prepared split-aware topology of the live `Current` family:
+  - whole non-split boards are included once with their assigned Region group
+  - hidden split parents are excluded from the whole-board side
+  - ward-split features are inserted with group ownership from `region_ref`
+  - the final per-group outline arc is meshed from that shared topology
+- this is the current preferred path because it keeps `Current` split Region borders on one prepared seam family instead of rediscovering them from runtime dissolve
+- in this checkout the accepted live rebuild target for those outline files is:
+  - `public/data/compare/shared-foundation-review/regions/outlines/`
+  - not the incomplete/stale plain `public/data/regions/outlines/` mirror
+
 ## Overlays
 
 Stable default-off overlays remain part of the production overlay model:
