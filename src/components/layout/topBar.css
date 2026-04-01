@@ -54,12 +54,12 @@
   --topbar-spacer-practice-combined-title-font-size-min: 0.5rem;
   --topbar-spacer-practice-combined-title-font-size-ideal: 8cqi;
   --topbar-spacer-practice-combined-title-font-size-max: var(--topbar-middle-pane-text-font-size);
-  --topbar-spacer-par-grid-font-size: 0.625rem;
+  --topbar-spacer-par-grid-font-size: 0.54rem;
   --topbar-spacer-practice-second-column-offset: 0.375rem;
   /* PAR pane rows key off the merged board-label baseline treatment, then sit a touch higher. */
   --topbar-spacer-par-grid-offset-y: calc(var(--topbar-cluster-label-offset-y) - 0.07em);
-  --topbar-spacer-par-grid-row-gap: 0.35em;
-  --topbar-spacer-par-grid-row-count: 5;
+  --topbar-spacer-par-grid-row-gap: 0.28em;
+  --topbar-spacer-par-grid-row-count: 6;
   --topbar-cluster-bottom-content-width: var(--topbar-cluster-longest-label-width);
   --topbar-cluster-bottom-min-width: calc(
     var(--topbar-cluster-bottom-content-width) + (2 * var(--topbar-cluster-pane-padding-x))
@@ -279,8 +279,8 @@
 .topbar__spacer-par-grid {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  grid-template-rows: repeat(5, max-content);
-  column-gap: 0.45ch;
+  grid-template-rows: repeat(var(--topbar-spacer-par-grid-row-count), max-content);
+  column-gap: 0.38ch;
   row-gap: var(--topbar-spacer-par-grid-row-gap);
   width: 100%;
   align-content: end;
@@ -294,6 +294,19 @@
 .topbar__spacer-par-title {
   font-weight: 500;
   white-space: nowrap;
+}
+
+.topbar__spacer-par-title--full-row {
+  grid-column: 1 / -1;
+}
+
+.topbar__spacer-par-title--registration-correction {
+  font-size: 0.9em;
+  letter-spacing: -0.02em;
+}
+
+.topbar__spacer-par-emphasis {
+  font-style: italic;
 }
 
 .topbar__spacer-par-value {

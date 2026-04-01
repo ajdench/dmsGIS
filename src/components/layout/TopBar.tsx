@@ -1,5 +1,5 @@
 import './topBar.css';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 import { exportCurrentMapView } from '../../features/export/exportCurrentMapView';
 import { isDphcEstimateCoaPlaygroundWorkspaceId } from '../../lib/config/scenarioWorkspaces';
 import { VIEW_PRESET_BUTTONS } from '../../lib/config/viewPresets';
@@ -17,21 +17,38 @@ const POPULATION_AT_RISK_LABEL = 'Population at Risk (PAR)';
 const PORTSMOUTH_COMBINED_PRACTICE_NAME = 'Portsmouth Combined Medical Practice';
 const PORTSMOUTH_FULL_WIDTH_MEMBER_NAMES = new Set(['Southwick Park', 'Thorney Island']);
 type ParSummaryRow = {
-  label: string;
-  valueKey:
+  id: string;
+  label: ReactNode;
+  valueKey?:
     | 'facilityPar'
     | 'practicePar'
     | 'regionPar'
     | 'baseportPar'
     | 'totalPar';
   valueClassName?: string;
+  titleClassName?: string;
 };
 const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
-  { label: 'Facility:', valueKey: 'facilityPar' },
-  { label: 'Practice:', valueKey: 'practicePar' },
-  { label: 'Region:', valueKey: 'regionPar' },
-  { label: 'Baseport:', valueKey: 'baseportPar' },
-  { label: 'Total:', valueKey: 'totalPar', valueClassName: 'topbar__spacer-par-value--total' },
+  { id: 'facility', label: 'Facility:', valueKey: 'facilityPar' },
+  { id: 'practice', label: 'Practice:', valueKey: 'practicePar' },
+  { id: 'region', label: 'Region:', valueKey: 'regionPar' },
+  {
+    id: 'proportional-registration-correction',
+    label: (
+      <>
+        Proportional <em className="topbar__spacer-par-emphasis">Registration</em> correction:
+      </>
+    ),
+    titleClassName:
+      'topbar__spacer-par-title--full-row topbar__spacer-par-title--registration-correction',
+  },
+  { id: 'baseport', label: 'Baseport:', valueKey: 'baseportPar' },
+  {
+    id: 'total',
+    label: 'Total:',
+    valueKey: 'totalPar',
+    valueClassName: 'topbar__spacer-par-value--total',
+  },
 ] as const;
 const MIDDLE_PANE_DEFINITIONS = [
   { label: FUNCTIONS_LABEL },
@@ -384,18 +401,35 @@ export function TopBar() {
             ) : null}
             {isParPane ? (
               <div className="topbar__spacer-par-grid" aria-label="Population at risk summary">
-                {PAR_SUMMARY_ROWS.map(({ label: rowLabel, valueKey, valueClassName }) => (
-                  <Fragment key={rowLabel}>
-                    <span className="topbar__spacer-par-title">{rowLabel}</span>
+                {PAR_SUMMARY_ROWS.map(({ id, label: rowLabel, valueKey, valueClassName, titleClassName }) =>
+                  valueKey ? (
+                    <Fragment key={id}>
+                      <span
+                        className={`topbar__spacer-par-title${
+                          titleClassName ? ` ${titleClassName}` : ''
+                        }`}
+                      >
+                        {rowLabel}
+                      </span>
+                      <span
+                        className={`topbar__spacer-par-value${
+                          valueClassName ? ` ${valueClassName}` : ''
+                        }`}
+                      >
+                        {pointTooltipDisplay[valueKey] ?? '—'}
+                      </span>
+                    </Fragment>
+                  ) : (
                     <span
-                      className={`topbar__spacer-par-value${
-                        valueClassName ? ` ${valueClassName}` : ''
+                      key={id}
+                      className={`topbar__spacer-par-title${
+                        titleClassName ? ` ${titleClassName}` : ''
                       }`}
                     >
-                      {pointTooltipDisplay[valueKey] ?? '—'}
+                      {rowLabel}
                     </span>
-                  </Fragment>
-                ))}
+                  ),
+                )}
               </div>
             ) : null}
           </div>
