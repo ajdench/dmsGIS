@@ -1382,10 +1382,14 @@
   }
 
   .scenario-playground-pane__subtitle {
-    font-size: var(--prototype-pane-title-font-size);
-    font-weight: 600;
+    font-size: clamp(
+      calc(var(--font-size-region-min) - 0.02rem),
+      calc(var(--font-size-region-ideal) - 0.015rem),
+      calc(var(--font-size-region-max) - 0.03rem)
+    );
+    font-weight: 400;
     line-height: 1.1;
-    color: color-mix(in srgb, var(--text) 92%, white);
+    color: var(--text-secondary);
   }
 
   .panel h2 {
