@@ -1314,7 +1314,7 @@
     max-width: var(--control-height-sm);
     max-height: var(--control-height-sm);
     padding: 0;
-    border: 0;
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     background: var(--surface);
     box-shadow: none;
@@ -1323,14 +1323,22 @@
   }
 
   .map-canvas .map-crosshair-control .map-crosshair-control__button:hover,
-  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible,
+  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
+    background: color-mix(in srgb, var(--status-warning-bg) 82%, white);
+    border-color: color-mix(in srgb, var(--status-warning-border) 88%, var(--status-warning-text));
+    color: var(--status-warning-text);
+    outline: none;
+  }
+
   .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
-    background: #fffb00;
-    color: var(--text);
+    background: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
+    color: var(--status-warning-text);
     outline: none;
   }
 
   .map-canvas .map-crosshair-control .map-crosshair-control__button:focus,
+  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible,
   .map-canvas .map-crosshair-control .map-crosshair-control__button:active {
     outline: none;
   }
