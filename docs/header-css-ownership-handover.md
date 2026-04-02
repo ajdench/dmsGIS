@@ -260,6 +260,7 @@ Why timing is worse right now:
   - left column: `Facility:`, `Practice:`, `Region:`, `Baseport:`, `Correction:`, `Total:`
   - middle column: reserved spacing lane; only `Correction` uses it, with centered parenthetical context
   - right column: right-aligned values
+- The first and last columns are pane-level `max-content` tracks, so they size to the largest label and largest value content across the whole PAR pane rather than row-by-row.
 - `Total` remains emphasized through `topbar__spacer-par-value--total`.
 - `Correction` uses the display format `(n% of 8500) value`, with the parenthetical context centered in the middle column and the numeric value right-aligned in the normal value column.
 - The numeric correction value should render at the same size as the other PAR values; only the parenthetical context stays visually reduced.

@@ -303,6 +303,7 @@ Current top-bar selection note:
   - left column = labels with trailing `:`
   - middle column = centered correction context only
   - right column = right-aligned values
+- the left and right PAR columns now size at the pane level from their largest text fills, not independently per row
 - the PAR pane now uses a fixed-height distributed internal row stack, so the top and bottom rows stay anchored while interior spacing remains even
 - PAR rows use a stable three-column row grid so the left and right columns do not drift when the correction context is present
 - only two PAR row-specific optical nudges are approved:

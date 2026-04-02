@@ -278,9 +278,10 @@
 }
 
 .topbar__spacer-par-summary {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  grid-auto-rows: max-content;
+  align-content: space-between;
   width: 100%;
   height: var(--topbar-spacer-par-fixed-height);
   color: var(--topbar-cluster-label-color);
@@ -292,9 +293,9 @@
 
 .topbar__spacer-par-row {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   column-gap: 0.38ch;
-  width: 100%;
   min-height: 0;
   align-items: baseline;
 }
