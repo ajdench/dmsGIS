@@ -1288,8 +1288,7 @@
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
-    display: grid;
-    place-items: center;
+    display: block;
     padding: var(--map-zoom-panel-inset);
     inline-size: calc(var(--control-height-sm) + (2 * var(--map-zoom-panel-inset)));
     block-size: calc(var(--control-height-sm) + (2 * var(--map-zoom-panel-inset)));
@@ -1299,90 +1298,6 @@
     box-shadow: var(--shadow-control);
     overflow: hidden;
     z-index: 3;
-  }
-
-  .map-canvas .map-crosshair-control .map-crosshair-control__button {
-    width: var(--control-height-sm);
-    height: var(--control-height-sm);
-    min-width: var(--control-height-sm);
-    min-height: var(--control-height-sm);
-    max-width: var(--control-height-sm);
-    max-height: var(--control-height-sm);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    color: var(--text-secondary);
-    transition:
-      background-color 120ms ease,
-      color 120ms ease,
-      border-color 120ms ease;
-  }
-
-  .map-canvas .map-crosshair-control .map-crosshair-control__button:hover,
-  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
-    background: #fffb00;
-    border-color: #fffb00;
-    color: var(--text);
-  }
-
-  .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
-    background: #fffb00;
-    border-color: #fffb00;
-    color: var(--text);
-  }
-
-  .map-canvas .map-crosshair-control__icon {
-    width: 0.8125rem;
-    height: 0.8125rem;
-    display: block;
-    background-color: currentColor;
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15' fill='none'%3E%3Cpath d='M7.5 1v2.25M7.5 11.75V14M1 7.5h2.25M11.75 7.5H14M7.5 10.25a2.75 2.75 0 1 0 0-5.5a2.75 2.75 0 0 0 0 5.5Z' stroke='black' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15' fill='none'%3E%3Cpath d='M7.5 1v2.25M7.5 11.75V14M1 7.5h2.25M11.75 7.5H14M7.5 10.25a2.75 2.75 0 1 0 0-5.5a2.75 2.75 0 0 0 0 5.5Z' stroke='black' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    -webkit-mask-position: center;
-    mask-position: center;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-  }
-
-  .map-canvas .map-crosshair-guides {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .map-canvas .map-crosshair-guides__line {
-    position: absolute;
-    display: block;
-    opacity: 0.5;
-  }
-
-  .map-canvas .map-crosshair-guides__line--horizontal {
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    transform: translateY(-50%);
-    background-image: repeating-linear-gradient(
-      to right,
-      color-mix(in srgb, var(--text-secondary) 82%, var(--muted)) 0 3px,
-      transparent 3px 7px
-    );
-  }
-
-  .map-canvas .map-crosshair-guides__line--vertical {
-    top: 0;
-    left: 50%;
-    width: 1px;
-    height: 100%;
-    transform: translateX(-50%);
-    background-image: repeating-linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--text-secondary) 82%, var(--muted)) 0 3px,
-      transparent 3px 7px
-    );
   }
 
   .panel {
