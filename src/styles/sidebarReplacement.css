@@ -172,17 +172,15 @@
     opacity: 1;
   }
 
-  @supports (-webkit-touch-callout: none) {
-    .sidebar-replacement-toggle__label {
-      position: static;
-      inset: auto;
-      grid-area: 1 / 1;
-      place-self: center;
-      width: 2.5ch;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
+  html[data-browser='safari'] .sidebar-replacement-toggle__label {
+    position: static;
+    inset: auto;
+    grid-area: 1 / 1;
+    place-self: center;
+    width: 2.5ch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .sidebar-replacement-pill {
