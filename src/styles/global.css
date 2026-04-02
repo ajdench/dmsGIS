@@ -1799,6 +1799,20 @@
     opacity: 1;
   }
 
+  @supports (-webkit-touch-callout: none) {
+    .sidebar-toggle-button__label {
+      position: static;
+      inset: auto;
+      grid-area: 1 / 1;
+      place-self: center;
+      width: 2.5ch;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+  }
+
   .sidebar-toggle-button:focus-visible,
   .sidebar-metric-pill--button:focus-visible,
   .sidebar-disclosure-button:focus-visible {

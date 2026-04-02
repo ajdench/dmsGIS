@@ -240,6 +240,19 @@
   opacity: 1;
 }
 
+@supports (-webkit-touch-callout: none) {
+  .prototype-toggle-button__label {
+    position: static;
+    inset: auto;
+    grid-area: 1 / 1;
+    place-self: center;
+    width: 2.5ch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 .prototype-toggle-button:focus .prototype-toggle-button__label--default,
 .prototype-toggle-button:active .prototype-toggle-button__label--default {
   opacity: 1;

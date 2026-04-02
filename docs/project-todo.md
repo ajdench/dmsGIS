@@ -12,6 +12,33 @@ Active confirmed runtime baseline:
 
 Treat older `v3.7` items below as historical/deferred unless they are explicitly revived against the confirmed `v3.8` state.
 
+### 30. Lock cross-browser compact toggle rendering across Safari and Edge
+
+**Area:** Sidebar controls / cross-browser UI consistency
+**Priority:** Medium
+**What:** Finish the active compact-toggle rendering contract so `On` / `Ox` / `Off` stay visually centered in Safari and Windows Edge without relying on one browser's optical correction to fix another's font metrics.
+**Why:** The recent Edge fix proved that the old deliberate label offset was wrong on Windows, but the replacement full-button centering path broke Safari styling. The control now needs a stable browser-aware contract rather than one layout assumption applied everywhere.
+**Notes:** Keep production controls in sync across `src/styles/global.css`, `src/styles/sidebarExact.css`, and `src/styles/sidebarReplacement.css`. Prefer browser-aware rendering or a more robust shared geometry contract over more ad hoc per-browser nudges.
+**Files likely touched:** `src/styles/global.css`, `src/styles/sidebarExact.css`, `src/styles/sidebarReplacement.css`, related visual verification notes.
+
+### 31. Review publication scope for inactive compare families and raw source artifacts
+
+**Area:** Repo hygiene / GitHub publication scope / large-file governance
+**Priority:** High
+**What:** Decide which large repo artifacts should remain in GitHub versus stay local-only or move into an archive path.
+**Why:** The active runtime only needs the accepted compare family, but the repo still carries inactive compare trees and large raw source artifacts that increase clone size and make publication scope harder to reason about.
+**Notes:** The highest-value review targets are `public/data/compare/bfe/`, `public/data/compare/current-east-bsc/`, and `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`. Do not remove any of them casually; first confirm whether tests, recovery flows, or provenance tracking still depend on them.
+**Files likely touched:** `public/data/compare/`, `facilities/`, `src/lib/config/runtimeMapProducts.json`, docs describing runtime-family governance and source provenance.
+
+### 32. Reduce map interaction full-scan work after startup optimizations
+
+**Area:** Runtime performance / map interaction
+**Priority:** Medium
+**What:** Follow the startup improvements with a focused pass on interaction-time lookup work, especially repeated feature scans during point selection, tooltip rendering, and boundary lookup.
+**Why:** Startup is leaner now, but the next most likely source of “sometimes a little slow” behavior is the repeated scan-based interaction logic in the map runtime, especially on lower-powered or Windows browsers.
+**Notes:** Start with the point/boundary selection paths and only introduce heavier indexing if measurement shows it is worth the added complexity.
+**Files likely touched:** `src/features/map/MapWorkspace.tsx`, `src/features/map/pointSelection.ts`, `src/features/map/boundarySelection.ts`, related seam tests.
+
 ### 24. Stabilize the `0%` map zoom-floor world framing
 
 **Area:** Map runtime / initial viewport / zoom controls
