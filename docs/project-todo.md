@@ -45,7 +45,7 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Priority:** Medium
 **What:** Follow the startup improvements with a focused pass on interaction-time lookup work, especially repeated feature scans during point selection, tooltip rendering, and boundary lookup.
 **Why:** Startup is leaner now, but the next most likely source of “sometimes a little slow” behavior is the repeated scan-based interaction logic in the map runtime, especially on lower-powered or Windows browsers.
-**Notes:** Start with the point/boundary selection paths and only introduce heavier indexing if measurement shows it is worth the added complexity.
+**Notes:** The first interaction-speed pass is now landed and documented in `docs/map-interaction-performance-pass-2026-04-02.md`. Boundary and assignment coordinate lookups now route through a spatial-index helper instead of raw full-source scans, and point hit clustering now uses a shared single-pass candidate builder plus a view-bounded candidate sweep. Remaining follow-up, if live use still feels slow, is the lighter tooltip-entry identity path and click-path setup churn, not a return to the old scan-heavy baseline.
 **Files likely touched:** `src/features/map/MapWorkspace.tsx`, `src/features/map/pointSelection.ts`, `src/features/map/boundarySelection.ts`, related seam tests.
 
 ### 24. Stabilize the `0%` map zoom-floor world framing

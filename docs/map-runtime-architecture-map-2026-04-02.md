@@ -96,6 +96,7 @@ Responsibilities:
   - assignment by boundary name
   - assignment by boundary unit id
   - coordinate-to-assignment lookup
+- routes coordinate lookup through a dedicated spatial-index seam in `featureSpatialLookup.ts`
 
 This is now the intended optimization seam for assignment lookup work.
 
@@ -229,7 +230,8 @@ Primary module:
 Why:
 
 - repeated coordinate-to-assignment scans are now concentrated behind one seam
-- this is the best place to add caching or a faster lookup structure later
+- the first scan-reduction pass now uses the vector source spatial index rather than raw full-array scans
+- this is still the best place to add caching or a faster lookup structure later if live measurement says it is needed
 
 ### Boundary 2. Runtime session composition
 
@@ -252,6 +254,18 @@ Why:
 
 - this is where draft overrides are applied
 - it is the right seam for further boundary-unit indexing or metadata precomputation
+
+### Boundary 4. Point hit clustering
+
+Primary module:
+
+- `src/features/map/pointSelection.ts`
+
+Why:
+
+- direct-hit and overlap-cluster selection now share one candidate-building seam
+- overlap candidate collection is now bounded to the current view extent
+- if interaction still feels slow, this is the best next place to target tooltip-entry identity lookup reduction or light candidate caching
 
 ### Boundary 4. Facility remapping consumers
 

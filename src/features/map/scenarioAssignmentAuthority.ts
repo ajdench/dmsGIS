@@ -6,6 +6,7 @@ import {
 } from '../../lib/scenarioWorkspaceAssignments';
 import type { ScenarioWorkspaceId } from '../../types';
 import { buildFeatureNameMap } from './overlayLookupBootstrap';
+import { findFeatureContainingCoordinate } from './featureSpatialLookup';
 
 export interface ScenarioBoundaryUnitAssignment {
   boundaryUnitId: string;
@@ -168,13 +169,5 @@ export function findScenarioAssignmentFeatureAtCoordinate(
   assignmentSource: VectorSource | null,
   coordinate: [number, number] | null,
 ): FeatureLike | null {
-  if (!assignmentSource || !coordinate) {
-    return null;
-  }
-
-  return (
-    assignmentSource
-      .getFeatures()
-      .find((candidate) => candidate.getGeometry()?.intersectsCoordinate(coordinate)) ?? null
-  );
+  return findFeatureContainingCoordinate(assignmentSource, coordinate);
 }

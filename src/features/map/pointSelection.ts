@@ -98,25 +98,9 @@ export function getDirectPointHitsAtPixel(
       pointLayers.has(layerCandidate as VectorLayer<VectorSource>),
   });
 
-  return hits.filter((feature) => {
-    if (
-      !isPointFeatureSelectable(
-        feature,
-        regionsByName,
-        filterDefinitions,
-        assignmentSource,
-      )
-    ) {
-      return false;
-    }
-
-    const coordinate = getPointCoordinate(feature);
-    if (!coordinate) return false;
-    const featurePixel = map.getPixelFromCoordinate(coordinate);
-    const dx = featurePixel[0] - pixel[0];
-    const dy = featurePixel[1] - pixel[1];
-    const distance = Math.hypot(dx, dy);
-    const radius = getPointSelectionRadius(
+  return hits.flatMap((feature) => {
+    const candidate = getPointSelectionCandidate(
+      map,
       feature,
       regionsByName,
       combinedPracticeStylesByName,
@@ -125,7 +109,14 @@ export function getDirectPointHitsAtPixel(
       filterDefinitions,
       assignmentSource,
     );
-    return distance <= radius + 0.75;
+    if (!candidate) {
+      return [];
+    }
+
+    const dx = candidate.pixel[0] - pixel[0];
+    const dy = candidate.pixel[1] - pixel[1];
+    const distance = Math.hypot(dx, dy);
+    return distance <= candidate.radius + 0.75 ? [candidate.feature] : [];
   });
 }
 
@@ -158,13 +149,13 @@ export function expandPointHitCluster(
 
   for (const feature of seedFeatures) {
     const candidate = getPointSelectionCandidate(
-        map,
-        feature,
-        regionsByName,
-        combinedPracticeStylesByName,
-        facilitySymbolShape,
-        facilitySymbolSize,
-        filterDefinitions,
+      map,
+      feature,
+      regionsByName,
+      combinedPracticeStylesByName,
+      facilitySymbolShape,
+      facilitySymbolSize,
+      filterDefinitions,
       assignmentSource,
     );
     if (!candidate || selected.has(candidate.key)) continue;
@@ -319,22 +310,13 @@ function collectVisiblePointCandidates(
   assignmentSource: VectorSource | null,
 ): PointSelectionCandidate[] {
   const candidates: PointSelectionCandidate[] = [];
+  const mapSize = map.getSize();
+  const visibleExtent = mapSize ? map.getView().calculateExtent(mapSize) : null;
 
   for (const layer of pointLayers) {
     const source = layer.getSource();
     if (!source) continue;
-
-    for (const feature of source.getFeatures()) {
-      if (
-        !isPointFeatureSelectable(
-          feature,
-          regionsByName,
-          facilityFilters,
-          assignmentSource,
-        )
-      ) {
-        continue;
-      }
+    const pushCandidate = (feature: FeatureLike) => {
       const candidate = getPointSelectionCandidate(
         map,
         feature,
@@ -348,6 +330,15 @@ function collectVisiblePointCandidates(
       if (candidate) {
         candidates.push(candidate);
       }
+    };
+
+    if (visibleExtent) {
+      source.forEachFeatureInExtent(visibleExtent, pushCandidate);
+      continue;
+    }
+
+    for (const feature of source.getFeatures()) {
+      pushCandidate(feature);
     }
   }
 
@@ -371,68 +362,15 @@ function getPointSelectionCandidate(
   if (!matchesFacilityFilters(facility, facilityFilters)) {
     return null;
   }
+  if (!facility.isDefaultVisible) {
+    return null;
+  }
+  const regionStyle = regionsByName.get(facility.region);
+  if (regionStyle && !regionStyle.visible) {
+    return null;
+  }
   const name = facility.displayName;
   const pixel = map.getPixelFromCoordinate(coordinate);
-  const radius = getPointSelectionRadius(
-    feature,
-    regionsByName,
-    combinedPracticeStylesByName,
-    facilitySymbolShape,
-    facilitySymbolSize,
-    facilityFilters,
-    assignmentSource,
-  );
-
-  return {
-    key: `${name}:${coordinate[0].toFixed(6)}:${coordinate[1].toFixed(6)}`,
-    feature,
-    pixel: [pixel[0], pixel[1]],
-    radius,
-  };
-}
-
-function isPointFeatureSelectable(
-  feature: FeatureLike,
-  regionsByName: Map<string, RegionStyle>,
-  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
-  assignmentSource: VectorSource | null,
-): boolean {
-  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
-  if (!matchesFacilityFilters(facility, facilityFilters)) {
-    return false;
-  }
-
-  const regionName = facility.region;
-  const regionStyle = regionsByName.get(regionName);
-  const defaultVisible = facility.isDefaultVisible;
-
-  if (!defaultVisible) {
-    return false;
-  }
-
-  if (regionStyle) {
-    return regionStyle.visible;
-  }
-
-  return true;
-}
-
-function getPointSelectionRadius(
-  feature: FeatureLike,
-  regionsByName: Map<string, RegionStyle>,
-  combinedPracticeStylesByName: Map<string, CombinedPracticeStyle>,
-  facilitySymbolShape: FacilitySymbolShape,
-  facilitySymbolSize: number,
-  facilityFilters: ReturnType<typeof getFacilityFilterDefinitions>,
-  assignmentSource: VectorSource | null,
-): number {
-  const facility = getEffectiveFacilityRecord(feature, assignmentSource);
-  if (!matchesFacilityFilters(facility, facilityFilters)) {
-    return 0;
-  }
-
-  const regionName = facility.region;
-  const regionStyle = regionsByName.get(regionName);
   const pointPresentation = resolvePointPresentation({
     feature,
     regions: regionsByName,
@@ -441,8 +379,14 @@ function getPointSelectionRadius(
     symbolSize: regionStyle?.symbolSize ?? facilitySymbolSize,
     assignmentSource,
   });
+  const radius = getRenderedPointPixelRadiusFromPresentation(pointPresentation);
 
-  return getRenderedPointPixelRadiusFromPresentation(pointPresentation);
+  return {
+    key: `${name}:${coordinate[0].toFixed(6)}:${coordinate[1].toFixed(6)}`,
+    feature,
+    pixel: [pixel[0], pixel[1]],
+    radius,
+  };
 }
 
 function pointCandidatesOverlap(

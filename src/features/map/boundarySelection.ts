@@ -24,6 +24,7 @@ import {
   resolvePlaygroundBoundaryAssignment,
   type ScenarioBoundaryUnitAssignment,
 } from './scenarioAssignmentAuthority';
+import { findFeatureContainingCoordinate } from './featureSpatialLookup';
 
 interface ApplyBoundarySelectionParams {
   feature: Feature | null;
@@ -87,14 +88,12 @@ export function findCareBoardBoundaryAtCoordinate(
     const layer = overlayLayerRefs.get(config.id);
     const source = layer?.getSource();
     if (!source) continue;
-    const hit = source
-      .getFeatures()
-      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate));
+    const hit = findFeatureContainingCoordinate(source, coordinate);
     if (hit) {
       if (config.family === 'wardSplitWards') {
-        return hit;
+        return hit as Feature;
       }
-      return resolveSplitBoundaryParentFeature(hit, regionFillSource) ?? hit;
+      return resolveSplitBoundaryParentFeature(hit as Feature, regionFillSource) ?? (hit as Feature);
     }
   }
 
@@ -388,12 +387,7 @@ function findJmcBoundaryAtCoordinate(
   source: VectorSource | null,
 ): Feature | null {
   if (!source) return null;
-
-  return (
-    source
-      .getFeatures()
-      .find((feature) => feature.getGeometry()?.intersectsCoordinate(coordinate)) ?? null
-  );
+  return findFeatureContainingCoordinate(source, coordinate) as Feature | null;
 }
 
 function getScenarioJmcName(

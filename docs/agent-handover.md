@@ -139,6 +139,10 @@ Current validated repo-health note:
   - orphaned `PmcPanel.tsx` and `OverlayPanel.tsx` are removed
 - the dead old-sidebar CSS/tokens in `src/styles/global.css` are now also removed, and `ScenarioPlaygroundPane.tsx` now uses local `scenario-playground-*` shell/button classes instead of the retired sidebar naming
 - the remaining follow-up here, if wanted later, is historical-doc grooming rather than more live working-app sidebar cleanup
+- the first interaction-speed follow-up pass is now also landed:
+  - coordinate-to-boundary and coordinate-to-assignment lookups now route through a shared spatial-index seam in `src/features/map/featureSpatialLookup.ts`
+  - point hit clustering in `src/features/map/pointSelection.ts` now uses a shared single-pass candidate builder and a view-bounded candidate sweep
+  - the remaining interaction-speed follow-up, if needed later, is tooltip-entry identity/setup churn rather than the older full-source scan path
 
 Current paired-runtime-family note:
 
@@ -1240,7 +1244,7 @@ Verified on the live dev app:
 - no `No regions loaded.` banner after settle
 - map left / sidebar right / bottom row aligned correctly again
 - OpenLayers viewport and zoom controls render at full pane height again
-- the map pane now also carries a square crosshair-guide toggle below the zoom control, using the same grey-shell / white-button treatment; when active, it holds the warning-toast selection colour and draws dotted `50%`-opacity horizontal and vertical centre guides across the map pane
+- the map pane now also carries a square crosshair-guide toggle in the top-right corner, using the same grey-shell / white-button treatment as the zoom control family; when active, it holds the warning-toast selection colour and draws dotted `50%`-opacity horizontal and vertical centre guides across the map pane
 
 Recovery note:
 
