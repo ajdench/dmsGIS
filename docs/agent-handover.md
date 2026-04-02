@@ -1221,3 +1221,10 @@ Recovery note:
   - closing the popover manually can still clear the transient selection state
   - but applying a reassignment should leave the editor focused on the newly assigned Region so the dissolved derived outline can refresh and highlight immediately
 - the `ScenarioPlaygroundPane` "Start state" copy should use subtitle treatment, not normal sidebar row-label treatment
+- Playground board fills, selected Region borders, assignment-popover defaults, facility remapping, tooltip identity, and visible-facility PAR summaries now all route through one active assignment-authority seam:
+  - runtime assignment source construction remains in `src/features/map/scenarioWorkspaceRuntime.ts`
+  - active authority selection now lives in `src/features/map/scenarioAssignmentAuthority.ts`
+  - runtime composition stays in `src/features/map/playgroundRuntimeSession.ts`
+  - future optimization work should treat `scenarioAssignmentAuthority.ts` as the first lookup/indexing boundary instead of reintroducing per-consumer lookup logic
+- architecture map:
+  - `docs/map-runtime-architecture-map-2026-04-02.md`

@@ -8,228 +8,284 @@ Repo:
 
 - `/Users/andrew/Projects/dmsGIS`
 
-Purpose:
+Scope:
 
-- document the active map-runtime authority boundaries
-- record the new authoritative Playground assignment seam
-- give future optimisation work one clear dependency map instead of repeated source rediscovery
+- active Playground Region-assignment authority
+- runtime dependency flow
+- optimization boundaries for future map-performance work
 
-This is a current-state architecture note, not a historical review log.
+This note is a runtime architecture map, not a product baseline or a closure note.
 
-## Executive Summary
+## Purpose
 
-The active map runtime now has one explicit scenario-assignment authority seam per render cycle:
+The immediate goal of the latest Playground pass was to stop Region identity drifting across:
 
-- `src/features/map/playgroundRuntimeSession.ts`
-  - composes the Playground baseline assignment source
-  - builds the draft-aware runtime assignment source
-  - builds the derived outline source
-  - exposes runtime source overrides for `regionFill` and `scenarioOutline`
-- `src/features/map/scenarioAssignmentAuthority.ts`
-  - resolves the single authoritative assignment source for downstream consumers
-  - resolves boundary-name and boundary-unit assignment maps from that same source
-  - owns the shared feature-at-coordinate lookup seam for future indexing/caching work
-
-That authority is now what downstream map consumers should read for:
-
-- board-fill colouring
-- selected Region-border redraw
-- Playground popover defaults
-- facility remapping in the map runtime
+- board fills
+- selected Region borders
+- assignment popover defaults
+- facility remapping
 - tooltip Region identity
-- PAR summaries derived from visible facility features
+- visible-facility PAR summaries
 
-The important remaining split is intentional:
+The repo now has one active assignment-authority seam for those concerns.
 
-- store-only derived workspace summaries and bottom-card non-map totals still use draft assignment lookup objects, not OpenLayers sources
-- that keeps non-map UI independent of OL geometry objects
-- if future user-visible drift appears there, that seam should be revisited deliberately rather than by leaking map-source objects upward
+This document records where that seam lives and where future optimization work should happen.
 
-## Primary Runtime Flow
+## Authoritative Playground Assignment Flow
 
-### 1. Dataset bootstrap
+### 1. Baseline/workspace config
 
-Map shell initialization in:
+Source:
 
-- `src/features/map/MapWorkspace.tsx`
-- `src/features/map/overlayLookupBootstrap.ts`
+- `src/lib/config/scenarioWorkspaces.ts`
 
-loads and retains:
+Responsibilities:
 
-- boundary-system interaction datasets
-- JMC assignment lookup dataset
-- scenario lookup/outlines datasets
-- Playground/source-preset assignment datasets
-- topology-edge dataset used for live derived Region outlines
+- declares the interactive Playground workspaces
+- defines the source preset for each Playground
+- resolves the baseline assignment dataset path used to preload the workspace board-assignment source
 
-### 2. Playground render-cycle runtime composition
+### 2. Runtime session composition
 
-Per relevant render pass, `MapWorkspace.tsx` calls:
-
-- `buildPlaygroundRuntimeSession(...)`
-
-That helper owns:
-
-- baseline assignment source resolution
-- draft-aware runtime assignment source creation
-- derived outline source creation
-- diagnostics snapshot creation
-- runtime override map creation
-
-### 3. Authoritative assignment resolution
-
-Immediately after the runtime session is built, `MapWorkspace.tsx` now resolves:
-
-- `buildScenarioAssignmentAuthority(...)`
-
-That authority session returns:
-
-- one authoritative assignment `VectorSource`
-- one boundary-name assignment map
-- one boundary-unit assignment map
-
-The map runtime should treat that as the only assignment source for downstream consumers during that render cycle.
-
-### 4. Downstream consumers
-
-The authoritative assignment source now feeds:
-
-- `reconcileOverlayBoundaryLayers(...)`
-  - visible board fills / Region colouring
-- `applyBoundarySelection(...)`
-  - boundary selection and selected Region identity
-- `resolveSingleClickSelection(...)`
-  - point-first selection and tooltip-entry assembly
-- `getStyleForLayer(...)`
-  - facility styling/remapping
-- `buildSelectedFacilityParSummary(...)`
-  - visible-facility PAR summaries
-- `renderDockedTooltip(...)` inputs from `MapWorkspace.tsx`
-  - selected Region / facility detail display
-
-## Active Module Boundaries
-
-### Orchestration
-
-- `src/features/map/MapWorkspace.tsx`
-  - still the main runtime orchestrator
-  - current size: `2283` lines
-  - should remain orchestration-focused rather than regaining geometry/assignment logic
-
-### Assignment-source composition
+Source:
 
 - `src/features/map/playgroundRuntimeSession.ts`
-  - current size: `123` lines
-  - owns render-cycle Playground source composition
+
+Responsibilities:
+
+- resolves the baseline assignment source for the active render cycle
+- builds the draft-aware runtime assignment source
+- builds the derived Region-outline source from the same assignment source
+- exposes runtime source overrides for:
+  - `regionFill`
+  - `scenarioOutline`
+
+This is the top-level Playground runtime composition seam.
+
+### 3. Runtime assignment-source construction
+
+Source:
 
 - `src/features/map/scenarioWorkspaceRuntime.ts`
-  - current size: `419` lines
-  - owns draft-aware assignment-feature cloning and baseline-to-runtime assignment rewriting
+
+Responsibilities:
+
+- clones the baseline assignment features
+- applies draft overrides by `boundaryUnitId`
+- rewrites `scenario_region_id`
+- rewrites `region_name` / `jmc_name`
+- returns:
+  - runtime assignment source
+  - assignment lookup by boundary name
+  - assignment lookup by boundary unit id
+
+This is the source of truth for draft-aware board-to-Region identity.
+
+### 4. Active authority selection
+
+Source:
 
 - `src/features/map/scenarioAssignmentAuthority.ts`
-  - new optimisation seam
-  - owns:
-    - authoritative source selection
-    - assignment map derivation
-    - coordinate-to-assignment feature lookup
 
-### Selection and highlighting
+Responsibilities:
 
-- `src/features/map/boundarySelection.ts`
-  - boundary selection, boundary-name resolution, selected Region identity
+- chooses one active assignment source per render cycle:
+  - runtime assignment source first
+  - live fallback assignment source second
+- exposes shared lookup helpers:
+  - assignment by boundary name
+  - assignment by boundary unit id
+  - coordinate-to-assignment lookup
 
-- `src/features/map/pointSelection.ts`
-  - hit detection, overlap clustering, tooltip-entry assembly
+This is now the intended optimization seam for assignment lookup work.
 
-- `src/features/map/selectionHighlights.ts`
-  - selected boundary / selected Region overlay synchronization
+### 5. Map orchestration
 
-### Facility remapping and summaries
-
-- `src/features/map/scenarioFacilityMapping.ts`
-  - effective facility Region remapping from the authoritative assignment source
-
-- `src/features/map/facilityLayerStyles.ts`
-  - point symbol styling using effective remapped facility state
-
-- `src/features/map/facilityPar.ts`
-  - selected visible-facility PAR summaries using the same assignment authority
-
-## Intended Optimisation Boundaries
-
-Future optimisation work should prefer these seams:
-
-### First boundary: `scenarioAssignmentAuthority.ts`
-
-If repeated `intersectsCoordinate(...)` lookups become a measurable hotspot, optimise there first.
-
-Possible future work:
-
-- source-local caching keyed by feature revision
-- assignment lookup indexing
-- extent prefiltering before geometry intersection
-- shared memoized coordinate lookup helpers
-
-Do not duplicate that logic separately inside:
-
-- `pointSelection.ts`
-- `scenarioFacilityMapping.ts`
-- `facilityPar.ts`
-
-### Second boundary: `playgroundRuntimeSession.ts`
-
-If render-cycle source composition becomes hard to reason about or expensive:
-
-- optimize or extract there
-- keep baseline-source choice and runtime override composition together
-
-Do not move that logic back into ad hoc `MapWorkspace.tsx` branches.
-
-### Third boundary: point interaction seams
-
-After assignment lookup is measured:
-
-- `pointSelection.ts`
-- `singleClickSelection.ts`
-- `facilityLayerStyles.ts`
-
-are the next best targets for interaction-time optimisation, especially on slower Windows browsers.
-
-## Current Risks And Constraints
-
-### Still concentrated orchestration
-
-The biggest live concentration points remain:
+Source:
 
 - `src/features/map/MapWorkspace.tsx`
-- `src/store/appStore.ts`
 
-This note does not change that; it only reduces one brittle authority seam inside that orchestration.
+Responsibilities:
 
-### Store/runtime duality remains deliberate
+- stores the active assignment authority in refs for the current map cycle
+- passes the authoritative assignment source to downstream consumers
+- uses the authoritative boundary-unit map for Playground popover defaults
+- keeps board selection, tooltip identity, and selected Region highlighting aligned to the same active assignment authority
 
-There are still two valid assignment representations:
+`MapWorkspace.tsx` is still orchestration-heavy, but it should no longer recreate separate Region-identity rules for Playground callers.
 
-- map-runtime assignment source and maps
-- store-side draft assignment lookup objects
+## Current Consumer Map
 
-That is acceptable as long as:
+### Board fills
 
-- map rendering/selection/styling reads the authoritative runtime seam
-- non-map store/UI summaries only use the draft lookup path intentionally
+Consumer:
 
-### Acceptance coverage is still more important than more helpers
+- `src/features/map/overlayBoundaryReconciliation.ts`
 
-The new seam reduces drift, but live correctness still depends on:
+Authority path:
 
-- reload/re-entry checks
-- multi-step Playground reassignment checks
-- overlap-selection checks
-- future browser/performance measurement
+- `playgroundRuntimeSession -> runtimeSourceOverrides.regionFill`
 
-## Suggested Next Optimisation Order
+### Selected Region borders
 
-1. Measure the authoritative assignment lookup seam under repeated point-selection and tooltip usage.
-2. If needed, optimise `findScenarioAssignmentFeatureAtCoordinate(...)` before changing point-selection algorithms.
-3. Add a live acceptance check for Playground re-entry/reload colouring before broadening runtime refactors again.
-4. Continue extracting bounded orchestration helpers from `MapWorkspace.tsx` only where a real hotspot or authority seam remains.
+Consumers:
+
+- `src/features/map/selectionHighlights.ts`
+- `src/features/map/MapWorkspace.tsx`
+
+Authority path:
+
+- `playgroundRuntimeSession -> derivedOutlineSource`
+
+### Assignment popover defaults
+
+Consumers:
+
+- `src/features/map/MapWorkspace.tsx`
+- `src/features/map/ScenarioAssignmentPopover.tsx`
+
+Authority path:
+
+- `scenarioAssignmentAuthority.assignmentByBoundaryUnitId`
+
+### Boundary selection identity
+
+Consumer:
+
+- `src/features/map/boundarySelection.ts`
+
+Authority path:
+
+- active assignment lookup by boundary name / boundary unit id
+- coordinate lookup fallback from the same active assignment source
+
+### Facility remapping and point styling
+
+Consumers:
+
+- `src/features/map/scenarioFacilityMapping.ts`
+- `src/features/map/facilityLayerStyles.ts`
+- `src/features/map/pointPresentation.ts`
+
+Authority path:
+
+- active assignment source by coordinate intersection
+
+### Tooltip Region identity and point selection
+
+Consumers:
+
+- `src/features/map/pointSelection.ts`
+- `src/features/map/tooltipController.ts`
+- `src/features/map/MapWorkspace.tsx`
+
+Authority path:
+
+- active assignment source by coordinate intersection
+- active assignment lookup by boundary name for boundary-first selection paths
+
+### Visible-facility PAR summaries
+
+Consumers:
+
+- `src/features/map/facilityPar.ts`
+- `src/features/map/MapWorkspace.tsx`
+
+Authority path:
+
+- active assignment source by coordinate intersection
+
+## What Is Still Separate On Purpose
+
+The following state is still allowed to be separate from assignment-source authority:
+
+- `scenarioWorkspaceEditor.selectedBoundaryUnitId`
+- `scenarioWorkspaceEditor.selectedScenarioRegionId`
+- `scenarioWorkspaceEditor.pendingScenarioRegionId`
+- `selection.scenarioRegionId`
+- `scenarioAssignmentPopover.selectedRegionId`
+
+Reason:
+
+- those fields are interaction state
+- they determine what the user is editing or highlighting
+- they should not redefine the authoritative board-to-Region assignment source
+
+The rule is:
+
+- interaction state may choose which Region is highlighted
+- it must not choose a different underlying board assignment than the active assignment source
+
+## Optimization Boundaries
+
+Future optimization work should prefer these boundaries.
+
+### Boundary 1. Assignment lookup
+
+Primary module:
+
+- `src/features/map/scenarioAssignmentAuthority.ts`
+
+Why:
+
+- repeated coordinate-to-assignment scans are now concentrated behind one seam
+- this is the best place to add caching or a faster lookup structure later
+
+### Boundary 2. Runtime session composition
+
+Primary module:
+
+- `src/features/map/playgroundRuntimeSession.ts`
+
+Why:
+
+- it already composes baseline source selection, runtime assignment source creation, derived outline creation, and override wiring
+- it should stay the one place where Playground runtime source authority is assembled
+
+### Boundary 3. Runtime assignment-source construction
+
+Primary module:
+
+- `src/features/map/scenarioWorkspaceRuntime.ts`
+
+Why:
+
+- this is where draft overrides are applied
+- it is the right seam for further boundary-unit indexing or metadata precomputation
+
+### Boundary 4. Facility remapping consumers
+
+Primary modules:
+
+- `src/features/map/scenarioFacilityMapping.ts`
+- `src/features/map/facilityPar.ts`
+- `src/features/map/pointSelection.ts`
+
+Why:
+
+- these modules are still the main callers doing repeated coordinate-to-assignment lookups
+- they should be optimized by improving the shared authority seam, not by reintroducing local lookup logic
+
+## Current Hotspots
+
+The most likely next runtime hotspots are:
+
+1. repeated `assignmentSource.getFeatures().find(...)` scans by coordinate intersection
+2. repeated boundary-feature scans during point selection and tooltip refresh
+3. repeated visible-point aggregation for tooltip/PAR recomputation
+
+If a later performance pass is approved, start by measuring those three areas before adding more indexing complexity.
+
+## Practical Working Rule
+
+When a future change needs Playground Region identity:
+
+- do not read raw feature props first
+- do not add another ad hoc boundary-name map
+- do not add a second coordinate-scan helper in a leaf consumer
+
+Instead:
+
+- route the change through `scenarioAssignmentAuthority.ts`
+- keep `playgroundRuntimeSession.ts` as the runtime composition seam
+- treat `scenarioWorkspaceRuntime.ts` as the only place that mutates baseline assignments into runtime assignments
