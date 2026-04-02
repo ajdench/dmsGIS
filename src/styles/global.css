@@ -547,17 +547,22 @@
 
   .workspace-bottom-shell__title-card {
     --workspace-bottom-card-edge-gap: 0.35rem;
-    --workspace-bottom-title-text-offset-y: 0.5px;
+    --workspace-bottom-title-font-size: 0.6875rem;
     --workspace-bottom-title-row-block-size: max(
       var(--prototype-control-swatch-size),
-      0.6875rem
+      var(--workspace-bottom-title-font-size)
+    );
+    --workspace-bottom-title-first-line-offset-y: calc(
+      (var(--workspace-bottom-title-row-block-size) - var(--workspace-bottom-title-font-size)) / 2
     );
     --workspace-bottom-title-to-middle-gap: 0.25rem;
     --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
-    --workspace-bottom-metrics-row-gap: 0.21875rem;
-    --workspace-bottom-bottom-clearance: var(--workspace-bottom-title-text-offset-y);
+    --workspace-bottom-metrics-row-gap: 0.25rem;
+    --workspace-bottom-bottom-clearance: calc(
+      var(--workspace-bottom-title-first-line-offset-y) + 1px
+    );
     --workspace-bottom-card-block-size: calc(
       (2 * var(--workspace-bottom-card-edge-gap)) +
       var(--workspace-bottom-title-row-block-size) +
@@ -610,18 +615,18 @@
     width: 100%;
     min-width: 0;
     grid-area: title;
-    align-self: center;
+    align-self: start;
     justify-self: start;
     white-space: pre-line;
     overflow-wrap: normal;
     word-break: normal;
     text-align: left;
-    font-size: 0.6875rem;
+    font-size: var(--workspace-bottom-title-font-size);
     line-height: 1;
     letter-spacing: -0.01em;
     font-weight: 500;
     color: color-mix(in srgb, var(--text-secondary) 82%, var(--muted));
-    transform: translateY(var(--workspace-bottom-title-text-offset-y));
+    transform: translateY(var(--workspace-bottom-title-first-line-offset-y));
   }
 
   .workspace-bottom-shell__title-card--with-middle-button,
