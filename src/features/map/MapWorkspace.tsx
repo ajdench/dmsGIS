@@ -127,6 +127,7 @@ import {
 } from '../../lib/facilityFilters';
 import { stripScenarioRegionPrefix } from '../../lib/regions/regionOrder';
 import { getFacilityFeatureProperties } from '../../lib/facilities';
+import { DEFAULT_PAR_CORRECTION_POLICY } from '../../lib/config/parCorrection';
 import {
   buildSelectedFacilityParSummary,
   buildProportionalParCorrectionSummary,
@@ -551,6 +552,7 @@ export function MapWorkspace() {
         regionPar,
         baseportPar,
         overallTotalPar: overallVisibleTotalPar > 0 ? overallVisibleTotalPar : null,
+        policy: DEFAULT_PAR_CORRECTION_POLICY,
       });
       setSelection({
         facilityIds: currentEntry.facilityId ? [currentEntry.facilityId] : [],
@@ -570,6 +572,7 @@ export function MapWorkspace() {
         baseportPar: formatParDisplayValue(baseportPar),
         correctionParContext: formatProportionalParCorrectionContext(
           correctionSummary.contributionPercent,
+          DEFAULT_PAR_CORRECTION_POLICY,
         ),
         correctionPar: formatParDisplayValue(correctionSummary.correctionValue),
         totalPar: formatParDisplayValue(correctionSummary.correctedTotal ?? totalPar),
@@ -597,6 +600,7 @@ export function MapWorkspace() {
         regionPar,
         baseportPar,
         overallTotalPar: overallVisibleTotalPar > 0 ? overallVisibleTotalPar : null,
+        policy: DEFAULT_PAR_CORRECTION_POLICY,
       });
       setSelection({
         facilityIds: [],
@@ -616,6 +620,7 @@ export function MapWorkspace() {
         baseportPar: formatParDisplayValue(baseportPar),
         correctionParContext: formatProportionalParCorrectionContext(
           correctionSummary.contributionPercent,
+          DEFAULT_PAR_CORRECTION_POLICY,
         ),
         correctionPar: formatParDisplayValue(correctionSummary.correctionValue),
         totalPar: formatParDisplayValue(correctionSummary.correctedTotal ?? totalPar),

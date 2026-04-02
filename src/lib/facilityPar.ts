@@ -1,4 +1,8 @@
 import { getPresetBoundarySystemId } from './config/boundarySystems';
+import {
+  DEFAULT_PAR_CORRECTION_POLICY,
+  type ParCorrectionPolicy,
+} from './config/parCorrection';
 import { getScenarioPresetConfig } from './config/viewPresets';
 import { getScenarioWorkspaceBaseline } from './config/scenarioWorkspaces';
 import { resolveScenarioWorkspaceRegionId } from './scenarioWorkspaceAssignments';
@@ -10,8 +14,6 @@ export interface FacilityParRecord {
   boundaryCode2026: unknown;
   parValue: unknown;
 }
-
-export const PROPORTIONAL_PAR_CORRECTION_BASE = 8500;
 
 export interface ProportionalParCorrectionSummary {
   contributionPar: number | null;
@@ -50,8 +52,14 @@ export function buildProportionalParCorrectionSummary(params: {
   regionPar: number | null;
   baseportPar: number | null;
   overallTotalPar: number | null;
+  policy?: ParCorrectionPolicy;
 }): ProportionalParCorrectionSummary {
-  const { regionPar, baseportPar, overallTotalPar } = params;
+  const {
+    regionPar,
+    baseportPar,
+    overallTotalPar,
+    policy = DEFAULT_PAR_CORRECTION_POLICY,
+  } = params;
   const contributionPar =
     (regionPar ?? 0) + (baseportPar ?? 0);
   const hasContribution = regionPar !== null || baseportPar !== null;
@@ -85,7 +93,7 @@ export function buildProportionalParCorrectionSummary(params: {
   }
 
   const contributionPercent = Math.round(share * 100);
-  const correctionValue = Math.round(share * PROPORTIONAL_PAR_CORRECTION_BASE);
+  const correctionValue = Math.round(share * policy.baseValue);
   return {
     contributionPar,
     contributionPercent,
@@ -94,12 +102,15 @@ export function buildProportionalParCorrectionSummary(params: {
   };
 }
 
-export function formatProportionalParCorrectionContext(percent: number | null): string | null {
+export function formatProportionalParCorrectionContext(
+  percent: number | null,
+  policy: ParCorrectionPolicy = DEFAULT_PAR_CORRECTION_POLICY,
+): string | null {
   if (percent === null) {
     return null;
   }
 
-  return `(${percent}% of 8500)`;
+  return `(${percent}% of ${policy.contextBaseLabel})`;
 }
 
 export function summarizeFacilityParByRegion(

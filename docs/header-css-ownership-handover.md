@@ -284,7 +284,7 @@ Why timing is worse right now:
   - Devonport -> South West / Devon basis
   - Portsmouth -> London & South / Hampshire and Isle of Wight basis on `Current`
 - Raw selected contribution is `Region PAR + Baseport PAR`.
-- `Correction PAR` is derived from that selected contribution as a share of the overall visible PAR total, using the displayed `(n% of 8500)` contribution against a fixed `8,500` base.
+- `Correction PAR` is derived from that selected contribution as a share of the overall visible PAR total, using the displayed `(n% of 8500)` contribution against the shared PAR-correction policy in `src/lib/config/parCorrection.ts` (currently `8,500`).
 - Displayed `Total PAR = Region PAR + Baseport PAR + Correction PAR`.
 
 ### Locked combined-practice pane contract

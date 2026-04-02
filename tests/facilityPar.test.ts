@@ -3,6 +3,7 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import VectorSource from 'ol/source/Vector';
 import Polygon from 'ol/geom/Polygon';
+import { DEFAULT_PAR_CORRECTION_POLICY } from '../src/lib/config/parCorrection';
 import {
   buildSelectedFacilityParSummary,
 } from '../src/features/map/facilityPar';
@@ -55,6 +56,31 @@ describe('facilityPar', () => {
       correctionValue: null,
       correctedTotal: null,
     });
+  });
+
+  it('can use a shared correction policy other than the current 8500 base', () => {
+    const futurePolicy = {
+      ...DEFAULT_PAR_CORRECTION_POLICY,
+      baseValue: 12000,
+      contextBaseLabel: '12,000',
+    };
+
+    expect(
+      buildProportionalParCorrectionSummary({
+        regionPar: 200,
+        baseportPar: 40,
+        overallTotalPar: 4500,
+        policy: futurePolicy,
+      }),
+    ).toEqual({
+      contributionPar: 240,
+      contributionPercent: 5,
+      correctionValue: 640,
+      correctedTotal: 880,
+    });
+    expect(
+      formatProportionalParCorrectionContext(5, futurePolicy),
+    ).toBe('(5% of 12,000)');
   });
 
   it('summarizes PAR totals by region and overall total', () => {

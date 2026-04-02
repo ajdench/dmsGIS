@@ -1,3 +1,4 @@
+import { DEFAULT_PAR_CORRECTION_POLICY } from './config/parCorrection';
 import type { PresetRegionGroup } from './config/viewPresets';
 import { getScenarioPresetConfig } from './config/viewPresets';
 import type { RegionStyle, RegionGroupStyleOverride, ViewPresetId } from '../types';
@@ -417,6 +418,7 @@ function buildCardParDisplays(
     regionPar: rawParValue,
     baseportPar: null,
     overallTotalPar,
+    policy: DEFAULT_PAR_CORRECTION_POLICY,
   });
   const correctionContext = formatBottomCardCorrectionContext(
     correctionSummary.contributionPercent,
