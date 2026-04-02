@@ -4,7 +4,11 @@ import type { RegionStyle, RegionGroupStyleOverride, ViewPresetId } from '../typ
 import type { FacilitySymbolShape } from '../types';
 import { PMC_REGION_ORDER, stripScenarioRegionPrefix } from './regions/regionOrder';
 import { getEffectiveGroupStyle } from '../features/groups/regionsPanelFields';
-import { formatParDisplayValue, parseFacilityParValue } from './facilityPar';
+import {
+  buildProportionalParCorrectionSummary,
+  formatParDisplayValue,
+  parseFacilityParValue,
+} from './facilityPar';
 
 interface WorkspaceBottomCardSwatch {
   color: string;
@@ -19,6 +23,8 @@ export interface WorkspaceBottomCard {
   key: string;
   title: string;
   swatch: WorkspaceBottomCardSwatch;
+  actualParDisplay: string | null;
+  correctionParDisplay: string | null;
   parDisplay: string | null;
   middleRow?:
     | {
@@ -84,6 +90,7 @@ export function buildWorkspaceBottomCardModel(params: {
   const royalNavyRegionalParByName =
     presetRoyalNavyRegionalParByPreset[activeViewPreset] ?? {};
   const royalNavySwatch = createPmcRegionSwatch('Royal Navy', regions);
+  const overallTotalPar = parseFacilityParValue(pmcTotalParDisplay);
   const slots = PMC_REGION_ORDER.map((regionName) => {
     const region = regionByName.get(regionName);
     if (!region) {
@@ -93,6 +100,13 @@ export function buildWorkspaceBottomCardModel(params: {
     const baseParDisplay = pmcRegionParDisplayByName[region.name] ?? '—';
     const baseParValue = parseFacilityParValue(baseParDisplay) ?? 0;
     const royalNavyContributionValue = royalNavyRegionalParByName[region.name] ?? 0;
+
+    const rawParValue =
+      region.name === 'Royal Navy' && showRoyalNavyRegionalization
+        ? null
+        : showRoyalNavyRegionalization && royalNavyContributionValue > 0
+          ? baseParValue + royalNavyContributionValue
+          : baseParValue;
 
     return {
       key: region.name,
@@ -105,12 +119,7 @@ export function buildWorkspaceBottomCardModel(params: {
         borderOpacity: region.borderVisible ? region.borderOpacity : 0,
         borderWidth: region.borderVisible ? region.borderWidth : 1,
       },
-      parDisplay:
-        region.name === 'Royal Navy' && showRoyalNavyRegionalization
-          ? formatParDisplayValue(null)
-          : showRoyalNavyRegionalization && royalNavyContributionValue > 0
-            ? formatParDisplayValue(baseParValue + royalNavyContributionValue)
-            : baseParDisplay,
+      ...buildCardParDisplays(rawParValue, overallTotalPar),
       middleRow:
         region.name === 'Royal Navy'
           ? {
@@ -129,7 +138,7 @@ export function buildWorkspaceBottomCardModel(params: {
 
   return {
     slots,
-    totalCard: createTotalCard(pmcTotalParDisplay),
+    totalCard: createTotalCard(pmcTotalParDisplay, overallTotalPar),
   };
 }
 
@@ -167,11 +176,12 @@ function buildScenarioPresetCardModel(params: {
     royalNavyRegionalParByName,
     showRoyalNavyRegionalization,
   } = params;
+  const overallTotalPar = parseFacilityParValue(pmcTotalParDisplay);
   const presetConfig = getScenarioPresetConfig(presetId);
   if (!presetConfig) {
     return {
       slots: Array.from({ length: SLOT_COUNT }, () => null),
-      totalCard: createTotalCard(pmcTotalParDisplay),
+      totalCard: createTotalCard(pmcTotalParDisplay, overallTotalPar),
     };
   }
 
@@ -202,8 +212,9 @@ function buildScenarioPresetCardModel(params: {
         swatch: createScenarioGroupSwatch(
           resolveDevolvedAdministrationsColor(devolvedCards, regionGroupOverrides),
         ),
-        parDisplay: formatParDisplayValue(
+        ...buildCardParDisplays(
           baseParValue + (showRoyalNavyRegionalization ? royalNavyContributionValue : 0),
+          overallTotalPar,
         ),
         middleRow:
           showRoyalNavyRegionalization && royalNavyContributionValue > 0
@@ -225,6 +236,7 @@ function buildScenarioPresetCardModel(params: {
           royalNavyRegionalParByName,
           royalNavySwatch,
           showRoyalNavyRegionalization,
+          overallTotalPar,
         ),
       );
     }
@@ -238,6 +250,7 @@ function buildScenarioPresetCardModel(params: {
           royalNavyRegionalParByName,
           royalNavySwatch,
           showRoyalNavyRegionalization,
+          overallTotalPar,
         ),
       );
     }
@@ -256,6 +269,7 @@ function buildScenarioPresetCardModel(params: {
           regionName === 'Royal Navy' && showRoyalNavyRegionalization
             ? null
             : (presetRegionParByName[regionName] ?? null),
+        overallTotalPar,
         middleRow:
           regionName === 'Royal Navy'
             ? {
@@ -269,7 +283,7 @@ function buildScenarioPresetCardModel(params: {
 
   return {
     slots,
-    totalCard: createTotalCard(pmcTotalParDisplay),
+    totalCard: createTotalCard(pmcTotalParDisplay, overallTotalPar),
   };
 }
 
@@ -293,6 +307,7 @@ function createScenarioGroupCard(
   royalNavyRegionalParByName: Record<string, number>,
   royalNavySwatch: WorkspaceBottomCardSwatch,
   showRoyalNavyRegionalization: boolean,
+  overallTotalPar: number | null,
 ): WorkspaceBottomCard {
   const baseParValue = presetRegionParByName[group.name] ?? 0;
   const royalNavyContributionValue = royalNavyRegionalParByName[group.name] ?? 0;
@@ -303,8 +318,9 @@ function createScenarioGroupCard(
       getEffectiveGroupStyle(group, regionGroupOverrides).populatedFillColor ??
         group.colors.populated,
     ),
-    parDisplay: formatParDisplayValue(
+    ...buildCardParDisplays(
       baseParValue + (showRoyalNavyRegionalization ? royalNavyContributionValue : 0),
+      overallTotalPar,
     ),
     middleRow:
       showRoyalNavyRegionalization && royalNavyContributionValue > 0
@@ -343,15 +359,16 @@ function createSpecialPmcRegionCard(params: {
   regionName: (typeof SPECIAL_SCENARIO_REGION_NAMES)[number];
   regions: RegionStyle[];
   parValue: number | null;
+  overallTotalPar: number | null;
   middleRow?: WorkspaceBottomCard['middleRow'];
 }): WorkspaceBottomCard {
-  const { regionName, regions, parValue, middleRow } = params;
+  const { regionName, regions, parValue, overallTotalPar, middleRow } = params;
 
   return {
     key: regionName,
     title: regionName,
     swatch: createPmcRegionSwatch(regionName, regions),
-    parDisplay: formatParDisplayValue(parValue),
+    ...buildCardParDisplays(parValue, overallTotalPar),
     middleRow,
   };
 }
@@ -372,7 +389,11 @@ function createPmcRegionSwatch(
   };
 }
 
-function createTotalCard(parDisplay: string): WorkspaceBottomCard {
+function createTotalCard(
+  parDisplay: string,
+  overallTotalPar: number | null,
+): WorkspaceBottomCard {
+  const parsedTotalPar = parseFacilityParValue(parDisplay);
   return {
     key: 'total',
     title: 'Total',
@@ -384,6 +405,40 @@ function createTotalCard(parDisplay: string): WorkspaceBottomCard {
       borderOpacity: 1,
       borderWidth: 1,
     },
-    parDisplay,
+    ...buildCardParDisplays(parsedTotalPar, overallTotalPar),
   };
+}
+
+function buildCardParDisplays(
+  rawParValue: number | null,
+  overallTotalPar: number | null,
+): Pick<WorkspaceBottomCard, 'actualParDisplay' | 'correctionParDisplay' | 'parDisplay'> {
+  const correctionSummary = buildProportionalParCorrectionSummary({
+    regionPar: rawParValue,
+    baseportPar: null,
+    overallTotalPar,
+  });
+  const correctionContext = formatBottomCardCorrectionContext(
+    correctionSummary.contributionPercent,
+  );
+  const correctionParDisplay =
+    correctionSummary.correctionValue === null
+      ? formatParDisplayValue(null)
+      : `${formatParDisplayValue(correctionSummary.correctionValue)}${
+          correctionContext ? ` ${correctionContext}` : ''
+        }`;
+
+  return {
+    actualParDisplay: formatParDisplayValue(rawParValue),
+    correctionParDisplay,
+    parDisplay: formatParDisplayValue(correctionSummary.correctedTotal),
+  };
+}
+
+function formatBottomCardCorrectionContext(percent: number | null): string | null {
+  if (percent === null) {
+    return null;
+  }
+
+  return `(${percent}%)`;
 }

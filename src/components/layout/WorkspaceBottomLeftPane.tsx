@@ -114,8 +114,16 @@ export function WorkspaceBottomLeftPane() {
                       </div>
                     </div>
                   ) : null}
-                  <div className="workspace-bottom-shell__title-card-par">
-                    {card.parDisplay ?? ''}
+                  <div className="workspace-bottom-shell__title-card-metrics">
+                    <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--actual">
+                      {card.actualParDisplay ?? ''}
+                    </div>
+                    <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--correction">
+                      {card.correctionParDisplay ?? ''}
+                    </div>
+                    <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--total">
+                      {card.parDisplay ?? ''}
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -130,8 +138,16 @@ export function WorkspaceBottomLeftPane() {
               />
             </div>
             <div className="workspace-bottom-shell__title-card-title">{totalCard.title}</div>
-            <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--total">
-              {totalCard.parDisplay ?? ''}
+            <div className="workspace-bottom-shell__title-card-metrics">
+              <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--actual">
+                {totalCard.actualParDisplay ?? ''}
+              </div>
+              <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--correction">
+                {totalCard.correctionParDisplay ?? ''}
+              </div>
+              <div className="workspace-bottom-shell__title-card-par workspace-bottom-shell__title-card-par--total">
+                {totalCard.parDisplay ?? ''}
+              </div>
             </div>
           </div>
         </div>

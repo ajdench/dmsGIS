@@ -139,6 +139,9 @@ Current shared-foundation review note:
   - same-Region internal seams in Playground should therefore now be removed at the seam-selection stage rather than being left for dissolve cleanup to infer later
   - a later Playground regression was traced to `src/lib/config/scenarioWorkspaces.ts`, where interactive baseline assignment datasets were still loading from raw `data/regions/...` preset paths instead of the active accepted runtime-family root; keep Playground baseline assignment paths aligned with `resolveRuntimeMapProductPath(...)`
   - Playground runtime source authority is now composed through `src/features/map/playgroundRuntimeSession.ts` instead of being recombined ad hoc inside `MapWorkspace.tsx`; keep baseline source choice, runtime assignment source, derived outline source, diagnostics, and layer override composition together there
+  - the next optimisation boundary on top of that session now lives in `src/features/map/scenarioAssignmentAuthority.ts`; keep downstream assignment lookups and future indexing/caching there rather than reintroducing point-selection- or PAR-specific lookup copies
+  - architectural map for future optimisation work:
+    - `docs/map-runtime-architecture-map-2026-04-02.md`
   - the selected ICB / Health Board helper outline is intentionally a stronger large dashed yellow overlay so active board selection remains readable while Playground reassignment/border behavior continues to stabilize
   - remaining `Current` split-case visual defects should currently be understood as a seam-ownership problem, not as a source-provenance problem:
     - parent `Current` boards are still on the accepted `BSC-first` family
@@ -953,9 +956,16 @@ At the time of this handover:
 - during an open Playground edit, selected Region-border redraw now treats the popover/editor-selected `scenarioRegionId` as authoritative instead of trusting feature-prop timing during the reselect cycle
 - after a Playground reassignment is applied, the map now clears the transient assignment-popover/editor action state instead of leaving the chosen Region button latched; the saved reassignment should remain on the map, but the action pane returns to a neutral state until the next board is selected
 - top-bar preset buttons should reflect the actual live map mode, not the stored fallback standard preset: when either Playground workspace is active, the `Current` / `SJC JMC` / `COA 3a` / `COA 3b` row should show no active button, leaving the active Playground button as the exclusive mode indicator
-- COA 3b Playground currently keeps facility points on their existing non-draft styling path, so board reassignment no longer remaps facility point borders/colours yet
+- Playground map-runtime consumers now resolve one authoritative assignment source per render cycle through `src/features/map/scenarioAssignmentAuthority.ts`
+- that authoritative source now feeds:
+  - board-fill styling
+  - selected Region-border redraw
+  - Playground popover default Region selection
+  - facility point remapping/styling in the map runtime
+  - tooltip Region identity
+  - visible-facility PAR summaries
 - Playground selected-Region highlighting is now driven directly from the editor-selected `scenarioRegionId` plus the merged editable Region geometry source, and editable workspaces no longer fall back to static preset outline fetches for the selected Region border
-- facility clicks inside Playground now also carry draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, while facility symbol styling itself remains on the non-draft path
+- facility clicks inside Playground now also carry draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, and facility symbol styling now follows that same authoritative assignment source
 - when a facility is clicked in Playground, that facility selection now takes ownership of the selected Region border instead of allowing a stale board-editor Region selection to repaint over it
 - non-Playground static scenario clicks now prefer the precomputed topology-aligned Region-outline files first, so the thick selected border stays on the same shipped board-arc network as the visible ICB/HB seams
 - Playground / draft-aware selection still uses the live derived Region-outline source first, because that path needs to reflect edited assignments immediately
@@ -1111,7 +1121,16 @@ Playground entry is now explicitly split by source preset.
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
 - columns `1`-`9` render PMC Region title cards for the fixed PMC order, with the full-opacity swatch in row `1` and the Region title in row `2`
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
-- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, while the `Total` card itself no longer carries a separate bold-only emphasis treatment
+- every bottom-row card now renders a three-line PAR stack below the middle rail:
+  - top line = actual Region PAR on the active assignment basis
+  - middle line = correction value shown as `n (y%)`
+  - that middle correction line now stays at the normal non-title size/weight across the whole row rather than shrinking the parenthetical context
+  - bottom line = corrected sum, which keeps the existing final-total rail
+- that same contract now also applies to the `Total` card:
+  - actual total PAR
+  - `8,500 (100%)` correction
+  - corrected total sum
+- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, while the actual/correction lines stay on the normal non-title weight
 - the playground panel keeps the same `COA 3a` / `COA 3b` wiring and rebuilt runtime board products
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
 - combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides

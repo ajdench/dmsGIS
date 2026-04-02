@@ -46,7 +46,9 @@ describe('workspaceBottomCards', () => {
     });
     expect(model.slots[1]).toMatchObject({
       title: 'North',
-      parDisplay: '2,000',
+      actualParDisplay: '2,000',
+      correctionParDisplay: '378 (4%)',
+      parDisplay: '2,378',
       swatch: {
         color: '#112233',
         shape: 'diamond',
@@ -57,7 +59,9 @@ describe('workspaceBottomCards', () => {
     });
     expect(model.totalCard).toMatchObject({
       title: 'Total',
-      parDisplay: '45,000',
+      actualParDisplay: '45,000',
+      correctionParDisplay: '8,500 (100%)',
+      parDisplay: '53,500',
     });
   });
 
@@ -106,7 +110,9 @@ describe('workspaceBottomCards', () => {
     });
 
     expect(model.slots[0]).toMatchObject({
-      parDisplay: '5,000',
+      actualParDisplay: '5,000',
+      correctionParDisplay: '944 (11%)',
+      parDisplay: '5,944',
       middleRow: {
         kind: 'royalNavyContribution',
         valueDisplay: '3,000',
@@ -114,6 +120,8 @@ describe('workspaceBottomCards', () => {
     });
     expect(model.slots[8]).toMatchObject({
       title: 'Royal Navy',
+      actualParDisplay: '—',
+      correctionParDisplay: '—',
       parDisplay: '—',
       middleRow: {
         kind: 'button',
@@ -200,28 +208,36 @@ describe('workspaceBottomCards', () => {
         color: '#4862b8',
         shape: 'circle',
       },
-      parDisplay: '6,000',
+      actualParDisplay: '6,000',
+      correctionParDisplay: '1,133 (13%)',
+      parDisplay: '7,133',
     });
     expect(model.slots[1]).toMatchObject({
       swatch: {
         color: '#123456',
         shape: 'circle',
       },
-      parDisplay: '4,000',
+      actualParDisplay: '4,000',
+      correctionParDisplay: '756 (9%)',
+      parDisplay: '4,756',
     });
     expect(model.slots[7]).toMatchObject({
       swatch: {
         color: '#808080',
         shape: 'circle',
       },
-      parDisplay: '9,000',
+      actualParDisplay: '9,000',
+      correctionParDisplay: '1,700 (20%)',
+      parDisplay: '10,700',
     });
     expect(model.slots[8]).toMatchObject({
       swatch: {
         color: '#000080',
         shape: 'circle',
       },
-      parDisplay: '10,000',
+      actualParDisplay: '10,000',
+      correctionParDisplay: '1,889 (22%)',
+      parDisplay: '11,889',
       middleRow: {
         kind: 'button',
         label: 'Regionalise',
@@ -229,7 +245,9 @@ describe('workspaceBottomCards', () => {
     });
     expect(model.totalCard).toMatchObject({
       title: 'Total',
-      parDisplay: '45,000',
+      actualParDisplay: '45,000',
+      correctionParDisplay: '8,500 (100%)',
+      parDisplay: '53,500',
     });
   });
 
@@ -289,20 +307,26 @@ describe('workspaceBottomCards', () => {
     });
 
     expect(model.slots[0]).toMatchObject({
-      parDisplay: '13,000',
+      actualParDisplay: '13,000',
+      correctionParDisplay: '2,456 (29%)',
+      parDisplay: '15,456',
       middleRow: {
         kind: 'royalNavyContribution',
         valueDisplay: '7,000',
       },
     });
     expect(model.slots[1]).toMatchObject({
-      parDisplay: '7,000',
+      actualParDisplay: '7,000',
+      correctionParDisplay: '1,322 (16%)',
+      parDisplay: '8,322',
       middleRow: {
         kind: 'royalNavyContribution',
         valueDisplay: '3,000',
       },
     });
     expect(model.slots[8]).toMatchObject({
+      actualParDisplay: '—',
+      correctionParDisplay: '—',
       parDisplay: '—',
       middleRow: {
         kind: 'button',

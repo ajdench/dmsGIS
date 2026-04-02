@@ -48,23 +48,23 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Notes:** Keep the better interim state that at least shows the whole intended world crop in the pane. When this is revived, measure the actual rendered world floor against the live map pane and solve it at the OpenLayers `View` constraint seam (`center` / `resolution` / floor extent), not by stacking more zoom-pane diagnostics. No wrap remains the intended behavior. Extra map diagnostics can stay available programmatically through `window.__dmsGISMapDiagnostics`, but the zoom pane itself should stay visually minimal.
 **Files likely touched:** `src/features/map/mapWorkspaceLifecycle.ts`, `src/features/map/MapWorkspace.tsx`, any future world-floor helper or fit-contract note.
 
-### 29. Decide how correction-adjusted PAR should surface in the below-map cards
+### 29. Tune the new correction-adjusted PAR stack in the below-map cards
 
 **Area:** Workspace bottom cards / PAR presentation / product semantics
 **Priority:** High
-**What:** Decide how the new header-level `Correction` PAR logic should be represented in the below-map cards and any related total displays.
-**Why:** The top-bar PAR pane now uses real correction math: selected contribution is `Region + Baseport`, correction is that contribution's share of the overall visible PAR total applied to a fixed `8500` base, and the displayed top-bar total now includes correction. The below-map cards still present raw PAR values, so the product now needs an explicit rule for whether those cards remain raw, gain an adjusted secondary line, or switch to adjusted totals in some scoped way.
-**Notes:** Recommended next step is to keep each region card's primary number as raw PAR for now and prototype adjusted presentation only as a secondary treatment or on the bottom-row total card first. Avoid immediately folding correction into every region card headline value, because that will make regionalisation and cross-card reconciliation harder to read. If this is later promoted, define one canonical "raw vs adjusted" contract first and use it consistently across header, cards, and any saved/exported summaries.
+**What:** Refine spacing, readability, and wording for the shipped three-line PAR stack in the below-map cards without changing the underlying correction math unless product rules explicitly change again.
+**Why:** The below-map cards now show `actual Region PAR`, then `correction value (n%)`, then the corrected sum on the final line across all cards, including `Total`. The core presentation contract is now live, but the stack will likely need follow-up fit and typography tuning once it is reviewed visually across all presets and Royal Navy regionalisation states.
+**Notes:** Keep one canonical correction rule across header and bottom cards: card correction is each card's active raw PAR as a share of the overall visible total, applied to the fixed `8500` base, and the final bottom line is `actual + correction`. Prefer future tweaks to stay visual and explanatory first; do not silently fork the math between header, cards, and exports.
 **Files likely touched:** `src/lib/workspaceBottomCards.ts`, `src/components/layout/WorkspaceBottomLeftPane.tsx`, related tests in `tests/workspaceBottomCards.test.ts` and `tests/WorkspaceBottomLeftPane.test.ts`, plus any handover/baseline docs that lock the chosen presentation.
 
-### 26. Collapse Playground Region authority onto one runtime assignment source
+### 26. Measure and optimize the authoritative Playground assignment seam
 
 **Area:** Scenario runtime / Playground / map selection and styling
 **Priority:** High
-**What:** Replace the current multi-authority Playground Region-resolution path with one explicit authoritative assignment source per render cycle, then make board fills, selected Region borders, popover defaults, facility remapping, and metrics all derive from that same source.
-**Why:** The repo review found that Playground currently mixes feature props, baseline/runtime assignment sources, draft overrides, editor state, popover state, selection state, and derived outlines. That makes grey-fill regressions and reassignment “snapback” behavior far too easy.
-**Notes:** Start from `docs/main-repo-review-2026-03-31.md` and `docs/playground-grey-runtime-bug.md`. Keep the new `window.__dmsGISPlaygroundDiagnostics` instrumentation until the live failure is fully explained. Do not just add more fallbacks; reduce the number of authorities.
-**Files likely touched:** `src/features/map/MapWorkspace.tsx`, `src/features/map/scenarioWorkspaceRuntime.ts`, `src/features/map/playgroundSelection.ts`, `src/features/map/scenarioFacilityMapping.ts`, `src/store/appStore.ts`, related tests/e2e coverage.
+**What:** Now that Playground board fills, selected Region borders, popover defaults, facility remapping, tooltip identity, and visible-facility PAR summaries are routed through one authoritative runtime assignment source, measure and harden that seam for correctness and performance.
+**Why:** The authority collapse has landed, but the new shared lookup seam is now the right place to catch remaining grey-fill regressions and future slowness. Repeated coordinate-to-assignment lookups are also the clearest next optimisation hotspot.
+**Notes:** Start from `docs/main-repo-review-2026-03-31.md`, `docs/playground-grey-runtime-bug.md`, and `docs/map-runtime-architecture-map-2026-04-02.md`. Keep future lookup/indexing work inside `src/features/map/scenarioAssignmentAuthority.ts` rather than reintroducing separate lookup logic in point selection, facility remapping, or PAR helpers. Non-map store summaries can remain draft-lookup-based unless a user-visible drift proves that they also need runtime-source unification.
+**Files likely touched:** `src/features/map/scenarioAssignmentAuthority.ts`, `src/features/map/MapWorkspace.tsx`, `src/features/map/playgroundRuntimeSession.ts`, `src/features/map/pointSelection.ts`, `src/features/map/scenarioFacilityMapping.ts`, `src/features/map/facilityPar.ts`, related tests/e2e coverage.
 
 ### 27. Fully sandbox compare/review-family rebuilds from shared preprocess outputs
 

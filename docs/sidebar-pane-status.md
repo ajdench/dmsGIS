@@ -215,9 +215,9 @@ Regions styling is not only UI-wired. It is also routed through production map/r
 - Playground editable Region geometry is now a dedicated merged polygon product derived from that canonical board-assignment source, instead of switching `scenarioOutline` between static preset polygons and runtime topology-edge fragments
 - during an open Playground edit, selected Region-border redraw now treats the popover/editor-selected `scenarioRegionId` as authoritative instead of depending only on feature-prop timing during the reselect cycle
 - after applying a Playground reassignment, the editor-selected Region now stays active even after the assignment popover closes, so the newly dissolved merged Region border can highlight immediately instead of waiting for a reselect
-- Playground reassignment leaves facility points on the existing non-draft styling path for now, so Region editing does not yet remap facility borders/colours
+- map-runtime Playground consumers now resolve one authoritative assignment source per render cycle, so board fills, selected Region borders, popover defaults, tooltip identity, facility remapping, and visible-facility PAR summaries all read from the same assignment authority seam
 - selected Playground Region highlighting is now driven directly from the editor-selected `scenarioRegionId` plus the merged editable Region geometry source, and editable workspaces no longer fall back to static preset outline fetches for the selected Region border
-- facility clicks inside Playground now also resolve draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, while facility symbol styling itself remains on the non-draft path
+- facility clicks inside Playground now also resolve draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, and facility symbol styling/remapping now follows the same authoritative assignment source
 - when a facility is clicked in Playground, that facility selection now takes ownership of the selected Region border so a stale board-editor selection cannot repaint over it
 - non-Playground scenario facility clicks now resolve selected Region borders through the same derived outline source used by boundary clicks before any static outline fallback
 - scenario prefixes are now treated as display-only in the Regions list for `SJC JMC`, `COA 3a`, `COA 3b`, and Playground; stored region names remain unchanged
@@ -429,7 +429,13 @@ They are retained for repo continuity, but the live production truth is the exac
 - `SJC JMC` per-card PAR values now calculate from the assigned `2026` facility board code (`icb_hb_code_2026`) mapped through the preset `codeGroupings`; the devolved card shows the combined total of `JMC Scotland`, `JMC Northern Ireland`, and `JMC Wales`
 - columns `1`-`9` now carry PMC Region title cards for the fixed PMC Region list order, using full-opacity Region swatches in row `1` and the Region title in row `2`
 - column `10` is reserved for a matching `Total` title card, now with a black circle swatch in row `1`
-- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, and the `Total` card no longer carries a separate bold-only emphasis treatment
+- every bottom-row card now shows a three-line PAR stack under the middle rail:
+  - actual Region PAR
+  - correction line shown as `n (y%)`
+  - the full correction line now renders at the normal non-title size/weight rather than shrinking the parenthetical context
+  - final corrected sum on the existing bottom line
+- the same three-line stack now also applies to the `Total` card, where the correction line is `8,500 (100%)`
+- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, while the actual/correction lines stay at the normal non-title weight
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width: `932.6875px`
   - sidebar width: `311.3125px`

@@ -547,6 +547,9 @@
 
   .workspace-bottom-shell__title-card {
     --workspace-bottom-middle-rail-top: calc(2.4375rem - 6px);
+    --workspace-bottom-card-body-left: calc(
+      0.35rem + var(--prototype-control-swatch-size) + 0.35rem
+    );
     position: relative;
     width: 100%;
     min-width: 0;
@@ -692,20 +695,44 @@
     transform: translateY(0.5px);
   }
 
+  .workspace-bottom-shell__title-card-metrics {
+    position: absolute;
+    left: var(--workspace-bottom-card-body-left);
+    right: 0.35rem;
+    bottom: 0.35rem;
+    display: grid;
+    row-gap: 0.1875rem;
+    min-width: 0;
+  }
+
   .workspace-bottom-shell__title-card-par {
     min-width: 0;
-    grid-column: 2;
-    grid-row: 3;
     align-self: end;
     justify-self: start;
     font-size: 0.625rem;
     line-height: 1;
     letter-spacing: -0.01em;
-    font-weight: 500;
     font-variant-numeric: tabular-nums;
     color: color-mix(in srgb, var(--text-secondary) 78%, var(--muted));
-    white-space: nowrap;
     text-align: left;
+  }
+
+  .workspace-bottom-shell__title-card-par--actual,
+  .workspace-bottom-shell__title-card-par--correction {
+    font-weight: 400;
+  }
+
+  .workspace-bottom-shell__title-card-par--actual,
+  .workspace-bottom-shell__title-card-par--total {
+    white-space: nowrap;
+  }
+
+  .workspace-bottom-shell__title-card-par--correction {
+    white-space: nowrap;
+  }
+
+  .workspace-bottom-shell__title-card-par--total {
+    font-weight: 500;
   }
 
   .map-panel__inner {

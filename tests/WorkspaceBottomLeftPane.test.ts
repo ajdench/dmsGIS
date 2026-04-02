@@ -7,6 +7,11 @@ import { WorkspaceBottomLeftPane } from '../src/components/layout/WorkspaceBotto
 import { PMC_REGION_ORDER } from '../src/lib/regions/regionOrder';
 import { useAppStore } from '../src/store/appStore';
 
+function getCorrectionLinesByText(text: string) {
+  return [...document.querySelectorAll('.workspace-bottom-shell__title-card-par--correction')]
+    .filter((element) => element.textContent === text);
+}
+
 describe('WorkspaceBottomLeftPane', () => {
   afterEach(() => {
     cleanup();
@@ -76,8 +81,12 @@ describe('WorkspaceBottomLeftPane', () => {
     expect(screen.getByText('Royal Navy')).toBeTruthy();
     expect(screen.getByText('Total')).toBeTruthy();
     expect(screen.getByText('2,000')).toBeTruthy();
+    expect(getCorrectionLinesByText('378 (4%)')).toHaveLength(1);
+    expect(screen.getByText('2,378')).toBeTruthy();
     expect(screen.getByText('9,000')).toBeTruthy();
     expect(screen.getByText('45,000')).toBeTruthy();
+    expect(getCorrectionLinesByText('8,500 (100%)')).toHaveLength(1);
+    expect(screen.getByText('53,500')).toBeTruthy();
   });
 
   it('regionalises Royal Navy PAR into Current parent region cards when toggled', () => {
@@ -107,7 +116,10 @@ describe('WorkspaceBottomLeftPane', () => {
 
     expect(screen.getByRole('button', { name: 'Unregionalise' })).toBeTruthy();
     expect(screen.getByText('3,191')).toBeTruthy();
-    expect(screen.getByText('10,451')).toBeTruthy();
+    expect(getCorrectionLinesByText('603 (7%)')).toHaveLength(1);
+    expect(screen.getByText('3,794')).toBeTruthy();
+    expect(getCorrectionLinesByText('1,974 (23%)')).toHaveLength(1);
+    expect(screen.getByText('12,425')).toBeTruthy();
     expect(
       container.querySelectorAll('.workspace-bottom-shell__title-card-middle-contribution'),
     ).toHaveLength(2);
@@ -169,9 +181,12 @@ describe('WorkspaceBottomLeftPane', () => {
     expect(screen.getByText('9,000')).toBeTruthy();
     expect(screen.getByText('10,000')).toBeTruthy();
     expect(screen.getAllByText('6,000')).toHaveLength(2);
+    expect(getCorrectionLinesByText('1,133 (13%)')).toHaveLength(2);
+    expect(screen.getAllByText('7,133')).toHaveLength(2);
     expect(screen.getByText('4,000')).toBeTruthy();
     expect(screen.getByText('8,000')).toBeTruthy();
     expect(screen.getByText('45,000')).toBeTruthy();
+    expect(screen.getByText('53,500')).toBeTruthy();
   });
 
   it('regionalises Royal Navy PAR into parent scenario cards when toggled', () => {
@@ -200,10 +215,14 @@ describe('WorkspaceBottomLeftPane', () => {
 
     expect(screen.getByRole('button', { name: 'Unregionalise' })).toBeTruthy();
     expect(screen.getByText('13,000')).toBeTruthy();
+    expect(getCorrectionLinesByText('2,456 (29%)')).toHaveLength(1);
+    expect(screen.getByText('15,456')).toBeTruthy();
     expect(
       container.querySelectorAll('.workspace-bottom-shell__title-card-middle-contribution'),
     ).toHaveLength(2);
     expect(screen.getByText('3,000')).toBeTruthy();
+    expect(getCorrectionLinesByText('1,322 (16%)')).toHaveLength(2);
+    expect(screen.getAllByText('8,322')).toHaveLength(2);
     expect(
       container.querySelectorAll(
         '.workspace-bottom-shell__title-card-middle-contribution-value',
@@ -274,9 +293,13 @@ describe('WorkspaceBottomLeftPane', () => {
     expect(screen.getByText('Devolved Admin...')).toBeTruthy();
     expect(screen.getByText('South East')).toBeTruthy();
     expect(screen.getByText('100')).toBeTruthy();
+    expect(getCorrectionLinesByText('5,152 (61%)')).toHaveLength(1);
+    expect(screen.getByText('5,252')).toBeTruthy();
     expect(screen.queryByText('London and East')).toBeTruthy();
     expect(screen.getByText('25')).toBeTruthy();
     expect(screen.getByText('40')).toBeTruthy();
+    expect(getCorrectionLinesByText('8,500 (100%)')).toHaveLength(1);
+    expect(screen.getByText('8,665')).toBeTruthy();
   });
 
   it('updates active playground PAR cards when a boundary is reassigned after render', () => {
@@ -329,6 +352,7 @@ describe('WorkspaceBottomLeftPane', () => {
         ?.textContent ?? '';
 
     expect(getCardText('London and East')).toContain('100');
+    expect(getCardText('London and East')).toContain('119');
     expect(getCardText('South East')).not.toContain('100');
 
     act(() => {
@@ -342,6 +366,7 @@ describe('WorkspaceBottomLeftPane', () => {
     });
 
     expect(getCardText('South East')).toContain('100');
+    expect(getCardText('South East')).toContain('119');
     expect(getCardText('London and East')).not.toContain('100');
   });
 });
