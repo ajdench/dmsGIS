@@ -76,6 +76,7 @@ Canonical handover bundle:
 - `docs/agent-handover.md`
 - `docs/main-repo-review-2026-03-31.md`
 - `docs/publication-scope-audit-2026-04-02.md`
+- `docs/working-app-legacy-cleanup-plan-2026-04-02.md`
 - `docs/map-runtime-architecture-map-2026-04-02.md`
 - `docs/paired-current-2026-product-success-path.md`
 - `docs/paired-current-2026-execution-checklist.md`
@@ -101,23 +102,24 @@ New coding-agent read order:
 3. `docs/agent-handover.md`
 4. `docs/main-repo-review-2026-03-31.md`
 5. `docs/publication-scope-audit-2026-04-02.md`
-6. `docs/map-runtime-architecture-map-2026-04-02.md`
-7. `docs/paired-current-2026-product-success-path.md`
-8. `docs/paired-current-2026-execution-checklist.md`
-9. `docs/sidebar-pane-status.md`
-10. `docs/prototype-to-production-playbook.md`
-11. `docs/agent-continuation-protocol.md`
-12. `docs/current-app-baseline-v3.8.md`
-13. `docs/current-app-baseline-v3.7.md`
-14. `docs/current-app-baseline-v3.6.md`
-15. `docs/current-app-baseline-v3.5.md`
-16. `docs/current-app-baseline-v3.4.md`
-17. `docs/v3.4-internal-gap-regression.md`
-18. `docs/v3.5-full-geometry-redress.md`
-19. `docs/v3.8-bsc-runtime-family-spec.md`
-20. `docs/v3.7-next-phase.md`
-21. `docs/canonical-board-rebuild-workflow.md`
-22. `docs/sidebar-parity-bugs.md`
+6. `docs/working-app-legacy-cleanup-plan-2026-04-02.md`
+7. `docs/map-runtime-architecture-map-2026-04-02.md`
+8. `docs/paired-current-2026-product-success-path.md`
+9. `docs/paired-current-2026-execution-checklist.md`
+10. `docs/sidebar-pane-status.md`
+11. `docs/prototype-to-production-playbook.md`
+12. `docs/agent-continuation-protocol.md`
+13. `docs/current-app-baseline-v3.8.md`
+14. `docs/current-app-baseline-v3.7.md`
+15. `docs/current-app-baseline-v3.6.md`
+16. `docs/current-app-baseline-v3.5.md`
+17. `docs/current-app-baseline-v3.4.md`
+18. `docs/v3.4-internal-gap-regression.md`
+19. `docs/v3.5-full-geometry-redress.md`
+20. `docs/v3.8-bsc-runtime-family-spec.md`
+21. `docs/v3.7-next-phase.md`
+22. `docs/canonical-board-rebuild-workflow.md`
+23. `docs/sidebar-parity-bugs.md`
 
 Handover rule:
 
@@ -162,7 +164,7 @@ Handover rule:
 - Version control: `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo; `git` and `jj` operate on the same repository, and `main` is tracked against `main@origin`.
 - Publication-scope governance:
   - the accepted runtime family under `public/data/compare/shared-foundation-review/` is the only compare family that should be treated as live shipped runtime
-  - `public/data/compare/bfe/` and `public/data/compare/current-east-bsc/` remain historical diagnostic families kept for recovery/inspection, not active shipping targets
+  - older compare families and the outdated facilities geopackage have been moved into the local-only archive root at `local-archive/publication-scope-2026-04-02/`
   - local rebuild/source artifacts should prefer ignored working roots such as `geopackages/` and `local-archive/` unless they are intentionally promoted into the shipped runtime tree
 - Layer manifest: fetches `data/manifests/layers.manifest.json`, validated as `{ layers: [...] }`; manifest paths must be relative (no leading slash) and are resolved against `import.meta.env.BASE_URL`.
 - Map core: OpenLayers map is mounted in `src/features/map/MapWorkspace.tsx` with local Natural Earth basemap fixed to `localDetailed` at `10m` detail.
@@ -182,7 +184,7 @@ Handover rule:
   - `Sea labels` and `Major cities` vector sources are lazy-loaded only when those toggles are enabled.
   - Label datasets now use lighter `110m` files (`ne_110m_geography_marine_polys.geojson`, `ne_110m_populated_places_simple.geojson`) to reduce startup payload and parse cost.
   - Legacy heavy `10m` label datasets (`ne_10m_geography_marine_polys.geojson`, `ne_10m_populated_places.geojson`) were removed from `public/data/basemaps/`.
-- Facilities dataset is sourced from `public/data/facilities/facilities.geojson` (derived from `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`) with per-feature defaults (`default_visible`, `point_color_hex`, `point_alpha`).
+- Facilities dataset is sourced from `public/data/facilities/facilities.geojson` with per-feature defaults (`default_visible`, `point_color_hex`, `point_alpha`); the older `UK_SVOT_PMC_Codex_v6_gpkg.gpkg` provenance input now lives only in the local archive root.
 - Layout model: workspace now uses map + right sidebar (left sidebar removed).
 - Right sidebar pane order is: Basemap, Facilities, Labels, Overlays.
 - Right sidebar now also surfaces runtime layer loading/error status above the pane stack.

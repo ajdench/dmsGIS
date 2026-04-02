@@ -25,10 +25,19 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 
 **Area:** Repo hygiene / GitHub publication scope / large-file governance
 **Priority:** High
-**What:** Decide which large repo artifacts should remain in GitHub versus stay local-only or move into an archive path.
-**Why:** The active runtime only needs the accepted compare family, but the repo still carries inactive compare trees and large raw source artifacts that increase clone size and make publication scope harder to reason about.
-**Notes:** Audit note now exists at `docs/publication-scope-audit-2026-04-02.md`. Current measured outcome: `shared-foundation-review` stays committed/published as the accepted live runtime, `bfe` and `current-east-bsc` are historical compare families that still matter for recovery but should not be treated as active runtime, and `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg` now reads as provenance-only input. Do not remove or relocate any of them casually; the remaining work is the explicit physical move/untrack decision.
-**Files likely touched:** `public/data/compare/`, `facilities/`, `.gitignore`, `src/lib/config/runtimeMapProducts.json`, docs describing runtime-family governance and source provenance.
+**What:** Keep the shipped tree aligned with the current working app and move non-current runtime/source artifacts into local-only archive storage.
+**Why:** The active app only needs the accepted runtime family, stable public-root runtime contracts, and the current source/docs. Historical compare data and outdated provenance inputs should not keep inflating the shipped working tree.
+**Notes:** The current archive cut is now landed and documented in `docs/publication-scope-audit-2026-04-02.md`. `bfe`, `current-east-bsc`, and the outdated `UK_SVOT_PMC_Codex_v6_gpkg.gpkg` source have been moved into `local-archive/publication-scope-2026-04-02/`, and `src/lib/config/runtimeMapProducts.json` no longer advertises the removed compare families. Remaining follow-up here is broader historical doc/script cleanup if desired, not the runtime-data cut itself.
+**Files likely touched:** `.gitignore`, `src/lib/config/runtimeMapProducts.json`, docs describing runtime-family governance and source provenance.
+
+### 33. Remove legacy working-app pane shells and dormant replacement structures unless still used
+
+**Area:** App structure / repo hygiene / sidebar architecture
+**Priority:** High
+**What:** Prune old working-app pane files, shell primitives, and replacement scaffolding that are no longer on the live app path.
+**Why:** The shipped sidebar now runs through `RightSidebar` plus the `Exact` pane path, but the repo still carries older pane-shell files and replacement-only structures that make the app tree harder to reason about and increase the chance of editing the wrong surface.
+**Notes:** Start from `docs/working-app-legacy-cleanup-plan-2026-04-02.md`. Current concrete candidates include `src/features/facilities/SelectionPanel.tsx`, `src/features/basemap/BasemapPanel.tsx`, `src/features/labels/LabelPanel.tsx`, `src/features/layers/LayerPanel.tsx`, `src/features/basemap/BasemapPanelReplacement.tsx`, and the older `src/components/sidebar/` / `src/components/sidebarReplacement/` structures where they are no longer used by the current app. Keep `PmcPanel.tsx`, `OverlayPanel.tsx`, and the `sidebarExact` path until their real downstream dependencies are removed, not by assumption.
+**Files likely touched:** `src/features/`, `src/components/sidebar/`, `src/components/sidebarReplacement/`, `src/main.tsx`, tests tied to retired pane shells, and related handover/docs.
 
 ### 32. Reduce map interaction full-scan work after startup optimizations
 
@@ -138,7 +147,7 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 - `bsc`
 Both should preserve canonical internal board borders while rebuilding masks/outlines/edges/facility checks from the selected outer envelope.
 **Why:** The recent water-edge runtime-masking work was useful as diagnosis, but it cannot truly redefine the visible border endpoints. The cleaner path is now an official-source coastal-envelope rebuild.
-**Notes:** Start from `docs/v3.7-coastal-envelope-compare-plan.md`. England ICBs remain the main priority because they show the strongest inland-water projection problem. The isolated `bfe` compare family now exists under `public/data/compare/bfe/`, and runtime swapping is handled through `src/lib/config/runtimeMapProducts.json`. Review outcome so far: `bfe` is not accepted because visible coastal inaccuracies and artefacts remain, so the runtime token has been returned to `baseline`. Do not treat the `bfe` family as a shipped winner. The compare-source bundle is local under `geopackages/compare_sources/`.
+**Notes:** Start from `docs/v3.7-coastal-envelope-compare-plan.md`. England ICBs remain the main priority because they show the strongest inland-water projection problem. The old `bfe` compare family is now archived locally under `local-archive/publication-scope-2026-04-02/public/data/compare/bfe/`; it is not on the shipped runtime path and is no longer exposed through `src/lib/config/runtimeMapProducts.json`. Review outcome so far: `bfe` was not accepted because visible coastal inaccuracies and artefacts remained. Do not treat the archived `bfe` family as a shipped winner. The compare-source bundle is local under `geopackages/compare_sources/`.
 **Files likely touched:** new compare-build scripts under `scripts/`, `scripts/fetch_v37_coastal_compare_sources.py`, `scripts/build_v37_coastal_envelope_landmasks.py`, `src/lib/config/coastalEnvelopeTreatment.*`, `geopackages/compare_sources/`, compare output folders, downstream outline/mask/validation scripts, and related docs/tests.
 
 ### 18. Start the next geometry/runtime version from the locked `v3.6` baseline

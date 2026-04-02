@@ -16,23 +16,24 @@ The goal is to keep the shipped runtime and recovery-critical assets clear, whil
   - `public/data/regions/`
   - `public/data/basemaps/`
 - treat these as historical compare families, not active shipped runtime:
-  - `public/data/compare/bfe/`
-  - `public/data/compare/current-east-bsc/`
+  - `bfe`
+  - `current-east-bsc`
 - treat raw source and staged rebuild outputs as local-only by default:
   - `geopackages/`
   - `local-archive/`
-- do not physically move or untrack the historical compare families or the tracked facilities geopackage without an explicit user decision
+- the archive cut is now executed locally under:
+  - `local-archive/publication-scope-2026-04-02/`
 
 ## Measured Inventory
 
-Current measured on-disk size of the main candidates:
+Measured size at the time of the archive decision:
 
 | Path | Size | Files | Current role |
 | --- | ---: | ---: | --- |
 | `public/data/compare/shared-foundation-review/` | `282.8 MB` | `112` | accepted live runtime family |
 | `public/data/compare/bfe/` | `285.4 MB` | `97` | historical compare family |
 | `public/data/compare/current-east-bsc/` | `255.8 MB` | `94` | historical inspection family |
-| `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg` | `116 KB` | `1` | provenance-only source artifact |
+| `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg` | `116 KB` | `1` | outdated provenance-only source artifact |
 
 Other large tracked public-runtime roots are still live, so they are not current slimming candidates:
 
@@ -80,7 +81,7 @@ Practical meaning:
 
 - these families still matter for recovery, diagnostics, and rebuild provenance
 - but they should not be treated as active public runtime products
-- their continued presence under `public/data/compare/` is a governance convenience, not proof that they belong in the long-term published tree
+- they have now been removed from the shipped `public/` tree and preserved only in `local-archive/publication-scope-2026-04-02/`
 
 ### 3. The tracked facilities geopackage is not a runtime dependency
 
@@ -92,8 +93,8 @@ Practical meaning:
 
 Practical meaning:
 
-- the tracked geopackage is now best understood as provenance-only input
-- it is a candidate for later demotion into a local-only archive/source area
+- the tracked geopackage is now best understood as outdated provenance-only input
+- it has now been demoted into the local-only archive/source area
 
 ## Governance Recommendation
 
@@ -109,19 +110,18 @@ Rule:
 
 - if the current app ships it or the stable public runtime contract points at it, it stays committed and published
 
-### Keep committed for now, but treat as historical compare/archive candidates
+### Keep local-only as archived historical compare material
 
-- `public/data/compare/bfe/`
-- `public/data/compare/current-east-bsc/`
+- `local-archive/publication-scope-2026-04-02/public/data/compare/bfe/`
+- `local-archive/publication-scope-2026-04-02/public/data/compare/current-east-bsc/`
 
 Rule:
 
-- if the asset is historically useful for rebuild provenance, diagnostics, or recovery, keep it committed until an explicit archive/move decision is made
+- if the asset is historically useful for rebuild provenance, diagnostics, or recovery, keep it locally archived
 - but do not describe it as current runtime and do not let future docs imply it is part of the accepted public app surface
 
-Preferred future path:
+Archive note requirement:
 
-- move these trees into a non-published archive location after explicit approval
 - leave short archive notes describing:
   - why the family was built
   - which script built it
@@ -132,6 +132,7 @@ Preferred future path:
 
 - `geopackages/`
 - `local-archive/`
+- `local-archive/publication-scope-2026-04-02/facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`
 - future raw source, staged rebuild, or one-off research inputs unless explicitly promoted into the shipped runtime tree
 
 Rule:
@@ -141,18 +142,17 @@ Rule:
 ## Safe Changes Landed In This Pass
 
 - added `local-archive/` to `.gitignore` as the reserved root for future local-only archive/source material
-- clarified runtime-family labels in `src/lib/config/runtimeMapProducts.json` so the inactive families are visibly historical/diagnostic rather than just alternative live products
+- moved `bfe`, `current-east-bsc`, and the outdated facilities geopackage into `local-archive/publication-scope-2026-04-02/`
+- removed the inactive compare-family entries from `src/lib/config/runtimeMapProducts.json`
 - updated README and handover docs so future cleanup can follow a written keep/archive/local-only policy instead of thread memory
 
 ## Decisions Still Requiring Explicit Approval
 
-1. Whether to physically move `public/data/compare/bfe/` out of the published `public/` tree.
-2. Whether to physically move `public/data/compare/current-east-bsc/` out of the published `public/` tree.
-3. Whether to untrack `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg` and relocate it into local-only provenance storage.
-4. Whether older non-canonical docs should later move into `docs/archive/`.
+1. Whether older non-canonical docs should later move into `docs/archive/`.
+2. Whether historical compare-build scripts and config should later be archived out of the active working tree as well.
 
 ## Working Rule Until Those Decisions Are Made
 
-- do not remove or relocate the inactive compare families casually
-- do not treat them as accepted runtime
+- do not restore non-current compare families into the shipped tree casually
+- do not treat archived material as accepted runtime
 - do not publish new source/staging artifacts unless they are intentionally part of the shipped runtime contract

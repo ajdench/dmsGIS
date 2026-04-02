@@ -6,14 +6,6 @@
       "label": "Stable baseline runtime family",
       "dataRoot": "data"
     },
-    "bfe": {
-      "label": "Historical BFE compare runtime family",
-      "dataRoot": "data/compare/bfe"
-    },
-    "currentEastBsc": {
-      "label": "Historical East-only BSC inspection family",
-      "dataRoot": "data/compare/current-east-bsc"
-    },
     "acceptedV38": {
       "label": "Accepted v3.8 runtime family",
       "dataRoot": "data/compare/shared-foundation-review"

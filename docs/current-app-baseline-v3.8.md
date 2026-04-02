@@ -334,10 +334,10 @@ Important qualification:
 - the governance fix is that the active token now names the family as accepted runtime rather than as a temporary review-only product
 - a later explicit physical promotion can still move the same accepted family back under `public/data/...` if desired
 
-The older compare families remain on disk for historical reference only:
+The older compare families are no longer part of the shipped tree:
 
-- `bfe`
-- `currentEastBsc`
+- they were moved into the local-only archive root:
+  - `local-archive/publication-scope-2026-04-02/`
 
 They are not the active runtime family.
 

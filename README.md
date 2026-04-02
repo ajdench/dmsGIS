@@ -100,14 +100,15 @@ npm run build
 
 - the only compare family that should currently be treated as live shipped runtime is:
   - [`public/data/compare/shared-foundation-review/`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review)
-- the inactive families below are retained for diagnostics, provenance, and recovery, but are not accepted runtime:
-  - [`public/data/compare/bfe/`](/Users/andrew/Projects/dmsGIS/public/data/compare/bfe)
-  - [`public/data/compare/current-east-bsc/`](/Users/andrew/Projects/dmsGIS/public/data/compare/current-east-bsc)
+- older compare families and the outdated facilities geopackage have now been moved out of the shipped tree into the local-only archive root:
+  - `local-archive/publication-scope-2026-04-02/`
 - local rebuild/source material should stay in ignored working roots such as:
   - [`geopackages/`](/Users/andrew/Projects/dmsGIS/geopackages)
   - `local-archive/`
 - publication-scope audit note:
   - [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
+- legacy working-app cleanup plan:
+  - [`docs/working-app-legacy-cleanup-plan-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/working-app-legacy-cleanup-plan-2026-04-02.md)
 
 ## Data Refresh Workflow
 
@@ -146,14 +147,16 @@ node scripts/refresh-facilities-from-export.mjs --skip-accepted-runtime-rebuild
 3. [`docs/agent-handover.md`](/Users/andrew/Projects/dmsGIS/docs/agent-handover.md)
 4. [`docs/main-repo-review-2026-03-31.md`](/Users/andrew/Projects/dmsGIS/docs/main-repo-review-2026-03-31.md)
 5. [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
-6. [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
-7. [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
+6. [`docs/working-app-legacy-cleanup-plan-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/working-app-legacy-cleanup-plan-2026-04-02.md)
+7. [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
+8. [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
 
 ## Key Documentation
 
 - [`docs/agent-handover.md`](/Users/andrew/Projects/dmsGIS/docs/agent-handover.md)
 - [`docs/main-repo-review-2026-03-31.md`](/Users/andrew/Projects/dmsGIS/docs/main-repo-review-2026-03-31.md)
 - [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
+- [`docs/working-app-legacy-cleanup-plan-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/working-app-legacy-cleanup-plan-2026-04-02.md)
 - [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
 - [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
 - [`docs/shared-foundation-review-execution-log.md`](/Users/andrew/Projects/dmsGIS/docs/shared-foundation-review-execution-log.md)

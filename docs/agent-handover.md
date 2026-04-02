@@ -43,13 +43,12 @@ Current publication-scope note:
   - `docs/publication-scope-audit-2026-04-02.md`
 - keep committed and published as the accepted live runtime:
   - `public/data/compare/shared-foundation-review/`
-- keep committed for now, but treat as historical diagnostic families rather than active shipped runtime:
-  - `public/data/compare/bfe/`
-  - `public/data/compare/current-east-bsc/`
+- older compare families plus the outdated facilities geopackage have now been moved out of the shipped tree into:
+  - `local-archive/publication-scope-2026-04-02/`
 - keep rebuild/source/staging artifacts local-only by default:
   - `geopackages/`
   - `local-archive/`
-- do not physically move or untrack the historical compare families or the tracked facilities geopackage without an explicit user decision
+- `src/lib/config/runtimeMapProducts.json` now only advertises the live runtime roots the working app still uses
 
 Current naming-governance note:
 
@@ -125,6 +124,9 @@ Current validated repo-health note:
 - `.vite/` is local-only cache output and should not be tracked or republished from this repo
 - `local-archive/` is now the reserved ignored root for future local-only archive/source material, so large non-runtime artifacts do not need ad hoc placement at the repo root
 - facility runtime metadata derived from the facilities GeoJSON should now be loaded through one shared cached fetch path in `src/lib/services/facilityDataset.ts`, so startup state derivation and the Facilities search field do not each re-fetch and re-parse the same dataset independently
+- a dedicated working-app cleanup plan now exists at:
+  - `docs/working-app-legacy-cleanup-plan-2026-04-02.md`
+- the first clear candidates there are the legacy pane-shell files still present in `src/features/` and `src/components/sidebar/`, not the live `Exact` sidebar path
 
 Current paired-runtime-family note:
 
@@ -474,14 +476,10 @@ Use that split this way:
 - source acquisition for the first England/Wales compare pass is therefore complete
 - the failed live-mutating compare workflow has now been replaced by an isolated compare-family workflow
 - the first prepared compare family is:
-  - `public/data/compare/bfe/`
+  - now archived locally under `local-archive/publication-scope-2026-04-02/public/data/compare/bfe/`
 - there is now an additional isolated East-only inspection family:
-  - `public/data/compare/current-east-bsc/`
-- the active runtime token is now:
-  - `src/lib/config/runtimeMapProducts.json`
-  - `activeProductId: "baseline"`
-- the rejected review token was:
-  - `activeProductId: "bfe"`
+  - now archived locally under `local-archive/publication-scope-2026-04-02/public/data/compare/current-east-bsc/`
+- those historical compare families are no longer advertised through the live runtime token config
 - that `bfe` compare family uses:
   - England `NHS England Regions EN BFE` for outer coast
   - Wales `LHB WA BFE` for outer coast
@@ -491,8 +489,8 @@ Use that split this way:
   - `node scripts/build-runtime-compare-family.mjs bfe`
 - the live baseline files under `public/data/regions/` and `public/data/basemaps/` are no longer mutated by compare swaps
 - the East-only inspection family token-swaps facilities as well:
-  - compare manifest path resolves through the runtime token
-  - compare facilities path resolves to `public/data/compare/current-east-bsc/facilities/facilities.geojson`
+  - historically, compare manifest path resolved through the runtime token
+  - historically, compare facilities path resolved to `public/data/compare/current-east-bsc/facilities/facilities.geojson`
   - that compare facilities file is filtered to `region: "East"`
 - review result: the tokenized `bfe` compare family still showed coastal inaccuracies and artefacts and is not an accepted shipped replacement
 - East-only `Current` review work also confirmed that the compare/reconstruction branch is not the final solution; it is diagnostic only
