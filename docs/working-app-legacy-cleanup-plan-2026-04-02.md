@@ -53,8 +53,12 @@ These folders need a second-pass dependency audit before removal:
 Why they are not first-pass deletes:
 
 - `src/components/sidebar/` still supports older pane files and some shared production-owned primitives
-- `src/components/sidebarReplacement/` still has direct test coverage
-- `src/styles/sidebarReplacement.css` is still imported by `src/main.tsx`, so style ownership must be measured before pruning
+- `src/components/sidebarReplacement/` and `src/styles/sidebarReplacement.css` were kept until their lack of live app dependencies was measured rather than assumed
+
+Status:
+
+- `src/components/sidebarReplacement/` and `src/styles/sidebarReplacement.css` were removed on `2026-04-02`
+- the next remaining shared-shell audit target is `src/components/sidebar/`
 
 ## Files That Must Stay Until Their Dependents Move
 
@@ -92,9 +96,10 @@ Reason:
 
 ### Phase 3. Untangle replacement-only styling
 
-- measure whether `src/styles/sidebarReplacement.css` still contributes to current live rendering
-- if it only supports retired replacement scaffolding, stop importing it from `src/main.tsx`
-- then archive or remove the unused `src/components/sidebarReplacement/` pieces and their narrow tests
+- completed on `2026-04-02`
+- removed `src/styles/sidebarReplacement.css`
+- removed `src/components/sidebarReplacement/`
+- removed the narrow replacement-only tests
 
 ### Phase 4. Tighten docs and tests
 

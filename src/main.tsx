@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import 'ol/ol.css';
 import { App } from './app/App';
 import './styles/global.css';
-import './styles/sidebarReplacement.css';
 import './styles/sidebarExact.css';
 
 function isSafariBrowser(): boolean {
