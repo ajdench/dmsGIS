@@ -206,7 +206,7 @@ Handover rule:
 - Facility point styling and point selection can now use draft-aware scenario region remapping through `src/features/map/scenarioFacilityMapping.ts`, and derived scenario facility summaries in `src/features/map/scenarioFacilityMetrics.ts` now break counts down by region and facility type.
 - Reusable scenario-summary contracts now live in `src/lib/schemas/scenarioMetrics.ts` and `src/lib/scenarioWorkspaceSummaries.ts`, so future Playground panels and DPHC estimate logic can consume one combined workspace-plus-facilities summary instead of rebuilding logic in UI components.
 - That combined summary path now prefers stable `scenarioRegionId` wiring where runtime assignment features provide it, with label-based fallback kept only as a transition path.
-- The first approved sidebar-prototype promotion slice is now live in production Labels: shared sidebar row/popover primitives in `src/components/sidebar/` now carry the promoted row-bar, toggle-pill, and metric-pill UI pattern, while pane-specific label field definitions stay feature-owned in `src/features/labels/labelPanelFields.ts` and now drive real store-backed `Text` and `Border` sections with colour, size/thickness, and opacity through `src/store/appStore.ts`.
+- The first approved sidebar-prototype promotion slice is now live in production Labels: the shared exact-shell primitives in `src/components/sidebarExact/` now carry the promoted row-bar, toggle-pill, and metric-pill UI pattern, while pane-specific label field definitions stay feature-owned in `src/features/labels/labelPanelFields.ts` and now drive real store-backed `Text` and `Border` sections with colour, size/thickness, and opacity through `src/store/appStore.ts`.
 - Overlay family metadata now exists on the canonical production overlay model (`overlayLayers` in the store; `OverlayLayerStyle` / `RegionBoundaryLayerStyle` in types) with `boardBoundaries`, `scenarioRegions`, future `nhsRegions`, and future `customRegions`.
 - The prepared NHS England region overlay design is:
   - distinct `nhsRegions` overlay family
@@ -242,8 +242,9 @@ Handover rule:
 - `COA 3b` introduces `COA 3b London and East`, which groups the London District boards with `NHS Norfolk and Suffolk Integrated Care Board`, `NHS Central East Integrated Care Board`, and `NHS Essex Integrated Care Board`.
 - `DPHC Estimate COA Playground` is now live on top of the visible `COA 3b` preset: the full-width Playground button activates that editable workspace, and clicking a board in that mode opens an on-map Region-assignment popover that updates draft boundary-unit assignments, board recoloring, and derived Region outlines/borders through the production runtime path.
 - Production sidebar panel responsibilities are now split:
-  - `src/features/groups/PmcPanel.tsx` owns the embedded Facilities/PMC controls
-  - `src/features/groups/OverlayPanel.tsx` owns the right-sidebar Overlays pane
+  - `src/features/facilities/SelectionPanelExact.tsx` owns the Facilities pane shell and embeds the PMC control model
+  - `src/features/groups/pmcPanelFields.ts` owns the PMC field-definition contract used by the live Facilities pane
+  - `src/features/groups/OverlayPanelExact.tsx` owns the right-sidebar Overlays pane
   - `src/features/groups/overlaySelectors.ts` owns overlay-family metadata, helpers, and section builders for production UI filtering
 - Groups model remains PMC-first for the embedded Facilities sub-pane: a bold collapsible `PMC` section with a header display element that opens popover controls.
 - PMC popover controls currently include: visible, border color, border opacity, global opacity, symbol shape (`circle|square|diamond|triangle`), symbol size.

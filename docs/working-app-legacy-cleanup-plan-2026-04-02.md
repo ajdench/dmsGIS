@@ -58,14 +58,12 @@ Why they are not first-pass deletes:
 Status:
 
 - `src/components/sidebarReplacement/` and `src/styles/sidebarReplacement.css` were removed on `2026-04-02`
-- the next remaining shared-shell audit target is `src/components/sidebar/`
+- `src/components/sidebar/` was removed on `2026-04-02` after `ScenarioPlaygroundPane` was detached from `SidebarPanelShell` and the orphaned `PmcPanel.tsx` / `OverlayPanel.tsx` files were removed
 
 ## Files That Must Stay Until Their Dependents Move
 
 These are not legacy-removal targets yet:
 
-- `src/features/groups/PmcPanel.tsx`
-- `src/features/groups/OverlayPanel.tsx`
 - `src/features/groups/pmcPanelFields.ts`
 - `src/features/groups/overlayPanelFields.ts`
 - `src/components/sidebarExact/`
@@ -90,9 +88,10 @@ Reason:
 
 ### Phase 2. Prune dormant shell primitives
 
-- map which files under `src/components/sidebar/` are still needed by any current production path
-- remove primitives only used by the orphaned pane files
-- keep anything still needed by `PmcPanel.tsx`, `OverlayPanel.tsx`, or shared tests until replacements are complete
+- completed on `2026-04-02`
+- detached `ScenarioPlaygroundPane.tsx` from `SidebarPanelShell`
+- removed the orphaned `PmcPanel.tsx` and `OverlayPanel.tsx` files
+- removed `src/components/sidebar/`
 
 ### Phase 3. Untangle replacement-only styling
 
@@ -106,6 +105,12 @@ Reason:
 - move historical sidebar notes out of current-truth docs where they obscure the live path
 - keep prototype and historical promotion docs only where they still help active migration work
 - re-run focused sidebar tests plus `npm run build`
+
+### Phase 5. Remove dead old-sidebar CSS and tokens
+
+- measure which `.sidebar-*` class families in `src/styles/global.css` are now unused after removing `src/components/sidebar/`
+- delete only the no-longer-referenced rules
+- keep the `ScenarioPlaygroundPane` shell classes or rename them locally if that becomes cleaner than retaining the old shell naming
 
 ## Validation Gate For Each Phase
 

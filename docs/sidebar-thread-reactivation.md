@@ -95,7 +95,8 @@ Inspect these production seams first:
 - `src/features/labels/LabelPanelExact.tsx`
 - `src/features/groups/OverlayPanelExact.tsx`
 - `src/features/facilities/SelectionPanelExact.tsx`
-- `src/features/groups/PmcPanel.tsx`
+- `src/features/groups/pmcPanelFields.ts`
+- `src/components/layout/ScenarioPlaygroundPane.tsx`
 
 Inspect these prototype references second:
 
