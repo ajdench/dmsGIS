@@ -377,9 +377,12 @@ They are retained for repo continuity, but the live production truth is the exac
 - the right sidebar no longer contains a top `DPHC Estimate COA Playground` pane
 - that surface now lives in a new bottom workspace row, below the main `map + sidebar` row
 - bottom-right pane title: `DPHC Estimate COA Playground`
-- bottom-right pane content: two side-by-side buttons
-  - `COA 3a`
-  - `COA 3b`
+- bottom-right pane content: a locked internal `2`-column grid
+  - top row: `Start state` in both columns
+  - bottom row: the existing side-by-side buttons
+    - `COA 3a`
+    - `COA 3b`
+- the subtitle-to-button gap is half the default pane content gap, while the title-to-grid spacing stays on the normal pane rhythm
 - these are true playground-entry buttons, not plain preset buttons
 - `COA 3a` enters a dedicated `COA 3a` playground workspace
 - `COA 3b` enters the existing `COA 3b` playground workspace

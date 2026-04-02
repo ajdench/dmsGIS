@@ -1369,10 +1369,23 @@
     line-height: inherit;
   }
 
+  .scenario-playground-pane__grid {
+    display: grid;
+    row-gap: calc(var(--space-y-optical) / 2);
+  }
+
+  .scenario-playground-pane__subtitles,
   .scenario-playground-pane__actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
+  }
+
+  .scenario-playground-pane__subtitle {
+    font-size: var(--prototype-pane-title-font-size);
+    font-weight: 600;
+    line-height: 1.1;
+    color: color-mix(in srgb, var(--text) 92%, white);
   }
 
   .panel h2 {

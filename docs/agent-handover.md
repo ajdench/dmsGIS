@@ -1073,6 +1073,10 @@ Playground entry is now explicitly split by source preset.
 - it now lives in a new bottom workspace row:
   - bottom-left rail spans the map column width and now hosts a `10`-column title-pill surface
   - bottom-right rail spans the sidebar column width and hosts the playground pane surface
+- the bottom-right playground pane now uses its own internal `2`-column grid:
+  - a subtitle row sits directly below the title, with `Start state` in each column
+  - the existing `COA 3a` / `COA 3b` buttons stay on the row below in the same two columns and at the same footprint
+  - the vertical gap between that new subtitle row and the button row is half the default pane content gap
 - the bottom row no longer uses grey parent pane shells; the visible bottom-left placeholder and bottom-right playground elements are themselves the pane surfaces, styled like header panes
 - the bottom-left surface now owns a locked internal `10`-column contract through `.workspace-bottom-shell__surface--left-grid`
 - the bottom-left surface keeps `0.75rem` outer padding plus `0.75rem` internal column gaps, so each internal column division resolves to the default seam instead of doubling it

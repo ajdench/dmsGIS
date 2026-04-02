@@ -40,31 +40,37 @@ export function ScenarioPlaygroundPane() {
         </>
       }
     >
-      <div className="scenario-playground-pane__actions" aria-label="COA playground presets">
-        <button
-          type="button"
-          className={`button sidebar-action-row__button${
-            coa3aPlaygroundActive ? ' sidebar-action-row__button--active' : ''
-          }`}
-          onClick={() =>
-            activatePlaygroundPreset('coa3b', DPHC_ESTIMATE_COA_3A_PLAYGROUND_ID)
-          }
-          aria-pressed={coa3aPlaygroundActive}
-        >
-          COA 3a
-        </button>
-        <button
-          type="button"
-          className={`button sidebar-action-row__button${
-            coa3bPlaygroundActive ? ' sidebar-action-row__button--active' : ''
-          }`}
-          onClick={() =>
-            activatePlaygroundPreset('coa3c', DPHC_ESTIMATE_COA_PLAYGROUND_ID)
-          }
-          aria-pressed={coa3bPlaygroundActive}
-        >
-          COA 3b
-        </button>
+      <div className="scenario-playground-pane__grid">
+        <div className="scenario-playground-pane__subtitles" aria-hidden="true">
+          <span className="scenario-playground-pane__subtitle">Start state</span>
+          <span className="scenario-playground-pane__subtitle">Start state</span>
+        </div>
+        <div className="scenario-playground-pane__actions" aria-label="COA playground presets">
+          <button
+            type="button"
+            className={`button sidebar-action-row__button${
+              coa3aPlaygroundActive ? ' sidebar-action-row__button--active' : ''
+            }`}
+            onClick={() =>
+              activatePlaygroundPreset('coa3b', DPHC_ESTIMATE_COA_3A_PLAYGROUND_ID)
+            }
+            aria-pressed={coa3aPlaygroundActive}
+          >
+            COA 3a
+          </button>
+          <button
+            type="button"
+            className={`button sidebar-action-row__button${
+              coa3bPlaygroundActive ? ' sidebar-action-row__button--active' : ''
+            }`}
+            onClick={() =>
+              activatePlaygroundPreset('coa3c', DPHC_ESTIMATE_COA_PLAYGROUND_ID)
+            }
+            aria-pressed={coa3bPlaygroundActive}
+          >
+            COA 3b
+          </button>
+        </div>
       </div>
     </SidebarPanelShell>
   );
