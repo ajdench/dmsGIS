@@ -600,6 +600,7 @@
     /* Center the Royal Navy control pill on the same vertical rail used by
        the injected navy contribution row and its 0.5rem swatch. */
     top: calc((2.4375rem - 4px) - ((1.125rem - 0.5rem) / 2));
+    transform: translateY(1px);
     min-height: 0;
     justify-self: stretch;
     z-index: 1;
