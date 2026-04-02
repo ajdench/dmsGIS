@@ -422,7 +422,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - the same interaction now exists in `Current`, but its parent-card redistribution uses the Current preset's board-code group mapping rather than a scenario assignment lookup
 - that Current redistribution now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now lives in the shared middle band across receiving Region cards, with reserved top/bottom clearance so the bottom metrics stack can stay anchored while the card grows downward as needed
-- the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now uses that same middle-band contract with extra clearance above and below the button, plus the tiny locked downward optical correction so it does not read high
+- the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now uses that same middle-band contract, but its top/bottom margins are locally overridden so the pill centre stays on the same horizontal plane as the injected navy contribution row while the card still keeps extra surrounding clearance
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-biased within the first cell
 - within that same injected row, the contribution number now keeps the same fixed row and left edge but gets a tiny locked vertical centering correction so it reads on the navy circle centreline
 - `SJC JMC` group circles now use the effective populated Fill colour from the Regions pane at `100%` opacity

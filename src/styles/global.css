@@ -597,8 +597,8 @@
 
   .workspace-bottom-shell__title-card--with-middle-button {
     --workspace-bottom-middle-row-block-size: 1.125rem;
-    --workspace-bottom-middle-row-margin-top: 0.4375rem;
-    --workspace-bottom-middle-row-margin-bottom: 0.5625rem;
+    --workspace-bottom-middle-row-margin-top: 0.3125rem;
+    --workspace-bottom-middle-row-margin-bottom: 0.4375rem;
   }
 
   .workspace-bottom-shell__title-card--with-middle-contribution {
