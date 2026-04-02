@@ -1286,6 +1286,8 @@
 
   .map-canvas .map-crosshair-control {
     position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1294,6 +1296,7 @@
     background: #ecedee;
     box-shadow: var(--shadow-control);
     overflow: hidden;
+    z-index: 3;
   }
 
   .map-canvas .map-crosshair-control__button {

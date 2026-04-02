@@ -64,39 +64,7 @@ describe('mapWorkspaceLifecycle', () => {
   it('attaches a crosshair guide control that toggles centre guides', () => {
     const target = document.createElement('div');
     target.className = 'map-canvas';
-    const zoomControl = document.createElement('div');
-    zoomControl.className = 'ol-zoom';
-    target.append(zoomControl);
     document.body.append(target);
-
-    target.getBoundingClientRect = () =>
-      ({
-        top: 0,
-        right: 640,
-        bottom: 480,
-        left: 0,
-        width: 640,
-        height: 480,
-        x: 0,
-        y: 0,
-        toJSON() {
-          return {};
-        },
-      }) as DOMRect;
-    zoomControl.getBoundingClientRect = () =>
-      ({
-        top: 12,
-        right: 76,
-        bottom: 108,
-        left: 12,
-        width: 64,
-        height: 96,
-        x: 12,
-        y: 12,
-        toJSON() {
-          return {};
-        },
-      }) as DOMRect;
 
     const cleanup = attachCrosshairGuideControl({ target });
     const control = target.querySelector<HTMLElement>('.map-crosshair-control');
@@ -104,8 +72,6 @@ describe('mapWorkspaceLifecycle', () => {
     const guides = target.querySelector<HTMLDivElement>('.map-crosshair-guides');
 
     expect(control).not.toBeNull();
-    expect(control?.style.left).toBe('12px');
-    expect(control?.style.top).toBe('114px');
     expect(button?.getAttribute('aria-pressed')).toBe('false');
     expect(guides?.hidden).toBe(true);
 

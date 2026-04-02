@@ -695,10 +695,6 @@ export function attachCrosshairGuideControl(
   params: AttachCrosshairGuideControlParams,
 ): () => void {
   const { target } = params;
-  const zoomControl = target.querySelector<HTMLElement>('.ol-zoom');
-  if (!zoomControl) {
-    return () => {};
-  }
 
   const controlRoot = document.createElement('div');
   controlRoot.className = 'map-crosshair-control ol-unselectable ol-control';
@@ -733,19 +729,11 @@ export function attachCrosshairGuideControl(
   target.append(controlRoot, guidesRoot);
 
   let isActive = false;
-  let resizeObserver: ResizeObserver | null = null;
 
   const applyState = () => {
     controlRoot.dataset.active = isActive ? 'true' : 'false';
     button.setAttribute('aria-pressed', String(isActive));
     guidesRoot.hidden = !isActive;
-  };
-
-  const updatePosition = () => {
-    const zoomRect = zoomControl.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    controlRoot.style.left = `${zoomRect.left - targetRect.left}px`;
-    controlRoot.style.top = `${zoomRect.bottom - targetRect.top + 6}px`;
   };
 
   const handleButtonClick = (event: MouseEvent) => {
@@ -755,20 +743,10 @@ export function attachCrosshairGuideControl(
   };
 
   button.addEventListener('click', handleButtonClick);
-  updatePosition();
   applyState();
-
-  if (typeof ResizeObserver !== 'undefined') {
-    resizeObserver = new ResizeObserver(() => {
-      updatePosition();
-    });
-    resizeObserver.observe(target);
-    resizeObserver.observe(zoomControl);
-  }
 
   return () => {
     button.removeEventListener('click', handleButtonClick);
-    resizeObserver?.disconnect();
     controlRoot.remove();
     guidesRoot.remove();
   };
