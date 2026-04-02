@@ -547,6 +547,7 @@
 
   .workspace-bottom-shell__title-card {
     --workspace-bottom-card-edge-gap: 0.35rem;
+    --workspace-bottom-title-text-offset-y: 0.5px;
     --workspace-bottom-title-row-block-size: max(
       var(--prototype-control-swatch-size),
       0.6875rem
@@ -555,8 +556,8 @@
     --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
-    --workspace-bottom-metrics-row-gap: 0.1875rem;
-    --workspace-bottom-bottom-clearance: var(--workspace-bottom-metrics-row-gap);
+    --workspace-bottom-metrics-row-gap: 0.21875rem;
+    --workspace-bottom-bottom-clearance: var(--workspace-bottom-title-text-offset-y);
     --workspace-bottom-card-block-size: calc(
       (2 * var(--workspace-bottom-card-edge-gap)) +
       var(--workspace-bottom-title-row-block-size) +
@@ -599,7 +600,7 @@
 
   .workspace-bottom-shell__title-card-swatch-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
     min-width: 0;
     grid-area: swatch;
@@ -609,7 +610,7 @@
     width: 100%;
     min-width: 0;
     grid-area: title;
-    align-self: start;
+    align-self: center;
     justify-self: start;
     white-space: pre-line;
     overflow-wrap: normal;
@@ -620,7 +621,7 @@
     letter-spacing: -0.01em;
     font-weight: 500;
     color: color-mix(in srgb, var(--text-secondary) 82%, var(--muted));
-    transform: translateY(1px);
+    transform: translateY(var(--workspace-bottom-title-text-offset-y));
   }
 
   .workspace-bottom-shell__title-card--with-middle-button,
