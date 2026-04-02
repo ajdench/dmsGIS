@@ -1299,12 +1299,14 @@
     z-index: 3;
   }
 
-  .map-canvas .map-crosshair-control__button {
+  .map-canvas .map-crosshair-control .map-crosshair-control__button {
     width: var(--control-height-sm);
     height: var(--control-height-sm);
     min-width: var(--control-height-sm);
     min-height: var(--control-height-sm);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
+    background: var(--surface);
     color: var(--text-secondary);
     transition:
       background-color 120ms ease,
@@ -1312,14 +1314,16 @@
       border-color 120ms ease;
   }
 
-  .map-canvas .map-crosshair-control__button:hover,
+  .map-canvas .map-crosshair-control .map-crosshair-control__button:hover,
   .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
     background: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
     color: var(--status-warning-text);
   }
 
-  .map-canvas .map-crosshair-control__button:focus-visible {
+  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
     background: color-mix(in srgb, var(--status-warning-bg) 82%, white);
+    border-color: var(--status-warning-border);
     color: var(--status-warning-text);
   }
 
