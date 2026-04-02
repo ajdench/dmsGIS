@@ -1288,10 +1288,12 @@
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     padding: var(--map-zoom-panel-inset);
+    inline-size: calc(var(--control-height-sm) + (2 * var(--map-zoom-panel-inset)));
+    block-size: calc(var(--control-height-sm) + (2 * var(--map-zoom-panel-inset)));
+    border: 0;
     border-radius: var(--radius-lg);
     background: #ecedee;
     box-shadow: var(--shadow-control);
@@ -1315,14 +1317,14 @@
   }
 
   .map-canvas .map-crosshair-control .map-crosshair-control__button:hover,
-  .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
-    background: var(--status-warning-bg);
+  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
+    background: color-mix(in srgb, var(--status-warning-bg) 78%, white);
     border-color: var(--status-warning-border);
     color: var(--status-warning-text);
   }
 
-  .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
-    background: color-mix(in srgb, var(--status-warning-bg) 82%, white);
+  .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
+    background: var(--status-warning-bg);
     border-color: var(--status-warning-border);
     color: var(--status-warning-text);
   }
