@@ -1331,8 +1331,8 @@
   }
 
   .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
-    background: color-mix(in srgb, #fffb00 62%, white);
-    border-color: color-mix(in srgb, #fffb00 88%, var(--text));
+    background: color-mix(in srgb, #fffb00 38%, white);
+    border-color: color-mix(in srgb, #fffb00 82%, var(--text));
     color: var(--text);
     outline: none;
   }
@@ -1379,7 +1379,7 @@
     transform: translateY(-50%);
     background-image: repeating-linear-gradient(
       to right,
-      color-mix(in srgb, var(--text-secondary) 82%, var(--muted)) 0 3px,
+      #fffb00 0 3px,
       transparent 3px 7px
     );
   }
@@ -1392,7 +1392,7 @@
     transform: translateX(-50%);
     background-image: repeating-linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--text-secondary) 82%, var(--muted)) 0 3px,
+      #fffb00 0 3px,
       transparent 3px 7px
     );
   }
