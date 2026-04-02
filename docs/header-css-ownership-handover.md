@@ -256,11 +256,12 @@ Why timing is worse right now:
 
 - The `Population at Risk (PAR)` top-bar pane is now locked as a production-owned internal summary surface in `src/components/layout/TopBar.tsx` and `src/components/layout/topBar.css`.
 - It is no longer a repeated three-column `label / PAR: / value` pattern.
-- The live contract is now a six-row two-column summary:
+- The live contract is now a six-row summary with fixed outer columns:
   - left column: `Facility:`, `Practice:`, `Region:`, `Baseport:`, `Correction:`, `Total:`
+  - middle column: reserved spacing lane; only `Correction` uses it, with centered parenthetical context
   - right column: right-aligned values
 - `Total` remains emphasized through `topbar__spacer-par-value--total`.
-- `Correction` uses the display format `(n% of 8500) value`.
+- `Correction` uses the display format `(n% of 8500) value`, with the parenthetical context centered in the middle column and the numeric value right-aligned in the normal value column.
 - The numeric correction value should render at the same size as the other PAR values; only the parenthetical context stays visually reduced.
 
 ### Locked typography and spacing seam
@@ -270,6 +271,7 @@ Why timing is worse right now:
   - `--topbar-spacer-par-fixed-height: 4rem`
   - `--topbar-spacer-par-grid-offset-y: calc(var(--topbar-cluster-label-offset-y) - 0.07em)`
 - The pane now uses a fixed-height distributed row stack in `.topbar__spacer-par-summary`; keep the first and last rows visually anchored while interior rows stay evenly spaced.
+- PAR rows now use a stable three-column row grid so the first and last columns do not move when the correction context is shown.
 - The only approved row-specific vertical adjustments are the tiny paint-only transforms on `Facility` and `Total`.
 - If PAR spacing is tuned again later, preserve the fixed-height distributed layout contract and adjust row paint offsets deliberately rather than reintroducing row-specific margin hacks.
 

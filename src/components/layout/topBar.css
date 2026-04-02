@@ -292,7 +292,7 @@
 
 .topbar__spacer-par-row {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
   column-gap: 0.38ch;
   width: 100%;
   min-height: 0;
@@ -306,6 +306,15 @@
 .topbar__spacer-par-title {
   font-weight: 500;
   white-space: nowrap;
+}
+
+.topbar__spacer-par-context {
+  min-width: 0;
+  justify-self: center;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.9em;
+  letter-spacing: -0.02em;
 }
 
 .topbar__spacer-par-value {
@@ -326,16 +335,6 @@
 .topbar__spacer-par-value--correction {
   overflow: visible;
   text-overflow: clip;
-}
-
-.topbar__spacer-par-value-context {
-  font-size: 0.9em;
-  letter-spacing: -0.02em;
-}
-
-.topbar__spacer-par-value-number {
-  font-size: 1em;
-  letter-spacing: inherit;
 }
 
 .topbar__spacer-par-value--total {

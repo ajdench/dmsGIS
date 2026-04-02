@@ -299,10 +299,12 @@ Current top-bar selection note:
   - `Baseport:`
   - `Correction:`
   - `Total:`
-- the grid is now a locked two-column pattern:
+- the grid is now a locked fixed-outer-column pattern:
   - left column = labels with trailing `:`
+  - middle column = centered correction context only
   - right column = right-aligned values
 - the PAR pane now uses a fixed-height distributed internal row stack, so the top and bottom rows stay anchored while interior spacing remains even
+- PAR rows use a stable three-column row grid so the left and right columns do not drift when the correction context is present
 - only two PAR row-specific optical nudges are approved:
   - `Facility` may sit a tiny touch lower
   - `Total` may sit a tiny touch higher

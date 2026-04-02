@@ -27,6 +27,7 @@ type ParSummaryRow = {
     | 'totalPar';
   valueClassName?: string;
   rowClassName?: string;
+  showContext?: boolean;
 };
 const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
   {
@@ -40,6 +41,7 @@ const PAR_SUMMARY_ROWS: readonly ParSummaryRow[] = [
   {
     label: 'Correction:',
     valueKey: 'correctionPar',
+    showContext: true,
     valueClassName: 'topbar__spacer-par-value--correction',
   },
   {
@@ -400,29 +402,22 @@ export function TopBar() {
             ) : null}
             {isParPane ? (
               <div className="topbar__spacer-par-summary" aria-label="Population at risk summary">
-                {PAR_SUMMARY_ROWS.map(({ label: rowLabel, valueKey, valueClassName, rowClassName }) => (
+                {PAR_SUMMARY_ROWS.map(
+                  ({ label: rowLabel, valueKey, valueClassName, rowClassName, showContext }) => (
                   <div
                     key={rowLabel}
                     className={`topbar__spacer-par-row${rowClassName ? ` ${rowClassName}` : ''}`}
                   >
                     <span className="topbar__spacer-par-title">{rowLabel}</span>
+                    <span className="topbar__spacer-par-context" aria-hidden={!showContext}>
+                      {showContext ? pointTooltipDisplay.correctionParContext ?? '' : ''}
+                    </span>
                     <span
                       className={`topbar__spacer-par-value${
                         valueClassName ? ` ${valueClassName}` : ''
                       }`}
                     >
-                      {valueKey === 'correctionPar' && pointTooltipDisplay.correctionParContext ? (
-                        <>
-                          <span className="topbar__spacer-par-value-context">
-                            {pointTooltipDisplay.correctionParContext}
-                          </span>{' '}
-                          <span className="topbar__spacer-par-value-number">
-                            {pointTooltipDisplay[valueKey] ?? '—'}
-                          </span>
-                        </>
-                      ) : (
-                        pointTooltipDisplay[valueKey] ?? '—'
-                      )}
+                      {pointTooltipDisplay[valueKey] ?? '—'}
                     </span>
                   </div>
                 ))}
