@@ -556,6 +556,7 @@
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
     --workspace-bottom-metrics-row-gap: 0.1875rem;
+    --workspace-bottom-bottom-clearance: var(--workspace-bottom-metrics-row-gap);
     --workspace-bottom-card-block-size: calc(
       (2 * var(--workspace-bottom-card-edge-gap)) +
       var(--workspace-bottom-title-row-block-size) +
@@ -563,7 +564,7 @@
       var(--workspace-bottom-middle-row-block-size) +
       (3 * 0.625rem) +
       (2 * var(--workspace-bottom-metrics-row-gap)) +
-      var(--workspace-bottom-card-edge-gap)
+      var(--workspace-bottom-bottom-clearance)
     );
     position: relative;
     box-sizing: border-box;
@@ -585,7 +586,7 @@
       var(--workspace-bottom-middle-row-block-size)
       minmax(0, 1fr)
       auto
-      var(--workspace-bottom-card-edge-gap);
+      var(--workspace-bottom-bottom-clearance);
     column-gap: 0.35rem;
     row-gap: 0;
     padding: var(--workspace-bottom-card-edge-gap);
