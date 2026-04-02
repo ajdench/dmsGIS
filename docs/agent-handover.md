@@ -1106,9 +1106,11 @@ Playground entry is now explicitly split by source preset.
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses one fixed internal rail across receiving Region cards, based on the measured original `Devolved Admin...` row position and then nudged upward by `4px`, so its vertical position stays aligned even when other titles wrap differently
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-aligned within the first cell
+- within that same injected row, the contribution number now keeps its existing row rail and horizontal anchor but carries a tiny locked vertical centering correction so the text reads on the small navy circle centreline instead of slightly high
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
 - columns `1`-`9` render PMC Region title cards for the fixed PMC order, with the full-opacity swatch in row `1` and the Region title in row `2`
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
+- that `Total` card keeps its existing title and PAR rails, but both the `Total` label and total PAR value now render in bold
 - the playground panel keeps the same `COA 3a` / `COA 3b` wiring and rebuilt runtime board products
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
 - combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides
