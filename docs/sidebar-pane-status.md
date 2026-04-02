@@ -214,6 +214,7 @@ Regions styling is not only UI-wired. It is also routed through production map/r
 - Playground reassignment now preloads the source-preset board dataset as its baseline assignment source, so first-load editable styling does not capture stale `regionFill` geometry from the previously active mode or fall into grey South East / London and East fills
 - Playground editable Region geometry is now a dedicated merged polygon product derived from that canonical board-assignment source, instead of switching `scenarioOutline` between static preset polygons and runtime topology-edge fragments
 - during an open Playground edit, selected Region-border redraw now treats the popover/editor-selected `scenarioRegionId` as authoritative instead of depending only on feature-prop timing during the reselect cycle
+- after applying a Playground reassignment, the editor-selected Region now stays active even after the assignment popover closes, so the newly dissolved merged Region border can highlight immediately instead of waiting for a reselect
 - Playground reassignment leaves facility points on the existing non-draft styling path for now, so Region editing does not yet remap facility borders/colours
 - selected Playground Region highlighting is now driven directly from the editor-selected `scenarioRegionId` plus the merged editable Region geometry source, and editable workspaces no longer fall back to static preset outline fetches for the selected Region border
 - facility clicks inside Playground now also resolve draft-aware `scenarioRegionId` / Region-name identity for selected-border redraw, while facility symbol styling itself remains on the non-draft path
@@ -221,6 +222,7 @@ Regions styling is not only UI-wired. It is also routed through production map/r
 - non-Playground scenario facility clicks now resolve selected Region borders through the same derived outline source used by boundary clicks before any static outline fallback
 - scenario prefixes are now treated as display-only in the Regions list for `SJC JMC`, `COA 3a`, `COA 3b`, and Playground; stored region names remain unchanged
 - when Playground is active, the Regions sub-pane title now reads `Playground`, and the top-right map details card shows the selected Region name without the `COA 3b` prefix
+- the bottom-row `DPHC Estimate COA Playground` subtitles (`Start state`) are back on subtitle styling rather than normal row-label styling, so they sit below the title as quiet helper copy instead of reading like peer controls
 
 ### Remaining watchpoints
 
