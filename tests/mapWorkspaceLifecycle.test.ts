@@ -61,7 +61,7 @@ describe('mapWorkspaceLifecycle', () => {
     });
   });
 
-  it('attaches a square placeholder pane sized from the zoom control', () => {
+  it('attaches a live crosshair control sized from the zoom control', () => {
     const target = document.createElement('div');
     target.className = 'map-canvas';
     const zoomControl = document.createElement('div');
@@ -87,18 +87,25 @@ describe('mapWorkspaceLifecycle', () => {
     const cleanup = attachCrosshairGuideControl({ target });
     const control = target.querySelector<HTMLElement>('.map-crosshair-control');
     const button = target.querySelector<HTMLButtonElement>('.map-crosshair-control__button');
+    const guides = target.querySelector<HTMLDivElement>('.map-crosshair-guides');
 
     expect(control).not.toBeNull();
     expect(control?.style.inlineSize).toBe('80px');
     expect(control?.style.blockSize).toBe('80px');
-    expect(control?.getAttribute('aria-hidden')).toBe('true');
     expect(button).not.toBeNull();
-    expect(button?.disabled).toBe(true);
-    expect(button?.getAttribute('aria-hidden')).toBe('true');
+    expect(button?.getAttribute('aria-pressed')).toBe('false');
+    expect(guides?.hidden).toBe(true);
+
+    button?.click();
+
+    expect(control?.dataset.active).toBe('true');
+    expect(button?.getAttribute('aria-pressed')).toBe('true');
+    expect(guides?.hidden).toBe(false);
 
     cleanup();
 
     expect(target.querySelector('.map-crosshair-control')).toBeNull();
+    expect(target.querySelector('.map-crosshair-guides')).toBeNull();
     target.remove();
   });
 

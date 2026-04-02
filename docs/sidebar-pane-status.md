@@ -223,7 +223,7 @@ Regions styling is not only UI-wired. It is also routed through production map/r
 - scenario prefixes are now treated as display-only in the Regions list for `SJC JMC`, `COA 3a`, `COA 3b`, and Playground; stored region names remain unchanged
 - when Playground is active, the Regions sub-pane title now reads `Playground`, and the top-right map details card shows the selected Region name without the `COA 3b` prefix
 - the bottom-row `DPHC Estimate COA Playground` subtitles (`Start state`) are back on subtitle styling rather than normal row-label styling, so they sit below the title as quiet helper copy instead of reading like peer controls
-- the map pane now also has a temporary square grey placeholder pane in the top-right corner, sized from the zoom-control parent pane width and aligned to the same outer margins, with a centered inert white square button matching the zoom-button size; the earlier crosshair toggle behavior is currently turned off
+- the map pane now also has a square crosshair-guide control in the top-right corner, sized from the zoom-control parent pane width and aligned to the same outer margins, with a centered white square button matching the zoom-button size; clicking that button toggles dotted `50%`-opacity horizontal and vertical centre guides across the map
 
 ### Remaining watchpoints
 

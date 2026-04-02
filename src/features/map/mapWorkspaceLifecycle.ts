@@ -699,17 +699,39 @@ export function attachCrosshairGuideControl(
 
   const controlRoot = document.createElement('div');
   controlRoot.className = 'map-crosshair-control ol-unselectable ol-control';
-  controlRoot.setAttribute('aria-hidden', 'true');
+  controlRoot.dataset.active = 'false';
   const controlButton = document.createElement('button');
   controlButton.type = 'button';
   controlButton.className = 'map-crosshair-control__button';
-  controlButton.disabled = true;
-  controlButton.tabIndex = -1;
-  controlButton.setAttribute('aria-hidden', 'true');
+  controlButton.setAttribute('aria-label', 'Toggle centre guide lines');
+  controlButton.setAttribute('aria-pressed', 'false');
+  controlButton.title = 'Toggle centre guide lines';
+  const controlIcon = document.createElement('span');
+  controlIcon.className = 'map-crosshair-control__icon';
+  controlIcon.setAttribute('aria-hidden', 'true');
+  controlButton.append(controlIcon);
   controlRoot.append(controlButton);
-  target.append(controlRoot);
+  const guidesRoot = document.createElement('div');
+  guidesRoot.className = 'map-crosshair-guides';
+  guidesRoot.hidden = true;
+  guidesRoot.setAttribute('aria-hidden', 'true');
+  const horizontalGuide = document.createElement('span');
+  horizontalGuide.className =
+    'map-crosshair-guides__line map-crosshair-guides__line--horizontal';
+  const verticalGuide = document.createElement('span');
+  verticalGuide.className =
+    'map-crosshair-guides__line map-crosshair-guides__line--vertical';
+  guidesRoot.append(horizontalGuide, verticalGuide);
+  target.append(controlRoot, guidesRoot);
 
+  let isActive = false;
   let resizeObserver: ResizeObserver | null = null;
+
+  const applyState = () => {
+    controlRoot.dataset.active = isActive ? 'true' : 'false';
+    controlButton.setAttribute('aria-pressed', String(isActive));
+    guidesRoot.hidden = !isActive;
+  };
 
   const syncPaneSize = () => {
     if (!zoomControl) {
@@ -722,7 +744,16 @@ export function attachCrosshairGuideControl(
       controlRoot.style.blockSize = `${zoomRect.width}px`;
     }
   };
+
+  const handleButtonClick = (event: MouseEvent) => {
+    event.preventDefault();
+    isActive = !isActive;
+    applyState();
+  };
+
+  controlButton.addEventListener('click', handleButtonClick);
   syncPaneSize();
+  applyState();
 
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
@@ -735,8 +766,10 @@ export function attachCrosshairGuideControl(
   }
 
   return () => {
+    controlButton.removeEventListener('click', handleButtonClick);
     resizeObserver?.disconnect();
     controlRoot.remove();
+    guidesRoot.remove();
   };
 }
 
