@@ -1111,7 +1111,7 @@ Playground entry is now explicitly split by source preset.
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
 - columns `1`-`9` render PMC Region title cards for the fixed PMC order, with the full-opacity swatch in row `1` and the Region title in row `2`
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
-- that `Total` card keeps its existing title and PAR rails, but both the `Total` label and total PAR value now render in bold
+- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, while the `Total` card itself no longer carries a separate bold-only emphasis treatment
 - the playground panel keeps the same `COA 3a` / `COA 3b` wiring and rebuilt runtime board products
 - the bottom-right playground pane uses a content-height header with no bottom padding, so the visible title-bottom-to-buttons gap resolves to the default seam instead of inheriting a tall fixed header
 - combined-practice family-ring default colours are now chosen by a perceptual-distance scorer in `src/lib/combinedPractices.ts`, not just by stable palette order: the selector avoids the parent facility point-colour family, avoids the Current-region colour family, and deconflicts already-assigned same-region and nearby combined-practice colours before falling back to tiny named overrides

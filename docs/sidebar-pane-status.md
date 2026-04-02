@@ -429,7 +429,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - `SJC JMC` per-card PAR values now calculate from the assigned `2026` facility board code (`icb_hb_code_2026`) mapped through the preset `codeGroupings`; the devolved card shows the combined total of `JMC Scotland`, `JMC Northern Ireland`, and `JMC Wales`
 - columns `1`-`9` now carry PMC Region title cards for the fixed PMC Region list order, using full-opacity Region swatches in row `1` and the Region title in row `2`
 - column `10` is reserved for a matching `Total` title card, now with a black circle swatch in row `1`
-- that `Total` card keeps its existing text placement, but both the `Total` label and total PAR value now render in bold
+- the final PAR number in each bottom-row card now uses the same `500` weight as the header-pane titles such as `Functions`, and the `Total` card no longer carries a separate bold-only emphasis treatment
 - live-checked bottom-row geometry at `1280px` viewport width:
   - map width: `932.6875px`
   - sidebar width: `311.3125px`

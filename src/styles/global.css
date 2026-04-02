@@ -589,10 +589,6 @@
     transform: translateY(1px);
   }
 
-  .workspace-bottom-shell__title-card--total .workspace-bottom-shell__title-card-title {
-    font-weight: 700;
-  }
-
   .workspace-bottom-shell__title-card-middle-pill {
     position: absolute;
     left: 0.35rem;
@@ -704,15 +700,11 @@
     font-size: 0.625rem;
     line-height: 1;
     letter-spacing: -0.01em;
-    font-weight: 400;
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
     color: color-mix(in srgb, var(--text-secondary) 78%, var(--muted));
     white-space: nowrap;
     text-align: left;
-  }
-
-  .workspace-bottom-shell__title-card-par--total {
-    font-weight: 700;
   }
 
   .map-panel__inner {
