@@ -700,6 +700,13 @@ export function attachCrosshairGuideControl(
   const controlRoot = document.createElement('div');
   controlRoot.className = 'map-crosshair-control ol-unselectable ol-control';
   controlRoot.setAttribute('aria-hidden', 'true');
+  const controlButton = document.createElement('button');
+  controlButton.type = 'button';
+  controlButton.className = 'map-crosshair-control__button';
+  controlButton.disabled = true;
+  controlButton.tabIndex = -1;
+  controlButton.setAttribute('aria-hidden', 'true');
+  controlRoot.append(controlButton);
   target.append(controlRoot);
 
   let resizeObserver: ResizeObserver | null = null;

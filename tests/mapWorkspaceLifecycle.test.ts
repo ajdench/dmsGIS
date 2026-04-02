@@ -86,11 +86,15 @@ describe('mapWorkspaceLifecycle', () => {
 
     const cleanup = attachCrosshairGuideControl({ target });
     const control = target.querySelector<HTMLElement>('.map-crosshair-control');
+    const button = target.querySelector<HTMLButtonElement>('.map-crosshair-control__button');
 
     expect(control).not.toBeNull();
     expect(control?.style.inlineSize).toBe('80px');
     expect(control?.style.blockSize).toBe('80px');
     expect(control?.getAttribute('aria-hidden')).toBe('true');
+    expect(button).not.toBeNull();
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-hidden')).toBe('true');
 
     cleanup();
 
