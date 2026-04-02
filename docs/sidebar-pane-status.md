@@ -406,6 +406,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - title text in the second column now uses a tighter `1` line-height plus a `1px` downward optical offset so the first line stays centered to the swatch without increasing overall card height
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - each grey title card now keeps the visible swatch/title top row where it already is, but the body below that row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
+- all bottom cards now also reserve one fixed title-to-middle spacer row, so the gap between the title rail and the button/inject band is applied equally across the whole row
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
@@ -423,7 +424,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - that Current redistribution now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses the same real taller middle band as the `Regionalise` pill and is vertically centered inside that band directly, so the navy circle/text sit on the same centreline as the pill while the extra space resolves below
 - the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now uses a real taller middle band and is vertically centered inside that band directly, so the centering remains visible while the card still keeps extra surrounding clearance
-- both the `Regionalise` pill and the injected Royal Navy contribution row now also share the same small downward optical nudge within that middle band
+- the previous shared downward optical nudge on the `Regionalise` pill / injected Royal Navy row has been removed; spacing now comes from the fixed shared title-to-middle spacer instead
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-biased within the first cell
 - within that same injected row, the contribution number now keeps the same fixed row and left edge but gets a tiny locked vertical centering correction so it reads on the navy circle centreline
 - `SJC JMC` group circles now use the effective populated Fill colour from the Regions pane at `100%` opacity

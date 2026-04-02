@@ -550,14 +550,15 @@
       var(--prototype-control-swatch-size),
       0.6875rem
     );
+    --workspace-bottom-title-to-middle-gap: 0.25rem;
     --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
-    --workspace-bottom-middle-row-offset-y: 2px;
     --workspace-bottom-metrics-row-gap: 0.1875rem;
     --workspace-bottom-card-block-size: calc(
       (2 * 0.35rem) +
       var(--workspace-bottom-title-row-block-size) +
+      var(--workspace-bottom-title-to-middle-gap) +
       var(--workspace-bottom-middle-row-block-size) +
       (3 * 0.625rem) +
       (2 * var(--workspace-bottom-metrics-row-gap))
@@ -571,11 +572,13 @@
     grid-template-columns: var(--prototype-control-swatch-size) minmax(0, 1fr);
     grid-template-areas:
       "swatch title"
+      ". ."
       "middle middle"
       ". ."
       ". metrics";
     grid-template-rows:
       var(--workspace-bottom-title-row-block-size)
+      var(--workspace-bottom-title-to-middle-gap)
       var(--workspace-bottom-middle-row-block-size)
       minmax(0, 1fr)
       auto;
@@ -631,7 +634,6 @@
     min-height: var(--workspace-bottom-middle-row-block-size);
     align-self: stretch;
     justify-self: stretch;
-    transform: translateY(var(--workspace-bottom-middle-row-offset-y));
     z-index: 1;
   }
 
@@ -691,7 +693,6 @@
     align-self: stretch;
     justify-self: stretch;
     pointer-events: none;
-    transform: translateY(var(--workspace-bottom-middle-row-offset-y));
     z-index: 1;
   }
 

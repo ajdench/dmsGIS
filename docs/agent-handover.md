@@ -1092,6 +1092,7 @@ Playground entry is now explicitly split by source preset.
 - the bottom-left surface keeps `0.75rem` outer padding plus `0.75rem` internal column gaps, so each internal column division resolves to the default seam instead of doubling it
 - each occupied bottom-left column now renders a full-width grey title card using the same radius as the parent white pane, with `0.35rem` internal padding/rhythm
 - each grey title card now keeps the swatch circle anchored in the same top-left cell and the title in the same top-right position, but the body below that top row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
+- all bottom cards now also reserve one fixed title-to-middle spacer row, so the gap between the title rail and the button/inject band is applied equally across the whole row
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`, without moving the visible swatch/title top row
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
@@ -1116,7 +1117,7 @@ Playground entry is now explicitly split by source preset.
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses the same real taller middle band as the `Regionalise` pill and is vertically centered inside that band directly, so the navy circle/text sit on the same centreline as the pill while the extra space resolves below
 - the `Regionalise` / `Unregionalise` control pill in the special `Royal Navy` card now uses a real taller middle band and is vertically centered inside that band directly, so the centering remains visible while the card keeps extra surrounding clearance
-- both the `Regionalise` pill and the injected Royal Navy contribution row now also share the same small downward optical nudge within that middle band
+- the previous shared downward optical nudge on the `Regionalise` pill / injected Royal Navy row has been removed; spacing now comes from the fixed shared title-to-middle spacer instead
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-aligned within the first cell
 - within that same injected row, the contribution number now keeps its existing row rail and horizontal anchor but carries a tiny locked vertical centering correction so the text reads on the small navy circle centreline instead of slightly high
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
