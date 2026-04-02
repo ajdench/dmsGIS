@@ -34,6 +34,7 @@ import {
 import { deriveScenarioWorkspaceFromDraft } from '../lib/scenarioWorkspaceDerived';
 import { upsertScenarioWorkspaceAssignment } from '../lib/scenarioWorkspaceAssignments';
 import {
+  type FacilityProperties,
   type FacilityFilterState,
 } from '../lib/schemas/facilities';
 import {
@@ -49,7 +50,6 @@ import type {
 } from '../lib/schemas/savedViews';
 import {
   loadFacilityDataset,
-  type FacilityDatasetSnapshot,
 } from '../lib/services/facilityDataset';
 import type {
   DerivedScenarioWorkspace,
@@ -71,22 +71,6 @@ const JMC_2026_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_
 const NHS_ENGLAND_REGIONS_BSC_PATH =
   'data/regions/NHS_England_Regions_January_2024_EN_BSC.geojson';
 const SJC_JMC_OUTLINE_PATH = resolveRuntimeMapProductPath('data/regions/UK_JMC_Outline_arcs.geojson');
-
-interface FacilityDerivedState {
-  regions: RegionStyle[];
-  combinedPractices: CombinedPracticeStyle[];
-  combinedPracticeCatalog: CombinedPracticeCatalogEntry[];
-  populatedCodes: {
-    v10: Set<string>;
-    v2026: Set<string>;
-  };
-  facilityParRecords: FacilityParRecord[];
-  pmcParDisplay: {
-    regionParDisplayByName: Record<string, string>;
-    totalParDisplay: string;
-  };
-  presetRegionParByPreset: Partial<Record<ViewPresetId, Record<string, number>>>;
-}
 
 interface ViewPresetState {
   layers: LayerState[];
