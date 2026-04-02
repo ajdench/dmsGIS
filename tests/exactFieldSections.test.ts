@@ -366,7 +366,7 @@ describe('ExactFieldSections', () => {
     expect(wrapper?.className).toContain('prototype-slider-field__with-reset--right');
     expect(resetButton.className).toContain('prototype-copy-fill-button--neutral');
     expect(swatch?.style.boxShadow).toBe('inset 0 0 0 1px rgba(229, 231, 235, 1)');
-    expect(iconPath?.getAttribute('fill')).toBe('rgb(209, 213, 219)');
+    expect(iconPath?.getAttribute('fill')).toBe('rgb(191, 197, 206)');
   });
 
   it('keeps the neutral colour reset glyph treatment while still showing the default colour swatch at full opacity', () => {
@@ -409,6 +409,6 @@ describe('ExactFieldSections', () => {
 
     expect(swatch?.style.background).toBe('rgb(236, 240, 230)');
     expect(swatch?.style.boxShadow).toBe('inset 0 0 0 1px rgba(229, 231, 235, 1)');
-    expect(iconPath?.getAttribute('fill')).toBe('rgb(209, 213, 219)');
+    expect(iconPath?.getAttribute('fill')).toBe('rgb(191, 197, 206)');
   });
 });

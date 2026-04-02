@@ -126,7 +126,14 @@ Current validated repo-health note:
 - facility runtime metadata derived from the facilities GeoJSON should now be loaded through one shared cached fetch path in `src/lib/services/facilityDataset.ts`, so startup state derivation and the Facilities search field do not each re-fetch and re-parse the same dataset independently
 - a dedicated working-app cleanup plan now exists at:
   - `docs/working-app-legacy-cleanup-plan-2026-04-02.md`
-- the first clear candidates there are the legacy pane-shell files still present in `src/features/` and `src/components/sidebar/`, not the live `Exact` sidebar path
+- the first orphaned pane-shell cleanup pass from that plan is now complete:
+  - removed `SelectionPanel.tsx`
+  - removed `BasemapPanel.tsx`
+  - removed `BasemapPanelReplacement.tsx`
+  - removed `LabelPanel.tsx`
+  - removed `LayerPanel.tsx`
+  - removed their narrow pane-only tests
+- the next cleanup boundary is the dormant shared shell layer under `src/components/sidebar/`, `src/components/sidebarReplacement/`, and `src/styles/sidebarReplacement.css`, not the live `Exact` sidebar path
 
 Current paired-runtime-family note:
 
@@ -1107,14 +1114,15 @@ Playground entry is now explicitly split by source preset.
 - each occupied bottom-left column now renders a full-width grey title card using the same radius as the parent white pane, with `0.35rem` internal padding/rhythm
 - each grey title card now keeps the swatch circle anchored in the same top-left cell and the title in the same top-right position, but the body below that top row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
 - all bottom cards now also reserve one fixed title-to-middle spacer row, so the gap between the title rail and the button/inject band is applied equally across the whole row
-- all bottom cards now also reserve one smaller fixed bottom-clearance row below the metrics stack, tuned from the metrics-gap token so the bottom figures sit off the border without opening a visibly larger gap than the title has above
+- all bottom cards now also reserve one smaller fixed bottom-clearance row below the metrics stack, derived from the same title-offset token as the swatch/title rail so the gap below `Total` visually tracks the gap above the title instead of opening wider
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`, without moving the visible swatch/title top row
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
-- title text in the second column now uses a tighter `1` line-height plus a `1px` downward optical offset so the first line stays centered to the swatch without increasing overall card height
+- title text in the second column now uses a tighter `1` line-height plus a `0.5px` downward optical offset, with the swatch cell centered on the same rail, so the first line stays centered to the swatch without increasing overall card height
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
+- the vertical gap between the three PAR readout rows is now slightly looser than before, while the lower edge clearance still resolves from the title-offset token so the stack keeps a matched top/bottom rhythm
 - the grey title cards keep `0.35rem` edge insets and now use one fixed card block-size that always reserves the inject/button middle band plus the smaller extra bottom-clearance row, so card height no longer changes by state; wrapped titles are allowed to overlap the reserved gap instead of increasing card height
 - in `Current`, columns `1`-`9` continue to show the PMC Region cards
 - in `Current`, the `Royal Navy` card now also carries the `Regionalise` / `Unregionalise` control; while regionalised, Royal Navy PAR is removed from the special card and added back into the parent PMC Region cards on the canonical Current board-code basis

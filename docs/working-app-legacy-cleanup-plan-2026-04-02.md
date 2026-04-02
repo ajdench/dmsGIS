@@ -24,7 +24,7 @@ That is the path to protect.
 
 ## Confirmed Legacy Candidates
 
-These files are not on the live app path and are the clearest first removal/archive candidates:
+These files were not on the live app path and were the clearest first removal candidates:
 
 - `src/features/facilities/SelectionPanel.tsx`
 - `src/features/basemap/BasemapPanel.tsx`
@@ -37,6 +37,10 @@ Current evidence:
 - `SelectionPanel.tsx`, `BasemapPanel.tsx`, `LabelPanel.tsx`, and `LayerPanel.tsx` are not imported by the live app path
 - `BasemapPanelReplacement.tsx` is also not on the live app path
 - these files are still referenced mostly by tests, prototype notes, or historical sidebar docs
+
+Status:
+
+- removed on `2026-04-02` during the first working-app legacy cleanup pass
 
 ## Shared Structure Candidates
 
@@ -70,14 +74,15 @@ Reason:
 
 ### Phase 1. Remove orphaned pane files
 
-- confirm no live imports remain for:
+- completed on `2026-04-02`
+- removed:
   - `SelectionPanel.tsx`
   - `BasemapPanel.tsx`
   - `LabelPanel.tsx`
   - `LayerPanel.tsx`
   - `BasemapPanelReplacement.tsx`
-- delete their tests if the files are removed only as dormant scaffolding
-- update any handover/docs that still describe them as part of the active app
+- removed their narrow tests
+- updated current-truth docs to stop treating them as extant active-adjacent pane surfaces
 
 ### Phase 2. Prune dormant shell primitives
 

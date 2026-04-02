@@ -36,8 +36,8 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Priority:** High
 **What:** Prune old working-app pane files, shell primitives, and replacement scaffolding that are no longer on the live app path.
 **Why:** The shipped sidebar now runs through `RightSidebar` plus the `Exact` pane path, but the repo still carries older pane-shell files and replacement-only structures that make the app tree harder to reason about and increase the chance of editing the wrong surface.
-**Notes:** Start from `docs/working-app-legacy-cleanup-plan-2026-04-02.md`. Current concrete candidates include `src/features/facilities/SelectionPanel.tsx`, `src/features/basemap/BasemapPanel.tsx`, `src/features/labels/LabelPanel.tsx`, `src/features/layers/LayerPanel.tsx`, `src/features/basemap/BasemapPanelReplacement.tsx`, and the older `src/components/sidebar/` / `src/components/sidebarReplacement/` structures where they are no longer used by the current app. Keep `PmcPanel.tsx`, `OverlayPanel.tsx`, and the `sidebarExact` path until their real downstream dependencies are removed, not by assumption.
-**Files likely touched:** `src/features/`, `src/components/sidebar/`, `src/components/sidebarReplacement/`, `src/main.tsx`, tests tied to retired pane shells, and related handover/docs.
+**Notes:** Start from `docs/working-app-legacy-cleanup-plan-2026-04-02.md`. Phase 1 is now complete: `SelectionPanel.tsx`, `BasemapPanel.tsx`, `LabelPanel.tsx`, `LayerPanel.tsx`, and `BasemapPanelReplacement.tsx` are removed along with their narrow pane-only tests. The next active target is the older shared shell layer under `src/components/sidebar/`, `src/components/sidebarReplacement/`, and `src/styles/sidebarReplacement.css`. Keep `PmcPanel.tsx`, `OverlayPanel.tsx`, and the `sidebarExact` path until their real downstream dependencies are removed, not by assumption.
+**Files likely touched:** `src/components/sidebar/`, `src/components/sidebarReplacement/`, `src/styles/sidebarReplacement.css`, `src/main.tsx`, tests tied to retired shared shells, and related handover/docs.
 
 ### 32. Reduce map interaction full-scan work after startup optimizations
 

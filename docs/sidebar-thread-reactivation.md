@@ -90,11 +90,11 @@ Treat current unresolved sidebar WIP as exploratory unless it has been explicitl
 Inspect these production seams first:
 
 - `src/components/layout/RightSidebar.tsx`
-- `src/components/sidebar/`
-- `src/features/basemap/BasemapPanel.tsx`
-- `src/features/labels/LabelPanel.tsx`
-- `src/features/groups/OverlayPanel.tsx`
-- `src/features/facilities/SelectionPanel.tsx`
+- `src/components/sidebarExact/`
+- `src/features/basemap/BasemapPanelExact.tsx`
+- `src/features/labels/LabelPanelExact.tsx`
+- `src/features/groups/OverlayPanelExact.tsx`
+- `src/features/facilities/SelectionPanelExact.tsx`
 - `src/features/groups/PmcPanel.tsx`
 
 Inspect these prototype references second:

@@ -2,10 +2,17 @@
 
 import { createElement } from 'react';
 import { fireEvent, screen, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SelectionPanelExact } from '../src/features/facilities/SelectionPanelExact';
 import { useAppStore } from '../src/store/appStore';
 import { renderExactPane } from './support/renderExactPane';
+
+vi.mock('../src/lib/services/facilityDataset', () => ({
+  loadFacilityDataset: vi.fn(async () => ({
+    features: [],
+    properties: [],
+  })),
+}));
 
 describe('SelectionPanelExact', () => {
   beforeEach(() => {
