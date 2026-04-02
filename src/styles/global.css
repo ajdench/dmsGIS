@@ -546,6 +546,7 @@
   }
 
   .workspace-bottom-shell__title-card {
+    --workspace-bottom-card-edge-gap: 0.35rem;
     --workspace-bottom-title-row-block-size: max(
       var(--prototype-control-swatch-size),
       0.6875rem
@@ -556,12 +557,13 @@
     --workspace-bottom-middle-row-margin-bottom: 0;
     --workspace-bottom-metrics-row-gap: 0.1875rem;
     --workspace-bottom-card-block-size: calc(
-      (2 * 0.35rem) +
+      (2 * var(--workspace-bottom-card-edge-gap)) +
       var(--workspace-bottom-title-row-block-size) +
       var(--workspace-bottom-title-to-middle-gap) +
       var(--workspace-bottom-middle-row-block-size) +
       (3 * 0.625rem) +
-      (2 * var(--workspace-bottom-metrics-row-gap))
+      (2 * var(--workspace-bottom-metrics-row-gap)) +
+      var(--workspace-bottom-card-edge-gap)
     );
     position: relative;
     box-sizing: border-box;
@@ -575,16 +577,18 @@
       ". ."
       "middle middle"
       ". ."
-      ". metrics";
+      ". metrics"
+      ". .";
     grid-template-rows:
       var(--workspace-bottom-title-row-block-size)
       var(--workspace-bottom-title-to-middle-gap)
       var(--workspace-bottom-middle-row-block-size)
       minmax(0, 1fr)
-      auto;
+      auto
+      var(--workspace-bottom-card-edge-gap);
     column-gap: 0.35rem;
     row-gap: 0;
-    padding: 0.35rem;
+    padding: var(--workspace-bottom-card-edge-gap);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: color-mix(in srgb, var(--surface-subtle) 90%, white);

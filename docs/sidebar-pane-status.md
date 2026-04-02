@@ -408,10 +408,11 @@ They are retained for repo continuity, but the live production truth is the exac
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - each grey title card now keeps the visible swatch/title top row where it already is, but the body below that row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
 - all bottom cards now also reserve one fixed title-to-middle spacer row, so the gap between the title rail and the button/inject band is applied equally across the whole row
+- all bottom cards now also reserve one fixed bottom-clearance row below the metrics stack, sized from the same card-edge gap token used above the title, so the bottom figures sit farther off the border without changing the internal row order
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
-- the grey title cards keep `0.35rem` top/bottom inset and now use one fixed card block-size that always reserves the inject/button middle band, so card height no longer changes by state; wrapped titles are allowed to overlap the reserved gap instead of increasing card height
+- the grey title cards keep `0.35rem` edge insets and now use one fixed card block-size that always reserves the inject/button middle band plus the extra bottom-clearance row, so card height no longer changes by state; wrapped titles are allowed to overlap the reserved gap instead of increasing card height
 - in `Current`, columns `1`-`9` continue to show the PMC Region cards
 - in `Current`, the `Royal Navy` card now also carries the same `Regionalise` / `Unregionalise` button pattern as the scenario layouts; when enabled, Royal Navy PAR is removed from the special card and added back into the parent PMC Region cards on the canonical Current board-code basis
 - in that same Current-only bottom-left surface, the first card uses the display label `Scotland & NI`; this is a card-local label override and does not rename the Region elsewhere in the app
