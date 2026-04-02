@@ -1091,15 +1091,15 @@ Playground entry is now explicitly split by source preset.
 - the bottom-left surface now owns a locked internal `10`-column contract through `.workspace-bottom-shell__surface--left-grid`
 - the bottom-left surface keeps `0.75rem` outer padding plus `0.75rem` internal column gaps, so each internal column division resolves to the default seam instead of doubling it
 - each occupied bottom-left column now renders a full-width grey title card using the same radius as the parent white pane, with `0.35rem` internal padding/rhythm
-- each grey title card now uses an internal `2`-column by `3`-row grid, with the swatch circle anchored in the top-left cell, the title in the top-right cell, a merged zero-height middle row spanning both columns, and the PAR value in the bottom-right cell
-- only scenario-layout `Royal Navy` cards now use that merged middle row for an interactive sidebar-pill button, defaulting to `Regionalise`, without changing the visible top-row or bottom-row placement
+- each grey title card now keeps the swatch circle anchored in the same top-left cell and the title in the same top-right position, but the body below that top row is now a content-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
+- only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`, without moving the visible swatch/title top row
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
 - title text in the second column now uses a tighter `1` line-height plus a `1px` downward optical offset so the first line stays centered to the swatch without increasing overall card height
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
-- the grey title cards keep `0.35rem` top/bottom inset, with the inter-row spacing collapsed so the bottom-left pane height stays in parity with the `DPHC Estimate COA Playground` pane
+- the grey title cards keep `0.35rem` top/bottom inset, but card height is now driven by the content stack rather than a collapsed fixed-height internal rail; the tallest middle-band card sets the shared bottom-row height and the rest stretch to match it
 - in `Current`, columns `1`-`9` continue to show the PMC Region cards
 - in `Current`, the `Royal Navy` card now also carries the `Regionalise` / `Unregionalise` control; while regionalised, Royal Navy PAR is removed from the special card and added back into the parent PMC Region cards on the canonical Current board-code basis
 - in that same Current-only bottom-left surface, `Scotland & Northern Ireland` now renders as the card-local display label `Scotland & NI`; this does not rename the Region anywhere else
@@ -1111,17 +1111,17 @@ Playground entry is now explicitly split by source preset.
 - for the bottom-left `SJC JMC` cards only, `Overseas` and `Royal Navy` are preserved as explicit special PAR buckets instead of being folded into their assigned scenario-region cards; this keeps the visible card sum aligned with the absolute `Total`
 - the same `Overseas` / `Royal Navy` preservation rule now applies to `COA 3a` and `COA 3b`, so all three scenario presets reconcile to the same absolute total
 - the bottom-left scenario-card PAR path is now draft-aware for interactive Playground workspaces: `src/components/layout/WorkspaceBottomLeftPane.tsx` derives active workspace totals from loaded facility PAR records plus the live scenario-workspace assignment lookup, and it now subscribes directly to workspace-draft changes so Playground board reassignment immediately updates the displayed Region totals without a preset reload
-- clicking the scenario `Royal Navy` card pill now toggles `Regionalise` / `Unregionalise`: while regionalised, the special `Royal Navy` card clears its own preserved PAR, the same PAR is added back into the parent scenario Region cards on the active assignment basis, and each receiving card shows that added Royal Navy contribution in the zero-height middle row with a small Royal Navy swatch at left and the added PAR at right
+- clicking the scenario `Royal Navy` card pill now toggles `Regionalise` / `Unregionalise`: while regionalised, the special `Royal Navy` card clears its own preserved PAR, the same PAR is added back into the parent scenario Region cards on the active assignment basis, and each receiving card shows that added Royal Navy contribution in the shared middle band with a small Royal Navy swatch at left and the added PAR at right
 - the same interaction now applies in `Current`, but the redistribution path uses the Current preset's boundary-code grouping instead of a scenario assignment lookup
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
-- that injected Royal Navy contribution row now uses one fixed internal rail across receiving Region cards, based on the measured original `Devolved Admin...` row position and then nudged upward by `6px`, so its vertical position stays aligned even when other titles wrap differently while leaving more room below for future added lines
-- the `Regionalise` / `Unregionalise` control pill in the special `Royal Navy` card now also sits on that same fixed middle rail instead of resolving from the zero-height grid row alone, with a tiny locked downward optical correction so it reads on the same horizontal plane
+- that injected Royal Navy contribution row now lives in the shared middle band across receiving Region cards, with reserved top/bottom clearance so the bottom metrics stack can stay anchored while the card grows downward as needed
+- the `Regionalise` / `Unregionalise` control pill in the special `Royal Navy` card now uses that same middle-band contract with extra clearance above and below the button, plus the tiny locked downward optical correction so it still reads on the same horizontal plane
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-aligned within the first cell
 - within that same injected row, the contribution number now keeps its existing row rail and horizontal anchor but carries a tiny locked vertical centering correction so the text reads on the small navy circle centreline instead of slightly high
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
 - columns `1`-`9` render PMC Region title cards for the fixed PMC order, with the full-opacity swatch in row `1` and the Region title in row `2`
 - column `10` is reserved for the matching `Total` title card, now with a black circle swatch in row `1`
-- every bottom-row card now renders a three-line PAR stack below the middle rail:
+- every bottom-row card now renders a three-line PAR stack below the middle band:
   - top line = actual Region PAR on the active assignment basis
   - middle line = correction value shown as `n (y%)`
   - that middle correction line now stays at the normal non-title size/weight across the whole row rather than shrinking the parenthetical context

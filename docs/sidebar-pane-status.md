@@ -405,11 +405,11 @@ They are retained for repo continuity, but the live production truth is the exac
 - title text in the second column is left-aligned to that column edge
 - title text in the second column now uses a tighter `1` line-height plus a `1px` downward optical offset so the first line stays centered to the swatch without increasing overall card height
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
-- each grey title card now uses an internal `2`-column by `3`-row grid, with the middle row merged across both columns and kept at zero height so the visible swatch, title, and PAR positions remain unchanged
-- only scenario-layout `Royal Navy` cards now use that merged middle row for an interactive sidebar-pill button, defaulting to `Regionalise`
+- each grey title card now keeps the visible swatch/title top row where it already is, but the body below that row is now a content-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
+- only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
-- the grey title cards keep `0.35rem` top/bottom inset, with the inter-row spacing collapsed so the bottom-left pane height stays in parity with the `DPHC Estimate COA Playground` pane
+- the grey title cards keep `0.35rem` top/bottom inset, but card height is now driven by the content stack rather than a collapsed fixed internal height; the tallest middle-band card sets the shared row height and the rest stretch to match it
 - in `Current`, columns `1`-`9` continue to show the PMC Region cards
 - in `Current`, the `Royal Navy` card now also carries the same `Regionalise` / `Unregionalise` button pattern as the scenario layouts; when enabled, Royal Navy PAR is removed from the special card and added back into the parent PMC Region cards on the canonical Current board-code basis
 - in that same Current-only bottom-left surface, the first card uses the display label `Scotland & NI`; this is a card-local label override and does not rename the Region elsewhere in the app
@@ -418,18 +418,18 @@ They are retained for repo continuity, but the live production truth is the exac
 - any bottom-left scenario card whose stripped title would be `Devolved Administrations` now uses the display label `Devolved Admin...`, matching the established `SJC JMC` card treatment
 - the `DPHC Estimate COA Playground` variants inherit the same bottom-left card contract from their active source preset (`coa3b` for `COA 3a` Playground, `coa3c` for `COA 3b` Playground), but their PAR values are now draft-aware: board reassignment updates the card totals by remapping facility PAR through the active workspace assignment lookup instead of staying on the source preset baseline, and the pane now subscribes to live draft changes so those totals repaint immediately
 - the absolute `SJC JMC` total remains anchored to the canonical `Export_30_Mar_26.csv` PAR total; the shipped facilities GeoJSON currently matches that total exactly, and the visible scenario-region cards exclude `Overseas` / `Royal Navy` before those two special cards are added back explicitly so the card sum matches `Total`
-- when the scenario `Royal Navy` card button is clicked, it flips to `Unregionalise`, removes the preserved `Royal Navy` PAR from the special card, adds that PAR back into the parent scenario Region cards on the active assignment basis, and shows the added amount in the zero-height middle row of each receiving card with a small Royal Navy swatch in column `1` and the added PAR in column `2`
+- when the scenario `Royal Navy` card button is clicked, it flips to `Unregionalise`, removes the preserved `Royal Navy` PAR from the special card, adds that PAR back into the parent scenario Region cards on the active assignment basis, and shows the added amount in the shared middle band of each receiving card with a small Royal Navy swatch in column `1` and the added PAR in column `2`
 - the same interaction now exists in `Current`, but its parent-card redistribution uses the Current preset's board-code group mapping rather than a scenario assignment lookup
 - that Current redistribution now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
-- that injected Royal Navy contribution row now sits on one fixed internal rail shared by all receiving Region cards, based on the measured original `Devolved Admin...` row position and then trimmed upward by `6px`, so wrapped and unwrapped cards align to that same adjusted reference while leaving more room below for future added lines
-- the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now also uses that same fixed middle rail instead of relying only on the zero-height grid row, with a tiny locked downward optical correction so it does not read high
+- that injected Royal Navy contribution row now lives in the shared middle band across receiving Region cards, with reserved top/bottom clearance so the bottom metrics stack can stay anchored while the card grows downward as needed
+- the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now uses that same middle-band contract with extra clearance above and below the button, plus the tiny locked downward optical correction so it does not read high
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-biased within the first cell
 - within that same injected row, the contribution number now keeps the same fixed row and left edge but gets a tiny locked vertical centering correction so it reads on the navy circle centreline
 - `SJC JMC` group circles now use the effective populated Fill colour from the Regions pane at `100%` opacity
 - `SJC JMC` per-card PAR values now calculate from the assigned `2026` facility board code (`icb_hb_code_2026`) mapped through the preset `codeGroupings`; the devolved card shows the combined total of `JMC Scotland`, `JMC Northern Ireland`, and `JMC Wales`
 - columns `1`-`9` now carry PMC Region title cards for the fixed PMC Region list order, using full-opacity Region swatches in row `1` and the Region title in row `2`
 - column `10` is reserved for a matching `Total` title card, now with a black circle swatch in row `1`
-- every bottom-row card now shows a three-line PAR stack under the middle rail:
+- every bottom-row card now shows a three-line PAR stack under the middle band:
   - actual Region PAR
   - correction line shown as `n (y%)`
   - the full correction line now renders at the normal non-title size/weight rather than shrinking the parenthetical context
