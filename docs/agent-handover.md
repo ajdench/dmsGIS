@@ -1091,7 +1091,7 @@ Playground entry is now explicitly split by source preset.
 - the bottom-left surface now owns a locked internal `10`-column contract through `.workspace-bottom-shell__surface--left-grid`
 - the bottom-left surface keeps `0.75rem` outer padding plus `0.75rem` internal column gaps, so each internal column division resolves to the default seam instead of doubling it
 - each occupied bottom-left column now renders a full-width grey title card using the same radius as the parent white pane, with `0.35rem` internal padding/rhythm
-- each grey title card now keeps the swatch circle anchored in the same top-left cell and the title in the same top-right position, but the body below that top row is now a content-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
+- each grey title card now keeps the swatch circle anchored in the same top-left cell and the title in the same top-right position, but the body below that top row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`, without moving the visible swatch/title top row
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
@@ -1099,7 +1099,7 @@ Playground entry is now explicitly split by source preset.
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles
-- the grey title cards keep `0.35rem` top/bottom inset, but card height is now driven by the content stack rather than a collapsed fixed-height internal rail; the tallest middle-band card sets the shared bottom-row height and the rest stretch to match it
+- the grey title cards keep `0.35rem` top/bottom inset and now use one fixed card block-size that always reserves the inject/button middle band, so card height no longer changes by state; wrapped titles are allowed to overlap the reserved gap instead of increasing card height
 - in `Current`, columns `1`-`9` continue to show the PMC Region cards
 - in `Current`, the `Royal Navy` card now also carries the `Regionalise` / `Unregionalise` control; while regionalised, Royal Navy PAR is removed from the special card and added back into the parent PMC Region cards on the canonical Current board-code basis
 - in that same Current-only bottom-left surface, `Scotland & Northern Ireland` now renders as the card-local display label `Scotland & NI`; this does not rename the Region anywhere else

@@ -546,12 +546,25 @@
   }
 
   .workspace-bottom-shell__title-card {
-    --workspace-bottom-middle-row-block-size: 0;
+    --workspace-bottom-title-row-block-size: max(
+      var(--prototype-control-swatch-size),
+      0.6875rem
+    );
+    --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
     --workspace-bottom-metrics-row-gap: 0.1875rem;
+    --workspace-bottom-card-block-size: calc(
+      (2 * 0.35rem) +
+      var(--workspace-bottom-title-row-block-size) +
+      var(--workspace-bottom-middle-row-block-size) +
+      (3 * 0.625rem) +
+      (2 * var(--workspace-bottom-metrics-row-gap))
+    );
     position: relative;
+    box-sizing: border-box;
     width: 100%;
+    block-size: var(--workspace-bottom-card-block-size);
     min-width: 0;
     display: grid;
     grid-template-columns: var(--prototype-control-swatch-size) minmax(0, 1fr);
@@ -560,7 +573,11 @@
       "middle middle"
       ". ."
       ". metrics";
-    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-rows:
+      var(--workspace-bottom-title-row-block-size)
+      var(--workspace-bottom-middle-row-block-size)
+      minmax(0, 1fr)
+      auto;
     column-gap: 0.35rem;
     row-gap: 0;
     padding: 0.35rem;
@@ -568,6 +585,7 @@
     border-radius: var(--radius);
     background: color-mix(in srgb, var(--surface-subtle) 90%, white);
     color: var(--text-secondary);
+    overflow: visible;
   }
 
   .workspace-bottom-shell__title-card-swatch-row {
@@ -596,14 +614,8 @@
     transform: translateY(1px);
   }
 
-  .workspace-bottom-shell__title-card--with-middle-button {
-    --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
-    --workspace-bottom-middle-row-margin-top: 0;
-    --workspace-bottom-middle-row-margin-bottom: 0;
-  }
-
+  .workspace-bottom-shell__title-card--with-middle-button,
   .workspace-bottom-shell__title-card--with-middle-contribution {
-    --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
   }
