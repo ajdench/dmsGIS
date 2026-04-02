@@ -1240,6 +1240,7 @@ Verified on the live dev app:
 - no `No regions loaded.` banner after settle
 - map left / sidebar right / bottom row aligned correctly again
 - OpenLayers viewport and zoom controls render at full pane height again
+- the map pane now also carries a square crosshair-guide toggle below the zoom control, using the same grey-shell / white-button treatment; when active, it holds the warning-toast selection colour and draws dotted `50%`-opacity horizontal and vertical centre guides across the map pane
 
 Recovery note:
 

@@ -1,3 +1,5 @@
+/* @vitest-environment jsdom */
+
 import { describe, expect, it } from 'vitest';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
@@ -5,6 +7,7 @@ import Polygon from 'ol/geom/Polygon';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import {
+  attachCrosshairGuideControl,
   cleanupMapWorkspaceRefs,
   fitMapToUkExtentOnLoad,
   getMapViewportDiagnostics,
@@ -56,6 +59,67 @@ describe('mapWorkspaceLifecycle', () => {
       zoom: 5.6,
       rotation: 0,
     });
+  });
+
+  it('attaches a crosshair guide control that toggles centre guides', () => {
+    const target = document.createElement('div');
+    target.className = 'map-canvas';
+    const zoomControl = document.createElement('div');
+    zoomControl.className = 'ol-zoom';
+    target.append(zoomControl);
+    document.body.append(target);
+
+    target.getBoundingClientRect = () =>
+      ({
+        top: 0,
+        right: 640,
+        bottom: 480,
+        left: 0,
+        width: 640,
+        height: 480,
+        x: 0,
+        y: 0,
+        toJSON() {
+          return {};
+        },
+      }) as DOMRect;
+    zoomControl.getBoundingClientRect = () =>
+      ({
+        top: 12,
+        right: 76,
+        bottom: 108,
+        left: 12,
+        width: 64,
+        height: 96,
+        x: 12,
+        y: 12,
+        toJSON() {
+          return {};
+        },
+      }) as DOMRect;
+
+    const cleanup = attachCrosshairGuideControl({ target });
+    const control = target.querySelector<HTMLElement>('.map-crosshair-control');
+    const button = target.querySelector<HTMLButtonElement>('.map-crosshair-control__button');
+    const guides = target.querySelector<HTMLDivElement>('.map-crosshair-guides');
+
+    expect(control).not.toBeNull();
+    expect(control?.style.left).toBe('12px');
+    expect(control?.style.top).toBe('114px');
+    expect(button?.getAttribute('aria-pressed')).toBe('false');
+    expect(guides?.hidden).toBe(true);
+
+    button?.click();
+
+    expect(control?.dataset.active).toBe('true');
+    expect(button?.getAttribute('aria-pressed')).toBe('true');
+    expect(guides?.hidden).toBe(false);
+
+    cleanup();
+
+    expect(target.querySelector('.map-crosshair-control')).toBeNull();
+    expect(target.querySelector('.map-crosshair-guides')).toBeNull();
+    target.remove();
   });
 
   it('derives viewport diagnostics from projected extents', () => {

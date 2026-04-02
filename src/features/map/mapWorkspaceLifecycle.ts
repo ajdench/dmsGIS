@@ -140,6 +140,10 @@ interface AttachZoomStatusControlParams {
   }) => void;
 }
 
+interface AttachCrosshairGuideControlParams {
+  target: HTMLElement;
+}
+
 export interface MapViewportDiagnostics {
   projectedExtent3857: Extent;
   geographicExtent4326: Extent;
@@ -684,6 +688,89 @@ export function attachZoomStatusControl(
     resizeObserver?.disconnect();
     statusRoot.remove();
     diagnosticsRoot?.remove();
+  };
+}
+
+export function attachCrosshairGuideControl(
+  params: AttachCrosshairGuideControlParams,
+): () => void {
+  const { target } = params;
+  const zoomControl = target.querySelector<HTMLElement>('.ol-zoom');
+  if (!zoomControl) {
+    return () => {};
+  }
+
+  const controlRoot = document.createElement('div');
+  controlRoot.className = 'map-crosshair-control ol-unselectable ol-control';
+  controlRoot.dataset.active = 'false';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'map-crosshair-control__button';
+  button.setAttribute('aria-label', 'Toggle centre guide lines');
+  button.setAttribute('aria-pressed', 'false');
+  button.title = 'Toggle centre guide lines';
+
+  const icon = document.createElement('span');
+  icon.className = 'map-crosshair-control__icon';
+  icon.setAttribute('aria-hidden', 'true');
+  button.append(icon);
+  controlRoot.append(button);
+
+  const guidesRoot = document.createElement('div');
+  guidesRoot.className = 'map-crosshair-guides';
+  guidesRoot.hidden = true;
+  guidesRoot.setAttribute('aria-hidden', 'true');
+
+  const horizontalGuide = document.createElement('span');
+  horizontalGuide.className =
+    'map-crosshair-guides__line map-crosshair-guides__line--horizontal';
+  const verticalGuide = document.createElement('span');
+  verticalGuide.className =
+    'map-crosshair-guides__line map-crosshair-guides__line--vertical';
+  guidesRoot.append(horizontalGuide, verticalGuide);
+
+  target.append(controlRoot, guidesRoot);
+
+  let isActive = false;
+  let resizeObserver: ResizeObserver | null = null;
+
+  const applyState = () => {
+    controlRoot.dataset.active = isActive ? 'true' : 'false';
+    button.setAttribute('aria-pressed', String(isActive));
+    guidesRoot.hidden = !isActive;
+  };
+
+  const updatePosition = () => {
+    const zoomRect = zoomControl.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    controlRoot.style.left = `${zoomRect.left - targetRect.left}px`;
+    controlRoot.style.top = `${zoomRect.bottom - targetRect.top + 6}px`;
+  };
+
+  const handleButtonClick = (event: MouseEvent) => {
+    event.preventDefault();
+    isActive = !isActive;
+    applyState();
+  };
+
+  button.addEventListener('click', handleButtonClick);
+  updatePosition();
+  applyState();
+
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      updatePosition();
+    });
+    resizeObserver.observe(target);
+    resizeObserver.observe(zoomControl);
+  }
+
+  return () => {
+    button.removeEventListener('click', handleButtonClick);
+    resizeObserver?.disconnect();
+    controlRoot.remove();
+    guidesRoot.remove();
   };
 }
 

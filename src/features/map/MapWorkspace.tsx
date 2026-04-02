@@ -78,6 +78,7 @@ import {
   type OverlayLookupDatasetDefinition,
 } from './overlayLookupBootstrap';
 import {
+  attachCrosshairGuideControl,
   attachZoomStatusControl,
   fitMapToUkExtentOnLoad,
   getUnitedKingdomExtentFromCountrySource,
@@ -700,6 +701,9 @@ export function MapWorkspace() {
       showDiagnostics: false,
       onViewportChange: setMapViewport,
     });
+    const detachCrosshairGuideControl = attachCrosshairGuideControl({
+      target: ref.current,
+    });
     const stopInitialUkFit = fitMapToUkExtentOnLoad({
       map: shell.map,
       source: shell.basemapLayers.countryBorders.getSource(),
@@ -817,6 +821,7 @@ export function MapWorkspace() {
     return () => {
       stopInitialUkFit();
       detachZoomStatusControl();
+      detachCrosshairGuideControl();
       cleanupMapWorkspaceRefs({
         mapRef,
         basemapRef,
