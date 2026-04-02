@@ -181,6 +181,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transform: translateY(var(--prototype-control-text-offset-y));
   }
 
   .sidebar-replacement-pill {

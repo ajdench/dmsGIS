@@ -249,6 +249,10 @@ html[data-browser='safari'] .prototype-toggle-button__label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transform: translate(
+    var(--prototype-toggle-label-x-adjust),
+    var(--prototype-control-text-offset-y)
+  );
 }
 
 .prototype-toggle-button:focus .prototype-toggle-button__label--default,

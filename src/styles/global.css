@@ -1809,6 +1809,7 @@
     align-items: center;
     justify-content: center;
     pointer-events: auto;
+    transform: translateY(var(--prototype-control-text-offset-y));
   }
 
   .sidebar-toggle-button:focus-visible,
