@@ -30,16 +30,16 @@ export function ScenarioPlaygroundPane() {
   };
 
   return (
-    <section className="panel sidebar-panel-shell sidebar-panel-shell--pane scenario-playground-panel">
-      <div className="sidebar-panel-shell__header">
-        <span className="sidebar-panel-shell__title-wrap">
-          <h2 className="sidebar-panel-shell__title">
+    <section className="panel scenario-playground-panel">
+      <div className="scenario-playground-panel__header">
+        <span className="scenario-playground-panel__title-wrap">
+          <h2 className="scenario-playground-panel__title">
             <span>DPHC Estimate COA </span>
             <em>Playground</em>
           </h2>
         </span>
       </div>
-      <div className="sidebar-panel-shell__content">
+      <div className="scenario-playground-panel__content">
         <div className="scenario-playground-pane__grid">
           <div className="scenario-playground-pane__subtitles" aria-hidden="true">
             <span className="scenario-playground-pane__subtitle prototype-accordion-item__subtitle">
@@ -52,8 +52,8 @@ export function ScenarioPlaygroundPane() {
           <div className="scenario-playground-pane__actions" aria-label="COA playground presets">
             <button
               type="button"
-              className={`button sidebar-action-row__button${
-                coa3aPlaygroundActive ? ' sidebar-action-row__button--active' : ''
+              className={`button scenario-playground-pane__button${
+                coa3aPlaygroundActive ? ' scenario-playground-pane__button--active' : ''
               }`}
               onClick={() =>
                 activatePlaygroundPreset('coa3b', DPHC_ESTIMATE_COA_3A_PLAYGROUND_ID)
@@ -64,8 +64,8 @@ export function ScenarioPlaygroundPane() {
             </button>
             <button
               type="button"
-              className={`button sidebar-action-row__button${
-                coa3bPlaygroundActive ? ' sidebar-action-row__button--active' : ''
+              className={`button scenario-playground-pane__button${
+                coa3bPlaygroundActive ? ' scenario-playground-pane__button--active' : ''
               }`}
               onClick={() =>
                 activatePlaygroundPreset('coa3c', DPHC_ESTIMATE_COA_PLAYGROUND_ID)

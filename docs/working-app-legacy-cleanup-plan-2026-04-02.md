@@ -59,6 +59,7 @@ Status:
 
 - `src/components/sidebarReplacement/` and `src/styles/sidebarReplacement.css` were removed on `2026-04-02`
 - `src/components/sidebar/` was removed on `2026-04-02` after `ScenarioPlaygroundPane` was detached from `SidebarPanelShell` and the orphaned `PmcPanel.tsx` / `OverlayPanel.tsx` files were removed
+- the dead old-sidebar CSS and tokens in `src/styles/global.css` were removed on `2026-04-02`, and `ScenarioPlaygroundPane.tsx` now uses local `scenario-playground-*` shell/button class names instead of the retired sidebar shell naming
 
 ## Files That Must Stay Until Their Dependents Move
 
@@ -102,15 +103,17 @@ Reason:
 
 ### Phase 4. Tighten docs and tests
 
-- move historical sidebar notes out of current-truth docs where they obscure the live path
-- keep prototype and historical promotion docs only where they still help active migration work
-- re-run focused sidebar tests plus `npm run build`
+- completed on `2026-04-02`
+- updated the current-truth docs to stop presenting the retired shared-shell family as live app structure
+- kept prototype and historical promotion docs in place where they still document migration history
+- re-ran focused sidebar tests plus `npm run build`
 
 ### Phase 5. Remove dead old-sidebar CSS and tokens
 
-- measure which `.sidebar-*` class families in `src/styles/global.css` are now unused after removing `src/components/sidebar/`
-- delete only the no-longer-referenced rules
-- keep the `ScenarioPlaygroundPane` shell classes or rename them locally if that becomes cleaner than retaining the old shell naming
+- completed on `2026-04-02`
+- measured which `.sidebar-*` class families in `src/styles/global.css` were unused after removing `src/components/sidebar/`
+- deleted the dead shell/button/popover/control/toggle/metric/sidebar-left rules and unused related tokens
+- renamed the surviving `ScenarioPlaygroundPane` shell and button classes locally so the old sidebar naming no longer remains on the live app path
 
 ## Validation Gate For Each Phase
 

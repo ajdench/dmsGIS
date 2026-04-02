@@ -14,7 +14,7 @@ describe('ScenarioPlaygroundPane', () => {
     const { container } = render(createElement(ScenarioPlaygroundPane));
 
     expect(
-      container.querySelector('.scenario-playground-panel .sidebar-panel-shell__content'),
+      container.querySelector('.scenario-playground-panel .scenario-playground-panel__content'),
     ).toBeTruthy();
     expect(container.querySelector('.scenario-playground-pane__grid')).toBeTruthy();
 

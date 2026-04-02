@@ -137,7 +137,8 @@ Current validated repo-health note:
 - the older `src/components/sidebar/` layer is now also removed:
   - `ScenarioPlaygroundPane.tsx` no longer depends on `SidebarPanelShell`
   - orphaned `PmcPanel.tsx` and `OverlayPanel.tsx` are removed
-- the next cleanup boundary is CSS/token cleanup for the now-unused old sidebar class family in `src/styles/global.css`, not the live `Exact` sidebar path
+- the dead old-sidebar CSS/tokens in `src/styles/global.css` are now also removed, and `ScenarioPlaygroundPane.tsx` now uses local `scenario-playground-*` shell/button classes instead of the retired sidebar naming
+- the remaining follow-up here, if wanted later, is historical-doc grooming rather than more live working-app sidebar cleanup
 
 Current paired-runtime-family note:
 

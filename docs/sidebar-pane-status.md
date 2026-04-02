@@ -367,7 +367,7 @@ These still exist in the repo and should not be treated as the current truth unl
 
 - prototype and historical promotion docs that still describe the old shared shell path
 
-The older pane-shell files (`BasemapPanel.tsx`, `SelectionPanel.tsx`, `LabelPanel.tsx`, `LayerPanel.tsx`, `BasemapPanelReplacement.tsx`), the dormant `sidebarReplacement` scaffold, the orphaned `PmcPanel.tsx` / `OverlayPanel.tsx` files, and the old `src/components/sidebar/` shared shell were removed in the `2026-04-02` working-app cleanup pass. The live production truth is the exact-shell path plus the now-local `ScenarioPlaygroundPane` shell.
+The older pane-shell files (`BasemapPanel.tsx`, `SelectionPanel.tsx`, `LabelPanel.tsx`, `LayerPanel.tsx`, `BasemapPanelReplacement.tsx`), the dormant `sidebarReplacement` scaffold, the orphaned `PmcPanel.tsx` / `OverlayPanel.tsx` files, the old `src/components/sidebar/` shared shell, and the dead old-sidebar CSS family in `src/styles/global.css` were removed in the `2026-04-02` working-app cleanup pass. The live production truth is the exact-shell path plus the now-local `ScenarioPlaygroundPane` shell.
 
 ## Restart Note - 2026-03-29
 
