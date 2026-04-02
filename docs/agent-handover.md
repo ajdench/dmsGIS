@@ -1087,6 +1087,7 @@ Playground entry is now explicitly split by source preset.
   - a subtitle row sits directly below the title, with `Start state` in each column
   - the existing `COA 3a` / `COA 3b` buttons stay on the row below in the same two columns and at the same footprint
   - the vertical gap between that new subtitle row and the button row is half the default pane content gap
+  - the pane itself now stretches to the same bottom-row height as the cards parent surface, and the subtitle/button block is bottom-aligned inside that height so the buttons sit on the pane’s bottom content margin
 - the bottom row no longer uses grey parent pane shells; the visible bottom-left placeholder and bottom-right playground elements are themselves the pane surfaces, styled like header panes
 - the bottom-left surface now owns a locked internal `10`-column contract through `.workspace-bottom-shell__surface--left-grid`
 - the bottom-left surface keeps `0.75rem` outer padding plus `0.75rem` internal column gaps, so each internal column division resolves to the default seam instead of doubling it

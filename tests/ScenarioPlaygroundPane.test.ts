@@ -11,7 +11,12 @@ describe('ScenarioPlaygroundPane', () => {
   });
 
   it('renders a start-state subtitle above each playground button', () => {
-    render(createElement(ScenarioPlaygroundPane));
+    const { container } = render(createElement(ScenarioPlaygroundPane));
+
+    expect(
+      container.querySelector('.scenario-playground-panel .sidebar-panel-shell__content'),
+    ).toBeTruthy();
+    expect(container.querySelector('.scenario-playground-pane__grid')).toBeTruthy();
 
     const subtitles = screen.getAllByText('Start state');
     expect(subtitles).toHaveLength(2);

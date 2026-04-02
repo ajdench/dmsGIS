@@ -1441,7 +1441,9 @@
 
   .scenario-playground-pane__grid {
     display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
     row-gap: calc(var(--space-y-optical) / 2);
+    min-height: 100%;
   }
 
   .scenario-playground-pane__subtitles,
@@ -1449,6 +1451,14 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
+  }
+
+  .scenario-playground-pane__subtitles {
+    grid-row: 2;
+  }
+
+  .scenario-playground-pane__actions {
+    grid-row: 3;
   }
 
   .scenario-playground-pane__subtitle {
@@ -1480,7 +1490,10 @@
     width: 100%;
     max-width: none;
     align-self: stretch;
-    flex: 0 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
     border-radius: var(--radius);
     box-shadow: var(--shadow-pane-shell);
   }
@@ -1489,6 +1502,11 @@
     min-height: 0;
     height: auto;
     padding-bottom: 0;
+  }
+
+  .scenario-playground-panel .sidebar-panel-shell__content {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .sidebar-panel-shell__header {

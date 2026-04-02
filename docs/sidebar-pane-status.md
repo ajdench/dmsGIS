@@ -388,6 +388,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - these are true playground-entry buttons, not plain preset buttons
 - `COA 3a` enters a dedicated `COA 3a` playground workspace
 - `COA 3b` enters the existing `COA 3b` playground workspace
+- the pane itself now stretches to the same bottom-row height as the cards parent surface, and the subtitle/button block is bottom-aligned inside that height so the buttons sit on the pane’s bottom content margin
 - the buttons inherit the rebuilt runtime scenario board products from preset config:
   - `COA 3a` -> `public/data/regions/UK_COA3A_Board_simplified.geojson`
   - `COA 3b` -> `public/data/regions/UK_COA3B_Board_simplified.geojson`
