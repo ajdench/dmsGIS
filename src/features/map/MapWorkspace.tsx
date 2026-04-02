@@ -1830,7 +1830,6 @@ export function MapWorkspace() {
                 scenarioRegionId,
               );
               setScenarioAssignmentPopover(null);
-              selectScenarioWorkspaceBoundaryUnit(null);
             }}
             onClose={() => {
               setScenarioAssignmentPopover(null);

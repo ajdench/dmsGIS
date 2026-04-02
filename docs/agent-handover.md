@@ -1192,3 +1192,10 @@ Verified on the live dev app:
 Recovery note:
 
 - `docs/recovery-state-2026-04-01-main-repo.md`
+
+## 2026-04-02 Follow-up
+
+- Playground Region reassignment should preserve the active scenario-workspace editor selection when the assignment popover applies a new Region:
+  - closing the popover manually can still clear the transient selection state
+  - but applying a reassignment should leave the editor focused on the newly assigned Region so the dissolved derived outline can refresh and highlight immediately
+- the `ScenarioPlaygroundPane` "Start state" copy should use subtitle treatment, not normal sidebar row-label treatment

@@ -42,8 +42,12 @@ export function ScenarioPlaygroundPane() {
     >
       <div className="scenario-playground-pane__grid">
         <div className="scenario-playground-pane__subtitles" aria-hidden="true">
-          <span className="scenario-playground-pane__subtitle">Start state</span>
-          <span className="scenario-playground-pane__subtitle">Start state</span>
+          <span className="scenario-playground-pane__subtitle prototype-accordion-item__subtitle">
+            Start state
+          </span>
+          <span className="scenario-playground-pane__subtitle prototype-accordion-item__subtitle">
+            Start state
+          </span>
         </div>
         <div className="scenario-playground-pane__actions" aria-label="COA playground presets">
           <button

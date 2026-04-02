@@ -13,7 +13,11 @@ describe('ScenarioPlaygroundPane', () => {
   it('renders a start-state subtitle above each playground button', () => {
     render(createElement(ScenarioPlaygroundPane));
 
-    expect(screen.getAllByText('Start state')).toHaveLength(2);
+    const subtitles = screen.getAllByText('Start state');
+    expect(subtitles).toHaveLength(2);
+    for (const subtitle of subtitles) {
+      expect(subtitle.className).toContain('prototype-accordion-item__subtitle');
+    }
 
     const presets = within(screen.getByLabelText('COA playground presets'));
     expect(presets.getByRole('button', { name: 'COA 3a' })).toBeTruthy();
