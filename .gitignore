@@ -1,8 +1,11 @@
 .DS_Store
 node_modules/
+.vite/
 dist/
 test-results/
 playwright-report/
 *.tsbuildinfo
 geopackages/
+output/
+serverless/
 .claude/worktrees/

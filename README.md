@@ -1,20 +1,25 @@
 # dmsGIS
 
-`dmsGIS` is a static-first geospatial web app for viewing UK defence medical facility data against prepared care-board and scenario boundaries.
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![OpenLayers](https://img.shields.io/badge/OpenLayers-10-1F6B75)
+![Hosting](https://img.shields.io/badge/Hosting-GitHub%20Pages-222222?logo=githubpages&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-Static--first-4B5563)
 
-It is designed as an operational mapping workspace rather than a full GIS editor. Heavy geospatial processing happens before runtime; the app focuses on viewing, selection, styling, saved configurations, and controlled scenario exploration.
+`dmsGIS` is a static-first geospatial web app for exploring prepared UK facility, boundary, and scenario datasets in the browser.
 
-## What The App Does
+It is designed as an operational viewing workspace rather than a full GIS editor. Heavy preprocessing happens before runtime; the frontend focuses on map display, selection, styling, saved configurations, and export-oriented workflows.
 
-- displays UK facility points on a prepared map
-- supports `Current`, `SJC JMC`, `COA 3a`, and `COA 3b` map states
-- renders prepared ICB / Health Board and Region-style overlays
-- supports editable Playground reassignment workflows
-- lets users adjust layer visibility and styling
+## What It Does
+
+- displays prepared facility points against boundary and region overlays
+- supports multiple view presets and an editable scenario workspace
+- lets users tune visibility, colours, borders, labels, and symbol presentation
 - supports local save/open flows for map configurations
-- exports map output from the browser
+- keeps runtime data delivery compatible with GitHub Pages
 
-## Tech Stack
+## Stack
 
 - React
 - TypeScript
@@ -82,16 +87,16 @@ npm run build
 - [`tests/`](/Users/andrew/Projects/dmsGIS/tests) unit and seam tests
 - [`docs/`](/Users/andrew/Projects/dmsGIS/docs) handover, baseline, and processing notes
 
-## Current Runtime Notes
+## Runtime Notes
 
 - the accepted live runtime token is currently `acceptedV38`
 - runtime product routing is configured in:
   - [`src/lib/config/runtimeMapProducts.json`](/Users/andrew/Projects/dmsGIS/src/lib/config/runtimeMapProducts.json)
 - the accepted runtime family currently resolves under:
   - [`public/data/compare/shared-foundation-review/`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review)
-- legacy public file names are still used in places as stable app/runtime contracts while underlying source lineage is improved behind them
+- stable public file names are still used in places while underlying source lineage and rebuild ownership continue to improve
 
-## Facilities Refresh Workflow
+## Data Refresh Workflow
 
 - canonical facilities source input:
   - `Export_30_Mar_26.csv`
@@ -109,15 +114,10 @@ npm run refresh:facilities
 What it does:
 
 - imports the canonical export CSV into `public/data/facilities/facilities.geojson`
-- enriches facilities with boundary-code metadata
-- rebuilds the accepted `shared-foundation-review` runtime family so the live app stays aligned
-- asserts that `public/data/compare/shared-foundation-review/facilities/facilities.geojson`
-  remains an exact copy of the canonical enriched facilities artifact
-- prints a validation summary for:
-  - counts
-  - PAR totals
-  - duplicate ids
-  - shared `active_dmicp_id` groups
+- enriches facilities with prepared boundary metadata
+- rebuilds the accepted runtime family so the live app stays aligned
+- verifies that the accepted runtime facilities file remains an exact copy of the canonical enriched facilities artifact
+- prints a validation summary for counts, totals, duplicate ids, and shared groupings
 
 Optional:
 
@@ -148,8 +148,8 @@ node scripts/refresh-facilities-from-export.mjs --skip-accepted-runtime-rebuild
 
 - local checkpointing uses `jj`
 - this repo is a colocated `jj` / `git` repo
-- do not assume the current working copy is on `main`; check before pushing
-- when preparing GitHub updates, prefer a narrow publish scope and avoid bundling unrelated experiments
+- do not assume the working copy is on `main`; check before publishing
+- keep generated local cache files out of source control
 
 ## Notes
 

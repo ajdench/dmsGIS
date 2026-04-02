@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { resolveRuntimeMapProductPath } from '../src/lib/config/runtimeMapProducts';
+import { clearFacilityDatasetCache } from '../src/lib/services/facilityDataset';
 import { useAppStore } from '../src/store/appStore';
 import type { OverlayLayerStyle, OverlayFamily } from '../src/types';
 
@@ -81,7 +82,10 @@ function makeCurrentPresetState() {
 }
 
 describe('appStore region controls', () => {
+  const originalFetch = global.fetch;
+
   beforeEach(() => {
+    clearFacilityDatasetCache();
     useAppStore.setState({
       regionGlobalOpacity: 1,
       facilitySymbolSize: 3.5,
@@ -132,6 +136,11 @@ describe('appStore region controls', () => {
     });
   });
 
+  afterEach(() => {
+    global.fetch = originalFetch;
+    clearFacilityDatasetCache();
+  });
+
   it('broadcasts PMC global opacity to every region', () => {
     useAppStore.getState().setRegionGlobalOpacity(0.4);
 
@@ -177,6 +186,63 @@ describe('appStore region controls', () => {
     useAppStore.getState().setNotice(null);
 
     expect(useAppStore.getState().notice).toBeNull();
+  });
+
+  it('loads facilities-derived startup state from a single dataset fetch', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes('layers.manifest.json')) {
+        return {
+          ok: true,
+          json: async () => ({
+            layers: [
+              {
+                id: 'facilities',
+                name: 'Facilities',
+                type: 'point',
+                path: 'data/facilities/facilities.geojson',
+                visibleByDefault: true,
+              },
+            ],
+          }),
+        };
+      }
+
+      if (url.includes('facilities.geojson')) {
+        return {
+          ok: true,
+          json: async () => ({
+            features: [
+              {
+                properties: {
+                  id: 'FAC-1',
+                  name: 'Alpha Clinic',
+                  region: 'North',
+                  type: 'pmc-facility',
+                  default_visible: 1,
+                  point_color_hex: '#a7c636',
+                  point_alpha: 1,
+                  icb_hb_code: 'QOX',
+                  icb_hb_code_2026: 'QOX-26',
+                  par: 12,
+                },
+              },
+            ],
+          }),
+        };
+      }
+
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    global.fetch = fetchMock as typeof fetch;
+
+    await useAppStore.getState().loadLayers();
+
+    const facilityFetchCalls = fetchMock.mock.calls.filter(([input]) =>
+      String(input).includes('facilities.geojson'),
+    );
+    expect(facilityFetchCalls).toHaveLength(1);
   });
 
   it('applies global PMC size changes to every region and still allows local overrides', () => {

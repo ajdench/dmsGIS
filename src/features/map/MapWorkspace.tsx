@@ -25,7 +25,6 @@ import type {
   BasemapSettings,
   BoundarySystemId,
   CombinedPracticeStyle,
-  FacilitySymbolShape,
   RegionStyle,
   ScenarioWorkspaceId,
   ViewPresetId,
@@ -229,6 +228,9 @@ export function MapWorkspace() {
   const englandWaterEdgeLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
   const devolvedWaterEdgeLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedWaterEdgeLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
+  const englandWaterEdgeSourceUrlRef = useRef<string | null>(null);
+  const devolvedWaterEdgeSourceUrlRef = useRef<string | null>(null);
+  const selectedWaterEdgeSourceUrlRef = useRef<string | null>(null);
   const selectedBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedJmcBoundaryRef = useRef<VectorLayer<VectorSource> | null>(null);
   const selectedPointRef = useRef<VectorLayer<VectorSource> | null>(null);
@@ -635,8 +637,7 @@ export function MapWorkspace() {
     }
   }, [
     activeViewPreset,
-    facilitySymbolShape,
-    facilitySymbolSize,
+    createSelectedPointStyle,
     layers,
     overlayLayers,
     playgroundModeActive,
@@ -967,16 +968,13 @@ export function MapWorkspace() {
       activeViewPreset === 'current'
         ? resolveRuntimeMapProductPath('data/regions/UK_ICB_LHB_v10_water_edge_classes.geojson')
         : resolveRuntimeMapProductPath('data/regions/UK_Health_Board_2026_water_edge_classes.geojson');
+    const initialSourceUrl = resolveDataUrl(initialPath);
 
     const seaMaskColor = basemap.showSeaFill
       ? withOpacity(basemap.seaFillColor, basemap.seaFillOpacity)
       : 'rgba(0, 0, 0, 0)';
     const englandLayer = new VectorLayer({
-      source: new VectorSource({
-        url: resolveDataUrl(initialPath),
-        format: new GeoJSON(),
-        wrapX: false,
-      }),
+      source: createGeoJsonVectorSource(initialSourceUrl),
       style: createWaterEdgeBorderModifierStyle(
         activeViewPreset,
         'englandIcb',
@@ -987,11 +985,7 @@ export function MapWorkspace() {
       zIndex: 6.05,
     });
     const devolvedLayer = new VectorLayer({
-      source: new VectorSource({
-        url: resolveDataUrl(initialPath),
-        format: new GeoJSON(),
-        wrapX: false,
-      }),
+      source: createGeoJsonVectorSource(initialSourceUrl),
       style: createWaterEdgeBorderModifierStyle(
         activeViewPreset,
         'devolvedHb',
@@ -1002,11 +996,7 @@ export function MapWorkspace() {
       zIndex: 6.04,
     });
     const selectedLayer = new VectorLayer({
-      source: new VectorSource({
-        url: resolveDataUrl(initialPath),
-        format: new GeoJSON(),
-        wrapX: false,
-      }),
+      source: createGeoJsonVectorSource(initialSourceUrl),
       style: createSelectedWaterEdgeModifierStyle(
         null,
         seaMaskColor,
@@ -1017,6 +1007,9 @@ export function MapWorkspace() {
     englandWaterEdgeLayerRef.current = englandLayer;
     devolvedWaterEdgeLayerRef.current = devolvedLayer;
     selectedWaterEdgeLayerRef.current = selectedLayer;
+    englandWaterEdgeSourceUrlRef.current = initialSourceUrl;
+    devolvedWaterEdgeSourceUrlRef.current = initialSourceUrl;
+    selectedWaterEdgeSourceUrlRef.current = initialSourceUrl;
     map.addLayer(englandLayer);
     map.addLayer(devolvedLayer);
     map.addLayer(selectedLayer);
@@ -1025,14 +1018,17 @@ export function MapWorkspace() {
       if (englandWaterEdgeLayerRef.current) {
         map.removeLayer(englandWaterEdgeLayerRef.current);
         englandWaterEdgeLayerRef.current = null;
+        englandWaterEdgeSourceUrlRef.current = null;
       }
       if (devolvedWaterEdgeLayerRef.current) {
         map.removeLayer(devolvedWaterEdgeLayerRef.current);
         devolvedWaterEdgeLayerRef.current = null;
+        devolvedWaterEdgeSourceUrlRef.current = null;
       }
       if (selectedWaterEdgeLayerRef.current) {
         map.removeLayer(selectedWaterEdgeLayerRef.current);
         selectedWaterEdgeLayerRef.current = null;
+        selectedWaterEdgeSourceUrlRef.current = null;
       }
     };
   }, [
@@ -1462,19 +1458,17 @@ export function MapWorkspace() {
       activeViewPreset === 'current'
         ? resolveRuntimeMapProductPath('data/regions/UK_ICB_LHB_v10_water_edge_classes.geojson')
         : resolveRuntimeMapProductPath('data/regions/UK_Health_Board_2026_water_edge_classes.geojson');
+    const waterEdgeSourceUrl = resolveDataUrl(waterEdgePath);
     const seaMaskColor = basemap.showSeaFill
       ? withOpacity(basemap.seaFillColor, basemap.seaFillOpacity)
       : 'rgba(0, 0, 0, 0)';
 
     if (englandWaterEdgeLayer) {
       englandWaterEdgeLayer.setVisible(englandIcbVisible);
-      englandWaterEdgeLayer.setSource(
-        new VectorSource({
-          url: resolveDataUrl(waterEdgePath),
-          format: new GeoJSON(),
-          wrapX: false,
-        }),
-      );
+      if (englandWaterEdgeSourceUrlRef.current !== waterEdgeSourceUrl) {
+        englandWaterEdgeLayer.setSource(createGeoJsonVectorSource(waterEdgeSourceUrl));
+        englandWaterEdgeSourceUrlRef.current = waterEdgeSourceUrl;
+      }
       if (englandIcbLayer) {
         englandWaterEdgeLayer.setStyle(
           createWaterEdgeBorderModifierStyle(
@@ -1490,13 +1484,10 @@ export function MapWorkspace() {
 
     if (devolvedWaterEdgeLayer) {
       devolvedWaterEdgeLayer.setVisible(devolvedHbVisible);
-      devolvedWaterEdgeLayer.setSource(
-        new VectorSource({
-          url: resolveDataUrl(waterEdgePath),
-          format: new GeoJSON(),
-          wrapX: false,
-        }),
-      );
+      if (devolvedWaterEdgeSourceUrlRef.current !== waterEdgeSourceUrl) {
+        devolvedWaterEdgeLayer.setSource(createGeoJsonVectorSource(waterEdgeSourceUrl));
+        devolvedWaterEdgeSourceUrlRef.current = waterEdgeSourceUrl;
+      }
       if (devolvedHbLayer) {
         devolvedWaterEdgeLayer.setStyle(
           createWaterEdgeBorderModifierStyle(
@@ -1512,17 +1503,19 @@ export function MapWorkspace() {
 
     if (selectedWaterEdgeLayer) {
       selectedWaterEdgeLayer.setVisible(!!selectedJmcNameRef.current);
-      selectedWaterEdgeLayer.setSource(
-        selectedJmcNameRef.current
-          ? new VectorSource({
-              url: resolveDataUrl(
-                getGroupInlandWaterOutlinePath(activeViewPreset, selectedJmcNameRef.current),
-              ),
-              format: new GeoJSON(),
-              wrapX: false,
-            })
-          : new VectorSource({ wrapX: false }),
-      );
+      const selectedWaterEdgeSourceUrl = selectedJmcNameRef.current
+        ? resolveDataUrl(
+            getGroupInlandWaterOutlinePath(activeViewPreset, selectedJmcNameRef.current),
+          )
+        : null;
+      if (selectedWaterEdgeSourceUrlRef.current !== selectedWaterEdgeSourceUrl) {
+        selectedWaterEdgeLayer.setSource(
+          selectedWaterEdgeSourceUrl
+            ? createGeoJsonVectorSource(selectedWaterEdgeSourceUrl)
+            : new VectorSource({ wrapX: false }),
+        );
+        selectedWaterEdgeSourceUrlRef.current = selectedWaterEdgeSourceUrl;
+      }
       selectedWaterEdgeLayer.setStyle(
         createSelectedWaterEdgeModifierStyle(
           selectedJmcNameRef.current
@@ -2047,13 +2040,15 @@ function setBasemapSources(
 
 function ensureVectorSource(layer: VectorLayer<VectorSource>, url: string): void {
   if (layer.getSource()) return;
-  layer.setSource(
-    new VectorSource({
-      url,
-      format: new GeoJSON(),
-      wrapX: false,
-    }),
-  );
+  layer.setSource(createGeoJsonVectorSource(url));
+}
+
+function createGeoJsonVectorSource(url: string): VectorSource {
+  return new VectorSource({
+    url,
+    format: new GeoJSON(),
+    wrapX: false,
+  });
 }
 
 function setUkAlignmentSources(

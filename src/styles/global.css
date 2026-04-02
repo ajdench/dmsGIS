@@ -1776,16 +1776,15 @@
   }
 
   .sidebar-toggle-button__label {
-    grid-area: 1 / 1;
-    place-self: center;
-    width: 2.5ch;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
     text-align: center;
     white-space: nowrap;
     font-size: var(--prototype-control-rail-compact-font-size);
     line-height: 1;
+    pointer-events: none;
   }
 
   .sidebar-toggle-button__label--hover {

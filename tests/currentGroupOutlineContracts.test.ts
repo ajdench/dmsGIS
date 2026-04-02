@@ -33,7 +33,6 @@ const CURRENT_SPLIT_PATH = path.join(
   'regions',
   'UK_WardSplit_simplified.geojson',
 );
-const CURRENT_SPLIT_PARENT_CODES = new Set(['E54000025', 'E54000042', 'E54000048']);
 const SPLIT_AWARE_GROUPS = new Set([
   'Central & Wessex',
   'East',
@@ -42,7 +41,6 @@ const SPLIT_AWARE_GROUPS = new Set([
   'South West',
   'Wales & West Midlands',
 ]);
-const SHELL_EPSILON = 1e-6;
 const DISSOLVE_REFERENCE_EPSILON = 1e-5;
 const BLACKWATER_EXCLUDED_SEGMENTS: number[][][] = [
   [[-1.606092162566745, 50.97475763424615], [-1.619751051433103, 50.958566891040576]],
@@ -86,40 +84,6 @@ function getLineComponents(geometry: { type?: string; coordinates?: unknown[] } 
   return [] as number[][][];
 }
 
-function pointInRing(point: number[], ring: number[][]) {
-  const [x, y] = point;
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-    const intersects = ((yi > y) !== (yj > y))
-      && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || Number.EPSILON) + xi);
-    if (intersects) inside = !inside;
-  }
-  return inside;
-}
-
-function pointInPolygon(point: number[], polygonCoordinates: number[][][]) {
-  if (!polygonCoordinates.length) return false;
-  if (!pointInRing(point, polygonCoordinates[0])) return false;
-  for (const hole of polygonCoordinates.slice(1)) {
-    if (pointInRing(point, hole)) return false;
-  }
-  return true;
-}
-
-function pointInGeometry(
-  point: number[],
-  geometry:
-    | { type: 'Polygon'; coordinates: number[][][] }
-    | { type: 'MultiPolygon'; coordinates: number[][][][] },
-) {
-  if (geometry.type === 'Polygon') {
-    return pointInPolygon(point, geometry.coordinates);
-  }
-  return geometry.coordinates.some((polygon) => pointInPolygon(point, polygon));
-}
-
 function pointToSegmentDistance(point: number[], start: number[], end: number[]) {
   const [px, py] = point;
   const [x1, y1] = start;
@@ -135,28 +99,6 @@ function pointToSegmentDistance(point: number[], start: number[], end: number[])
   return Math.hypot(px - projX, py - projY);
 }
 
-function pointNearGeometryBoundary(
-  point: number[],
-  geometry:
-    | { type: 'Polygon'; coordinates: number[][][] }
-    | { type: 'MultiPolygon'; coordinates: number[][][][] },
-  epsilon = SHELL_EPSILON,
-) {
-  const polygons = geometry.type === 'Polygon'
-    ? [geometry.coordinates]
-    : geometry.coordinates;
-  for (const polygon of polygons) {
-    for (const ring of polygon) {
-      for (let index = 1; index < ring.length; index += 1) {
-        if (pointToSegmentDistance(point, ring[index - 1], ring[index]) <= epsilon) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
 function pointNearReferenceComponents(
   point: number[],
   referenceComponents: number[][][],
@@ -170,27 +112,6 @@ function pointNearReferenceComponents(
     }
     return false;
   });
-}
-
-function loadSplitParentShells() {
-  const geojson = JSON.parse(fs.readFileSync(CURRENT_BOARDS_PATH, 'utf8')) as {
-    features?: Array<{
-      properties?: { boundary_code?: string };
-      geometry?: { type?: 'Polygon' | 'MultiPolygon'; coordinates?: unknown };
-    }>;
-  };
-
-  return (geojson.features ?? [])
-    .filter((feature) => CURRENT_SPLIT_PARENT_CODES.has(String(feature.properties?.boundary_code ?? '')))
-    .map((feature) => feature.geometry)
-    .filter(
-      (
-        geometry,
-      ): geometry is
-        | { type: 'Polygon'; coordinates: number[][][] }
-        | { type: 'MultiPolygon'; coordinates: number[][][][] } =>
-        geometry?.type === 'Polygon' || geometry?.type === 'MultiPolygon',
-    );
 }
 
 function loadCurrentGroupFeatures() {
