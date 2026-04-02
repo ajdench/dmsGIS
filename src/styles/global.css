@@ -606,7 +606,7 @@
     --workspace-bottom-middle-row-block-size: 0.5rem;
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: calc(
-      2 * var(--workspace-bottom-metrics-row-gap)
+      3 * var(--workspace-bottom-metrics-row-gap)
     );
     grid-template-areas:
       "swatch title"
