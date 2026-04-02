@@ -1324,16 +1324,16 @@
 
   .map-canvas .map-crosshair-control .map-crosshair-control__button:hover,
   .map-canvas .map-crosshair-control .map-crosshair-control__button:focus-visible {
-    background: color-mix(in srgb, var(--status-warning-bg) 82%, white);
-    border-color: color-mix(in srgb, var(--status-warning-border) 88%, var(--status-warning-text));
-    color: var(--status-warning-text);
+    background: color-mix(in srgb, #fffb00 38%, white);
+    border-color: color-mix(in srgb, #fffb00 82%, var(--text));
+    color: var(--text);
     outline: none;
   }
 
   .map-canvas .map-crosshair-control[data-active='true'] .map-crosshair-control__button {
-    background: var(--status-warning-bg);
-    border-color: var(--status-warning-border);
-    color: var(--status-warning-text);
+    background: color-mix(in srgb, #fffb00 62%, white);
+    border-color: color-mix(in srgb, #fffb00 88%, var(--text));
+    color: var(--text);
     outline: none;
   }
 
