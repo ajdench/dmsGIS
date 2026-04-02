@@ -1,5 +1,4 @@
 import VectorSource from 'ol/source/Vector';
-import type { FeatureLike } from 'ol/Feature';
 import type Geometry from 'ol/geom/Geometry';
 import type {
   ScenarioWorkspaceDraft,

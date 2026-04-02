@@ -80,10 +80,22 @@ export function WorkspaceBottomLeftPane() {
     <section className="workspace-bottom-shell workspace-bottom-shell--left">
       <div className="workspace-bottom-shell__surface workspace-bottom-shell__surface--left-grid">
         {slots.map((card, index) => {
+          const cardClassName = [
+            'workspace-bottom-shell__title-card',
+            card?.middleRow?.kind === 'button'
+              ? 'workspace-bottom-shell__title-card--with-middle-button'
+              : '',
+            card?.middleRow?.kind === 'royalNavyContribution'
+              ? 'workspace-bottom-shell__title-card--with-middle-contribution'
+              : '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+
           return (
             <div key={card?.key ?? `empty-${index + 1}`} className="workspace-bottom-shell__column">
               {card ? (
-                <div className="workspace-bottom-shell__title-card">
+                <div className={cardClassName}>
                   <div className="workspace-bottom-shell__title-card-swatch-row">
                     <ExactSwatch
                       swatch={card.swatch}

@@ -837,7 +837,6 @@ export function cleanupMapWorkspaceRefs(
   refs.jmcBoundaryLookupSourceRef.current = null;
   refs.scenarioBoundaryLookupSourcesRef.current.clear();
   refs.jmcAssignmentLookupSourceRef.current = null;
-  refs.scenarioWorkspaceAssignmentSourceRef.current = null;
   refs.scenarioAssignmentSourceRef.current = null;
   refs.scenarioWorkspaceBaselineAssignmentSourceRef.current = null;
   refs.scenarioTopologyEdgeSourceRef.current = null;
@@ -845,8 +844,6 @@ export function cleanupMapWorkspaceRefs(
   refs.presetGroupOutlineSourceRef.current = null;
   refs.jmcAssignmentByBoundaryNameRef.current.clear();
   refs.jmcAssignmentByBoundaryUnitIdRef.current.clear();
-  refs.scenarioWorkspaceAssignmentByBoundaryNameRef.current.clear();
-  refs.scenarioWorkspaceAssignmentByBoundaryUnitIdRef.current.clear();
   refs.scenarioAssignmentByBoundaryNameRef.current.clear();
   refs.scenarioAssignmentByBoundaryUnitIdRef.current.clear();
   refs.pointTooltipRootRef.current = null;

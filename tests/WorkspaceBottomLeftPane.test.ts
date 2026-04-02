@@ -71,6 +71,9 @@ describe('WorkspaceBottomLeftPane', () => {
     ).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Regionalise' })).toBeTruthy();
     expect(
+      container.querySelector('.workspace-bottom-shell__title-card--with-middle-button'),
+    ).toBeTruthy();
+    expect(
       container.querySelector(
         '.workspace-bottom-shell__title-card--total .prototype-metric-pill__swatch--circle',
       ),
@@ -122,6 +125,11 @@ describe('WorkspaceBottomLeftPane', () => {
     expect(screen.getByText('12,425')).toBeTruthy();
     expect(
       container.querySelectorAll('.workspace-bottom-shell__title-card-middle-contribution'),
+    ).toHaveLength(2);
+    expect(
+      container.querySelectorAll(
+        '.workspace-bottom-shell__title-card--with-middle-contribution',
+      ),
     ).toHaveLength(2);
     expect(screen.getByText('2,191')).toBeTruthy();
     expect(screen.getByText('3,451')).toBeTruthy();
