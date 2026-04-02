@@ -7,6 +7,7 @@ import {
   resolveCurrentRoyalNavyFallbackRegion,
 } from '../../lib/facilityPar';
 import type { ViewPresetId } from '../../types';
+import { findScenarioAssignmentFeatureAtCoordinate } from './scenarioAssignmentAuthority';
 
 export { formatParDisplayValue, parseFacilityParValue } from '../../lib/facilityPar';
 export {
@@ -186,10 +187,10 @@ function resolveBoundaryCodeGroupName(
     return null;
   }
 
-  const assignmentFeature =
-    assignmentSource
-      .getFeatures()
-      .find((candidate) => candidate.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
+  const assignmentFeature = findScenarioAssignmentFeatureAtCoordinate(
+    assignmentSource,
+    coordinate,
+  );
   if (!assignmentFeature) {
     return null;
   }

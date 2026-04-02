@@ -63,8 +63,13 @@ import {
 } from './scenarioWorkspaceRuntime';
 import { buildPlaygroundRuntimeSession } from './playgroundRuntimeSession';
 import {
+  buildAssignmentByBoundaryUnitId,
+  buildScenarioAssignmentAuthority,
+  resolvePlaygroundBoundaryAssignment,
+  type ScenarioBoundaryUnitAssignment,
+} from './scenarioAssignmentAuthority';
+import {
   getScenarioBoundaryUnitId,
-  resolveScenarioWorkspaceRegionIdForRecord,
 } from '../../lib/scenarioWorkspaceAssignments';
 import {
   loadOverlayAssignmentDataset,
@@ -242,7 +247,7 @@ export function MapWorkspace() {
     Map<ViewPresetId, VectorSource>
   >(new Map());
   const jmcAssignmentLookupSourceRef = useRef<VectorSource | null>(null);
-  const scenarioWorkspaceAssignmentSourceRef = useRef<VectorSource | null>(null);
+  const scenarioAssignmentSourceRef = useRef<VectorSource | null>(null);
   const scenarioWorkspaceBaselineAssignmentSourceRef = useRef<VectorSource | null>(
     null,
   );
@@ -253,9 +258,13 @@ export function MapWorkspace() {
   const scenarioWorkspaceDerivedOutlineSourceRef = useRef<VectorSource | null>(null);
   const presetGroupOutlineSourceRef = useRef<VectorSource | null>(null);
   const jmcAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
-  const scenarioWorkspaceAssignmentByBoundaryNameRef = useRef<Map<string, string>>(
-    new Map(),
-  );
+  const jmcAssignmentByBoundaryUnitIdRef = useRef<
+    Map<string, ScenarioBoundaryUnitAssignment>
+  >(new Map());
+  const scenarioAssignmentByBoundaryNameRef = useRef<Map<string, string>>(new Map());
+  const scenarioAssignmentByBoundaryUnitIdRef = useRef<
+    Map<string, ScenarioBoundaryUnitAssignment>
+  >(new Map());
   const pointTooltipRootRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipHeaderRef = useRef<HTMLDivElement | null>(null);
   const pointTooltipNameRef = useRef<HTMLDivElement | null>(null);
@@ -299,7 +308,7 @@ export function MapWorkspace() {
 
   const getEditableBoundaryFeature = useCallback((boundaryUnitId: string): Feature | null => {
     const editableSource =
-      scenarioWorkspaceAssignmentSourceRef.current ??
+      scenarioAssignmentSourceRef.current ??
       regionBoundaryRefs.current.get('regionFill')?.getSource() ??
       null;
     if (!editableSource) {
@@ -333,16 +342,9 @@ export function MapWorkspace() {
       coordinate,
       selectedBoundaryLayer,
       selectedJmcBoundaryLayer,
-      assignmentByBoundaryName:
-        scenarioWorkspaceAssignmentByBoundaryNameRef.current.size > 0
-          ? scenarioWorkspaceAssignmentByBoundaryNameRef.current
-          : jmcAssignmentByBoundaryNameRef.current,
-      assignmentSource:
-        scenarioWorkspaceAssignmentSourceRef.current ??
-        getActiveAssignmentLookupSource(
-          regionBoundaryRefs.current,
-          jmcAssignmentLookupSourceRef.current,
-        ),
+      assignmentByBoundaryName: scenarioAssignmentByBoundaryNameRef.current,
+      assignmentByBoundaryUnitId: scenarioAssignmentByBoundaryUnitIdRef.current,
+      assignmentSource: scenarioAssignmentSourceRef.current,
       boundarySource: getActiveBoundarySystemLookupSource(
         boundarySystemLookupSourcesRef.current,
         activeViewPreset,
@@ -411,11 +413,7 @@ export function MapWorkspace() {
     }
 
     const activeAssignmentSource =
-      scenarioWorkspaceAssignmentSourceRef.current ??
-      getActiveAssignmentLookupSource(
-        regionBoundaryRefs.current,
-        jmcAssignmentLookupSourceRef.current,
-      );
+      scenarioAssignmentSourceRef.current;
     const regionsByName = new Map(regions.map((region) => [region.name, region]));
     const combinedPracticeStylesByName = new Map(
       combinedPracticeStyles.map((practice) => [practice.name, practice]),
@@ -547,12 +545,7 @@ export function MapWorkspace() {
         selectedFacilityId: currentEntry.facilityId || null,
         selectedRegionName: rawRegionName,
         activeViewPreset,
-        assignmentSource:
-          scenarioWorkspaceAssignmentSourceRef.current ??
-          getActiveAssignmentLookupSource(
-            regionBoundaryRefs.current,
-            jmcAssignmentLookupSourceRef.current,
-          ),
+        assignmentSource: scenarioAssignmentSourceRef.current,
         });
       const correctionSummary = buildProportionalParCorrectionSummary({
         regionPar,
@@ -598,12 +591,7 @@ export function MapWorkspace() {
         selectedFacilityId: null,
         selectedRegionName: rawRegionName,
         activeViewPreset,
-        assignmentSource:
-          scenarioWorkspaceAssignmentSourceRef.current ??
-          getActiveAssignmentLookupSource(
-            regionBoundaryRefs.current,
-            jmcAssignmentLookupSourceRef.current,
-          ),
+        assignmentSource: scenarioAssignmentSourceRef.current,
       });
       const correctionSummary = buildProportionalParCorrectionSummary({
         regionPar,
@@ -647,12 +635,7 @@ export function MapWorkspace() {
 
   const resolveLiveJmcNameAtCoordinate = useCallback(
     (coordinate: [number, number], preset: ViewPresetId) => {
-      const assignmentSource =
-        scenarioWorkspaceAssignmentSourceRef.current ??
-        getActiveAssignmentLookupSource(
-          regionBoundaryRefs.current,
-          jmcAssignmentLookupSourceRef.current,
-        );
+      const assignmentSource = scenarioAssignmentSourceRef.current;
       const boundarySource = getActiveBoundarySystemLookupSource(
         boundarySystemLookupSourcesRef.current,
         preset,
@@ -666,7 +649,7 @@ export function MapWorkspace() {
         const liveBoundaryJmcName = findJmcNameForBoundarySelection(
           liveBoundaryFeature,
           coordinate,
-          jmcAssignmentByBoundaryNameRef.current,
+          scenarioAssignmentByBoundaryNameRef.current,
           assignmentSource,
           boundarySource,
           preset,
@@ -820,6 +803,9 @@ export function MapWorkspace() {
       },
     }).then((assignmentMap) => {
       jmcAssignmentByBoundaryNameRef.current = assignmentMap;
+      jmcAssignmentByBoundaryUnitIdRef.current = buildAssignmentByBoundaryUnitId(
+        overlayAssignmentSource,
+      );
     });
     const baselineDatasetSources = scenarioWorkspaceBaselineDatasetSourcesRef.current;
 
@@ -838,13 +824,15 @@ export function MapWorkspace() {
         jmcBoundaryLookupSourceRef,
         scenarioBoundaryLookupSourcesRef,
         jmcAssignmentLookupSourceRef,
-        scenarioWorkspaceAssignmentSourceRef,
+        scenarioAssignmentSourceRef,
         scenarioWorkspaceBaselineAssignmentSourceRef,
         scenarioTopologyEdgeSourceRef,
         scenarioWorkspaceDerivedOutlineSourceRef,
         presetGroupOutlineSourceRef,
         jmcAssignmentByBoundaryNameRef,
-        scenarioWorkspaceAssignmentByBoundaryNameRef,
+        jmcAssignmentByBoundaryUnitIdRef,
+        scenarioAssignmentByBoundaryNameRef,
+        scenarioAssignmentByBoundaryUnitIdRef,
         pointTooltipRootRef,
         pointTooltipHeaderRef,
         pointTooltipNameRef,
@@ -1190,15 +1178,7 @@ export function MapWorkspace() {
       facilitySymbolShape,
       facilitySymbolSize,
       facilityFilters,
-      assignmentSource: playgroundModeActive
-        ? null
-        : scenarioWorkspaceAssignmentSourceRef.current,
-      scenarioAssignmentSource:
-        scenarioWorkspaceAssignmentSourceRef.current ??
-        getActiveAssignmentLookupSource(
-          regionBoundaryRefs.current,
-          jmcAssignmentLookupSourceRef.current,
-        ),
+      assignmentSource: scenarioAssignmentSourceRef.current,
       activeViewPreset,
       getJmcNameAtCoordinate: resolveLiveJmcNameAtCoordinate,
     });
@@ -1372,12 +1352,23 @@ export function MapWorkspace() {
 
     scenarioWorkspaceBaselineAssignmentSourceRef.current =
       runtimeSession.baselineAssignmentSource;
-    scenarioWorkspaceAssignmentSourceRef.current =
-      runtimeSession.runtimeState.assignmentSource;
     scenarioWorkspaceDerivedOutlineSourceRef.current =
       runtimeSession.derivedOutlineSource;
-    scenarioWorkspaceAssignmentByBoundaryNameRef.current =
-      runtimeSession.runtimeState.assignmentByBoundaryName;
+    const assignmentAuthority = buildScenarioAssignmentAuthority({
+      runtimeAssignmentSource: runtimeSession.runtimeState.assignmentSource,
+      runtimeAssignmentByBoundaryName:
+        runtimeSession.runtimeState.assignmentByBoundaryName,
+      runtimeAssignmentByBoundaryUnitId:
+        runtimeSession.runtimeState.assignmentByBoundaryUnitId,
+      liveAssignmentSource,
+      liveAssignmentByBoundaryName: jmcAssignmentByBoundaryNameRef.current,
+      liveAssignmentByBoundaryUnitId: jmcAssignmentByBoundaryUnitIdRef.current,
+    });
+    scenarioAssignmentSourceRef.current = assignmentAuthority.assignmentSource;
+    scenarioAssignmentByBoundaryNameRef.current =
+      assignmentAuthority.assignmentByBoundaryName;
+    scenarioAssignmentByBoundaryUnitIdRef.current =
+      assignmentAuthority.assignmentByBoundaryUnitId;
 
     if (typeof window !== 'undefined') {
       const diagnosticsSnapshot = runtimeSession.diagnosticsSnapshot;
@@ -1636,15 +1627,7 @@ export function MapWorkspace() {
         facilitySymbolShape,
         facilitySymbolSize,
         facilityFilters,
-        assignmentSource: playgroundModeActive
-          ? null
-          : scenarioWorkspaceAssignmentSourceRef.current,
-        scenarioAssignmentSource:
-          scenarioWorkspaceAssignmentSourceRef.current ??
-          getActiveAssignmentLookupSource(
-            regionBoundaryRefs.current,
-            jmcAssignmentLookupSourceRef.current,
-          ),
+        assignmentSource: scenarioAssignmentSourceRef.current,
         activeViewPreset,
         getJmcNameAtCoordinate: resolveLiveJmcNameAtCoordinate,
       });
@@ -1673,10 +1656,11 @@ export function MapWorkspace() {
           selectionResult.boundaryFeature.getProperties() as Record<string, unknown>;
         const boundaryUnitId = getScenarioBoundaryUnitId(boundaryProperties);
         if (boundaryUnitId) {
-          const selectedRegionId = resolveScenarioWorkspaceRegionIdForRecord(
-            activeScenarioWorkspaceId,
+          const selectedRegionId = resolvePlaygroundBoundaryAssignment({
             boundaryProperties,
-          );
+            workspaceId: activeScenarioWorkspaceId,
+            assignmentByBoundaryUnitId: scenarioAssignmentByBoundaryUnitIdRef.current,
+          })?.scenarioRegionId ?? null;
           selectScenarioWorkspaceBoundaryUnit(boundaryUnitId, selectedRegionId);
           setScenarioAssignmentPopover({
             boundaryUnitId,
@@ -1738,7 +1722,7 @@ export function MapWorkspace() {
           facilitySymbolShape,
           facilitySymbolSize,
           facilityFilterDefinitions,
-          playgroundModeActive ? null : scenarioWorkspaceAssignmentSourceRef.current,
+          scenarioAssignmentSourceRef.current,
         ),
     });
   }, [

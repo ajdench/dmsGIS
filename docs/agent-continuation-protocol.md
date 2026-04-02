@@ -33,20 +33,21 @@ Every new agent session should begin by reading:
 2. `README.md`
 3. `docs/agent-handover.md`
 4. `docs/main-repo-review-2026-03-31.md`
-5. `docs/sidebar-pane-status.md`
-6. `docs/prototype-to-production-playbook.md`
-7. `docs/agent-continuation-protocol.md`
-8. `docs/current-app-baseline-v3.8.md`
-9. `docs/current-app-baseline-v3.7.md`
-10. `docs/current-app-baseline-v3.6.md`
-11. `docs/current-app-baseline-v3.5.md`
-12. `docs/current-app-baseline-v3.4.md`
-13. `docs/v3.4-internal-gap-regression.md`
-14. `docs/v3.5-full-geometry-redress.md`
-15. `docs/v3.8-bsc-runtime-family-spec.md`
-16. `docs/v3.7-next-phase.md`
-17. `docs/canonical-board-rebuild-workflow.md`
-18. `docs/sidebar-parity-bugs.md`
+5. `docs/map-runtime-architecture-map-2026-04-02.md`
+6. `docs/sidebar-pane-status.md`
+7. `docs/prototype-to-production-playbook.md`
+8. `docs/agent-continuation-protocol.md`
+9. `docs/current-app-baseline-v3.8.md`
+10. `docs/current-app-baseline-v3.7.md`
+11. `docs/current-app-baseline-v3.6.md`
+12. `docs/current-app-baseline-v3.5.md`
+13. `docs/current-app-baseline-v3.4.md`
+14. `docs/v3.4-internal-gap-regression.md`
+15. `docs/v3.5-full-geometry-redress.md`
+16. `docs/v3.8-bsc-runtime-family-spec.md`
+17. `docs/v3.7-next-phase.md`
+18. `docs/canonical-board-rebuild-workflow.md`
+19. `docs/sidebar-parity-bugs.md`
 
 If the task touches historical sidebar context or reset rationale, also read:
 
@@ -60,6 +61,10 @@ If the task touches the prototype contract directly, also read:
 15. `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 
 If the task touches geometry, basemap alignment, preprocessing, or coastal/product conformance, `docs/current-app-baseline-v3.8.md` is required reading.
+
+If the task touches Playground runtime authority, map interaction performance, or future map-runtime optimization work, also read:
+
+- `docs/map-runtime-architecture-map-2026-04-02.md`
 
 If the task is continuing the `v3.8` geometry path or needs the rebuild rationale, also read:
 

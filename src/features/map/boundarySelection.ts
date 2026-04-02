@@ -20,6 +20,10 @@ import {
   isScenarioPreset,
 } from '../../lib/config/viewPresets';
 import type { OverlayLayerStyle, SelectionState, ViewPresetId } from '../../types';
+import {
+  resolvePlaygroundBoundaryAssignment,
+  type ScenarioBoundaryUnitAssignment,
+} from './scenarioAssignmentAuthority';
 
 interface ApplyBoundarySelectionParams {
   feature: Feature | null;
@@ -27,6 +31,7 @@ interface ApplyBoundarySelectionParams {
   selectedBoundaryLayer: VectorLayer<VectorSource>;
   selectedJmcBoundaryLayer: VectorLayer<VectorSource>;
   assignmentByBoundaryName: Map<string, string>;
+  assignmentByBoundaryUnitId: Map<string, ScenarioBoundaryUnitAssignment>;
   assignmentSource: VectorSource | null;
   boundarySource: VectorSource | null;
   activeViewPreset: ViewPresetId;
@@ -283,6 +288,7 @@ export function applyBoundarySelection(
     selectedBoundaryLayer,
     selectedJmcBoundaryLayer,
     assignmentByBoundaryName,
+    assignmentByBoundaryUnitId,
     assignmentSource,
     boundarySource,
     activeViewPreset,
@@ -331,7 +337,13 @@ export function applyBoundarySelection(
     boundarySource,
     activeViewPreset,
   );
-  const scenarioRegionId = String(feature.get('scenario_region_id') ?? '').trim() || null;
+  const scenarioRegionId =
+    resolvePlaygroundBoundaryAssignment({
+      boundaryProperties: feature.getProperties() as Record<string, unknown>,
+      workspaceId: null,
+      assignmentByBoundaryUnitId,
+    })?.scenarioRegionId ??
+    (String(feature.get('scenario_region_id') ?? '').trim() || null);
 
   return {
     boundaryName,

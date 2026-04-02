@@ -38,6 +38,7 @@ describe('scenarioWorkspaceRuntime', () => {
     ).toEqual({
       assignmentSource: null,
       assignmentByBoundaryName: new Map(),
+      assignmentByBoundaryUnitId: new Map(),
     });
   });
 
@@ -74,6 +75,9 @@ describe('scenarioWorkspaceRuntime', () => {
     expect(runtimeState.assignmentByBoundaryName.get('NHS Essex Integrated Care Board')).toBe(
       'COA 3b London and East',
     );
+    expect(
+      runtimeState.assignmentByBoundaryUnitId.get('UNIT-ESSEX')?.scenarioRegionId,
+    ).toBe('coa3b_london_east');
   });
 
   it('builds a runtime assignment source with draft overrides applied', () => {
@@ -129,6 +133,9 @@ describe('scenarioWorkspaceRuntime', () => {
     expect(runtimeState.assignmentByBoundaryName.get('NHS Essex Integrated Care Board')).toBe(
       'COA 3b London and East',
     );
+    expect(
+      runtimeState.assignmentByBoundaryUnitId.get('UNIT-ESSEX')?.scenarioRegionId,
+    ).toBe('coa3b_london_east');
   });
 
   it('resolves untouched baseline boards by boundary code when source region labels are absent', () => {

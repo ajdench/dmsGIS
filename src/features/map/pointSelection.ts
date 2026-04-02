@@ -19,6 +19,7 @@ import {
   getRenderedPointPixelRadiusFromPresentation,
   resolvePointPresentation,
 } from './pointPresentation';
+import { findScenarioAssignmentFeatureAtCoordinate } from './scenarioAssignmentAuthority';
 
 export interface PointTooltipEntry {
   facilityId: string;
@@ -220,7 +221,6 @@ export function collectPointTooltipEntries(params: {
   facilityFilters: FacilityFilterState;
   combinedPracticeStylesByName?: Map<string, CombinedPracticeStyle>;
   assignmentSource?: VectorSource | null;
-  scenarioAssignmentSource?: VectorSource | null;
 }): PointTooltipEntry[] {
   const {
     features,
@@ -232,7 +232,6 @@ export function collectPointTooltipEntries(params: {
     facilityFilters,
     combinedPracticeStylesByName = new Map<string, CombinedPracticeStyle>(),
     assignmentSource = null,
-    scenarioAssignmentSource = null,
   } = params;
   const entries: PointTooltipEntry[] = [];
   const seen = new Set<string>();
@@ -247,12 +246,10 @@ export function collectPointTooltipEntries(params: {
 
     const coordinate = getPointCoordinate(feature) ?? fallbackCoordinate;
     const boundaryName = getBoundaryNameAtCoordinate(coordinate);
-    const scenarioAssignmentFeature =
-      scenarioAssignmentSource
-        ?.getFeatures()
-        .find((assignmentFeature) =>
-          assignmentFeature.getGeometry()?.intersectsCoordinate(coordinate),
-        ) ?? null;
+    const scenarioAssignmentFeature = findScenarioAssignmentFeatureAtCoordinate(
+      assignmentSource,
+      coordinate,
+    );
     const scenarioRegionId = scenarioAssignmentFeature
       ? String(scenarioAssignmentFeature.get('scenario_region_id') ?? '').trim() || null
       : null;

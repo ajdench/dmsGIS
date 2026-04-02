@@ -6,6 +6,7 @@ import {
   getFacilityFeatureProperties,
   type FacilityRecord,
 } from '../../lib/facilities';
+import { findScenarioAssignmentFeatureAtCoordinate } from './scenarioAssignmentAuthority';
 
 export interface ScenarioFacilityMetrics {
   totalFacilities: number;
@@ -37,10 +38,10 @@ export function getEffectiveFacilityRegionAssignment(
     };
   }
 
-  const assignmentFeature =
-    assignmentSource
-      .getFeatures()
-      .find((candidate) => candidate.getGeometry()?.intersectsCoordinate(coordinate)) ?? null;
+  const assignmentFeature = findScenarioAssignmentFeatureAtCoordinate(
+    assignmentSource,
+    coordinate,
+  );
   if (!assignmentFeature) {
     return {
       regionId: null,

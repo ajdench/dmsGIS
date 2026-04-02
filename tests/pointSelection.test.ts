@@ -47,6 +47,26 @@ describe('pointSelection', () => {
           borderOpacity: 0,
           symbolSize: 3.5,
         },
+        {
+          name: 'COA 3b London and East',
+          visible: true,
+          color: '#8767ac',
+          opacity: 1,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
+        {
+          name: 'COA 3b London and East',
+          visible: true,
+          color: '#8767ac',
+          opacity: 1,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
       ],
       activeViewPreset: 'coa3a',
       getBoundaryNameAtCoordinate: () => 'Boundary A',
@@ -163,7 +183,7 @@ describe('pointSelection', () => {
     ]);
   });
 
-  it('prefers draft-aware scenario region identity for facility tooltip entries without remapping facility styling', () => {
+  it('uses the authoritative assignment source for draft-aware facility tooltip identity', () => {
     const feature = new Feature({
       geometry: new Point([1, 2]),
       id: 'FAC-1',
@@ -188,6 +208,16 @@ describe('pointSelection', () => {
           borderOpacity: 0,
           symbolSize: 3.5,
         },
+        {
+          name: 'COA 3b London and East',
+          visible: true,
+          color: '#8767ac',
+          opacity: 1,
+          borderVisible: true,
+          borderColor: '#ffffff',
+          borderOpacity: 0,
+          symbolSize: 3.5,
+        },
       ],
       activeViewPreset: 'coa3c',
       getBoundaryNameAtCoordinate: () => 'Boundary A',
@@ -195,7 +225,7 @@ describe('pointSelection', () => {
       facilityFilters: {
         searchQuery: '',
       },
-      scenarioAssignmentSource: new VectorSource({
+      assignmentSource: new VectorSource({
         features: [
           new Feature({
             geometry: new Polygon([[

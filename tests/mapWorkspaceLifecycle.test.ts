@@ -104,11 +104,45 @@ describe('mapWorkspaceLifecycle', () => {
     const scenarioWorkspaceBaselineAssignmentSourceRef = {
       current: new VectorSource(),
     };
+    const scenarioTopologyEdgeSourceRef = { current: new VectorSource() };
     const scenarioWorkspaceDerivedOutlineSourceRef = { current: new VectorSource() };
     const presetGroupOutlineSourceRef = { current: new VectorSource() };
     const jmcAssignmentByBoundaryNameRef = { current: new Map([['A', 'B']]) };
+    const jmcAssignmentByBoundaryUnitIdRef = { current: new Map() };
     const scenarioWorkspaceAssignmentByBoundaryNameRef = {
       current: new Map([['Boundary A', 'COA 3b North']]),
+    };
+    const scenarioWorkspaceAssignmentByBoundaryUnitIdRef = {
+      current: new Map([
+        [
+          'UNIT-1',
+          {
+            boundaryUnitId: 'UNIT-1',
+            boundaryName: 'Boundary A',
+            boundaryCode: 'CODE-1',
+            scenarioRegionId: 'region-1',
+            regionName: 'Region 1',
+          },
+        ],
+      ]),
+    };
+    const scenarioAssignmentSourceRef = { current: new VectorSource() };
+    const scenarioAssignmentByBoundaryNameRef = {
+      current: new Map([['Boundary B', 'COA 3b South East']]),
+    };
+    const scenarioAssignmentByBoundaryUnitIdRef = {
+      current: new Map([
+        [
+          'UNIT-2',
+          {
+            boundaryUnitId: 'UNIT-2',
+            boundaryName: 'Boundary B',
+            boundaryCode: 'CODE-2',
+            scenarioRegionId: 'region-2',
+            regionName: 'Region 2',
+          },
+        ],
+      ]),
     };
     const pointTooltipRootRef = { current: {} };
     const pointTooltipHeaderRef = { current: {} };
@@ -138,11 +172,17 @@ describe('mapWorkspaceLifecycle', () => {
       scenarioBoundaryLookupSourcesRef,
       jmcAssignmentLookupSourceRef,
       scenarioWorkspaceAssignmentSourceRef,
+      scenarioAssignmentSourceRef,
       scenarioWorkspaceBaselineAssignmentSourceRef,
+      scenarioTopologyEdgeSourceRef,
       scenarioWorkspaceDerivedOutlineSourceRef,
       presetGroupOutlineSourceRef,
       jmcAssignmentByBoundaryNameRef,
+      jmcAssignmentByBoundaryUnitIdRef,
       scenarioWorkspaceAssignmentByBoundaryNameRef,
+      scenarioWorkspaceAssignmentByBoundaryUnitIdRef,
+      scenarioAssignmentByBoundaryNameRef,
+      scenarioAssignmentByBoundaryUnitIdRef,
       pointTooltipRootRef: pointTooltipRootRef as never,
       pointTooltipHeaderRef: pointTooltipHeaderRef as never,
       pointTooltipNameRef: pointTooltipNameRef as never,
@@ -171,11 +211,17 @@ describe('mapWorkspaceLifecycle', () => {
     expect(scenarioBoundaryLookupSourcesRef.current.size).toBe(0);
     expect(jmcAssignmentLookupSourceRef.current).toBeNull();
     expect(scenarioWorkspaceAssignmentSourceRef.current).toBeNull();
+    expect(scenarioAssignmentSourceRef.current).toBeNull();
     expect(scenarioWorkspaceBaselineAssignmentSourceRef.current).toBeNull();
+    expect(scenarioTopologyEdgeSourceRef.current).toBeNull();
     expect(scenarioWorkspaceDerivedOutlineSourceRef.current).toBeNull();
     expect(presetGroupOutlineSourceRef.current).toBeNull();
     expect(jmcAssignmentByBoundaryNameRef.current.size).toBe(0);
+    expect(jmcAssignmentByBoundaryUnitIdRef.current.size).toBe(0);
     expect(scenarioWorkspaceAssignmentByBoundaryNameRef.current.size).toBe(0);
+    expect(scenarioWorkspaceAssignmentByBoundaryUnitIdRef.current.size).toBe(0);
+    expect(scenarioAssignmentByBoundaryNameRef.current.size).toBe(0);
+    expect(scenarioAssignmentByBoundaryUnitIdRef.current.size).toBe(0);
     expect(pointTooltipEntriesRef.current).toEqual([]);
     expect(pointTooltipIndexRef.current).toBe(0);
     expect(selectedBoundaryNameRef.current).toBeNull();

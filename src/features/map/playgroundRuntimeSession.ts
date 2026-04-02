@@ -76,6 +76,7 @@ export function buildPlaygroundRuntimeSession(
       : {
           assignmentSource: null,
           assignmentByBoundaryName: new Map<string, string>(),
+          assignmentByBoundaryUnitId: new Map(),
         };
 
   const derivedOutlineAssignmentSource =

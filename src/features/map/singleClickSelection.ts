@@ -33,7 +33,6 @@ interface ResolveSingleClickSelectionParams {
   facilitySymbolSize: number;
   facilityFilters: FacilityFilterState;
   assignmentSource?: VectorSource | null;
-  scenarioAssignmentSource?: VectorSource | null;
   activeViewPreset: ViewPresetId;
   getJmcNameAtCoordinate: (
     coordinate: [number, number],
@@ -63,7 +62,6 @@ export function resolveSingleClickSelection(
     facilitySymbolSize,
     facilityFilters,
     assignmentSource = null,
-    scenarioAssignmentSource = null,
     activeViewPreset,
     getJmcNameAtCoordinate,
   } = params;
@@ -113,7 +111,6 @@ export function resolveSingleClickSelection(
         facilityFilters,
         combinedPracticeStylesByName,
         assignmentSource,
-        scenarioAssignmentSource,
       }),
       boundaryFeature: null,
     };

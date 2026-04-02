@@ -10,10 +10,16 @@ import {
   resolveScenarioWorkspaceRegionId,
 } from '../../lib/scenarioWorkspaceAssignments';
 import type { ScenarioWorkspaceId } from '../../types';
+import {
+  buildAssignmentByBoundaryName,
+  buildAssignmentByBoundaryUnitId,
+  type ScenarioBoundaryUnitAssignment,
+} from './scenarioAssignmentAuthority';
 
 export interface ScenarioWorkspaceRuntimeState {
   assignmentSource: VectorSource | null;
   assignmentByBoundaryName: Map<string, string>;
+  assignmentByBoundaryUnitId: Map<string, ScenarioBoundaryUnitAssignment>;
 }
 
 export interface ScenarioWorkspaceAssignmentSourceSummary {
@@ -114,6 +120,7 @@ export function buildScenarioWorkspaceRuntimeState(
     return {
       assignmentSource: null,
       assignmentByBoundaryName: new Map(),
+      assignmentByBoundaryUnitId: new Map(),
     };
   }
 
@@ -122,6 +129,7 @@ export function buildScenarioWorkspaceRuntimeState(
     return {
       assignmentSource: null,
       assignmentByBoundaryName: new Map(),
+      assignmentByBoundaryUnitId: new Map(),
     };
   }
 
@@ -179,7 +187,8 @@ export function buildScenarioWorkspaceRuntimeState(
 
   return {
     assignmentSource,
-    assignmentByBoundaryName: buildBoundaryNameAssignmentMap(features),
+    assignmentByBoundaryName: buildAssignmentByBoundaryName(assignmentSource),
+    assignmentByBoundaryUnitId: buildAssignmentByBoundaryUnitId(assignmentSource),
   };
 }
 
@@ -245,23 +254,6 @@ export function buildPlaygroundRuntimeDiagnosticsSnapshot({
     topologyEdges: summarizeTopologyEdgeSource(topologyEdgeSource),
     derivedOutline: summarizeDerivedOutlineSource(derivedOutlineSource),
   };
-}
-
-function buildBoundaryNameAssignmentMap(
-  features: FeatureLike[],
-): Map<string, string> {
-  return new Map(
-    features.flatMap((feature) => {
-      const boundaryName = String(feature.get('boundary_name') ?? '').trim();
-      const assignmentName = String(
-        feature.get('region_name') ?? feature.get('jmc_name') ?? '',
-      ).trim();
-      if (!boundaryName || !assignmentName) {
-        return [];
-      }
-      return [[boundaryName, assignmentName] as const];
-    }),
-  );
 }
 
 function summarizeScenarioAssignmentSource(

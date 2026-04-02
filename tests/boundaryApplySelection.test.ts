@@ -43,6 +43,7 @@ describe('applyBoundarySelection', () => {
       selectedBoundaryLayer,
       selectedJmcBoundaryLayer,
       assignmentByBoundaryName: new Map(),
+      assignmentByBoundaryUnitId: new Map(),
       assignmentSource: null,
       boundarySource: null,
       activeViewPreset: 'current',
@@ -88,6 +89,18 @@ describe('applyBoundarySelection', () => {
       selectedBoundaryLayer,
       selectedJmcBoundaryLayer,
       assignmentByBoundaryName: new Map([['NHS Essex Integrated Care Board', 'JMC Centre']]),
+      assignmentByBoundaryUnitId: new Map([
+        [
+          'E54000065',
+          {
+            boundaryUnitId: 'E54000065',
+            boundaryName: 'NHS Essex Integrated Care Board',
+            boundaryCode: 'E54000065',
+            scenarioRegionId: 'coa3b_london_east',
+            regionName: 'COA 3b London and East',
+          },
+        ],
+      ]),
       assignmentSource: null,
       boundarySource: null,
       activeViewPreset: 'coa3c',
@@ -96,12 +109,12 @@ describe('applyBoundarySelection', () => {
     expect(result).toEqual({
       boundaryName: 'NHS Essex Integrated Care Board',
       jmcName: 'COA 3b London and East',
-      scenarioRegionId: null,
+      scenarioRegionId: 'coa3b_london_east',
       selection: {
         facilityIds: [],
         boundaryName: 'NHS Essex Integrated Care Board',
         jmcName: 'COA 3b London and East',
-        scenarioRegionId: null,
+        scenarioRegionId: 'coa3b_london_east',
       },
     });
     expect(selectedBoundaryLayer.getSource()?.getFeatures()).toHaveLength(1);

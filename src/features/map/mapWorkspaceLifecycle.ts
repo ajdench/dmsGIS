@@ -11,6 +11,7 @@ import { fromLonLat, transformExtent } from 'ol/proj';
 import { getViewportFromMap } from './viewportSync';
 import type { PointTooltipEntry, } from './pointSelection';
 import type { BoundarySystemId, ViewPresetId } from '../../types';
+import type { ScenarioBoundaryUnitAssignment } from './scenarioAssignmentAuthority';
 import {
   WHOLE_WORLD_RENDER_EXTENT_3857,
 } from './worldExtent';
@@ -66,13 +67,19 @@ export interface CleanupMapWorkspaceRefsParams {
   jmcBoundaryLookupSourceRef: MutableRefLike<VectorSource | null>;
   scenarioBoundaryLookupSourcesRef: MutableRefLike<Map<ViewPresetId, VectorSource>>;
   jmcAssignmentLookupSourceRef: MutableRefLike<VectorSource | null>;
-  scenarioWorkspaceAssignmentSourceRef: MutableRefLike<VectorSource | null>;
+  scenarioAssignmentSourceRef: MutableRefLike<VectorSource | null>;
   scenarioWorkspaceBaselineAssignmentSourceRef: MutableRefLike<VectorSource | null>;
   scenarioTopologyEdgeSourceRef: MutableRefLike<VectorSource | null>;
   scenarioWorkspaceDerivedOutlineSourceRef: MutableRefLike<VectorSource | null>;
   presetGroupOutlineSourceRef: MutableRefLike<VectorSource | null>;
   jmcAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
-  scenarioWorkspaceAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
+  jmcAssignmentByBoundaryUnitIdRef: MutableRefLike<
+    Map<string, ScenarioBoundaryUnitAssignment>
+  >;
+  scenarioAssignmentByBoundaryNameRef: MutableRefLike<Map<string, string>>;
+  scenarioAssignmentByBoundaryUnitIdRef: MutableRefLike<
+    Map<string, ScenarioBoundaryUnitAssignment>
+  >;
   pointTooltipRootRef: MutableRefLike<HTMLDivElement | null>;
   pointTooltipHeaderRef: MutableRefLike<HTMLDivElement | null>;
   pointTooltipNameRef: MutableRefLike<HTMLDivElement | null>;
@@ -831,12 +838,17 @@ export function cleanupMapWorkspaceRefs(
   refs.scenarioBoundaryLookupSourcesRef.current.clear();
   refs.jmcAssignmentLookupSourceRef.current = null;
   refs.scenarioWorkspaceAssignmentSourceRef.current = null;
+  refs.scenarioAssignmentSourceRef.current = null;
   refs.scenarioWorkspaceBaselineAssignmentSourceRef.current = null;
   refs.scenarioTopologyEdgeSourceRef.current = null;
   refs.scenarioWorkspaceDerivedOutlineSourceRef.current = null;
   refs.presetGroupOutlineSourceRef.current = null;
   refs.jmcAssignmentByBoundaryNameRef.current.clear();
+  refs.jmcAssignmentByBoundaryUnitIdRef.current.clear();
   refs.scenarioWorkspaceAssignmentByBoundaryNameRef.current.clear();
+  refs.scenarioWorkspaceAssignmentByBoundaryUnitIdRef.current.clear();
+  refs.scenarioAssignmentByBoundaryNameRef.current.clear();
+  refs.scenarioAssignmentByBoundaryUnitIdRef.current.clear();
   refs.pointTooltipRootRef.current = null;
   refs.pointTooltipHeaderRef.current = null;
   refs.pointTooltipNameRef.current = null;
