@@ -118,11 +118,13 @@ export function WorkspaceBottomLeftPane() {
                   ) : null}
                   {card.middleRow?.kind === 'royalNavyContribution' ? (
                     <div className="workspace-bottom-shell__title-card-middle-contribution" aria-hidden="true">
-                      <div className="workspace-bottom-shell__title-card-middle-contribution-swatch">
-                        <ExactSwatch swatch={card.middleRow.swatch} />
-                      </div>
-                      <div className="workspace-bottom-shell__title-card-middle-contribution-value">
-                        {card.middleRow.valueDisplay}
+                      <div className="workspace-bottom-shell__title-card-middle-contribution-inner">
+                        <div className="workspace-bottom-shell__title-card-middle-contribution-swatch">
+                          <ExactSwatch swatch={card.middleRow.swatch} />
+                        </div>
+                        <div className="workspace-bottom-shell__title-card-middle-contribution-value">
+                          {card.middleRow.valueDisplay}
+                        </div>
                       </div>
                     </div>
                   ) : null}
