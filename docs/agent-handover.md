@@ -134,7 +134,10 @@ Current validated repo-health note:
   - removed `LayerPanel.tsx`
   - removed their narrow pane-only tests
 - the dormant `src/components/sidebarReplacement/` layer plus `src/styles/sidebarReplacement.css` are now also removed
-- the next cleanup boundary is the older shared shell layer under `src/components/sidebar/`, not the live `Exact` sidebar path
+- the older `src/components/sidebar/` layer is now also removed:
+  - `ScenarioPlaygroundPane.tsx` no longer depends on `SidebarPanelShell`
+  - orphaned `PmcPanel.tsx` and `OverlayPanel.tsx` are removed
+- the next cleanup boundary is CSS/token cleanup for the now-unused old sidebar class family in `src/styles/global.css`, not the live `Exact` sidebar path
 
 Current paired-runtime-family note:
 
@@ -861,7 +864,7 @@ Current accepted shell/lane contract for the exact-shell right sidebar:
 - no additional pane outline/border treatment is active on the major panes
 - inner concave track radius matches the major pane radius (`var(--radius-lg)`)
 
-The older shared sidebar path under `src/components/sidebar/` and the older pane surfaces still exist in the repo, but they should be treated as provisional or legacy unless explicitly reactivated.
+The older shared sidebar path under `src/components/sidebar/` and the older pane surfaces have now been removed from the working app tree; historical prototype/promotion docs may still mention them, but the live production truth is the exact-shell path plus the local `ScenarioPlaygroundPane` shell.
 
 ## Current Architecture State
 
@@ -1119,7 +1122,7 @@ Playground entry is now explicitly split by source preset.
 - only `Royal Navy` cards use that dedicated middle band for the interactive sidebar-pill button, defaulting to `Regionalise`, without moving the visible swatch/title top row
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
-- title text in the second column now uses a tighter `1` line-height plus a calculated first-line offset derived from the swatch/title row-height difference, with the swatch cell centered on the same rail, so the first line itself stays centered to the swatch even when the title wraps
+- title text in the second column now uses a tighter `1` line-height plus a calculated first-line offset derived from the swatch/title row-height difference, with a `0.25px` upward optical trim, so the first line itself stays centered to the swatch even when the title wraps
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - the bottom-right cell now shows the PMC Region PAR for columns `1`-`9` and the overall total PAR in column `10`
 - PAR values are left-aligned to the second-column edge like the titles

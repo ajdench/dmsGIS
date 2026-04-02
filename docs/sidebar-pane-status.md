@@ -365,11 +365,9 @@ See:
 
 These still exist in the repo and should not be treated as the current truth unless a task explicitly targets them:
 
-- `src/components/sidebar/`
-- `src/features/groups/PmcPanel.tsx`
-- `src/features/groups/OverlayPanel.tsx`
+- prototype and historical promotion docs that still describe the old shared shell path
 
-The older pane-shell files (`BasemapPanel.tsx`, `SelectionPanel.tsx`, `LabelPanel.tsx`, `LayerPanel.tsx`, `BasemapPanelReplacement.tsx`) and the dormant `sidebarReplacement` scaffold were removed in the `2026-04-02` working-app cleanup pass. The live production truth is the exact-shell path.
+The older pane-shell files (`BasemapPanel.tsx`, `SelectionPanel.tsx`, `LabelPanel.tsx`, `LayerPanel.tsx`, `BasemapPanelReplacement.tsx`), the dormant `sidebarReplacement` scaffold, the orphaned `PmcPanel.tsx` / `OverlayPanel.tsx` files, and the old `src/components/sidebar/` shared shell were removed in the `2026-04-02` working-app cleanup pass. The live production truth is the exact-shell path plus the now-local `ScenarioPlaygroundPane` shell.
 
 ## Restart Note - 2026-03-29
 
@@ -401,7 +399,7 @@ The older pane-shell files (`BasemapPanel.tsx`, `SelectionPanel.tsx`, `LabelPane
 - each grey title card now uses an internal `2`-column by `2`-row grid, with the swatch circle occupying the top-left cell and the title in the top-right cell
 - the first internal card column is now fixed to the swatch width, with a single `0.35rem` gap before the flexible title column
 - title text in the second column is left-aligned to that column edge
-- title text in the second column now uses a tighter `1` line-height plus a calculated first-line offset derived from the swatch/title row-height difference, with the swatch cell centered on the same rail, so the first line itself stays centered to the swatch even when the title wraps
+- title text in the second column now uses a tighter `1` line-height plus a calculated first-line offset derived from the swatch/title row-height difference, with a `0.25px` upward optical trim, so the first line itself stays centered to the swatch even when the title wraps
 - title wrapping now uses natural per-word wrapping in this pane rather than the sidebar label helper's non-breaking segments
 - each grey title card now keeps the visible swatch/title top row where it already is, but the body below that row now follows one fixed-height `2`-column stack with a dedicated middle band, a flexible spacer, and a bottom metrics block
 - all bottom cards now also reserve one fixed title-to-middle spacer row, so the gap between the title rail and the button/inject band is applied equally across the whole row
