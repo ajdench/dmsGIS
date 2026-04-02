@@ -420,6 +420,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - the same interaction now exists in `Current`, but its parent-card redistribution uses the Current preset's board-code group mapping rather than a scenario assignment lookup
 - that Current redistribution now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now sits on one fixed internal rail shared by all receiving Region cards, based on the measured original `Devolved Admin...` row position and then trimmed upward by `4px`, so wrapped and unwrapped cards align to that same adjusted reference
+- the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now also uses that same fixed middle-rail centreline instead of relying only on the zero-height grid row
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-biased within the first cell
 - within that same injected row, the contribution number now keeps the same fixed row and left edge but gets a tiny locked vertical centering correction so it reads on the navy circle centreline
 - `SJC JMC` group circles now use the effective populated Fill colour from the Regions pane at `100%` opacity

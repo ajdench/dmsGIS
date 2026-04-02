@@ -1105,6 +1105,7 @@ Playground entry is now explicitly split by source preset.
 - the same interaction now applies in `Current`, but the redistribution path uses the Current preset's boundary-code grouping instead of a scenario assignment lookup
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses one fixed internal rail across receiving Region cards, based on the measured original `Devolved Admin...` row position and then nudged upward by `4px`, so its vertical position stays aligned even when other titles wrap differently
+- the `Regionalise` / `Unregionalise` control pill in the special `Royal Navy` card now also sits on that same fixed middle-rail centreline instead of resolving from the zero-height grid row alone
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-aligned within the first cell
 - within that same injected row, the contribution number now keeps its existing row rail and horizontal anchor but carries a tiny locked vertical centering correction so the text reads on the small navy circle centreline instead of slightly high
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)
