@@ -96,6 +96,19 @@ npm run build
   - [`public/data/compare/shared-foundation-review/`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review)
 - stable public file names are still used in places while underlying source lineage and rebuild ownership continue to improve
 
+## Publication Scope
+
+- the only compare family that should currently be treated as live shipped runtime is:
+  - [`public/data/compare/shared-foundation-review/`](/Users/andrew/Projects/dmsGIS/public/data/compare/shared-foundation-review)
+- the inactive families below are retained for diagnostics, provenance, and recovery, but are not accepted runtime:
+  - [`public/data/compare/bfe/`](/Users/andrew/Projects/dmsGIS/public/data/compare/bfe)
+  - [`public/data/compare/current-east-bsc/`](/Users/andrew/Projects/dmsGIS/public/data/compare/current-east-bsc)
+- local rebuild/source material should stay in ignored working roots such as:
+  - [`geopackages/`](/Users/andrew/Projects/dmsGIS/geopackages)
+  - `local-archive/`
+- publication-scope audit note:
+  - [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
+
 ## Data Refresh Workflow
 
 - canonical facilities source input:
@@ -132,13 +145,15 @@ node scripts/refresh-facilities-from-export.mjs --skip-accepted-runtime-rebuild
 2. [`README.md`](/Users/andrew/Projects/dmsGIS/README.md)
 3. [`docs/agent-handover.md`](/Users/andrew/Projects/dmsGIS/docs/agent-handover.md)
 4. [`docs/main-repo-review-2026-03-31.md`](/Users/andrew/Projects/dmsGIS/docs/main-repo-review-2026-03-31.md)
-5. [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
-6. [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
+5. [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
+6. [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
+7. [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
 
 ## Key Documentation
 
 - [`docs/agent-handover.md`](/Users/andrew/Projects/dmsGIS/docs/agent-handover.md)
 - [`docs/main-repo-review-2026-03-31.md`](/Users/andrew/Projects/dmsGIS/docs/main-repo-review-2026-03-31.md)
+- [`docs/publication-scope-audit-2026-04-02.md`](/Users/andrew/Projects/dmsGIS/docs/publication-scope-audit-2026-04-02.md)
 - [`docs/current-app-baseline-v3.8.md`](/Users/andrew/Projects/dmsGIS/docs/current-app-baseline-v3.8.md)
 - [`docs/geometry-restart-guidance.md`](/Users/andrew/Projects/dmsGIS/docs/geometry-restart-guidance.md)
 - [`docs/shared-foundation-review-execution-log.md`](/Users/andrew/Projects/dmsGIS/docs/shared-foundation-review-execution-log.md)
@@ -150,6 +165,7 @@ node scripts/refresh-facilities-from-export.mjs --skip-accepted-runtime-rebuild
 - this repo is a colocated `jj` / `git` repo
 - do not assume the working copy is on `main`; check before publishing
 - keep generated local cache files out of source control
+- use `local-archive/` for future local-only archive/source material rather than leaving ad hoc large artifacts at the repo root
 
 ## Notes
 

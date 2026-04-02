@@ -33,21 +33,22 @@ Every new agent session should begin by reading:
 2. `README.md`
 3. `docs/agent-handover.md`
 4. `docs/main-repo-review-2026-03-31.md`
-5. `docs/map-runtime-architecture-map-2026-04-02.md`
-6. `docs/sidebar-pane-status.md`
-7. `docs/prototype-to-production-playbook.md`
-8. `docs/agent-continuation-protocol.md`
-9. `docs/current-app-baseline-v3.8.md`
-10. `docs/current-app-baseline-v3.7.md`
-11. `docs/current-app-baseline-v3.6.md`
-12. `docs/current-app-baseline-v3.5.md`
-13. `docs/current-app-baseline-v3.4.md`
-14. `docs/v3.4-internal-gap-regression.md`
-15. `docs/v3.5-full-geometry-redress.md`
-16. `docs/v3.8-bsc-runtime-family-spec.md`
-17. `docs/v3.7-next-phase.md`
-18. `docs/canonical-board-rebuild-workflow.md`
-19. `docs/sidebar-parity-bugs.md`
+5. `docs/publication-scope-audit-2026-04-02.md`
+6. `docs/map-runtime-architecture-map-2026-04-02.md`
+7. `docs/sidebar-pane-status.md`
+8. `docs/prototype-to-production-playbook.md`
+9. `docs/agent-continuation-protocol.md`
+10. `docs/current-app-baseline-v3.8.md`
+11. `docs/current-app-baseline-v3.7.md`
+12. `docs/current-app-baseline-v3.6.md`
+13. `docs/current-app-baseline-v3.5.md`
+14. `docs/current-app-baseline-v3.4.md`
+15. `docs/v3.4-internal-gap-regression.md`
+16. `docs/v3.5-full-geometry-redress.md`
+17. `docs/v3.8-bsc-runtime-family-spec.md`
+18. `docs/v3.7-next-phase.md`
+19. `docs/canonical-board-rebuild-workflow.md`
+20. `docs/sidebar-parity-bugs.md`
 
 If the task touches historical sidebar context or reset rationale, also read:
 
@@ -61,6 +62,10 @@ If the task touches the prototype contract directly, also read:
 15. `src/prototypes/sidebarPrototype/PRODUCTION_PREPARATION.md`
 
 If the task touches geometry, basemap alignment, preprocessing, or coastal/product conformance, `docs/current-app-baseline-v3.8.md` is required reading.
+
+If the task touches repo hygiene, publication scope, large artifact governance, or future GitHub slimming decisions, also read:
+
+- `docs/publication-scope-audit-2026-04-02.md`
 
 If the task touches Playground runtime authority, map interaction performance, or future map-runtime optimization work, also read:
 
@@ -160,6 +165,7 @@ Before stopping after non-trivial work:
 These are the canonical docs that should stay current for seamless transfer:
 
 - `docs/agent-handover.md`
+- `docs/publication-scope-audit-2026-04-02.md`
 - `docs/sidebar-pane-status.md`
 - `docs/prototype-to-production-playbook.md`
 - `docs/agent-continuation-protocol.md`

@@ -7,11 +7,11 @@
       "dataRoot": "data"
     },
     "bfe": {
-      "label": "BFE compare runtime family",
+      "label": "Historical BFE compare runtime family",
       "dataRoot": "data/compare/bfe"
     },
     "currentEastBsc": {
-      "label": "Current East-only BSC review family",
+      "label": "Historical East-only BSC inspection family",
       "dataRoot": "data/compare/current-east-bsc"
     },
     "acceptedV38": {

@@ -37,6 +37,20 @@ Current runtime-product governance note:
   - the accepted `v3.8` family remains rooted in the review-family data tree until a later explicit physical promotion moves it back under `public/data/...`
   - but the active token should no longer present that accepted runtime as if it were still merely a temporary review family
 
+Current publication-scope note:
+
+- publication-scope audit:
+  - `docs/publication-scope-audit-2026-04-02.md`
+- keep committed and published as the accepted live runtime:
+  - `public/data/compare/shared-foundation-review/`
+- keep committed for now, but treat as historical diagnostic families rather than active shipped runtime:
+  - `public/data/compare/bfe/`
+  - `public/data/compare/current-east-bsc/`
+- keep rebuild/source/staging artifacts local-only by default:
+  - `geopackages/`
+  - `local-archive/`
+- do not physically move or untrack the historical compare families or the tracked facilities geopackage without an explicit user decision
+
 Current naming-governance note:
 
 - the repo still intentionally carries a mix of older public contract names and newer internal/runtime-family names
@@ -109,6 +123,7 @@ Current validated repo-health note:
 - water-edge modifier layers in `src/features/map/MapWorkspace.tsx` now only recreate `VectorSource` instances when the underlying source URL changes, not on every style/visibility update
 - the active sidebar toggle labels now use full-button centering instead of a manual downward text nudge, which is the intended fix for the Windows Edge `On` / `Ox` / `Off` label drift
 - `.vite/` is local-only cache output and should not be tracked or republished from this repo
+- `local-archive/` is now the reserved ignored root for future local-only archive/source material, so large non-runtime artifacts do not need ad hoc placement at the repo root
 - facility runtime metadata derived from the facilities GeoJSON should now be loaded through one shared cached fetch path in `src/lib/services/facilityDataset.ts`, so startup state derivation and the Facilities search field do not each re-fetch and re-parse the same dataset independently
 
 Current paired-runtime-family note:

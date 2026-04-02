@@ -6,6 +6,7 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 geopackages/
+local-archive/
 output/
 serverless/
 .claude/worktrees/

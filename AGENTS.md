@@ -75,6 +75,7 @@ Canonical handover bundle:
 
 - `docs/agent-handover.md`
 - `docs/main-repo-review-2026-03-31.md`
+- `docs/publication-scope-audit-2026-04-02.md`
 - `docs/map-runtime-architecture-map-2026-04-02.md`
 - `docs/paired-current-2026-product-success-path.md`
 - `docs/paired-current-2026-execution-checklist.md`
@@ -99,23 +100,24 @@ New coding-agent read order:
 2. `README.md`
 3. `docs/agent-handover.md`
 4. `docs/main-repo-review-2026-03-31.md`
-5. `docs/map-runtime-architecture-map-2026-04-02.md`
-6. `docs/paired-current-2026-product-success-path.md`
-7. `docs/paired-current-2026-execution-checklist.md`
-8. `docs/sidebar-pane-status.md`
-9. `docs/prototype-to-production-playbook.md`
-10. `docs/agent-continuation-protocol.md`
-11. `docs/current-app-baseline-v3.8.md`
-12. `docs/current-app-baseline-v3.7.md`
-13. `docs/current-app-baseline-v3.6.md`
-14. `docs/current-app-baseline-v3.5.md`
-15. `docs/current-app-baseline-v3.4.md`
-16. `docs/v3.4-internal-gap-regression.md`
-17. `docs/v3.5-full-geometry-redress.md`
-18. `docs/v3.8-bsc-runtime-family-spec.md`
-19. `docs/v3.7-next-phase.md`
-20. `docs/canonical-board-rebuild-workflow.md`
-21. `docs/sidebar-parity-bugs.md`
+5. `docs/publication-scope-audit-2026-04-02.md`
+6. `docs/map-runtime-architecture-map-2026-04-02.md`
+7. `docs/paired-current-2026-product-success-path.md`
+8. `docs/paired-current-2026-execution-checklist.md`
+9. `docs/sidebar-pane-status.md`
+10. `docs/prototype-to-production-playbook.md`
+11. `docs/agent-continuation-protocol.md`
+12. `docs/current-app-baseline-v3.8.md`
+13. `docs/current-app-baseline-v3.7.md`
+14. `docs/current-app-baseline-v3.6.md`
+15. `docs/current-app-baseline-v3.5.md`
+16. `docs/current-app-baseline-v3.4.md`
+17. `docs/v3.4-internal-gap-regression.md`
+18. `docs/v3.5-full-geometry-redress.md`
+19. `docs/v3.8-bsc-runtime-family-spec.md`
+20. `docs/v3.7-next-phase.md`
+21. `docs/canonical-board-rebuild-workflow.md`
+22. `docs/sidebar-parity-bugs.md`
 
 Handover rule:
 
@@ -158,6 +160,10 @@ Handover rule:
 
 - GitHub Pages target: Vite `base` defaults to `/dmsGIS/` and can be overridden via `VITE_BASE_PATH`.
 - Version control: `jj` (Jujutsu) is installed and this repo is initialized as a colocated Git/JJ repo; `git` and `jj` operate on the same repository, and `main` is tracked against `main@origin`.
+- Publication-scope governance:
+  - the accepted runtime family under `public/data/compare/shared-foundation-review/` is the only compare family that should be treated as live shipped runtime
+  - `public/data/compare/bfe/` and `public/data/compare/current-east-bsc/` remain historical diagnostic families kept for recovery/inspection, not active shipping targets
+  - local rebuild/source artifacts should prefer ignored working roots such as `geopackages/` and `local-archive/` unless they are intentionally promoted into the shipped runtime tree
 - Layer manifest: fetches `data/manifests/layers.manifest.json`, validated as `{ layers: [...] }`; manifest paths must be relative (no leading slash) and are resolved against `import.meta.env.BASE_URL`.
 - Map core: OpenLayers map is mounted in `src/features/map/MapWorkspace.tsx` with local Natural Earth basemap fixed to `localDetailed` at `10m` detail.
 - Runtime coastline preprocessing now uses an OSM-derived UK landmask under `geopackages/outputs/uk_landmask/` to clip exact canonical board geometry before simplification; the visible basemap remains the current local Natural Earth-based runtime path.

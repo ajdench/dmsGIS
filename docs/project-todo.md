@@ -27,8 +27,8 @@ Treat older `v3.7` items below as historical/deferred unless they are explicitly
 **Priority:** High
 **What:** Decide which large repo artifacts should remain in GitHub versus stay local-only or move into an archive path.
 **Why:** The active runtime only needs the accepted compare family, but the repo still carries inactive compare trees and large raw source artifacts that increase clone size and make publication scope harder to reason about.
-**Notes:** The highest-value review targets are `public/data/compare/bfe/`, `public/data/compare/current-east-bsc/`, and `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg`. Do not remove any of them casually; first confirm whether tests, recovery flows, or provenance tracking still depend on them.
-**Files likely touched:** `public/data/compare/`, `facilities/`, `src/lib/config/runtimeMapProducts.json`, docs describing runtime-family governance and source provenance.
+**Notes:** Audit note now exists at `docs/publication-scope-audit-2026-04-02.md`. Current measured outcome: `shared-foundation-review` stays committed/published as the accepted live runtime, `bfe` and `current-east-bsc` are historical compare families that still matter for recovery but should not be treated as active runtime, and `facilities/UK_SVOT_PMC_Codex_v6_gpkg.gpkg` now reads as provenance-only input. Do not remove or relocate any of them casually; the remaining work is the explicit physical move/untrack decision.
+**Files likely touched:** `public/data/compare/`, `facilities/`, `.gitignore`, `src/lib/config/runtimeMapProducts.json`, docs describing runtime-family governance and source provenance.
 
 ### 32. Reduce map interaction full-scan work after startup optimizations
 
