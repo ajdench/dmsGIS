@@ -1116,6 +1116,7 @@ Playground entry is now explicitly split by source preset.
 - that Current redistribution path now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses the same real taller middle band as the `Regionalise` pill and is vertically centered inside that band directly, so the navy circle/text sit on the same centreline as the pill while the extra space resolves below
 - the `Regionalise` / `Unregionalise` control pill in the special `Royal Navy` card now uses a real taller middle band and is vertically centered inside that band directly, so the centering remains visible while the card keeps extra surrounding clearance
+- both the `Regionalise` pill and the injected Royal Navy contribution row now also share the same small downward optical nudge within that middle band
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-aligned within the first cell
 - within that same injected row, the contribution number now keeps its existing row rail and horizontal anchor but carries a tiny locked vertical centering correction so the text reads on the small navy circle centreline instead of slightly high
 - the absolute `Total` remains anchored to the canonical `Export_30_Mar_26.csv` PAR sum, which currently matches the shipped `public/data/facilities/facilities.geojson` total exactly (`175,649`)

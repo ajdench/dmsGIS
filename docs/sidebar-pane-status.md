@@ -423,6 +423,7 @@ They are retained for repo continuity, but the live production truth is the exac
 - that Current redistribution now also includes the Portsmouth Royal Navy split-parent fallback, so `BP1` contributes to `London & South` in the bottom-left cards instead of being dropped
 - that injected Royal Navy contribution row now uses the same real taller middle band as the `Regionalise` pill and is vertically centered inside that band directly, so the navy circle/text sit on the same centreline as the pill while the extra space resolves below
 - the `Regionalise` / `Unregionalise` pill in the special `Royal Navy` card now uses a real taller middle band and is vertically centered inside that band directly, so the centering remains visible while the card still keeps extra surrounding clearance
+- both the `Regionalise` pill and the injected Royal Navy contribution row now also share the same small downward optical nudge within that middle band
 - within that injected Royal Navy contribution row, the small navy circle is now horizontally centered to the main Region swatch column above rather than left-biased within the first cell
 - within that same injected row, the contribution number now keeps the same fixed row and left edge but gets a tiny locked vertical centering correction so it reads on the navy circle centreline
 - `SJC JMC` group circles now use the effective populated Fill colour from the Regions pane at `100%` opacity

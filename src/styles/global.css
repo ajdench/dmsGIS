@@ -553,6 +553,7 @@
     --workspace-bottom-middle-row-block-size: calc(1.125rem + 0.75rem);
     --workspace-bottom-middle-row-margin-top: 0;
     --workspace-bottom-middle-row-margin-bottom: 0;
+    --workspace-bottom-middle-row-offset-y: 2px;
     --workspace-bottom-metrics-row-gap: 0.1875rem;
     --workspace-bottom-card-block-size: calc(
       (2 * 0.35rem) +
@@ -630,6 +631,7 @@
     min-height: var(--workspace-bottom-middle-row-block-size);
     align-self: stretch;
     justify-self: stretch;
+    transform: translateY(var(--workspace-bottom-middle-row-offset-y));
     z-index: 1;
   }
 
@@ -689,6 +691,7 @@
     align-self: stretch;
     justify-self: stretch;
     pointer-events: none;
+    transform: translateY(var(--workspace-bottom-middle-row-offset-y));
     z-index: 1;
   }
 
